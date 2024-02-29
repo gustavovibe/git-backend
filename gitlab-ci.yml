@@ -1,0 +1,22 @@
+stages:
+  - builder
+
+Builder:
+  stage: builder
+  image: docker:20.10.16
+  tags:
+    - docker
+  services:
+    - name: docker:dind
+      alias: dind
+  variables:
+    DOCKER_HOST: tcp://dind:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  environment:
+    name: Development
+  script:
+    - echo "Building the Docker image"
+  only:
+    - develop
