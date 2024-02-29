@@ -1,8 +1,8 @@
 stages:
   - build
 
-deploy-job:
-  stage: build.
+builder:
+  stage: build
   environment: develop
   script:
     - echo "Build application..."
