@@ -21,7 +21,7 @@ stages:
 #     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build --build-arg DB_CONNECTION=$DB_CONNECTION --build-arg DB_HOST=$DB_HOST --build-arg DB_PORT=$DB_PORT --build-arg DB_DATABASE=$DB_DATABASE --build-arg DB_USERNAME=$DB_USERNAME --build-arg DB_PASSWORD=$DB_PASSWORD .
 #     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
 #   only:
-#     - ci_cd
+#     - ci_cd  
 
 Deployment:
   stage: deploy
@@ -58,7 +58,7 @@ Deployment:
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "sudo rm -rf /var/lib/docker"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "sudo systemctl restart docker"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu && docker-compose up -d --build"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu && docker compose up -d --build"
 
   only:
     - ci_cd
