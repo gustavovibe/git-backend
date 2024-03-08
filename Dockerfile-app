@@ -1,44 +1,4 @@
-FROM php:7.4-fpm
-ARG DB_CONNECTION
-ARG DB_HOST
-ARG DB_PORT
-ARG DB_DATABASE
-ARG DB_USERNAME
-ARG DB_PASSWORD
+FROM registry.gitlab.com/antoniovibeadventures/api:1.0.0
 
-# Instalar dependencias y extensiones de PHP necesarias
-RUN apt-get update && \
-    apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql zip
-
-WORKDIR /var/www/html
-
-COPY . .
-
-RUN echo "DB_CONNECTION=${DB_CONNECTION}" > .env
-RUN echo "DB_HOST=${DB_HOST}" > .env
-RUN echo "DB_PORT=${DB_PORT}" > .env
-RUN echo "DB_DATABASE=${DB_DATABASE}" > .env
-RUN echo "DB_USERNAME=${DB_USERNAME}" > .env
-RUN echo "DB_PASSWORD=${DB_PASSWORD}" > .env
-
-# Instalar dependencias de Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN composer install 
-
-RUN php artisan key:generate
-
-RUN php artisan optimize
-
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 CMD ["php-fpm"]
