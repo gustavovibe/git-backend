@@ -1,27 +1,27 @@
 stages:
-  # - builder
+  - builder
   - deploy
 
-# Builder:
-#   stage: builder
-#   image: docker:20.10.16
-#   tags:
-#     - docker
-#   services:
-#     - name: docker:dind
-#       alias: dind
-#   variables:
-#     DOCKER_HOST: tcp://dind:2375/
-#     DOCKER_DRIVER: overlay2
-#     DOCKER_TLS_CERTDIR: ""
-#     DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
-#   script:
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#     - echo "$CI_REGISTRY_PASSWORD $CI_REGISTRY"
-#     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build --build-arg DB_CONNECTION=$DB_CONNECTION --build-arg DB_HOST=$DB_HOST --build-arg DB_PORT=$DB_PORT --build-arg DB_DATABASE=$DB_DATABASE --build-arg DB_USERNAME=$DB_USERNAME --build-arg DB_PASSWORD=$DB_PASSWORD .
-#     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
-#   only:
-#     - ci_cd  
+Builder:
+  stage: builder
+  image: docker:20.10.16
+  tags:
+    - docker
+  services:
+    - name: docker:dind
+      alias: dind
+  variables:
+    DOCKER_HOST: tcp://dind:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "$CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build --build-arg DB_CONNECTION=$DB_CONNECTION --build-arg DB_HOST=$DB_HOST --build-arg DB_PORT=$DB_PORT --build-arg DB_DATABASE=$DB_DATABASE --build-arg DB_USERNAME=$DB_USERNAME --build-arg DB_PASSWORD=$DB_PASSWORD .
+    - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
+  only:
+    - ci_cd  
 
 Deployment:
   stage: deploy
