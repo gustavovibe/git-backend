@@ -46,14 +46,14 @@ Deployment:
     - chmod 600 ~/.ssh/id_rsa
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" 'if ! command -v python3 &> /dev/null; then sudo apt-get update && sudo apt-get install -y python3; fi'
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone git@gitlab.com:antoniovibeadventures/api.git
-    # - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
-    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu && docker compose down"
-    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
-    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect node:20.5.1-alpine >/dev/null 2>&1 && docker image rm node:20.5.1-alpine || echo 'La imagen node:20.5.1-alpine no existe'"
-    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
+    - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose down"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect node:20.5.1-alpine >/dev/null 2>&1 && docker image rm node:20.5.1-alpine || echo 'La imagen node:20.5.1-alpine no existe'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "sudo rm -rf /var/lib/docker"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "sudo systemctl restart docker"
-    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu && docker compose up -d --build"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose up -d --build"
 
   only:
     - ci_cd
