@@ -44,8 +44,8 @@ Deployment:
     - echo "$SSH_PUBLIC_KEY"  > ~/.ssh/id_rsa.pub
     - ssh-keyscan "$SSH_HOST" >> ~/.ssh/known_hosts
     - chmod 600 ~/.ssh/id_rsa
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" 'if ! command -v python3 &> /dev/null; then sudo apt-get update && sudo apt-get install -y python3; fi'
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://gitlab.com/antoniovibeadventures/api.git
+    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" 'if ! command -v python3 &> /dev/null; then sudo apt-get update && sudo apt-get install -y python3; fi'
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone git@gitlab.com:antoniovibeadventures/api.git
     # - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu && docker compose down"
     # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
