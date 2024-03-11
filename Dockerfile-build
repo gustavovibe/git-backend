@@ -29,7 +29,7 @@ RUN echo "DB_DATABASE=${DB_DATABASE}" > .env
 RUN echo "DB_USERNAME=${DB_USERNAME}" > .env
 RUN echo "DB_PASSWORD=${DB_PASSWORD}" > .env
 
-# Instalar dependencias de Composer
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN composer install 
