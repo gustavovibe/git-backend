@@ -12,6 +12,7 @@ class CitiesImport implements ToModel, WithHeadingRow
     {
         try {
             return new City([
+                "city_id" => $row['city_id'],
                 "t_city_id" => $row['t_city_id'],
                 "city_name" => $row['city_name'],
                 "kiwi_id" => $row['kiwi_id'],
@@ -25,6 +26,7 @@ class CitiesImport implements ToModel, WithHeadingRow
     public function rules(): array
     {
         return [
+            '*.city_id' => ['required', 'integer'],
             '*.t_country_id' => ['integer', 'required', 'exists:countries,t_country_id'],
             '*.t_city_id' => ['required', 'integer'],
             '*.city_name' => ['required', 'string'],

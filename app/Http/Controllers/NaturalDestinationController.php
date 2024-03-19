@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\CitiesImport;
-use App\Models\City;
-use App\Http\Resources\CityResource;
 use App\Helpers\ApiResponse;
+use App\Http\Resources\NaturalDestinationResource;
+use App\Imports\NaturalDestinationImport;
+use App\Models\NaturalDestination;
 
-class Citycontroller extends Controller
+class NaturalDestinationController extends Controller
 {
     public function import(Request $request)
     {
@@ -20,7 +20,7 @@ class Citycontroller extends Controller
         $file = $request->file('file');
 
         try {
-            Excel::import(new CitiesImport, $file);
+            Excel::import(new NaturalDestinationImport, $file);
         } catch (\Exception $e) {
 
             return ApiResponse::success([], 'Import not successful', dd($e));
@@ -29,15 +29,20 @@ class Citycontroller extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $perPage = 10;
 
-        $paginatedData = City::paginate($perPage);
+        $q = $request->input('q');
 
+        if ($q) {
+            $paginatedData = NaturalDestination::where('name', 'like', $q . '%')->paginate($perPage);
+        } else {
+            $paginatedData = NaturalDestination::paginate($perPage);
+        }
         $responseData = $paginatedData->toArray();
 
-        $responseData['data'] = CityResource::collection($paginatedData->items());
+        $responseData['data'] = NaturalDestinationResource::collection($paginatedData->items());
 
         return ApiResponse::success($responseData);
     }
