@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Helpers\ApiResponse;
 
 class ReverseProxyController extends Controller
 {
@@ -43,7 +44,9 @@ class ReverseProxyController extends Controller
                 ];
             }, $data['locations']);
 
-            return response()->json($locations);
+
+
+            return ApiResponse::success($locations);
         } catch (\Exception $e) {
 
             return response()->json(['error' => $e->getMessage()], 500);
