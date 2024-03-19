@@ -5,16 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class NaturalDestination extends Model
 {
     use HasFactory;
-    protected $table = 'cities'; 
+    protected $table = 'natural_destinations'; 
 
     protected $fillable = [
-        'city_id',
-        't_city_id',
-        'city_name',
-        'kiwi_id',
-        't_country_id'
+        't_natural_id',
+        'name',
+        'type',
     ];
 }

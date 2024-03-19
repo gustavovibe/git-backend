@@ -1,15 +1,14 @@
 version: '3'
 
 services:
-
   db:
-    image: mysql:8.3.0
+    image: mysql:8
     restart: always
     environment:
-      MYSQL_DATABASE: 'db'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'vibe_adventure'
+      MYSQL_USER: 'vibe_adventure_user_admin'
+      MYSQL_PASSWORD: 'adventure'
+      MYSQL_ROOT_PASSWORD: 'adventure'
     ports:
       - '3306:3306'
     expose:

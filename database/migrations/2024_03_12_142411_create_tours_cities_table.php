@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCitiesTable extends Migration
+class CreateToursCitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,17 @@ class CreateCitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('tour_cities', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('tour_id')->index();
             $table->unsignedBigInteger('city_id')->index();
-            $table->unsignedBigInteger('t_city_id');
-            $table->string('city_name');
-            $table->string('kiwi_id');
-            $table->unsignedBigInteger('t_country_id');
             $table->timestamps();
-            $table->foreign('t_country_id')
-                ->references('t_country_id')
-                ->on('countries');
+            $table->foreign('tour_id')
+                ->references('tour_id')
+                ->on('tours');
+            $table->foreign('city_id')
+                ->references('city_id')
+                ->on('cities');
         });
     }
 
@@ -34,6 +34,6 @@ class CreateCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('tours_cities');
     }
 }
