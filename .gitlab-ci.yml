@@ -23,7 +23,7 @@ Builder:
     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
-    - ci_cd
+    - develop
 
 Deployment:
   stage: deploy
@@ -59,4 +59,4 @@ Deployment:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose up -d --build"
 
   only:
-    - ci_cd
+    - develop
