@@ -11,6 +11,7 @@ use App\Http\Controllers\Citycontroller;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\NaturalDestinationController;
 use App\Http\Controllers\ReverseProxyController;
+use App\Http\Controllers\TourRadarController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -35,3 +36,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('logout', [AuthController::class, 'logout']);
 });
+
+Route::get('tour/{id}', [TourRadarController::class, 'show']);
