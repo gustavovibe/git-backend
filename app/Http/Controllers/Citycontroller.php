@@ -8,6 +8,10 @@ use App\Imports\CitiesImport;
 use App\Models\City;
 use App\Http\Resources\CityResource;
 use App\Helpers\ApiResponse;
+use App\Models\Country;
+use App\Models\NaturalDestination;
+use App\Http\Resources\CountryResource;
+use App\Http\Resources\NaturalDestinationResource;
 
 class Citycontroller extends Controller
 {
@@ -29,16 +33,60 @@ class Citycontroller extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $perPage = 10;
 
-        $paginatedData = City::paginate($perPage);
+        $q = $request->input('q');
+
+        if ($q) {
+            $paginatedData = City::where('city_name', 'like', $q . '%')->paginate($perPage);
+        } else {
+            $paginatedData = City::paginate($perPage);
+        }
 
         $responseData = $paginatedData->toArray();
 
         $responseData['data'] = CityResource::collection($paginatedData->items());
 
         return ApiResponse::success($responseData);
+    }
+
+    public function DestinatioCityCountryNaturalDestination(Request $request)
+    {
+        $perPage = 5;
+
+        $q = $request->input('q');
+
+        if ($q) {
+
+            $country = Country::where('name', 'like', $q . '%')->paginate($perPage);
+            $responseDataCountry = $country->toArray();
+            $responseDataCountry['data'] = CountryResource::collection($country->items());
+
+
+
+
+            $city = City::where('city_name', 'like', $q . '%')->paginate($perPage);
+            $responseDataCity = $city->toArray();
+            $responseDataCity['data'] = CityResource::collection($city->items());
+
+
+
+
+
+            $natural = NaturalDestination::where('name', 'like', $q . '%')->paginate($perPage);
+            $responseDataNatural = $natural->toArray();
+            $responseDataNatural['data'] = NaturalDestinationResource::collection($natural->items());
+
+
+            $responseData = [
+                'country' => $responseDataCountry,
+                'city' => $responseDataCity,
+                'natural_destinations' => $responseDataNatural
+            ];
+
+            return ApiResponse::success($responseData);
+        }
     }
 }

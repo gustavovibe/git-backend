@@ -1,11 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CourseForUserController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\NewsletterController;
-use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Citycontroller;
 use App\Http\Controllers\CountryController;
@@ -38,3 +33,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::get('tour/{id}', [TourRadarController::class, 'show']);
+
+Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
