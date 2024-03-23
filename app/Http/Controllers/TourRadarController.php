@@ -12,7 +12,6 @@ class TourRadarController extends Controller
 {
     public function show($id)
     {
-        $response = [];
         $token = $this->getAccessToken();
         $tour = $this->getTour($token, $id);
         return ApiResponse::success($tour);
@@ -56,7 +55,7 @@ class TourRadarController extends Controller
 
         $token = $this->getAccessToken();
         $response = $this->getDeparturesByTour($token, $request->all());
-        return $response;
+        return ApiResponse::success($response);
     }
 
     private function getDeparturesByTour($accessToken, $params)
