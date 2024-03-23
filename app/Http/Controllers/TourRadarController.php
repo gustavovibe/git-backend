@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
+use Illuminate\Support\Facades\Validator;
 
 class TourRadarController extends Controller
 {
@@ -14,9 +15,62 @@ class TourRadarController extends Controller
         $response = [];
         $token = $this->getAccessToken();
         $tour = $this->getTour($token, $id);
-        // $response['departures'] = $this->getDeparturesByTour($token, $id);
-        // $response['priceCategories'] = $this->getPriceCategoriesByTour($token, $id);
         return ApiResponse::success($tour);
+    }
+
+    public function departures(Request $request)
+    {
+        $rules = [
+            'tourId' => 'required',
+            'currency' => 'sometimes|in:AUD,CAD,EUR,GBP,NZD,USD',
+            'page' => 'sometimes',
+            'user_country' => 'nullable|integer|min:0',
+            'date_range' => 'sometimes|regex:/^\d{8}-\d{8}$/',
+        ];
+        $messages = [
+            'tourId.required' => 'El campo :attribute es obligatorio.',
+            'currency.in' => 'El campo :attribute debe ser uno de los siguientes valores: AUD, CAD, EUR, GBP, NZD, USD.',
+            'date_range.regex' => 'El campo :attribute debe tener el formato YYYYMMDD-YYYYMMDD.',
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $token = $this->getAccessToken();
+        $response = $this->getDeparturesByTour($token, $request->all());
+        return $response;
+    }
+
+    private function getDeparturesByTour($accessToken, $params)
+    {
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        $tourId = $params['tourId'];
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?";
+
+        if (isset($params['currency'])) {
+            $url .= "currency=" . $params['currency'] . "&";
+        }
+        if (isset($params['page'])) {
+            $url .= "page=" . $params['page'] . "&";
+        }
+        if (isset($params['user_country'])) {
+            $url .= "user_country=" . $params['user_country'] . "&";
+        }
+        if (isset($params['date_range'])) {
+            $url .= "date_range=" . $params['date_range'] . "&";
+        }
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     private function getAccessToken()
@@ -82,23 +136,6 @@ class TourRadarController extends Controller
         $formatedTour['itinerary'] = $tour['itinerary'];
         $formatedTour['services'] = $tour['services'];
         return $formatedTour;
-    }
-
-    private function getDeparturesByTour($accessToken, $tourId)
-    {
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures";
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $accessToken,
-        ];
-
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            $data = $response->json();
-            return $data['items']; // This response is paginated
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
     }
 
     private function getPriceCategoriesByTour($accessToken, $tourId)
