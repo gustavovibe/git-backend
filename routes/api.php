@@ -36,3 +36,4 @@ Route::get('tour/{id}', [TourRadarController::class, 'show']);
 
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
 Route::get('departures', [TourRadarController::class, 'departures']);
+Route::get('prices', [TourRadarController::class, 'prices']);

@@ -18,6 +18,22 @@ class TourRadarController extends Controller
         return ApiResponse::success($tour);
     }
 
+    public function prices(Request $request)
+    {
+        $rules = [
+            'tourId' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $token = $this->getAccessToken();
+        $response = $this->getPriceCategoriesByTour($token, $request['tourId']);
+        return ApiResponse::success($response);
+    }
+
     public function departures(Request $request)
     {
         $rules = [
@@ -148,8 +164,7 @@ class TourRadarController extends Controller
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            $data = $response->json();
-            return $data['price_categories'];
+            return $response->json();
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
