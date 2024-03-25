@@ -136,21 +136,128 @@ class TourRadarController extends Controller
         $formatedTour = [];
         $formatedTour['tour_id'] = $tour['tour_id'];
         $formatedTour['tour_name'] = $tour['tour_name'];
+        $formatedTour['overview'] = $tour['description'];
+        $formatedTour['ratings'] = $this->getRatings($tour);
         $formatedTour['reviews_count'] = $tour['reviews_count'];
         $formatedTour['tour_length_days'] = $tour['tour_length_days'];
-        $formatedTour['images'] = $tour['images'];
-        $formatedTour['tour_types'] = $tour['tour_types'];
-        $formatedTour['age_range'] = $tour['age_range'];
         $formatedTour['max_group_size'] = $tour['max_group_size'];
-        $formatedTour['guide_languages'] = $tour['guide_languages'];
+        $formatedTour['images'] = $this->getFormattedImages($tour);
+        $formatedTour['guiding_method'] = $this->getGuidingMethod($tour);
+        $formatedTour['tour_type'] = $this->getTourType($tour);
+        $formatedTour['tour_types'] = $tour['tour_types'];
+        $formatedTour['age_range_formatted'] = $this->getAgeRange($tour);
+        $formatedTour['age_range'] = $tour['age_range'];
+        $formatedTour['guide_languages'] = $this->getGuideLanguages($tour);
         $formatedTour['start_city'] = $tour['start_city'];
         $formatedTour['end_city'] = $tour['end_city'];
         $formatedTour['destinations'] = $tour['destinations'];
         $formatedTour['prices'] = $tour['prices'];
-        $formatedTour['description'] = $tour['description'];
         $formatedTour['itinerary'] = $tour['itinerary'];
-        $formatedTour['services'] = $tour['services'];
+        $formatedTour['services'] = $this->getServices($tour);
+        $formatedTour['operator'] = $tour['operator'];
+
         return $formatedTour;
+    }
+
+    private function getGuideLanguages($tour)
+    {
+        $response = [];
+        $taxonomy_languages = $this->getTaxonomyLanguages();
+        foreach ($tour['guide_languages'] as $languageId) {
+            foreach ($taxonomy_languages as $language) {
+                if ($language['id'] === $languageId) {
+                    array_push($response, $language);
+                    break;
+                }
+            }
+        }
+        return $response;
+    }
+
+    private function getTaxonomyLanguages()
+    {
+        $token = $this->getAccessToken();
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getAgeRange($tour)
+    {
+        $min = $tour['age_range']['strict']['min_age'];
+        $max = $tour['age_range']['strict']['max_age'];
+        return "{$min}-{$max}";
+    }
+
+    private function getTourType($tour)
+    {
+        $formatted = [];
+        foreach ($tour['tour_types'] as $tourType) {
+            if ($tourType['group_id'] === 1) {
+                array_push($formatted, $tourType);
+            }
+        }
+        return $formatted;
+    }
+
+    private function getServices($tour)
+    {
+        $included = [];
+        $excluded = [];
+        foreach ($tour['services'] as $serviceName => $serviceDetails) {
+            if (count($serviceDetails) === 0) {
+                continue;
+            }
+            foreach ($serviceDetails as $service) {
+                if ($service['is_included']) {
+                    $included[$serviceName] = [];
+                    array_push($included[$serviceName], $service);
+                } else {
+                    $excluded[$serviceName] = [];
+                    array_push($excluded[$serviceName], $service);
+                }
+            }
+        }
+        $response = [];
+        $response['included'] = $included;
+        $response['excluded'] = $excluded;
+        return $response;
+    }
+
+    private function getGuidingMethod($tour)
+    {
+        $formatted = [];
+        foreach ($tour['tour_types'] as $tourType) {
+            if ($tourType['group_id'] === 2) {
+                array_push($formatted, $tourType);
+            }
+        }
+        return $formatted;
+    }
+
+    private function getRatings($tour)
+    {
+        if (isset($tour['ratings']['overall'])) {
+            return $tour['ratings']['overall'];
+        } else {
+            return $tour['ratings']['operator'];
+        }
+    }
+
+    private function getFormattedImages($tour)
+    {
+        return array_map(function ($image) {
+            return $image['url'];
+        }, $tour['images']);
     }
 
     private function getPriceCategoriesByTour($accessToken, $tourId)
