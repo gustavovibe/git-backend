@@ -151,12 +151,22 @@ class TourRadarController extends Controller
         $formatedTour['start_city'] = $tour['start_city'];
         $formatedTour['end_city'] = $tour['end_city'];
         $formatedTour['destinations'] = $tour['destinations'];
-        $formatedTour['prices'] = $tour['prices'];
+        $formatedTour['prices'] = $this->getFormattedPrice($tour);
         $formatedTour['itinerary'] = $tour['itinerary'];
         $formatedTour['services'] = $this->getServices($tour);
         $formatedTour['operator'] = $tour['operator'];
 
         return $formatedTour;
+    }
+
+    private function getFormattedPrice($tour)
+    {
+        $response = [];
+        $response['based_on'] = $tour['prices']['based_on'];
+        $response['price_total'] = $tour['prices']['price_total'];
+        $response['mandatory_addons'] = [];
+        $response['mandatory_addons'] = $tour['prices']['mandatory_addons'];
+        return $response;
     }
 
     private function getGuideLanguages($tour)
