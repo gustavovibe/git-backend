@@ -82,10 +82,49 @@ class TourRadarController extends Controller
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
+            $response = $response->json();
+            $response['items'] = $this->formatDeparturesResponse($response['items']);
+            return $response;
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function formatDeparturesResponse($departures)
+    {
+        $response = [];
+        foreach ($departures as $departure) {
+            $departure['prices'] = $this->formatDeparturePrices($departure['prices']);
+            $departure['guide_languages'] = $this->getGuideLanguagesForDeparture($departure);
+            unset($departure['links']);
+            array_push($response, $departure);
+        }
+        return $response;
+    }
+
+    private function getGuideLanguagesForDeparture($departure)
+    {
+        $response = [];
+        $taxonomy_languages = $this->getTaxonomyLanguages();
+        foreach ($departure['guide_languages'] as $languageId) {
+            foreach ($taxonomy_languages as $language) {
+                if ($language['id'] === $languageId) {
+                    array_push($response, $language);
+                    break;
+                }
+            }
+        }
+        return $response;
+    }
+
+    private function formatDeparturePrices($prices)
+    {
+        $response = [];
+        $response['based_on'] = $prices['based_on'];
+        $response['price_total'] = $prices['price_total'];
+        $response['mandatory_addons'] = [];
+        $response['mandatory_addons'] = $prices['mandatory_addons'];
+        return $response;
     }
 
     private function getAccessToken()
@@ -147,7 +186,7 @@ class TourRadarController extends Controller
         $formatedTour['tour_types'] = $tour['tour_types'];
         $formatedTour['age_range_formatted'] = $this->getAgeRange($tour);
         $formatedTour['age_range'] = $tour['age_range'];
-        $formatedTour['guide_languages'] = $this->getGuideLanguages($tour);
+        $formatedTour['guide_languages'] = $this->getGuideLanguagesForTour($tour);
         $formatedTour['start_city'] = $tour['start_city'];
         $formatedTour['end_city'] = $tour['end_city'];
         $formatedTour['destinations'] = $tour['destinations'];
@@ -169,7 +208,7 @@ class TourRadarController extends Controller
         return $response;
     }
 
-    private function getGuideLanguages($tour)
+    private function getGuideLanguagesForTour($tour)
     {
         $response = [];
         $taxonomy_languages = $this->getTaxonomyLanguages();
