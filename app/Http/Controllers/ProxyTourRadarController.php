@@ -3,19 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
 use App\Helpers\FormatTour;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\TourRadarController;
+use App\Helpers\FormatDepartures;
 
 class ProxyTourRadarController extends Controller
 {
     public function show($id)
     {
-        $token = TourRadarController::getAccessToken();
-        $tour = TourRadarController::getTour($token, $id);
+        $tour = TourRadarController::getTour($id);
+        $tour = FormatTour::formatTourData($tour);
         return ApiResponse::success($tour);
     }
 
@@ -39,8 +38,8 @@ class ProxyTourRadarController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
-        $token = TourRadarController::getAccessToken();
-        $response = TourRadarController::getDeparturesByTour($token, $request->all());
+        $response = TourRadarController::getDeparturesByTour($request->all());
+        $response['items'] = FormatDepartures::formatDeparturesResponse($response['items']);
         return ApiResponse::success($response);
     }
 
@@ -55,8 +54,7 @@ class ProxyTourRadarController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
-        $token = TourRadarController::getAccessToken();
-        $response = TourRadarController::getPriceCategoriesByTour($token, $request['tourId']);
+        $response = TourRadarController::getPriceCategoriesByTour($request['tourId']);
         return ApiResponse::success($response);
     }
 }

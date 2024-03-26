@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
-use App\Helpers\ApiResponse;
-use App\Helpers\FormatTour;
-use App\Helpers\FormatDepartures;
-use Illuminate\Support\Facades\Validator;
 
 class TourRadarController extends Controller
 {
@@ -38,8 +33,9 @@ class TourRadarController extends Controller
         }
     }
 
-    public static function getDeparturesByTour($accessToken, $params)
+    public static function getDeparturesByTour($params)
     {
+        $accessToken = self::getAccessToken();
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
@@ -62,9 +58,7 @@ class TourRadarController extends Controller
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            $response = $response->json();
-            $response['items'] = FormatDepartures::formatDeparturesResponse($response['items']);
-            return $response;
+            return $response->json();
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -87,8 +81,9 @@ class TourRadarController extends Controller
         }
     }
 
-    public static function getTour($accessToken, $tourId, $currency = 'USD', $user_country = '185')
+    public static function getTour($tourId, $currency = 'USD', $user_country = '185')
     {
+        $accessToken = self::getAccessToken();
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}?currency={$currency}&user_country={$user_country}";
         $headers = [
             'Accept' => 'application/json',
@@ -97,16 +92,15 @@ class TourRadarController extends Controller
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            $tour = $response->json();
-            $tour = FormatTour::formatTourData($tour);
-            return $tour;
+            return $response->json();
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public static function getPriceCategoriesByTour($accessToken, $tourId)
+    public static function getPriceCategoriesByTour($tourId)
     {
+        $accessToken = self::getAccessToken();
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
         $headers = [
             'Accept' => 'application/json',
