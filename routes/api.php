@@ -38,3 +38,4 @@ Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNatural
 Route::get('departures', [ProxyTourRadarController::class, 'departures']);
 Route::get('prices', [ProxyTourRadarController::class, 'prices']);
 Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
+Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);

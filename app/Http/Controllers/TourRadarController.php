@@ -132,4 +132,22 @@ class TourRadarController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public static function getBookingsList()
+    {
+        $scope = "com.tourradar.bookings/read";
+        $accessToken = self::getAccessToken($scope);
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

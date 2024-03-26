@@ -71,4 +71,10 @@ class ProxyTourRadarController extends Controller
         $response = TourRadarController::getOperatorBookingFields();
         return ApiResponse::success($response);
     }
+
+    public function bookingsList()
+    {
+        $response = TourRadarController::getBookingsList();
+        return ApiResponse::success($response);
+    }
 }
