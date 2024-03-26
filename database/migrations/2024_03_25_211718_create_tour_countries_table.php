@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateToursCitiesTable extends Migration
+class CreateTourCountriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,11 @@ class CreateToursCitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('tour_cities', function (Blueprint $table) {
+        Schema::create('tour_countries', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tour_id')->index();
-            $table->unsignedBigInteger('t_city_id')->index();
+            $table->unsignedBigInteger('t_country_id')->index();
             $table->timestamps();
-            // $table->foreign('tour_id')
-            //     ->references('tour_id')
-            //     ->on('tours');
-            // $table->foreign('t_city_id')
-            //     ->references('city_id')
-            //     ->on('cities');
         });
     }
 
@@ -34,6 +28,6 @@ class CreateToursCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tours_cities');
+        Schema::dropIfExists('tour_countries');
     }
 }

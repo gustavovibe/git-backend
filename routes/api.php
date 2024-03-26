@@ -7,6 +7,10 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\NaturalDestinationController;
 use App\Http\Controllers\ReverseProxyController;
 use App\Http\Controllers\TourRadarController;
+use App\Http\Controllers\TourCitiesController;
+use App\Http\Controllers\TourController;
+use App\Http\Controllers\TourCountriesController;
+use App\Http\Controllers\TourNaturalDestinationController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -37,3 +41,8 @@ Route::get('tour/{id}', [TourRadarController::class, 'show']);
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
 Route::get('departures', [TourRadarController::class, 'departures']);
 Route::get('prices', [TourRadarController::class, 'prices']);
+Route::resource('tour_cities', TourCitiesController::class); 
+Route::resource('tours', TourController::class); 
+Route::resource('tour_countries', TourCountriesController::class); 
+
+Route::resource('tour_natural_destinations', TourNaturalDestinationController::class); 
