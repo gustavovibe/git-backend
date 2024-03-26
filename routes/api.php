@@ -6,7 +6,7 @@ use App\Http\Controllers\Citycontroller;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\NaturalDestinationController;
 use App\Http\Controllers\ReverseProxyController;
-use App\Http\Controllers\TourRadarController;
+use App\Http\Controllers\ProxyTourRadarController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -32,8 +32,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('logout', [AuthController::class, 'logout']);
 });
 
-Route::get('tour/{id}', [TourRadarController::class, 'show']);
+Route::get('tour/{id}', [ProxyTourRadarController::class, 'show']);
 
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
-Route::get('departures', [TourRadarController::class, 'departures']);
-Route::get('prices', [TourRadarController::class, 'prices']);
+Route::get('departures', [ProxyTourRadarController::class, 'departures']);
+Route::get('prices', [ProxyTourRadarController::class, 'prices']);
+Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
+Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);
+Route::get('bookings-create', [ProxyTourRadarController::class, 'bookingsStore']);
