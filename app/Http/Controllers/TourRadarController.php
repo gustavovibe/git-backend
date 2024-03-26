@@ -11,55 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class TourRadarController extends Controller
 {
-    public function show($id)
-    {
-        $token = $this->getAccessToken();
-        $tour = $this->getTour($token, $id);
-        return ApiResponse::success($tour);
-    }
-
-    public function prices(Request $request)
-    {
-        $rules = [
-            'tourId' => 'required',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return ApiResponse::error($validator->errors());
-        }
-
-        $token = $this->getAccessToken();
-        $response = $this->getPriceCategoriesByTour($token, $request['tourId']);
-        return ApiResponse::success($response);
-    }
-
-    public function departures(Request $request)
-    {
-        $rules = [
-            'tourId' => 'required',
-            'currency' => 'sometimes|in:AUD,CAD,EUR,GBP,NZD,USD',
-            'page' => 'sometimes',
-            'user_country' => 'nullable|integer|min:0',
-            'date_range' => 'sometimes|regex:/^\d{8}-\d{8}$/',
-        ];
-        $messages = [
-            'tourId.required' => 'El campo :attribute es obligatorio.',
-            'currency.in' => 'El campo :attribute debe ser uno de los siguientes valores: AUD, CAD, EUR, GBP, NZD, USD.',
-            'date_range.regex' => 'El campo :attribute debe tener el formato YYYYMMDD-YYYYMMDD.',
-        ];
-        $validator = Validator::make($request->all(), $rules, $messages);
-
-        if ($validator->fails()) {
-            return ApiResponse::error($validator->errors());
-        }
-
-        $token = $this->getAccessToken();
-        $response = $this->getDeparturesByTour($token, $request->all());
-        return ApiResponse::success($response);
-    }
-
-    private function getDeparturesByTour($accessToken, $params)
+    public static function getDeparturesByTour($accessToken, $params)
     {
         $headers = [
             'Accept' => 'application/json',
@@ -84,29 +36,29 @@ class TourRadarController extends Controller
         try {
             $response = Http::withHeaders($headers)->get($url);
             $response = $response->json();
-            $response['items'] = $this->formatDeparturesResponse($response['items']);
+            $response['items'] = self::formatDeparturesResponse($response['items']);
             return $response;
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    private function formatDeparturesResponse($departures)
+    public function formatDeparturesResponse($departures)
     {
         $response = [];
         foreach ($departures as $departure) {
-            $departure['prices'] = $this->formatDeparturePrices($departure['prices']);
-            $departure['guide_languages'] = $this->getGuideLanguagesForDeparture($departure);
+            $departure['prices'] = self::formatDeparturePrices($departure['prices']);
+            $departure['guide_languages'] = self::getGuideLanguagesForDeparture($departure);
             unset($departure['links']);
             array_push($response, $departure);
         }
         return $response;
     }
 
-    private function getGuideLanguagesForDeparture($departure)
+    public function getGuideLanguagesForDeparture($departure)
     {
         $response = [];
-        $taxonomy_languages = $this->getTaxonomyLanguages();
+        $taxonomy_languages = self::getTaxonomyLanguages();
         foreach ($departure['guide_languages'] as $languageId) {
             foreach ($taxonomy_languages as $language) {
                 if ($language['id'] === $languageId) {
@@ -118,7 +70,7 @@ class TourRadarController extends Controller
         return $response;
     }
 
-    private function formatDeparturePrices($prices)
+    public function formatDeparturePrices($prices)
     {
         $response = [];
         $response['based_on'] = $prices['based_on'];
@@ -128,7 +80,7 @@ class TourRadarController extends Controller
         return $response;
     }
 
-    private function getAccessToken()
+    public static function getAccessToken()
     {
         // ToDo: Move these variables to a .env file
         $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
@@ -153,7 +105,7 @@ class TourRadarController extends Controller
         }
     }
 
-    private function getTour($accessToken, $tourId, $currency = 'USD', $user_country = '185')
+    public static function getTour($accessToken, $tourId, $currency = 'USD', $user_country = '185')
     {
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}?currency={$currency}&user_country={$user_country}";
         $headers = [
@@ -171,7 +123,7 @@ class TourRadarController extends Controller
         }
     }
 
-    private function getPriceCategoriesByTour($accessToken, $tourId)
+    public static function getPriceCategoriesByTour($accessToken, $tourId)
     {
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
         $headers = [
@@ -187,7 +139,7 @@ class TourRadarController extends Controller
         }
     }
 
-    private function getTaxonomyLanguages()
+    public function getTaxonomyLanguages()
     {
         $token = self::getAccessToken();
         $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
