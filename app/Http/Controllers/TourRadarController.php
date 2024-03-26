@@ -150,4 +150,43 @@ class TourRadarController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public static function createNewBooking($params)
+    {
+        $scope = "com.tourradar.bookings/write";
+        $accessToken = self::getAccessToken($scope);
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        $body = [
+            "departure_id" => 123,
+            "user_country" => 185,
+            "currency" => "USD",
+            "email" => "dummy@mail.org",
+            "passengers" => [
+                [
+                    "pax_number" => 1,
+                    "price_category_id" => 1,
+                    "fields" => [
+                        "first_name" => "John",
+                        "last_name" => "Doe",
+                        "email" => "dummy@mail.org",
+                        "phone_number" => "+431245678853",
+                        "date_of_birth" => "21/05/2019",
+                        "nationality" => "Germany",
+                        "gender" => "male"
+                    ]
+                ],
+            ],
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->post($url, $body);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

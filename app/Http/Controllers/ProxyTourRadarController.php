@@ -77,4 +77,26 @@ class ProxyTourRadarController extends Controller
         $response = TourRadarController::getBookingsList();
         return ApiResponse::success($response);
     }
+
+    public function bookingsStore(Request $request)
+    {
+        $rules = [
+            'departure_id' => 'required',
+            'user_country' => 'required',
+            'currency' => 'required|in:AUD,CAD,EUR,GBP,NZD,USD',
+            'email' => 'required',
+            'passengers' => 'required|array',
+            'passengers.*.pax_number' => 'required',
+            'passengers.*.price_category_id' => 'required',
+            'passengers.*.fields' => 'required|array',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $response = TourRadarController::createNewBooking($request->all());
+        return ApiResponse::success($response);
+    }
 }
