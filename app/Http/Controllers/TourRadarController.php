@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 class TourRadarController extends Controller
 {
 
-    public static function getAccessToken()
+    public static function getAccessToken($scope = "com.tourradar.tours/read")
     {
         // ToDo: Move these variables to a .env file
         $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
@@ -21,7 +21,7 @@ class TourRadarController extends Controller
         ];
         $body = [
             'grant_type' => 'client_credentials',
-            'scope' => 'com.tourradar.tours/read',
+            'scope' => $scope,
         ];
 
         try {
@@ -102,6 +102,24 @@ class TourRadarController extends Controller
     {
         $accessToken = self::getAccessToken();
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public static function getOperatorBookingFields($operatorId = 406)
+    {
+        $scope = "com.tourradar.operators/read";
+        $accessToken = self::getAccessToken($scope);
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/operators/{$operatorId}/booking-fields";
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,

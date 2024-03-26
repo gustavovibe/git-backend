@@ -57,4 +57,18 @@ class ProxyTourRadarController extends Controller
         $response = TourRadarController::getPriceCategoriesByTour($request['tourId']);
         return ApiResponse::success($response);
     }
+
+    public function bookingFields(Request $request)
+    {
+        $rules = [
+            'operatorId' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+        $response = TourRadarController::getOperatorBookingFields();
+        return ApiResponse::success($response);
+    }
 }
