@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\TourRadarController;
 
 class FormatTour
 {
@@ -83,7 +84,7 @@ class FormatTour
     private function getGuideLanguagesForTour($tour)
     {
         $response = [];
-        $taxonomy_languages = self::getTaxonomyLanguages();
+        $taxonomy_languages = TourRadarController::getTaxonomyLanguages();
         foreach ($tour['guide_languages'] as $languageId) {
             foreach ($taxonomy_languages as $language) {
                 if ($language['id'] === $languageId) {
@@ -93,23 +94,6 @@ class FormatTour
             }
         }
         return $response;
-    }
-
-    private function getTaxonomyLanguages()
-    {
-        $token = self::getAccessToken();
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $token,
-        ];
-
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
     }
 
     private function getAccessToken()

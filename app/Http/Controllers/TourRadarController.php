@@ -7,10 +7,37 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
 use App\Helpers\FormatTour;
+use App\Helpers\FormatDepartures;
 use Illuminate\Support\Facades\Validator;
 
 class TourRadarController extends Controller
 {
+
+    public static function getAccessToken()
+    {
+        // ToDo: Move these variables to a .env file
+        $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
+        $clientSecret = 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594';
+        $urlToken = 'https://oauth.api.sandbox.b2b.tourradar.com/oauth2/token';
+        $authorization = base64_encode($clientId . ':' . $clientSecret);
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Authorization' => "Basic " . $authorization,
+        ];
+        $body = [
+            'grant_type' => 'client_credentials',
+            'scope' => 'com.tourradar.tours/read',
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->asForm()->post($urlToken, $body);
+            $data = $response->json();
+            return $data['access_token'];
+        } catch (RequestException $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public static function getDeparturesByTour($accessToken, $params)
     {
         $headers = [
@@ -36,71 +63,26 @@ class TourRadarController extends Controller
         try {
             $response = Http::withHeaders($headers)->get($url);
             $response = $response->json();
-            $response['items'] = self::formatDeparturesResponse($response['items']);
+            $response['items'] = FormatDepartures::formatDeparturesResponse($response['items']);
             return $response;
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function formatDeparturesResponse($departures)
+    public static function getTaxonomyLanguages()
     {
-        $response = [];
-        foreach ($departures as $departure) {
-            $departure['prices'] = self::formatDeparturePrices($departure['prices']);
-            $departure['guide_languages'] = self::getGuideLanguagesForDeparture($departure);
-            unset($departure['links']);
-            array_push($response, $departure);
-        }
-        return $response;
-    }
-
-    public function getGuideLanguagesForDeparture($departure)
-    {
-        $response = [];
-        $taxonomy_languages = self::getTaxonomyLanguages();
-        foreach ($departure['guide_languages'] as $languageId) {
-            foreach ($taxonomy_languages as $language) {
-                if ($language['id'] === $languageId) {
-                    array_push($response, $language);
-                    break;
-                }
-            }
-        }
-        return $response;
-    }
-
-    public function formatDeparturePrices($prices)
-    {
-        $response = [];
-        $response['based_on'] = $prices['based_on'];
-        $response['price_total'] = $prices['price_total'];
-        $response['mandatory_addons'] = [];
-        $response['mandatory_addons'] = $prices['mandatory_addons'];
-        return $response;
-    }
-
-    public static function getAccessToken()
-    {
-        // ToDo: Move these variables to a .env file
-        $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
-        $clientSecret = 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594';
-        $urlToken = 'https://oauth.api.sandbox.b2b.tourradar.com/oauth2/token';
-        $authorization = base64_encode($clientId . ':' . $clientSecret);
+        $token = self::getAccessToken();
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
         $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            'Authorization' => "Basic " . $authorization,
-        ];
-        $body = [
-            'grant_type' => 'client_credentials',
-            'scope' => 'com.tourradar.tours/read',
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
         ];
 
         try {
-            $response = Http::withHeaders($headers)->asForm()->post($urlToken, $body);
-            $data = $response->json();
-            return $data['access_token'];
-        } catch (RequestException $e) {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -129,23 +111,6 @@ class TourRadarController extends Controller
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
-        ];
-
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function getTaxonomyLanguages()
-    {
-        $token = self::getAccessToken();
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $token,
         ];
 
         try {
