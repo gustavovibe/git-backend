@@ -7,6 +7,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\NaturalDestinationController;
 use App\Http\Controllers\ReverseProxyController;
 use App\Http\Controllers\ProxyTourRadarController;
+use App\Http\Controllers\ProxyKiwiController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -39,4 +40,4 @@ Route::get('departures', [ProxyTourRadarController::class, 'departures']);
 Route::get('prices', [ProxyTourRadarController::class, 'prices']);
 Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
 Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);
-Route::get('bookings-create', [ProxyTourRadarController::class, 'bookingsStore']);
+Route::get('search-flights', [ProxyKiwiController::class, 'searchFlights']);
