@@ -6,11 +6,12 @@ use App\Http\Controllers\Citycontroller;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\NaturalDestinationController;
 use App\Http\Controllers\ReverseProxyController;
-use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\TourCitiesController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\TourCountriesController;
 use App\Http\Controllers\TourNaturalDestinationController;
+use App\Http\Controllers\ProxyTourRadarController;
+use App\Http\Controllers\ProxyKiwiController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -36,13 +37,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('logout', [AuthController::class, 'logout']);
 });
 
-Route::get('tour/{id}', [TourRadarController::class, 'show']);
+Route::get('tour/{id}', [ProxyTourRadarController::class, 'show']);
 
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
-Route::get('departures', [TourRadarController::class, 'departures']);
-Route::get('prices', [TourRadarController::class, 'prices']);
-Route::resource('tour_cities', TourCitiesController::class); 
-Route::resource('tours', TourController::class); 
-Route::resource('tour_countries', TourCountriesController::class); 
+Route::get('departures', [ProxyTourRadarController::class, 'departures']);
+Route::get('prices', [ProxyTourRadarController::class, 'prices']);
+Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
+Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);
+Route::get('bookings-create', [ProxyTourRadarController::class, 'bookingsStore']);
+Route::get('search-flights', [ProxyKiwiController::class, 'searchFlights']);
 
-Route::resource('tour_natural_destinations', TourNaturalDestinationController::class); 
+Route::resource('tour_cities', TourCitiesController::class);
+Route::resource('tours', TourController::class);
+Route::resource('tour_countries', TourCountriesController::class);
+
+Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
