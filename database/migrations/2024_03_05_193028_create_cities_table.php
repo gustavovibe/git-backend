@@ -15,15 +15,10 @@ class CreateCitiesTable extends Migration
     {
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('city_id')->index();
-            $table->unsignedBigInteger('t_city_id');
+            $table->unsignedBigInteger('t_city_id')->index();
             $table->string('city_name');
-            $table->string('kiwi_id');
             $table->unsignedBigInteger('t_country_id');
             $table->timestamps();
-            $table->foreign('t_country_id')
-                ->references('t_country_id')
-                ->on('countries');
         });
     }
 

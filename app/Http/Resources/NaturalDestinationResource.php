@@ -16,8 +16,8 @@ class NaturalDestinationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            't_natural_id' => $this->t_natural_id,
-            'name' => $this->name,
+            'destination_id' => $this->destination_id,
+            'destination_name' => $this->destination_name,
             'type' => $this->type,
         ];
     }

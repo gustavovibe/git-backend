@@ -18,7 +18,7 @@ class TourNaturalDestination extends Model
 
     public function natural_destination()
     {
-        return $this->belongsTo(NaturalDestination::class, 't_natural_id', 't_natural_id');
+        return $this->belongsTo(NaturalDestination::class, 't_natural_id', 'destination_id');
     }
     public function tour()
     {

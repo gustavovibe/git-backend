@@ -11,8 +11,8 @@ class NaturalDestination extends Model
     protected $table = 'natural_destinations'; 
 
     protected $fillable = [
-        't_natural_id',
-        'name',
+        'destination_id',
+        'destination_name',
         'type',
     ];
 }
