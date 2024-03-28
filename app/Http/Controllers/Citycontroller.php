@@ -54,6 +54,7 @@ class Citycontroller extends Controller
 
     public function DestinatioCityCountryNaturalDestination(Request $request)
     {
+
         $perPage = 5;
 
         $q = $request->input('q');
@@ -64,7 +65,7 @@ class Citycontroller extends Controller
             $responseDataCountry = $country->toArray();
             $responseDataCountry['data'] = CountryResource::collection($country->items());
 
-
+  
 
 
             $city = City::where('city_name', 'like', $q . '%')->paginate($perPage);
@@ -75,7 +76,7 @@ class Citycontroller extends Controller
 
 
 
-            $natural = NaturalDestination::where('name', 'like', $q . '%')->paginate($perPage);
+            $natural = NaturalDestination::where('destination_name', 'like', $q . '%')->paginate($perPage);
             $responseDataNatural = $natural->toArray();
             $responseDataNatural['data'] = NaturalDestinationResource::collection($natural->items());
 
@@ -85,6 +86,8 @@ class Citycontroller extends Controller
                 'city' => $responseDataCity,
                 'natural_destinations' => $responseDataNatural
             ];
+
+       
 
             return ApiResponse::success($responseData);
         }
