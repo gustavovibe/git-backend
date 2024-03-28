@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\TourRadarController;
 
 class FormatTour
