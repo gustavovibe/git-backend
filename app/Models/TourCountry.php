@@ -15,6 +15,7 @@ class TourCountry extends Model
         't_country_id',
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
     
     public function country()
     {

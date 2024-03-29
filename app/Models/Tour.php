@@ -35,6 +35,8 @@ class Tour extends Model
         'map_thumbnail',
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     public function cities()
     {
         return $this->hasMany(TourCity::class, 'tour_id', 'tour_id')->with('city');
@@ -48,5 +50,10 @@ class Tour extends Model
     public function natural_destination()
     {
         return $this->hasMany(TourNaturalDestination::class, 'tour_id', 'tour_id')->with('natural_destination');
+    }
+
+    public function type()
+    {
+        return $this->hasMany(TourType::class, 'tour_id', 'tour_id')->with('type');
     }
 }

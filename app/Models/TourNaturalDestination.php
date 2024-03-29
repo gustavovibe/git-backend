@@ -15,6 +15,8 @@ class TourNaturalDestination extends Model
         't_natural_id',
     ];
 
+    
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function natural_destination()
     {

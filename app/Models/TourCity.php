@@ -15,6 +15,8 @@ class TourCity extends Model
         't_city_id',
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     public function city()
     {
         return $this->belongsTo(City::class, 't_city_id', 't_city_id');

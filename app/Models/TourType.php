@@ -5,15 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class TourType extends Model
 {
     use HasFactory;
-    protected $table = 'cities'; 
+    protected $table = 'tour_tour_types';
 
     protected $fillable = [
-        't_city_id',
-        'city_name',
-        't_country_id',
+        'tour_id',
+        'tour_type_id',
     ];
+
+    
     protected $hidden = ['created_at', 'updated_at'];
+
+
+    public function type()
+    {
+        return $this->belongsTo(Type::class, 'tour_type_id', 'tourtype_id');
+    }
 }

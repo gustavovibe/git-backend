@@ -37,6 +37,7 @@ class TourResource extends JsonResource
             'main_thumbnail' => $this->main_thumbnail,
             'map_image' => $this->map_image,
             'map_thumbnail' => $this->map_thumbnail,
+            'type' => $this->type,
             'cities' => $this->cities,
             'countries' => $this->countries,
             'natural_destination' => $this->natural_destination

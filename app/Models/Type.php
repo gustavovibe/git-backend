@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class Type extends Model
 {
     use HasFactory;
-    protected $table = 'cities'; 
+    protected $table = 'tour_types';
 
     protected $fillable = [
-        't_city_id',
-        'city_name',
-        't_country_id',
+        'tourtype_id',
+        'tourtype_name',
     ];
+
+    
     protected $hidden = ['created_at', 'updated_at'];
 }
