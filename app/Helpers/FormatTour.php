@@ -2,14 +2,13 @@
 
 namespace App\Helpers;
 
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\TourRadarController;
 
 class FormatTour
 {
     public static function formatTourData($tour)
     {
+        // dd($tour);
         $formatedTour = [];
         $formatedTour['tour_id'] = $tour['tour_id'];
         $formatedTour['tour_name'] = $tour['tour_name'];
@@ -19,6 +18,7 @@ class FormatTour
         $formatedTour['tour_length_days'] = $tour['tour_length_days'];
         $formatedTour['max_group_size'] = $tour['max_group_size'];
         $formatedTour['images'] = self::getFormattedImages($tour);
+        $formatedTour['map'] = self::getMapImage($tour);
         $formatedTour['guiding_method'] = self::getGuidingMethod($tour);
         $formatedTour['tour_type'] = self::getTourType($tour);
         $formatedTour['tour_types'] = $tour['tour_types'];
@@ -47,9 +47,23 @@ class FormatTour
 
     private function getFormattedImages($tour)
     {
-        return array_map(function ($image) {
-            return $image['url'];
-        }, $tour['images']);
+        $images = [];
+        foreach ($tour['images'] as $image) {
+            if ($image['type'] === "image") {
+                array_push($images, $image['url']);
+            }
+        }
+        return $images;
+    }
+
+    private function getMapImage($tour)
+    {
+        foreach ($tour['images'] as $image) {
+            if ($image['type'] === "map") {
+                return $image['url'];
+            }
+        }
+        return null;
     }
 
     private function getGuidingMethod($tour)
@@ -95,32 +109,6 @@ class FormatTour
         }
         return $response;
     }
-
-    private function getAccessToken()
-    {
-        // ToDo: Move these variables to a .env file
-        $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
-        $clientSecret = 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594';
-        $urlToken = 'https://oauth.api.sandbox.b2b.tourradar.com/oauth2/token';
-        $authorization = base64_encode($clientId . ':' . $clientSecret);
-        $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            'Authorization' => "Basic " . $authorization,
-        ];
-        $body = [
-            'grant_type' => 'client_credentials',
-            'scope' => 'com.tourradar.tours/read',
-        ];
-
-        try {
-            $response = Http::withHeaders($headers)->asForm()->post($urlToken, $body);
-            $data = $response->json();
-            return $data['access_token'];
-        } catch (RequestException $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
 
     private function getFormattedPrice($tour)
     {
