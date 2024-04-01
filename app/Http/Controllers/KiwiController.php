@@ -45,4 +45,26 @@ class KiwiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public static function saveBookingApi($params = null, $body)
+    {
+        $apiKey = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an"; // Move to .env file
+        $url = 'https://api.tequila.kiwi.com/v2/booking/save_booking';
+
+        $headers = [
+            'accept' => 'application/json',
+            'apikey' => $apiKey,
+        ];
+
+        if (!empty($params)) {
+            $url = $url . '?' . http_build_query($params);
+        }
+
+        try {
+            $response = Http::withHeaders($headers)->post($url, $body);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

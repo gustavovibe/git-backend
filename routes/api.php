@@ -47,6 +47,7 @@ Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);
 Route::get('bookings-create', [ProxyTourRadarController::class, 'bookingsStore']);
 Route::get('search-flights', [ProxyKiwiController::class, 'searchFlights']);
 Route::get('check-flights', [ProxyKiwiController::class, 'checkFlights']);
+Route::get('save-booking', [ProxyKiwiController::class, 'saveBooking']);
 
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
