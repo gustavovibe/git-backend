@@ -31,4 +31,24 @@ class ProxyKiwiController extends Controller
         $response = FormatKiwiFlights::formatKiwiFlights($response);
         return ApiResponse::success($response);
     }
+
+    public function checkFlights(Request $request)
+    {
+        $rules = [
+            'booking_token' => 'required',
+            'bnum' => 'required',
+            'adults' => 'required',
+            'children' => 'required',
+            'infants' => 'required',
+            'session_id' => 'sometimes',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+        $response = KiwiController::checkFlightsApi($request->all());
+        return ApiResponse::success($response);
+    }
 }
