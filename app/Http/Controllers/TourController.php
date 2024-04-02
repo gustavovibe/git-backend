@@ -15,19 +15,51 @@ class TourController extends Controller
         $responseData = [];
 
         if ($request->has('country')) {
-            $responseData['country'] = $this->filterByCountry($request->country, $perPage);
+            $countries = $this->extractArrayFromQueryParam($request->input('country'));
+            $responseData['country'] = $this->filterByCountry($countries, $perPage);
         }
 
         if ($request->has('city')) {
-            $responseData['city'] = $this->filterByCity($request->city, $perPage);
+            $cities = $this->extractArrayFromQueryParam($request->input('city'));
+            $responseData['city'] = $this->filterByCity($cities, $perPage);
         }
 
         if ($request->has('natural_destination')) {
-            $responseData['natural_destinations'] = $this->filterByNaturalDestination($request->natural_destination, $perPage);
+            $naturalDestinations = $this->extractArrayFromQueryParam($request->input('natural_destination'));
+            $responseData['natural_destinations'] = $this->filterByNaturalDestination($naturalDestinations, $perPage);
         }
 
         return ApiResponse::success($responseData);
     }
+
+    protected function extractArrayFromQueryParam($param)
+    {
+        // Elimina corchetes del inicio y fin si están presentes
+        $param = trim($param, '[]');
+        // Divide la cadena por comas y convierte a array
+        $values = explode(',', $param);
+        // Filtra y limpia los valores
+        return array_map('trim', $values);
+    }
+//    public function index(Request $request)
+//    {
+//        $perPage = 5;
+//        $responseData = [];
+//
+//        if ($request->has('country')) {
+//            $responseData['country'] = $this->filterByCountry($request->country, $perPage);
+//        }
+//
+//        if ($request->has('city')) {
+//            $responseData['city'] = $this->filterByCity($request->city, $perPage);
+//        }
+//
+//        if ($request->has('natural_destination')) {
+//            $responseData['natural_destinations'] = $this->filterByNaturalDestination($request->natural_destination, $perPage);
+//        }
+//
+//        return ApiResponse::success($responseData);
+//    }
 
     protected function filterByCountry($countryId, $perPage)
     {

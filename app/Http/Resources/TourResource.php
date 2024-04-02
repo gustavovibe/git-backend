@@ -16,6 +16,7 @@ class TourResource extends JsonResource
     {
         return [
             'tour_id' => $this->tour_id,
+            'tour_name' => $this->tour_name,
             'locale' => $this->locale,
             'language' => $this->language,
             'is_active' => $this->is_active,

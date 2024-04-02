@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Tour extends Model
 {
     use HasFactory;
+
     protected $table = 'tours';
 
     protected $fillable = [
         'tour_id',
+        'tour_name',
         'locale',
         'language',
         'is_active',
