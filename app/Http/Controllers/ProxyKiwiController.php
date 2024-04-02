@@ -81,4 +81,22 @@ class ProxyKiwiController extends Controller
         $response = KiwiController::saveBookingApi($params, $body);
         return ApiResponse::success($response);
     }
+
+    public function confirmPayment(Request $request)
+    {
+        $rules = [
+            'booking_id' => 'required',
+            'transaction_id' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $body = $request->all();
+        $response = KiwiController::confirmPaymentApi($body);
+        return ApiResponse::success($response);
+    }
 }
