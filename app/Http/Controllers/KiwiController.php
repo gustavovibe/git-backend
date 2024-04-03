@@ -19,12 +19,8 @@ class KiwiController extends Controller
 
         $url = $url . '?' . http_build_query($params);
 
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $response = Http::withHeaders($headers)->get($url);
+        return $response->json();
     }
 
     public static function checkFlightsApi($params)
@@ -38,12 +34,8 @@ class KiwiController extends Controller
 
         $url = $url . '?' . http_build_query($params);
 
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $response = Http::withHeaders($headers)->get($url);
+        return $response->json();
     }
 
     public static function saveBookingApi($params = null, $body)
@@ -59,12 +51,8 @@ class KiwiController extends Controller
             $url = $url . '?' . http_build_query($params);
         }
 
-        try {
-            $response = Http::withHeaders($headers)->post($url, $body);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $response = Http::withHeaders($headers)->post($url, $body);
+        return $response->json();
     }
 
     public static function confirmPaymentApi($body)
@@ -77,11 +65,7 @@ class KiwiController extends Controller
             'apikey' => self::$API_KEY,
         ];
 
-        try {
-            $response = Http::withHeaders($headers)->post($url, $body);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $response = Http::withHeaders($headers)->post($url, $body);
+        return $response->json();
     }
 }
