@@ -49,6 +49,7 @@ Route::get('search-flights', [ProxyKiwiController::class, 'searchFlights']);
 Route::get('check-flights', [ProxyKiwiController::class, 'checkFlights']);
 Route::get('save-booking', [ProxyKiwiController::class, 'saveBooking']);
 Route::get('confirm-payment', [ProxyKiwiController::class, 'confirmPayment']);
+Route::get('confirm-payment-zooz', [ProxyKiwiController::class, 'confirmPaymentZooz']);
 
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);

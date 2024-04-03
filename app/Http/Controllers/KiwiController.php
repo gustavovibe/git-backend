@@ -68,4 +68,18 @@ class KiwiController extends Controller
         $response = Http::withHeaders($headers)->post($url, $body);
         return $response->json();
     }
+
+    public static function confirmPaymentZoozApi($body)
+    {
+        $url = 'https://api.tequila.kiwi.com/v2/booking/confirm_payment_zooz';
+
+        $headers = [
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+            'apikey' => self::$API_KEY,
+        ];
+
+        $response = Http::withHeaders($headers)->post($url, $body);
+        return $response->json();
+    }
 }
