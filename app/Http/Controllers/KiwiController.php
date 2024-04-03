@@ -6,14 +6,15 @@ use Illuminate\Support\Facades\Http;
 
 class KiwiController extends Controller
 {
+    protected static $API_KEY = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an";
+
     public static function searchApi($params)
     {
-        $apiKey = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an"; // Move to .env file
         $url = 'https://api.tequila.kiwi.com/v2/search';
 
         $headers = [
             'accept' => 'application/json',
-            'apikey' => $apiKey,
+            'apikey' => self::$API_KEY,
         ];
 
         $url = $url . '?' . http_build_query($params);
@@ -28,12 +29,11 @@ class KiwiController extends Controller
 
     public static function checkFlightsApi($params)
     {
-        $apiKey = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an"; // Move to .env file
         $url = 'https://api.tequila.kiwi.com/v2/booking/check_flights';
 
         $headers = [
             'accept' => 'application/json',
-            'apikey' => $apiKey,
+            'apikey' => self::$API_KEY,
         ];
 
         $url = $url . '?' . http_build_query($params);
@@ -48,12 +48,11 @@ class KiwiController extends Controller
 
     public static function saveBookingApi($params = null, $body)
     {
-        $apiKey = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an"; // Move to .env file
         $url = 'https://api.tequila.kiwi.com/v2/booking/save_booking';
 
         $headers = [
             'accept' => 'application/json',
-            'apikey' => $apiKey,
+            'apikey' => self::$API_KEY,
         ];
 
         if (!empty($params)) {
@@ -70,13 +69,12 @@ class KiwiController extends Controller
 
     public static function confirmPaymentApi($body)
     {
-        $apiKey = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an"; // Move to .env file
         $url = 'https://api.tequila.kiwi.com/v2/booking/confirm_payment';
 
         $headers = [
             'accept' => 'application/json',
             'content-type' => 'application/json',
-            'apikey' => $apiKey,
+            'apikey' => self::$API_KEY,
         ];
 
         try {
