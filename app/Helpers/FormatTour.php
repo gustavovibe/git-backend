@@ -32,8 +32,87 @@ class FormatTour
         $formatedTour['itinerary'] = $tour['itinerary'];
         $formatedTour['services'] = self::getServices($tour);
         $formatedTour['operator'] = $tour['operator'];
+        // New format:
+        $formatedTour['tourId'] = $tour['tour_id'];
+        $formatedTour['tourName'] = $tour['tour_name'];
+        $formatedTour['reviewsCount'] = $tour['reviews_count'];
+        $formatedTour['tourLengthDays'] = $tour['tour_length_days'];
+        $formatedTour['maxGroupSize'] = $tour['max_group_size'];
+        $formatedTour['guidingMethod'] = self::getGuidingMethodName($tour);
+        $formatedTour['tourType'] = self::getTourType($tour);
+        $formatedTour['tourTypes'] = $tour['tour_types'];
+        $formatedTour['ageRangeFormatted'] = self::getAgeRange($tour);
+        $formatedTour['ageRange'] = $tour['age_range'];
+        $formatedTour['guideLanguages'] = self::getGuideLanguagesForTour($tour);
+        $formatedTour['startCity'] = $tour['start_city'];
+        $formatedTour['endCity'] = $tour['end_city'];
+        $formatedTour['groupType'] = self::getGroupType($tour);
+        $formatedTour['accommodationDesc'] = self::getAccommodationDesc($formatedTour);
+        $formatedTour['transportDesc'] = self::getTransportDesc($formatedTour);
+        $formatedTour['othersDesc'] = self::getOthersDesc($formatedTour);
+        $formatedTour['mealsDesc'] = self::getMealsDesc($formatedTour);
+        $formatedTour['guideDesc'] = self::getGuideDesc($formatedTour);
+        $formatedTour['ethersDesc'] = self::getEthersDesc($formatedTour);
+        $formatedTour['flightsDesc'] = self::getFlightsDesc($formatedTour);
+        $formatedTour['optionalDesc'] = self::getOptionalDesc($formatedTour);
+        $formatedTour['insuranceDesc'] = self::getInsuranceDesc($formatedTour);
+        $formatedTour['lastImage'] = self::getMapImage($tour);
 
         return $formatedTour;
+    }
+
+    private function getInsuranceDesc($formatedTour)
+    {
+        return $formatedTour['services']['excluded']['insurance'][0]['description'] ?? null;
+    }
+
+    private function getOptionalDesc($formatedTour)
+    {
+        return $formatedTour['services']['excluded']['optional'][0]['description'] ?? null;
+    }
+
+    private function getFlightsDesc($formatedTour)
+    {
+        return $formatedTour['services']['excluded']['flights'][0]['description'] ?? null;
+    }
+
+    private function getEthersDesc($formatedTour)
+    {
+        return $formatedTour['services']['excluded']['others'][0]['description'] ?? null;
+    }
+
+    private function getGuideDesc($formatedTour)
+    {
+        return $formatedTour['services']['included']['guide'][0]['description'] ?? null;
+    }
+
+    private function getMealsDesc($formatedTour)
+    {
+        return $formatedTour['services']['included']['meals'][0]['description'] ?? null;
+    }
+
+    private function getOthersDesc($formatedTour)
+    {
+        return $formatedTour['services']['included']['others'][0]['description'] ?? null;
+    }
+
+    private function getTransportDesc($formatedTour)
+    {
+        return $formatedTour['services']['included']['transport'][0]['description'] ?? null;
+    }
+
+    private function getAccommodationDesc($formatedTour)
+    {
+        return $formatedTour['services']['included']['accommodation'][0]['description'] ?? null;
+    }
+
+    private function getGroupType($tour)
+    {
+        $response = "Group";
+        if ($tour['max_group_size'] <= 20) {
+            return "Small Group";
+        }
+        return $response;
     }
 
     private function getRatings($tour)
@@ -75,6 +154,16 @@ class FormatTour
             }
         }
         return $formatted;
+    }
+
+    private function getGuidingMethodName($tour)
+    {
+        foreach ($tour['tour_types'] as $tourType) {
+            if ($tourType['group_id'] === 2) {
+                return $tourType['type_name'];
+            }
+        }
+        return "-";
     }
 
     private function getTourType($tour)
