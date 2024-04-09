@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Helpers\ApiResponse;
@@ -46,4 +47,21 @@ class NaturalDestinationController extends Controller
 
         return ApiResponse::success($responseData);
     }
+
+    public function show($id)
+    {
+
+        $natural = NaturalDestination::where('destination_id', '=', $id)->first();
+
+
+        if (!$natural) {
+            return response()->json(['message' => 'Natural destination not found'], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $natural,
+        ], 200);
+    }
+
 }
