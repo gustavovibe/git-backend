@@ -39,7 +39,9 @@ class ProxyTourRadarController extends Controller
         }
 
         $response = TourRadarController::getDeparturesByTour($request->all());
-        $response['items'] = FormatDepartures::formatDeparturesResponse($response['items']);
+        if (isset($response['items'])) {
+            $response['items'] = FormatDepartures::formatDeparturesResponse($response['items'] ?? []);
+        }
         return ApiResponse::success($response);
     }
 
