@@ -11,7 +11,7 @@ class TourController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = 5;
+        $perPage = 10;
         $responseData = [];
 
         if ($request->has('country')) {
