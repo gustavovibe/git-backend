@@ -51,9 +51,9 @@ class TourController extends Controller
     {
         $query = Tour::whereHas('countries', function ($query) use ($countryId) {
             $query->where('t_country_id', $countryId);
-        })->with('cities', 'natural_destination')->paginate($perPage);
+        })->with(['cities', 'natural_destination'])->paginate($perPage);
 
-        return TourResource::collection($query->items());
+        return  $query;
     }
 
     protected function filterByCity($cityId, $perPage)
@@ -62,7 +62,7 @@ class TourController extends Controller
             $query->where('t_city_id', $cityId);
         })->with('countries', 'natural_destination')->paginate($perPage);
 
-        return TourResource::collection($query->items());
+        return  $query;
     }
 
     protected function filterByNaturalDestination($naturalId, $perPage)
@@ -71,7 +71,7 @@ class TourController extends Controller
             $query->where('t_natural_id', $naturalId);
         })->with('cities', 'countries')->paginate($perPage);
 
-        return TourResource::collection($query->items());
+        return  $query;
     }
 
 
