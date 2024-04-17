@@ -99,6 +99,6 @@ class ProxyTourRadarController extends Controller
         }
 
         $response = TourRadarController::createNewBooking($request->all());
-        return ApiResponse::success($response);
+        return $response;
     }
 }
