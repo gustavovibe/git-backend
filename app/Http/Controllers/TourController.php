@@ -30,7 +30,7 @@ class TourController extends Controller
         }
 
         if (empty($responseData)) {
-            $tours = Tour::paginate($perPage);
+            $tours = Tour::with(['cities', 'natural_destination', 'type', 'countries'])->paginate($perPage);
             return ApiResponse::success($tours);
         }
 
@@ -49,29 +49,29 @@ class TourController extends Controller
 
     protected function filterByCountry($countryId, $perPage)
     {
-        $query = Tour::whereHas('countries', function ($query) use ($countryId) {
+        $query = Tour::with(['cities', 'natural_destination', 'type', 'countries'])->whereHas('countries', function ($query) use ($countryId) {
             $query->where('t_country_id', $countryId);
         })->with(['cities', 'natural_destination'])->paginate($perPage);
 
-        return  $query;
+        return $query;
     }
 
     protected function filterByCity($cityId, $perPage)
     {
-        $query = Tour::whereHas('cities', function ($query) use ($cityId) {
+        $query = Tour::with(['cities', 'natural_destination', 'type', 'countries'])->whereHas('cities', function ($query) use ($cityId) {
             $query->where('t_city_id', $cityId);
         })->with('countries', 'natural_destination')->paginate($perPage);
 
-        return  $query;
+        return $query;
     }
 
     protected function filterByNaturalDestination($naturalId, $perPage)
     {
-        $query = Tour::whereHas('natural_destination', function ($query) use ($naturalId) {
+        $query = Tour::with(['cities', 'natural_destination', 'type', 'countries'])->whereHas('natural_destination', function ($query) use ($naturalId) {
             $query->where('t_natural_id', $naturalId);
         })->with('cities', 'countries')->paginate($perPage);
 
-        return  $query;
+        return $query;
     }
 
 
