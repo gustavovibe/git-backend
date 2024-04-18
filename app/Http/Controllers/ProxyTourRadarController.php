@@ -14,6 +14,9 @@ class ProxyTourRadarController extends Controller
     public function show($id)
     {
         $tour = TourRadarController::getTour($id);
+        $r = TourRadarController::getPriceCategoriesByTour($tour['tour_id']);
+        $tour['priceCategories'] = $r['price_categories'];
+        $tour['bookingFields'] = TourRadarController::getOperatorBookingFields($tour['operator']['id']);
         $tour = FormatTour::formatTourData($tour);
         return ApiResponse::success($tour);
     }
