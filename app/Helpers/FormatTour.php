@@ -57,6 +57,8 @@ class FormatTour
         $formatedTour['optionalDesc'] = self::getOptionalDesc($formatedTour);
         $formatedTour['insuranceDesc'] = self::getInsuranceDesc($formatedTour);
         $formatedTour['lastImage'] = self::getMapImage($tour);
+        $formatedTour['priceCategories'] = $tour['priceCategories'];
+        $formatedTour['bookingFields'] = $tour['bookingFields'];
 
         return $formatedTour;
     }
