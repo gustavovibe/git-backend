@@ -64,6 +64,25 @@ class TourRadarController extends Controller
         }
     }
 
+    public static function getDeparture($params)
+    {
+        $accessToken = self::getAccessToken();
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        $tourId = $params['tourId'];
+        $departureId = $params['departureId'];
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public static function getTaxonomyLanguages()
     {
         $token = self::getAccessToken();
