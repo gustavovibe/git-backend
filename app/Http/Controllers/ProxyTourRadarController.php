@@ -20,7 +20,7 @@ class ProxyTourRadarController extends Controller
         $tour = FormatTour::formatTourData($tour);
         return ApiResponse::success($tour);
     }
-
+ 
     public function departures(Request $request)
     {
         $rules = [
