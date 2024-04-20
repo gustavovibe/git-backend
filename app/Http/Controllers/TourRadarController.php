@@ -85,6 +85,8 @@ class TourRadarController extends Controller
 
     public static function getTaxonomyLanguages()
     {
+        return self::taxonomyLanguages();
+
         $token = self::getAccessToken();
         $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/languages";
         $headers = [
@@ -92,12 +94,59 @@ class TourRadarController extends Controller
             'Authorization' => 'Bearer ' . $token,
         ];
 
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $response = Http::withHeaders($headers)->get($url);
+        return $response->json();
+    }
+
+    public static function taxonomyLanguages()
+    {
+        return [
+            [
+                "id" => 1,
+                "code" => "en",
+                "name" => "English",
+            ],
+            [
+                "id" => 2,
+                "code" => "de",
+                "name" => "German",
+            ],
+            [
+                "id" => 3,
+                "code" => "it",
+                "name" => "Italian",
+            ],
+            [
+                "id" => 4,
+                "code" => "pt",
+                "name" => "Portuguese",
+            ],
+            [
+                "id" => 5,
+                "code" => "fr",
+                "name" => "French",
+            ],
+            [
+                "id" => 6,
+                "code" => "es",
+                "name" => "Spanish",
+            ],
+            [
+                "id" => 7,
+                "code" => "zh",
+                "name" => "Chinese",
+            ],
+            [
+                "id" => 8,
+                "code" => "nl",
+                "name" => "Dutch",
+            ],
+            [
+                "id" => 9,
+                "code" => "ru",
+                "name" => "Russian",
+            ],
+        ];
     }
 
     public static function getTour($tourId, $currency = 'USD', $user_country = '185')
