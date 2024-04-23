@@ -14,10 +14,13 @@ class ProxyTourRadarController extends Controller
     public function show($id)
     {
         $tour = TourRadarController::getTour($id);
+        $r = TourRadarController::getPriceCategoriesByTour($tour['tour_id']);
+        $tour['priceCategories'] = $r['price_categories'];
+        $tour['bookingFields'] = TourRadarController::getOperatorBookingFields($tour['operator']['id']);
         $tour = FormatTour::formatTourData($tour);
         return ApiResponse::success($tour);
     }
-
+ 
     public function departures(Request $request)
     {
         $rules = [
@@ -43,6 +46,22 @@ class ProxyTourRadarController extends Controller
             $response['items'] = FormatDepartures::formatDeparturesResponse($response['items'] ?? []);
         }
         return ApiResponse::success($response);
+    }
+
+    public function departure(Request $request)
+    {
+        $rules = [
+            'tourId' => 'required',
+            'departureId' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $response = TourRadarController::getDeparture($request->all());
+        return $response;
     }
 
     public function prices(Request $request)

@@ -4,6 +4,8 @@ namespace App\Helpers;
 
 use App\Http\Controllers\TourRadarController;
 
+use function PHPUnit\Framework\isEmpty;
+
 class FormatTour
 {
     public static function formatTourData($tour)
@@ -57,6 +59,8 @@ class FormatTour
         $formatedTour['optionalDesc'] = self::getOptionalDesc($formatedTour);
         $formatedTour['insuranceDesc'] = self::getInsuranceDesc($formatedTour);
         $formatedTour['lastImage'] = self::getMapImage($tour);
+        $formatedTour['priceCategories'] = $tour['priceCategories'];
+        $formatedTour['bookingFields'] = $tour['bookingFields'];
 
         return $formatedTour;
     }
@@ -188,6 +192,9 @@ class FormatTour
     {
         $response = [];
         $taxonomy_languages = TourRadarController::getTaxonomyLanguages();
+        if (!is_array($tour['guide_languages'])) {
+            return $response;
+        }
         foreach ($tour['guide_languages'] as $languageId) {
             foreach ($taxonomy_languages as $language) {
                 if ($language['id'] === $languageId) {
@@ -202,10 +209,9 @@ class FormatTour
     private function getFormattedPrice($tour)
     {
         $response = [];
-        $response['based_on'] = $tour['prices']['based_on'];
-        $response['price_total'] = $tour['prices']['price_total'];
-        $response['mandatory_addons'] = [];
-        $response['mandatory_addons'] = $tour['prices']['mandatory_addons'];
+        $response['based_on'] = $tour['prices']['based_on'] ?? null;
+        $response['price_total'] = $tour['prices']['price_total'] ?? null;
+        $response['mandatory_addons'] = $tour['prices']['mandatory_addons'] ?? [];
         return $response;
     }
 
