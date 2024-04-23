@@ -15,7 +15,6 @@ class NaturalDestinationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
             'destination_id' => $this->destination_id,
             'destination_name' => $this->destination_name,
             'type' => $this->type,

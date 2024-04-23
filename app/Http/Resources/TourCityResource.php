@@ -15,7 +15,6 @@ class TourCityResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
             'city' => $this->city,
             'tour' => $this->tour
         ];

@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class NaturalDestination extends Model
 {
     use HasFactory;
-    protected $table = 'natural_destinations'; 
+    protected $table = 'natural_destinations';
 
     protected $fillable = [
         'destination_id',
         'destination_name',
         'type',
     ];
+    protected $hidden = ['created_at', 'updated_at'];
 }

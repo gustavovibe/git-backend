@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Country extends Model
 {
     use HasFactory;
-    protected $table = 'countries'; 
+    protected $table = 'countries';
 
     protected $fillable = [
         't_country_id',
         'name',
     ];
+    protected $hidden = ['created_at', 'updated_at'];
 }
