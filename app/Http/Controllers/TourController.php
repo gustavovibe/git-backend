@@ -30,12 +30,15 @@ class TourController extends Controller
             $allResults = $allResults->merge($this->filterByNaturalDestination($naturalDestinations));
         }
 
+        // Convert the Collection to array and reset numeric keys
+        $allResults = array_values($allResults->toArray());
+
         // Paginate manually
         $page = $request->input('page', 1);
         $offset = ($page - 1) * $perPage;
         $paginator = new LengthAwarePaginator(
-            $allResults->slice($offset, $perPage),
-            $allResults->count(),
+            array_slice($allResults, $offset, $perPage), // Slice the results manually
+            count($allResults), // Total number of items in the array
             $perPage,
             $page,
             ['path' => $request->url(), 'query' => $request->query()]
