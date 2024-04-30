@@ -80,13 +80,16 @@ class DuffelApiController extends Controller
         }
     }
 
-    public function singleOffer(Request $request)
+    public function singleRequest(Request $request)
     {
         $rules = [
-            'id' => 'required',
+            'requestId' => 'required|string|regex:/^orq_.+$/',
+        ];
+        $messages = [
+            'requestId.regex' => 'El campo :attribute debe comenzar diciendo "orq_".',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
@@ -100,7 +103,42 @@ class DuffelApiController extends Controller
                 'Duffel-Version' => 'v1',
                 'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
             ];
-            $url = 'https://api.duffel.com/air/offer_requests/' . $request->id;
+            $url = 'https://api.duffel.com/air/offer_requests/' . $request->requestId;
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function singleOffer(Request $request)
+    {
+        $rules = [
+            'offerId' => 'required|string|regex:/^off_.+$/',
+        ];
+        $messages = [
+            'offerId.regex' => 'El campo :attribute debe comenzar diciendo "off_".',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        try {
+            $headers = [
+                'Accept-Encoding' => 'gzip',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Duffel-Version' => 'v1',
+                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+            ];
+            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
 
