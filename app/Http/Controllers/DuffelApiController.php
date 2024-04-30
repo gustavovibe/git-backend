@@ -80,6 +80,38 @@ class DuffelApiController extends Controller
         }
     }
 
+    public function singleOffer(Request $request)
+    {
+        $rules = [
+            'id' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        try {
+            $headers = [
+                'Accept-Encoding' => 'gzip',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Duffel-Version' => 'v1',
+                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+            ];
+            $url = 'https://api.duffel.com/air/offer_requests/' . $request->id;
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     private function getPassengers($request)
     {
         $one_adult = ['type' => 'adult'];
