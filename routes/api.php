@@ -60,3 +60,4 @@ Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 
 Route::get('duffel/offer-requests', [DuffelApiController::class, 'offerRequests']);
+Route::get('duffel/single-offer', [DuffelApiController::class, 'singleOffer']);
