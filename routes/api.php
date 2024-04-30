@@ -12,6 +12,7 @@ use App\Http\Controllers\TourCountriesController;
 use App\Http\Controllers\TourNaturalDestinationController;
 use App\Http\Controllers\ProxyTourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
+use App\Http\Controllers\DuffelApiController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 
@@ -57,3 +58,7 @@ Route::resource('tours', TourController::class);
 Route::resource('tour_countries', TourCountriesController::class);
 
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
+
+Route::get('duffel/offer-requests', [DuffelApiController::class, 'offerRequests']);
+Route::get('duffel/single-offer', [DuffelApiController::class, 'singleOffer']);
+Route::get('duffel/single-request', [DuffelApiController::class, 'singleRequest']);

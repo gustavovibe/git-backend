@@ -18,6 +18,8 @@ class NaturalDestinationResource extends JsonResource
             'destination_id' => $this->destination_id,
             'destination_name' => $this->destination_name,
             'type' => $this->type,
+            'name' => $this->destination_name,
+            't_natural_id' => $this->destination_id,
         ];
     }
 }
