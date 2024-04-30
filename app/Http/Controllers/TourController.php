@@ -30,6 +30,10 @@ class TourController extends Controller
             $allResults = $allResults->merge($this->filterByNaturalDestination($naturalDestinations));
         }
 
+        if ($request->has('tour_type')) {
+            $tourType = $this->extractArrayFromQueryParam($request->input('tour_type'));
+            $allResults = $allResults->merge($this->filterByType($tourType));
+        }
         // Convert the Collection to array and reset numeric keys
         $allResults = array_values($allResults->toArray());
 
@@ -81,5 +85,11 @@ class TourController extends Controller
             })->get();
     }
 
-
+    protected function filterByType($typeIds)
+    {
+        return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
+            ->whereHas('type', function ($query) use ($typeIds) {
+                $query->whereIn('tour_type_id', $typeIds);
+            })->get();
+    }
 }
