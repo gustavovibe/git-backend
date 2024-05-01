@@ -98,6 +98,32 @@ class TourRadarController extends Controller
         return $response->json();
     }
 
+    public static function getTaxonomyDestinations($params)
+    {
+        $token = self::getAccessToken();
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ];
+
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/taxonomy/destinations/" . $params['type'] . "?";
+
+        if (isset($params['country_id'])) {
+            $url .= "country_id=" . $params['country_id'] . "&";
+        }
+
+        if (isset($params['limit'])) {
+            $url .= "limit=" . $params['limit'] . "&";
+        }
+
+        if (isset($params['page'])) {
+            $url .= "page=" . $params['page'] . "&";
+        }
+
+        $response = Http::withHeaders($headers)->get($url);
+        return $response->json();
+    }
+
     public static function taxonomyLanguages()
     {
         return [

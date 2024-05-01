@@ -20,7 +20,7 @@ class ProxyTourRadarController extends Controller
         $tour = FormatTour::formatTourData($tour);
         return ApiResponse::success($tour);
     }
- 
+
     public function departures(Request $request)
     {
         $rules = [
@@ -118,6 +118,29 @@ class ProxyTourRadarController extends Controller
         }
 
         $response = TourRadarController::createNewBooking($request->all());
+        return $response;
+    }
+
+    public function destinations(Request $request)
+    {
+        $rules = [
+            'type' => 'required|in:continent,country,state,region,city,national-park,island,mountain,ocean,river,lake',
+            'country_id' => 'sometimes',
+            'limit' => 'sometimes',
+            'page' => 'sometimes',
+        ];
+        $messages = [
+            'type.in' => "El campo :attribute debe ser uno de los siguientes valores: 'continent' 'country' 'state' 'region' 'city' 'national-park' 'island' 'mountain' 'ocean' 'river' 'lake'",
+            'type.required' => "El campo ':attribute' es obligatorio",
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $response = TourRadarController::getTaxonomyDestinations($request->all());
+
         return $response;
     }
 }
