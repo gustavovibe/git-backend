@@ -21,6 +21,10 @@ class DuffelApiController extends Controller
             'adultsCount' => 'sometimes|integer|min:1',
             'childrenCount' => 'sometimes|integer|min:0',
             'cabinClass' => 'sometimes|in:first,business,premium_economy,economy',
+            'supplierTimeout' => 'sometimes',
+            'limit' => 'sometimes',
+            'sort' => 'sometimes',
+            'maxConnections' => 'sometimes',
         ];
         $messages = [
             'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
@@ -68,12 +72,19 @@ class DuffelApiController extends Controller
                 'Duffel-Version' => 'v1',
                 'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
             ];
-            $url = 'https://api.duffel.com/air/offer_requests';
+            $url = 'https://api.duffel.com/air/offer_requests?';
+            $url = $this->addMoreQueryparamsToUrl($url, $request);
+
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->post($url, $requestBody);
 
             // Return the response from the Duffel API
-            return $response->json();
+            $response = $response->json();
+            if (isset($response['data']['offers'])) {
+                $offersQuantity = $request->has('limit') ? $request->limit : 5;
+                $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+            }
+            return $response;
         } catch (\Exception $e) {
             // Handle exceptions
             return response()->json(['error' => $e->getMessage()], 500);
@@ -150,6 +161,45 @@ class DuffelApiController extends Controller
         }
     }
 
+    private function getFilteredOffers($offers, $offersQuantity)
+    {
+        $filteredOffers = [];
+        $count = 0; // Variable to keep track of filtered offers count
+
+        // Iterate over the offers
+        foreach ($offers as $offer) {
+            if ($count >= $offersQuantity) {
+                break; // Exit the loop if we've already reached the required quantity
+            }
+
+            $skipOffer = false; // Variable to determine whether to skip this offer
+
+            foreach ($offer['slices'] as $slice) {
+                if (!isset($slice['segments'])) {
+                    continue; // Skip this section if 'segments' is absent
+                }
+
+                foreach ($slice['segments'] as $segment) {
+                    if (!isset($segment['operating_carrier']['name'])) {
+                        continue; // Skip this segment if 'operating_carrier' or 'name' is absent
+                    }
+
+                    if ($segment['operating_carrier']['name'] === 'Duffel Airways') {
+                        $skipOffer = true; // Set the flag to skip this offer
+                        break 2; // Exit the nested loops
+                    }
+                }
+            }
+
+            if (!$skipOffer) {
+                $filteredOffers[] = $offer; // Add the offer if it shouldn't be skipped
+                $count++; // Increment the count of filtered offers
+            }
+        }
+
+        return $filteredOffers;
+    }
+
     private function getPassengers($request)
     {
         $one_adult = ['type' => 'adult'];
@@ -167,5 +217,39 @@ class DuffelApiController extends Controller
             }
         }
         return $passengers;
+    }
+
+    private function addMoreQueryparamsToUrl($url, $request)
+    {
+        $default_supplierTimeout = 5000;
+        $default_limit = 5;
+        $default_sort = "total_amount";
+        $default_maxConnections = 1;
+
+        if ($request->has('supplierTimeout')) {
+            $url .= "supplier_timeout=" . $request->supplierTimeout . "&";
+        } else {
+            $url .= "supplier_timeout=" . $default_supplierTimeout . "&";
+        }
+
+        if ($request->has('limit')) {
+            $url .= "limit=" . $request->limit . "&";
+        } else {
+            $url .= "limit=" . $default_limit . "&";
+        }
+
+        if ($request->has('sort')) {
+            $url .= "sort=" . $request->sort . "&";
+        } else {
+            $url .= "sort=" . $default_sort . "&";
+        }
+
+        if ($request->has('maxConnections')) {
+            $url .= "max_connections=" . $request->maxConnections . "&";
+        } else {
+            $url .= "max_connections=" . $default_maxConnections . "&";
+        }
+
+        return $url;
     }
 }
