@@ -38,9 +38,6 @@ class GustavoDuffelController extends Controller
         if (!$adultsCount) {
             $missingParameters[] = 'adultsCount';
         }
-        if (!$childrenCount) {
-            $missingParameters[] = 'childrenCount';
-        }
 
         if (!empty($missingParameters)) {
             return response()->json(['error' => 'Missing required parameters: ' . implode(', ', $missingParameters)], 400);
