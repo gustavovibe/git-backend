@@ -95,6 +95,7 @@ class DuffelApiController extends Controller
     {
         $rules = [
             'requestId' => 'required|string|regex:/^orq_.+$/',
+            'limit' => 'sometimes',
         ];
         $messages = [
             'requestId.regex' => 'El campo :attribute debe comenzar diciendo "orq_".',
@@ -119,7 +120,12 @@ class DuffelApiController extends Controller
             $response = Http::withHeaders($headers)->get($url);
 
             // Return the response from the Duffel API
-            return $response->json();
+            $response = $response->json();
+            if (isset($response['data']['offers'])) {
+                $offersQuantity = $request->has('limit') ? $request->limit : 5;
+                $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+            }
+            return $response;
         } catch (\Exception $e) {
             // Handle exceptions
             return response()->json(['error' => $e->getMessage()], 500);
