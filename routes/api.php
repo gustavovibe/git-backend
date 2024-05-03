@@ -14,6 +14,7 @@ use App\Http\Controllers\ProxyTourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\GustavoDuffelController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 Route::post('email-verification/code', [VerificationController::class, 'store']);
@@ -49,6 +50,7 @@ Route::get('prices', [ProxyTourRadarController::class, 'prices']);
 Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
 Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);
 Route::post('bookings-create', [ProxyTourRadarController::class, 'bookingsStore']);
+Route::get('tour-radar-destinations', [ProxyTourRadarController::class, 'destinations']);
 Route::get('search-flights', [ProxyKiwiController::class, 'searchFlights']);
 Route::get('check-flights', [ProxyKiwiController::class, 'checkFlights']);
 Route::get('save-booking', [ProxyKiwiController::class, 'saveBooking']);
@@ -64,3 +66,4 @@ Route::resource('tour_natural_destinations', TourNaturalDestinationController::c
 Route::get('duffel/offer-requests', [DuffelApiController::class, 'offerRequests']);
 Route::get('duffel/single-offer', [DuffelApiController::class, 'singleOffer']);
 Route::get('duffel/single-request', [DuffelApiController::class, 'singleRequest']);
+Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
