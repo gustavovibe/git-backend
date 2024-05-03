@@ -11,6 +11,8 @@ class Tour extends Model
 
     protected $table = 'tours';
 
+    protected $primaryKey = 'tour_id';
+
     protected $fillable = [
         'tour_id',
         'tour_name',
@@ -57,5 +59,34 @@ class Tour extends Model
     public function type()
     {
         return $this->hasMany(TourType::class, 'tour_id', 'tour_id')->with('type');
+    }
+
+
+    public function scopeFilterByCountry($query, $countryIds)
+    {
+        return $query->whereHas('countries', function ($q) use ($countryIds) {
+            $q->whereIn('t_country_id', $countryIds);
+        });
+    }
+
+    public function scopeFilterByCity($query, $cityIds)
+    {
+        return $query->whereHas('cities', function ($q) use ($cityIds) {
+            $q->whereIn('t_city_id', $cityIds);
+        });
+    }
+
+    public function scopeFilterByNaturalDestination($query, $naturalIds)
+    {
+        return $query->whereHas('natural_destination', function ($q) use ($naturalIds) {
+            $q->whereIn('t_natural_id', $naturalIds);
+        });
+    }
+
+    public function scopeFilterByType($query, $typeIds)
+    {
+        return $query->whereHas('type', function ($q) use ($typeIds) {
+            $q->whereIn('tour_type_id', $typeIds);
+        });
     }
 }

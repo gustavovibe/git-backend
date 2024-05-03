@@ -20,82 +20,21 @@ class UserController extends Controller
     {
         $perPage = 10;
 
-        // Utiliza el método 'with' para cargar la relación 'profile'
         $users = User::paginate($perPage);
-
-
 
         return $users;
     }
 
-    public function enviarCorreo()
-    {
-        $contacts = Contact::all();
-        $numero = 0;
 
-        // Recorrer cada registro y enviar un correo
-        foreach ($contacts as $contact) {
-            // Puedes acceder a las propiedades de cada registro aquí
-            $name = $contact->name;
-            $email = $contact->email;
-            $source = $contact->source;
-
-
-            // Verificar si el email existe y no está vacío
-            if (!empty($email)) {
-                $numero++;
-                // Crear una instancia de MiCorreo y pasar los datos necesarios
-                $correo = new MiCorreo($name, $source);
-
-                // Obtén la ruta completa al primer archivo PDF en storage
-                $rutaPDF1 = Storage::disk('local')->path('pdf/evento_presentacion_e_invitacion_kooltivo.zip');
-
-                // Obtén la ruta completa al segundo archivo PDF en storage
-                // $rutaPDF2 = Storage::disk('local')->path('pdf/invitacion_kooltivo.pdf');
-
-                // Adjunta el primer archivo PDF al correo
-                $correo->attach($rutaPDF1, [
-                    'as' => 'evento_presentacion_e_invitacion_kooltivo.zip', // Nombre del primer archivo adjunto en el correo
-                    'mime' => 'application/pdf', // Tipo MIME del primer archivo adjunto
-                ]);
-
-                // Adjunta el segundo archivo PDF al correo
-                // $correo->attach($rutaPDF2, [
-                //     'as' => 'Invitacion_Kooltivo.pdf', // Nombre del segundo archivo adjunto en el correo
-                //     'mime' => 'application/pdf', // Tipo MIME del segundo archivo adjunto
-                // ]);
-
-                // Envía el correo
-                Mail::to($email)->send($correo);
-            }
-        }
-
-
-        return $numero . ' Correos con archivos adjuntos enviados correctamente.';
-    }
 
 
     public function enviarCorreoCursos(Request $request)
     {
-
-
-
-
-
-
-
         $email = $request->email;
-
-
-
 
         $correo = new MailCursos();
 
-
         Mail::to($email)->send($correo);
-
-
-
 
         return ' Correo enviado';
     }

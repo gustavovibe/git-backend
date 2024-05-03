@@ -13,9 +13,11 @@ use App\Http\Controllers\TourNaturalDestinationController;
 use App\Http\Controllers\ProxyTourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
+use App\Http\Controllers\VerificationController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
-
+Route::post('email-verification/code', [VerificationController::class, 'store']);
+Route::post('email-verification/verified', [VerificationController::class, 'verified']);
 Route::post('import-countries', [CountryController::class, 'import']);
 
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
