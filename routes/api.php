@@ -15,6 +15,7 @@ use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
+use App\Http\Controllers\PackageController;
 
 Route::post('import-cities', [Citycontroller::class, 'import']);
 Route::post('email-verification/code', [VerificationController::class, 'store']);
@@ -67,3 +68,5 @@ Route::get('duffel/offer-requests', [DuffelApiController::class, 'offerRequests'
 Route::get('duffel/single-offer', [DuffelApiController::class, 'singleOffer']);
 Route::get('duffel/single-request', [DuffelApiController::class, 'singleRequest']);
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
+
+Route::post('/book-package', [PackageController::class, 'bookPackage']);

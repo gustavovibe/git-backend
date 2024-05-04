@@ -167,6 +167,23 @@ class DuffelApiController extends Controller
         }
     }
 
+    public static function createNewBooking($body)
+    {
+        $headers = [
+            'Accept-Encoding' => 'gzip',
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Duffel-Version' => 'v1',
+            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+        ];
+
+        $url = 'https://api.duffel.com/air/orders';
+        // Make the request to the Duffel API
+        $response = Http::withHeaders($headers)->post($url, $body);
+
+        return $response->json();
+    }
+
     private function getFilteredOffers($offers, $offersQuantity)
     {
         $filteredOffers = [];
