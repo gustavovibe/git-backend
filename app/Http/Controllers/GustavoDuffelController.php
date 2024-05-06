@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class GustavoDuffelController extends Controller
 {
@@ -17,6 +18,7 @@ class GustavoDuffelController extends Controller
         $arrivalDate = $request->query('arrival');
         $adultsCount = $request->query('adultsCount');
         $childrenCount = $request->query('childrenCount');
+        $page = $request->query('page', 1); // Default to page 1 if not provided
 
         // Validate that required parameters are provided
         $missingParameters = [];
@@ -90,7 +92,6 @@ class GustavoDuffelController extends Controller
             $offers = $response->json()['data']['offers'];
 
             // Filter out offers with operating carrier name "Duffel Airways"
-            // Filter out offers with operating carrier name "Duffel Airways"
             $filteredOffers = array_filter($offers, function ($offer) {
                 foreach ($offer['slices'] as $slice) {
                     if (!isset($slice['segments'])) {
@@ -134,13 +135,26 @@ class GustavoDuffelController extends Controller
                 return false;
             });
 
+            $filteredOffers = $baggageOffers;
 
+            // Extract the offers from the response
+            $offers = collect($filteredOffers);
+            // Paginate the offers with 3 offers per page
+            $perPage = 3;
 
-            // Take only the first 5 offers
-            $firstFiveOffers = array_slice($filteredOffers, 0, 5);
+            $paginatedOffers = new LengthAwarePaginator(
+                $offers->forPage($page, $perPage),
+                $offers->count(),
+                $perPage,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
 
-            // Return the filtered and limited offers
-            return response()->json($firstFiveOffers);
+            // Return the paginated offers along with total number of pages
+            return response()->json([
+                'offers' => $paginatedOffers->items(),
+                'total_pages' => $paginatedOffers->lastPage()
+            ]);
         } catch (\Exception $e) {
             // Handle exceptions
             return response()->json(['error' => $e->getMessage()], 500);
