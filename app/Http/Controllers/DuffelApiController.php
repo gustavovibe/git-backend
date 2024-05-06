@@ -83,6 +83,7 @@ class DuffelApiController extends Controller
             if (isset($response['data']['offers'])) {
                 $offersQuantity = $request->has('limit') ? $request->limit : 5;
                 $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+                $response['data']['offers'] = $this->getBaggageOffers($response['data']['offers'], $offersQuantity);
             }
             return $response;
         } catch (\Exception $e) {
@@ -124,6 +125,7 @@ class DuffelApiController extends Controller
             if (isset($response['data']['offers'])) {
                 $offersQuantity = $request->has('limit') ? $request->limit : 5;
                 $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+                $response['data']['offers'] = $this->getBaggageOffers($response['data']['offers'], $offersQuantity);
             }
             return $response;
         } catch (\Exception $e) {
@@ -274,5 +276,56 @@ class DuffelApiController extends Controller
         }
 
         return $url;
+    }
+
+    private function getBaggageOffers($offers, $offersQuantity)
+    {
+        $baggageOffers = [];
+        $count = 0; // Variable to keep track of filtered offers count
+
+        // Iterate over the offers
+        foreach ($offers as $offer) {
+            if ($count >= $offersQuantity) {
+                break; // Exit the loop if we've already reached the required quantity
+            }
+
+            $hasBaggage = $this->offerHasBaggage($offer);
+
+            if ($hasBaggage) {
+                $baggageOffers[] = $offer; // Add the offer if it has baggage
+                $count++; // Increment the count of baggage offers
+            }
+        }
+
+        return $baggageOffers;
+    }
+
+    private function offerHasBaggage($offer)
+    {
+        foreach ($offer['slices'] as $slice) {
+            if (!isset($slice['segments'])) {
+                continue; // Skip this slice if 'segments' key is missing
+            }
+
+            foreach ($slice['segments'] as $segment) {
+                if (!isset($segment['passengers'])) {
+                    continue; // Skip this segment if 'passengers' key is missing
+                }
+
+                foreach ($segment['passengers'] as $passenger) {
+                    if (!isset($passenger['baggages'])) {
+                        continue; // Skip this passenger if 'baggages' key is missing
+                    }
+
+                    foreach ($passenger['baggages'] as $baggage) {
+                        if ($baggage['type'] === 'checked' || $baggage['type'] === 'carry_on') {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
