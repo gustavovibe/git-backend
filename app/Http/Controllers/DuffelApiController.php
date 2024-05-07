@@ -73,6 +73,7 @@ class DuffelApiController extends Controller
                 'Duffel-Version' => 'v1',
                 'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
             ];
+
             $url = 'https://api.duffel.com/air/offer_requests?';
             $url = $this->addMoreQueryparamsToUrl($url, $request);
 
