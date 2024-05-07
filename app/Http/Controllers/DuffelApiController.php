@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DuffelApiController extends Controller
 {
@@ -82,6 +83,11 @@ class DuffelApiController extends Controller
             $response = $response->json();
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
+                /* 
+                    Note:
+                    This offers cannot be paginated because the request is always new, but
+                    you can paginate when asking for request by its id
+                */
             }
             return $response;
         } catch (\Exception $e) {
@@ -92,12 +98,23 @@ class DuffelApiController extends Controller
 
     public function getRequestById(Request $request)
     {
+        // Check if the 'page' and 'perPage' parameters are sent
+        if ($request->has('page') && $request->has('perPage')) {
+            // If both parameters are sent, set $request->limit to null
+            $request->request->remove('limit');
+        }
+
         $rules = [
             'requestId' => 'required|string|regex:/^orq_.+$/',
-            'limit' => 'sometimes',
+            'limit' => 'sometimes|integer|min:1', // Limit the quantity of offers
+            'page' => 'required_with:perPage|integer|min:1', // the pagination will ignore 'limit'
+            'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
         ];
+
         $messages = [
-            'requestId.regex' => 'El campo :attribute debe comenzar diciendo "orq_".',
+            'requestId.regex' => "El campo 'requestId' debe comenzar con 'orq_'",
+            'page.required_with' => "El parámetro 'page' es obligatorio cuando se envía el parámetro 'perPage'",
+            'perPage.required_with' => "El parámetro 'perPage' es obligatorio cuando se envía el parámetro 'page'",
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -122,6 +139,8 @@ class DuffelApiController extends Controller
             $response = $response->json();
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
+                // Pagination
+                $response['data'] = $this->paginateOffers($response['data'], $request);
             }
             return $response;
         } catch (\Exception $e) {
@@ -337,5 +356,40 @@ class DuffelApiController extends Controller
         $offersQuantity = $request->has('limit') ? $request->limit : count($offers);
         $offers = $this->getFilteredOffers($offers, $offersQuantity);
         return $offers;
+    }
+
+    private function paginateOffers($data, $request)
+    {
+        if (!$request->has('page') || !$request->has('perPage')) {
+            return $data;
+        }
+
+        $offers = $data['offers'];
+
+        $perPage = intval($request->perPage);
+        $page = $request->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        // Get the offers for the current page
+        $currentOffers = array_slice($offers, $offset, $perPage);
+
+        // Count total offers
+        $totalOffers = count($offers);
+
+        // Create a LengthAwarePaginator object to handle pagination
+        $paginator = new LengthAwarePaginator($currentOffers, $totalOffers, $perPage, $page);
+
+        // Build pagination metadata
+        $paginationData = [
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+        ];
+
+        // Build the response array with paginated data and metadata
+        $data['offers'] = $paginator->items();
+        $data['offersMeta'] = $paginationData;
+        return $data;
     }
 }
