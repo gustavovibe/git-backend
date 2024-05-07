@@ -138,6 +138,7 @@ class DuffelApiController extends Controller
 
             // Return the response from the Duffel API
             $response = $response->json();
+
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
                 // Pagination
