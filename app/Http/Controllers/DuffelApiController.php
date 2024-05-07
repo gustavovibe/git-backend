@@ -9,7 +9,7 @@ use App\Helpers\ApiResponse;
 
 class DuffelApiController extends Controller
 {
-    public function offerRequests(Request $request)
+    public function createRequestGetOffers(Request $request)
     {
         $rules = [
             'origin' => 'required',
@@ -92,7 +92,7 @@ class DuffelApiController extends Controller
         }
     }
 
-    public function singleRequest(Request $request)
+    public function getRequestById(Request $request)
     {
         $rules = [
             'requestId' => 'required|string|regex:/^orq_.+$/',
@@ -134,7 +134,7 @@ class DuffelApiController extends Controller
         }
     }
 
-    public function singleOffer(Request $request)
+    public function getOfferById(Request $request)
     {
         $rules = [
             'offerId' => 'required|string|regex:/^off_.+$/',

@@ -50,9 +50,9 @@ Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
-Route::get('duffel/offer-requests', [DuffelApiController::class, 'offerRequests']);
-Route::get('duffel/single-offer', [DuffelApiController::class, 'singleOffer']);
-Route::get('duffel/single-request', [DuffelApiController::class, 'singleRequest']);
+Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
+Route::get('duffel/get-offer-by-id', [DuffelApiController::class, 'getOfferById']);
+Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestById']);
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
 Route::post('/book-package', [PackageController::class, 'bookPackage']);
