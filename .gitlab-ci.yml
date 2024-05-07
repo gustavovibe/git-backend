@@ -23,7 +23,7 @@ Builder:
     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
-    - pagination2
+    - develop_2
 
 Deployment:
   stage: deploy
@@ -55,5 +55,6 @@ Deployment:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose up -d --build"
 
+
   only:
-    - pagination2
+    - develop_2
