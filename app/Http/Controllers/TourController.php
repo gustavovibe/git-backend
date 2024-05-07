@@ -77,6 +77,7 @@ class TourController extends Controller
             })->get();
     }
 
+
     protected function filterByNaturalDestination($naturalIds)
     {
         return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
