@@ -83,7 +83,6 @@ class DuffelApiController extends Controller
             if (isset($response['data']['offers'])) {
                 $offersQuantity = $request->has('limit') ? $request->limit : 5;
                 $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
-                $response['data']['offers'] = $this->getBaggageOffers($response['data']['offers'], $offersQuantity);
             }
             return $response;
         } catch (\Exception $e) {
@@ -125,7 +124,6 @@ class DuffelApiController extends Controller
             if (isset($response['data']['offers'])) {
                 $offersQuantity = $request->has('limit') ? $request->limit : 5;
                 $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
-                $response['data']['offers'] = $this->getBaggageOffers($response['data']['offers'], $offersQuantity);
             }
             return $response;
         } catch (\Exception $e) {
@@ -187,6 +185,13 @@ class DuffelApiController extends Controller
     }
 
     private function getFilteredOffers($offers, $offersQuantity)
+    {
+        $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
+        $offers = $this->getBaggageOffers($offers, $offersQuantity);
+        return $offers;
+    }
+
+    private function getOffersWithoutDuffelAirways($offers, $offersQuantity)
     {
         $filteredOffers = [];
         $count = 0; // Variable to keep track of filtered offers count
