@@ -81,8 +81,7 @@ class DuffelApiController extends Controller
             // Return the response from the Duffel API
             $response = $response->json();
             if (isset($response['data']['offers'])) {
-                $offersQuantity = $request->has('limit') ? $request->limit : 5;
-                $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+                $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
             }
             return $response;
         } catch (\Exception $e) {
@@ -122,8 +121,7 @@ class DuffelApiController extends Controller
             // Return the response from the Duffel API
             $response = $response->json();
             if (isset($response['data']['offers'])) {
-                $offersQuantity = $request->has('limit') ? $request->limit : 5;
-                $response['data']['offers'] = $this->getFilteredOffers($response['data']['offers'], $offersQuantity);
+                $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
             }
             return $response;
         } catch (\Exception $e) {
@@ -332,5 +330,12 @@ class DuffelApiController extends Controller
         }
 
         return false;
+    }
+
+    private function handleOffers($offers, $request)
+    {
+        $offersQuantity = $request->has('limit') ? $request->limit : count($offers);
+        $offers = $this->getFilteredOffers($offers, $offersQuantity);
+        return $offers;
     }
 }
