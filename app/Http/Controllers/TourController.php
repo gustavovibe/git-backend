@@ -2,95 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\TourResource;
+
 use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class TourController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = 10;
-        $allResults = collect();
+        $perPage = 30;
+        $query = Tour::query();
 
         if ($request->has('country')) {
             $countries = $this->extractArrayFromQueryParam($request->input('country'));
-            $allResults = $allResults->merge($this->filterByCountry($countries));
+            $query->orWhereHas('countries', function ($q) use ($countries) {
+                $q->whereIn('t_country_id', $countries);
+            });
+            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('city')) {
             $cities = $this->extractArrayFromQueryParam($request->input('city'));
-            $allResults = $allResults->merge($this->filterByCity($cities));
+            $query->orWhereHas('cities', function ($q) use ($cities) {
+                $q->whereIn('t_city_id', $cities);
+            });
+            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('natural_destination')) {
             $naturalDestinations = $this->extractArrayFromQueryParam($request->input('natural_destination'));
-            $allResults = $allResults->merge($this->filterByNaturalDestination($naturalDestinations));
+            $query->orWhereHas('natural_destination', function ($q) use ($naturalDestinations) {
+                $q->whereIn('t_natural_id', $naturalDestinations);
+            });
+            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('tour_type')) {
             $tourType = $this->extractArrayFromQueryParam($request->input('tour_type'));
-            $allResults = $allResults->merge($this->filterByType($tourType));
+            $query->orWhereHas('type', function ($q) use ($tourType) {
+                $q->whereIn('tour_type_id', $tourType);
+            });
+            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
-        // Convert the Collection to array and reset numeric keys
-        $allResults = array_values($allResults->toArray());
 
-        // Paginate manually
-        $page = $request->input('page', 1);
-        $offset = ($page - 1) * $perPage;
-        $paginator = new LengthAwarePaginator(
-            array_slice($allResults, $offset, $perPage), // Slice the results manually
-            count($allResults), // Total number of items in the array
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        if ($request->has('sort_by') && $request->has('sort_order')) {
+            $sortBy = $request->input('sort_by');
+            $sortOrder = $request->input('sort_order');
+            if ($sortBy === 'price_total') {
+                $query->orderBy('price_total', $sortOrder);
+            }
+        }
 
-        return ApiResponse::success($paginator);
+        $results = $query->paginate($perPage);
+
+        return ApiResponse::success($results);
     }
 
     protected function extractArrayFromQueryParam($param)
     {
-
         $param = trim($param, '[]');
-
         $values = explode(',', $param);
-
         return array_map('trim', $values);
     }
-
-    protected function filterByCountry($countryIds)
-    {
-        return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
-            ->whereHas('countries', function ($query) use ($countryIds) {
-                $query->whereIn('t_country_id', $countryIds);
-            })->get();
-    }
-
-    protected function filterByCity($cityIds)
-    {
-        return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
-            ->whereHas('cities', function ($query) use ($cityIds) {
-                $query->whereIn('t_city_id', $cityIds);
-            })->get();
-    }
-
-
-    protected function filterByNaturalDestination($naturalIds)
-    {
-        return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
-            ->whereHas('natural_destination', function ($query) use ($naturalIds) {
-                $query->whereIn('t_natural_id', $naturalIds);
-            })->get();
-    }
-
-    protected function filterByType($typeIds)
-    {
-        return Tour::with(['cities', 'natural_destination', 'type', 'countries'])
-            ->whereHas('type', function ($query) use ($typeIds) {
-                $query->whereIn('tour_type_id', $typeIds);
-            })->get();
-    }
 }
+
