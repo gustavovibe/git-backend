@@ -260,7 +260,7 @@ class DuffelApiController extends Controller
             array_push($passengers, $one_adult);
         }
         if ($request->has('childrenCount')) {
-            $one_child = ['age' => 15];
+            $one_child = ['age' => 10];
             for ($i = 0; $i < $request->childrenCount; $i++) {
                 array_push($passengers, $one_child);
             }
