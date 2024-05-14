@@ -27,7 +27,10 @@ class PackageController extends Controller
         $tourBody = $request->input('tour');
         $tourResponse = TourRadarController::createNewBooking($tourBody);
         if (isset($tourResponse['status']) && $tourResponse['status'] !== "confirmed") {
-            return $tourResponse;
+            return response()->json([
+                "tourResponse" => $tourResponse,
+                "flightResponse" => null,
+            ]);
         }
 
         // book flights
