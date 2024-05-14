@@ -252,15 +252,17 @@ class DuffelApiController extends Controller
     private function getPassengers($request)
     {
         $one_adult = ['type' => 'adult'];
+        $one_child = ['type' => 'child'];
+
         if (!$request->has('adultsCount')) {
-            return [$one_adult];
+            return [$one_adult]; // Default
         }
+
         $passengers = [];
         for ($i = 0; $i < $request->adultsCount; $i++) {
             array_push($passengers, $one_adult);
         }
         if ($request->has('childrenCount')) {
-            $one_child = ['age' => 10];
             for ($i = 0; $i < $request->childrenCount; $i++) {
                 array_push($passengers, $one_child);
             }
