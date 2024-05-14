@@ -12,7 +12,8 @@ class TourController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = 30;
+        $perPage = $request->per_page;
+
         $query = Tour::query();
 
         if ($request->has('country')) {
