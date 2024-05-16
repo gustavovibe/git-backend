@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DuffelApiController extends Controller
 {
+    // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
     {
         $rules = [
@@ -66,13 +67,7 @@ class DuffelApiController extends Controller
                 ]
             ];
 
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            $headers = self::getHeaders();
 
             $url = 'https://api.duffel.com/air/offer_requests?';
             $url = $this->addMoreQueryparamsToUrl($url, $request);
@@ -97,6 +92,7 @@ class DuffelApiController extends Controller
         }
     }
 
+    // api/duffel/get-request-by-id
     public function getRequestById(Request $request)
     {
         // Check if the 'page' and 'perPage' parameters are sent
@@ -125,13 +121,7 @@ class DuffelApiController extends Controller
         }
 
         try {
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            $headers = self::getHeaders();
             $url = 'https://api.duffel.com/air/offer_requests/' . $request->requestId;
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -151,6 +141,7 @@ class DuffelApiController extends Controller
         }
     }
 
+    // api/duffel/get-offer-by-id
     public function getOfferById(Request $request)
     {
         $rules = [
@@ -167,13 +158,7 @@ class DuffelApiController extends Controller
         }
 
         try {
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            $headers = self::getHeaders();
             $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -188,13 +173,7 @@ class DuffelApiController extends Controller
 
     public static function createNewBooking($body)
     {
-        $headers = [
-            'Accept-Encoding' => 'gzip',
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'Duffel-Version' => 'v1',
-            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-        ];
+        $headers = self::getHeaders();
 
         $url = 'https://api.duffel.com/air/orders';
         // Make the request to the Duffel API
@@ -203,6 +182,7 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    // private functions
     private function getFilteredOffers($offers, $offersQuantity)
     {
         $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
@@ -395,5 +375,16 @@ class DuffelApiController extends Controller
         $data['offers'] = $paginator->items();
         $data['offersMeta'] = $paginationData;
         return $data;
+    }
+
+    private static function getHeaders()
+    {
+        return [
+            'Accept-Encoding' => 'gzip',
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Duffel-Version' => 'v1',
+            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+        ];
     }
 }
