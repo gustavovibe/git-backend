@@ -10,33 +10,16 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DuffelApiController extends Controller
 {
+    // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
     {
-        $rules = [
-            'origin' => 'required',
-            'destination' => 'required',
-            'departureDate' => 'required',
-            'originInbound' => 'sometimes',
-            'destinationInbound' => 'sometimes',
-            'departureDateInbound' => 'sometimes',
-            'adultsCount' => 'sometimes|integer|min:1',
-            'childrenCount' => 'sometimes|integer|min:0',
-            'cabinClass' => 'sometimes|in:first,business,premium_economy,economy',
-            'supplierTimeout' => 'sometimes',
-            'limit' => 'sometimes',
-            'sort' => 'sometimes',
-            'maxConnections' => 'sometimes',
-        ];
-        $messages = [
-            'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
+        // Validating params
+        $validator = $this->validateParamsWhenDuffelRequest($request);
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
         }
 
+        // Outbound slice
         $slices = [
             [
                 'origin' => $request->origin,
@@ -45,7 +28,9 @@ class DuffelApiController extends Controller
             ]
         ];
 
-        if ($request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound')) {
+        // Add inbound slice (optional)
+        $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
+        if ($shouldAddSecondSlice) {
             $inboundSlice = [
                 'origin' => $request->originInbound,
                 'destination' => $request->destinationInbound,
@@ -54,6 +39,7 @@ class DuffelApiController extends Controller
             array_push($slices, $inboundSlice);
         }
 
+        // Getting passengers
         $passengers = $this->getPassengers($request);
 
         try {
@@ -66,22 +52,18 @@ class DuffelApiController extends Controller
                 ]
             ];
 
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            // Getting headers
+            $headers = self::getHeaders();
 
-            $url = 'https://api.duffel.com/air/offer_requests?';
+            $url = 'https://api.duffel.com/air/offer_requests?'; // default url
             $url = $this->addMoreQueryparamsToUrl($url, $request);
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->post($url, $requestBody);
 
-            // Return the response from the Duffel API
             $response = $response->json();
+
+            // Filter offers
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
                 /* 
@@ -90,6 +72,7 @@ class DuffelApiController extends Controller
                     you can paginate when asking for request by its id
                 */
             }
+
             return $response;
         } catch (\Exception $e) {
             // Handle exceptions
@@ -97,6 +80,7 @@ class DuffelApiController extends Controller
         }
     }
 
+    // api/duffel/get-request-by-id
     public function getRequestById(Request $request)
     {
         // Check if the 'page' and 'perPage' parameters are sent
@@ -105,40 +89,25 @@ class DuffelApiController extends Controller
             $request->request->remove('limit');
         }
 
-        $rules = [
-            'requestId' => 'required|string|regex:/^orq_.+$/',
-            'limit' => 'sometimes|integer|min:1', // Limit the quantity of offers
-            'page' => 'required_with:perPage|integer|min:1', // the pagination will ignore 'limit'
-            'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
-        ];
-
-        $messages = [
-            'requestId.regex' => "El campo 'requestId' debe comenzar con 'orq_'",
-            'page.required_with' => "El parámetro 'page' es obligatorio cuando se envía el parámetro 'perPage'",
-            'perPage.required_with' => "El parámetro 'perPage' es obligatorio cuando se envía el parámetro 'page'",
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
+        // Validating params
+        $validator = $this->validateParamsWhenRequestById($request);
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
         }
 
         try {
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
             $url = 'https://api.duffel.com/air/offer_requests/' . $request->requestId;
+
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
 
-            // Return the response from the Duffel API
             $response = $response->json();
 
+            // Filtering offers
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
                 // Pagination
@@ -151,30 +120,22 @@ class DuffelApiController extends Controller
         }
     }
 
+    // api/duffel/get-offer-by-id
     public function getOfferById(Request $request)
     {
-        $rules = [
-            'offerId' => 'required|string|regex:/^off_.+$/',
-        ];
-        $messages = [
-            'offerId.regex' => 'El campo :attribute debe comenzar diciendo "off_".',
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
+        // Validations
+        $validator = $this->validateParamsWhenOfferById($request);
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
         }
 
         try {
-            $headers = [
-                'Accept-Encoding' => 'gzip',
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-            ];
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
             $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
+
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
 
@@ -188,13 +149,7 @@ class DuffelApiController extends Controller
 
     public static function createNewBooking($body)
     {
-        $headers = [
-            'Accept-Encoding' => 'gzip',
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'Duffel-Version' => 'v1',
-            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
-        ];
+        $headers = self::getHeaders();
 
         $url = 'https://api.duffel.com/air/orders';
         // Make the request to the Duffel API
@@ -203,10 +158,12 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
-    private function getFilteredOffers($offers, $offersQuantity)
+    // private functions
+    private function getFilteredOffers($offers, $offersQuantity, $request)
     {
         $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
-        $offers = $this->getBaggageOffers($offers, $offersQuantity);
+        $offers = $this->getBaggageOffers($offers, $offersQuantity, $request);
+
         return $offers;
     }
 
@@ -249,6 +206,25 @@ class DuffelApiController extends Controller
         return $filteredOffers;
     }
 
+    private function validateParamsWhenRequestById($request)
+    {
+        $rules = [
+            'requestId' => 'required|string|regex:/^orq_.+$/',
+            'limit' => 'sometimes|integer|min:1', // Limit the quantity of offers
+            'page' => 'required_with:perPage|integer|min:1', // the pagination will ignore 'limit'
+            'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
+            'minimumCheckedBaggage' => 'sometimes|integer|min:1',
+        ];
+
+        $messages = [
+            'requestId.regex' => "El campo 'requestId' debe comenzar con 'orq_'",
+            'page.required_with' => "El parámetro 'page' es obligatorio cuando se envía el parámetro 'perPage'",
+            'perPage.required_with' => "El parámetro 'perPage' es obligatorio cuando se envía el parámetro 'page'",
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
+    }
+
     private function getPassengers($request)
     {
         $one_adult = ['type' => 'adult'];
@@ -262,6 +238,8 @@ class DuffelApiController extends Controller
         for ($i = 0; $i < $request->adultsCount; $i++) {
             array_push($passengers, $one_adult);
         }
+
+        // adding children
         if ($request->has('childrenCount')) {
             for ($i = 0; $i < $request->childrenCount; $i++) {
                 array_push($passengers, $one_child);
@@ -304,7 +282,7 @@ class DuffelApiController extends Controller
         return $url;
     }
 
-    private function getBaggageOffers($offers, $offersQuantity)
+    private function getBaggageOffers($offers, $offersQuantity, $request)
     {
         $baggageOffers = [];
         $count = 0; // Variable to keep track of filtered offers count
@@ -317,6 +295,10 @@ class DuffelApiController extends Controller
 
             $hasBaggage = $this->offerHasBaggage($offer);
 
+            if ($request->has('minimumCheckedBaggage')) {
+                $hasBaggage = $this->offerHasCheckedBaggage($offer, $request);
+            }
+
             if ($hasBaggage) {
                 $baggageOffers[] = $offer; // Add the offer if it has baggage
                 $count++; // Increment the count of baggage offers
@@ -324,6 +306,18 @@ class DuffelApiController extends Controller
         }
 
         return $baggageOffers;
+    }
+
+    private function validateParamsWhenOfferById($request)
+    {
+        $rules = [
+            'offerId' => 'required|string|regex:/^off_.+$/',
+        ];
+        $messages = [
+            'offerId.regex' => 'El campo :attribute debe comenzar diciendo "off_".',
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
     }
 
     private function offerHasBaggage($offer)
@@ -355,10 +349,50 @@ class DuffelApiController extends Controller
         return false;
     }
 
+    private function offerHasCheckedBaggage($offer, $request)
+    {
+        foreach ($offer['slices'] as $slice) {
+            if (!isset($slice['segments'])) {
+                continue; // Skip this slice if 'segments' key is missing
+            }
+
+            foreach ($slice['segments'] as $segment) {
+                if (!isset($segment['passengers'])) {
+                    continue; // Skip this segment if 'passengers' key is missing
+                }
+
+                foreach ($segment['passengers'] as $passenger) {
+                    if (!isset($passenger['baggages'])) {
+                        continue; // Skip this passenger if 'baggages' key is missing
+                    }
+
+                    $checkedFound = false;
+
+                    foreach ($passenger['baggages'] as $baggage) {
+                        if ($baggage['type'] === 'checked' && $baggage['quantity'] >= $request->get('minimumCheckedBaggage')) {
+                            $checkedFound = true;
+                            break; // Found at least one 'checked', no need to keep checking
+                        }
+                    }
+
+                    // If no 'checked' found, return false
+                    if (!$checkedFound) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true; // At least one 'checked' found in all baggages
+    }
+
+
+
     private function handleOffers($offers, $request)
     {
         $offersQuantity = $request->has('limit') ? $request->limit : count($offers);
-        $offers = $this->getFilteredOffers($offers, $offersQuantity);
+        $offers = $this->getFilteredOffers($offers, $offersQuantity, $request);
+
         return $offers;
     }
 
@@ -395,5 +429,40 @@ class DuffelApiController extends Controller
         $data['offers'] = $paginator->items();
         $data['offersMeta'] = $paginationData;
         return $data;
+    }
+
+    private static function getHeaders()
+    {
+        return [
+            'Accept-Encoding' => 'gzip',
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Duffel-Version' => 'v1',
+            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+        ];
+    }
+
+    private function validateParamsWhenDuffelRequest($request)
+    {
+        $rules = [
+            'origin' => 'required',
+            'destination' => 'required',
+            'departureDate' => 'required',
+            'originInbound' => 'sometimes',
+            'destinationInbound' => 'sometimes',
+            'departureDateInbound' => 'sometimes',
+            'adultsCount' => 'sometimes|integer|min:1',
+            'childrenCount' => 'sometimes|integer|min:0',
+            'cabinClass' => 'sometimes|in:first,business,premium_economy,economy',
+            'supplierTimeout' => 'sometimes',
+            'limit' => 'sometimes',
+            'sort' => 'sometimes',
+            'maxConnections' => 'sometimes',
+        ];
+        $messages = [
+            'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
     }
 }
