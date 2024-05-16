@@ -213,7 +213,7 @@ class DuffelApiController extends Controller
             'limit' => 'sometimes|integer|min:1', // Limit the quantity of offers
             'page' => 'required_with:perPage|integer|min:1', // the pagination will ignore 'limit'
             'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
-            'withCheckedBaggage' => 'sometimes',
+            'withCheckedBaggage' => 'sometimes|integer|min:1',
         ];
 
         $messages = [
@@ -296,7 +296,7 @@ class DuffelApiController extends Controller
             $hasBaggage = $this->offerHasBaggage($offer);
 
             if ($request->has('withCheckedBaggage')) {
-                $hasBaggage = $this->offerHasCheckedBaggage($offer);
+                $hasBaggage = $this->offerHasCheckedBaggage($offer, $request);
             }
 
             if ($hasBaggage) {
@@ -349,7 +349,7 @@ class DuffelApiController extends Controller
         return false;
     }
 
-    private function offerHasCheckedBaggage($offer)
+    private function offerHasCheckedBaggage($offer, $request)
     {
         foreach ($offer['slices'] as $slice) {
             if (!isset($slice['segments'])) {
@@ -369,7 +369,7 @@ class DuffelApiController extends Controller
                     $checkedFound = false;
 
                     foreach ($passenger['baggages'] as $baggage) {
-                        if ($baggage['type'] === 'checked') {
+                        if ($baggage['type'] === 'checked' && $baggage['quantity'] >= $request->get('withCheckedBaggage')) {
                             $checkedFound = true;
                             break; // Found at least one 'checked', no need to keep checking
                         }
