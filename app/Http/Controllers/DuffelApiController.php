@@ -14,7 +14,7 @@ class DuffelApiController extends Controller
     public function createRequestGetOffers(Request $request)
     {
         // Validating params
-        $validator = $this->validateParamsDuffelRequest($request);
+        $validator = $this->validateParamsWhenDuffelRequest($request);
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
         }
@@ -88,6 +88,7 @@ class DuffelApiController extends Controller
             // If both parameters are sent, set $request->limit to null
             $request->request->remove('limit');
         }
+
         // Validating params
         $validator = $this->validateParamsWhenRequestById($request);
         if ($validator->fails()) {
@@ -158,10 +159,11 @@ class DuffelApiController extends Controller
     }
 
     // private functions
-    private function getFilteredOffers($offers, $offersQuantity)
+    private function getFilteredOffers($offers, $offersQuantity, $request)
     {
         $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
-        $offers = $this->getBaggageOffers($offers, $offersQuantity);
+        $offers = $this->getBaggageOffers($offers, $offersQuantity, $request);
+
         return $offers;
     }
 
@@ -211,6 +213,7 @@ class DuffelApiController extends Controller
             'limit' => 'sometimes|integer|min:1', // Limit the quantity of offers
             'page' => 'required_with:perPage|integer|min:1', // the pagination will ignore 'limit'
             'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
+            'withCheckedBaggage' => 'sometimes',
         ];
 
         $messages = [
@@ -279,7 +282,7 @@ class DuffelApiController extends Controller
         return $url;
     }
 
-    private function getBaggageOffers($offers, $offersQuantity)
+    private function getBaggageOffers($offers, $offersQuantity, $request)
     {
         $baggageOffers = [];
         $count = 0; // Variable to keep track of filtered offers count
@@ -291,6 +294,10 @@ class DuffelApiController extends Controller
             }
 
             $hasBaggage = $this->offerHasBaggage($offer);
+
+            if ($request->has('withCheckedBaggage')) {
+                $hasBaggage = $this->offerHasCheckedBaggage($offer);
+            }
 
             if ($hasBaggage) {
                 $baggageOffers[] = $offer; // Add the offer if it has baggage
@@ -342,10 +349,50 @@ class DuffelApiController extends Controller
         return false;
     }
 
+    private function offerHasCheckedBaggage($offer)
+    {
+        foreach ($offer['slices'] as $slice) {
+            if (!isset($slice['segments'])) {
+                continue; // Skip this slice if 'segments' key is missing
+            }
+
+            foreach ($slice['segments'] as $segment) {
+                if (!isset($segment['passengers'])) {
+                    continue; // Skip this segment if 'passengers' key is missing
+                }
+
+                foreach ($segment['passengers'] as $passenger) {
+                    if (!isset($passenger['baggages'])) {
+                        continue; // Skip this passenger if 'baggages' key is missing
+                    }
+
+                    $checkedFound = false;
+
+                    foreach ($passenger['baggages'] as $baggage) {
+                        if ($baggage['type'] === 'checked') {
+                            $checkedFound = true;
+                            break; // Found at least one 'checked', no need to keep checking
+                        }
+                    }
+
+                    // If no 'checked' found, return false
+                    if (!$checkedFound) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true; // At least one 'checked' found in all baggages
+    }
+
+
+
     private function handleOffers($offers, $request)
     {
         $offersQuantity = $request->has('limit') ? $request->limit : count($offers);
-        $offers = $this->getFilteredOffers($offers, $offersQuantity);
+        $offers = $this->getFilteredOffers($offers, $offersQuantity, $request);
+
         return $offers;
     }
 
@@ -395,7 +442,7 @@ class DuffelApiController extends Controller
         ];
     }
 
-    private function validateParamsDuffelRequest($request)
+    private function validateParamsWhenDuffelRequest($request)
     {
         $rules = [
             'origin' => 'required',
