@@ -464,12 +464,10 @@ class DuffelApiController extends Controller
         return Validator::make($request->all(), $rules, $messages);
     }
 
-
     private function offerHasCabinBaggage($offer, $request)
     {
         $minimumCabinBaggage = $request->get('minimumCabinBaggage');
 
-        // each slice is an inbound or an outbound
         foreach ($offer['slices'] as $slice) {
 
             foreach ($slice['segments'] as $segment) {
@@ -481,20 +479,20 @@ class DuffelApiController extends Controller
                             if ($baggage['quantity'] >= $minimumCabinBaggage) {
                                 $segmentHasCabinBaggage = true;
                             } else {
-                                return false; // Found a 'checked' baggage that does not meet the minimum quantity. Offer is invalid
+                                return false; // Found a 'cabin' baggage that does not meet the minimum quantity. Offer is invalid
                             }
                         }
                     }
                 }
 
-                // If no 'checked' baggage was found in this segment, the offer is invalid
+                // If no 'cabin' baggage was found in this segment, the offer is invalid
                 if (!$segmentHasCabinBaggage) {
                     return false;
                 }
             }
         }
 
-        // All 'checked' baggages meet the minimum quantity requirement
+        // All 'cabin' baggages meet the minimum quantity requirement
         return true;
     }
 }
