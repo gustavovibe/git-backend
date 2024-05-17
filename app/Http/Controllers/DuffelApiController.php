@@ -294,16 +294,9 @@ class DuffelApiController extends Controller
                 break; // Exit the loop if we've already reached the required quantity
             }
 
-            $hasBaggage = $this->offerHasBaggage($offer);
+            $isValidOffer = $this->validateOffer($offer, $request);
 
-            if ($request->has('minimumCheckedBaggage')) {
-                $hasBaggage = $this->offerHasCheckedBaggage($offer, $request);
-            }
-            if ($request->has('minimumCabinBaggage')) {
-                $hasBaggage = $this->offerHasCabinBaggage($offer, $request);
-            }
-
-            if ($hasBaggage) {
+            if ($isValidOffer) {
                 $baggageOffers[] = $offer; // Add the offer if it has baggage
                 $count++; // Increment the count of baggage offers
             }
@@ -324,60 +317,56 @@ class DuffelApiController extends Controller
         return Validator::make($request->all(), $rules, $messages);
     }
 
-    private function offerHasBaggage($offer)
+    private function validateOffer($offer, $request)
     {
         foreach ($offer['slices'] as $slice) {
-            if (!isset($slice['segments'])) {
-                continue; // Skip this slice if 'segments' key is missing
-            }
-
             foreach ($slice['segments'] as $segment) {
-                if (!isset($segment['passengers'])) {
-                    continue; // Skip this segment if 'passengers' key is missing
-                }
-
                 foreach ($segment['passengers'] as $passenger) {
-                    if (!isset($passenger['baggages'])) {
-                        continue; // Skip this passenger if 'baggages' key is missing
-                    }
+                    $isValidOffer = false;
+                    $hasCheckedBaggage = true; // default
+                    $hasCabinBaggage = true; // default
 
-                    foreach ($passenger['baggages'] as $baggage) {
-                        if ($baggage['type'] === 'checked' || $baggage['type'] === 'carry_on') {
-                            return true;
+                    $checkedBaggages = array_filter($passenger['baggages'], function ($baggage) {
+                        return $baggage['type'] === 'checked';
+                    });
+                    $cabinBaggages = array_filter($passenger['baggages'], function ($baggage) {
+                        return $baggage['type'] === 'carry_on';
+                    });
+
+                    // baggages included?
+                    if (!empty($checkedBaggages) || !empty($cabinBaggages)) {
+                        $isValidOffer = true;
+
+                        // minimum checked baggage included?
+                        if ($request->has('minimumCheckedBaggage')) {
+                            $hasCheckedBaggage = false;
+                            $minimumCheckedBaggage = intval($request->get('minimumCheckedBaggage'));
+
+                            if (!empty($checkedBaggages)) {
+                                $checkedBaggage = reset($checkedBaggages);
+                                if ($checkedBaggage['quantity'] >= $minimumCheckedBaggage) {
+                                    $hasCheckedBaggage = true;
+                                }
+                            }
                         }
-                    }
-                }
-            }
-        }
 
-        return false;
-    }
+                        // minimum cabin baggage included?
+                        if ($request->has('minimumCabinBaggage')) {
+                            $hasCabinBaggage = false;
+                            $minimumCabinBaggage = intval($request->get('minimumCabinBaggage'));
 
-    private function offerHasCheckedBaggage($offer, $request)
-    {
-        $minimumCheckedBaggage = $request->get('minimumCheckedBaggage');
-
-        // each slice is an inbound or an outbound
-        foreach ($offer['slices'] as $slice) {
-
-            foreach ($slice['segments'] as $segment) {
-
-                $segmentHasCheckedBaggage = false;
-                foreach ($segment['passengers'] as $passenger) {
-                    foreach ($passenger['baggages'] as $baggage) {
-                        if ($baggage['type'] === 'checked') {
-                            if ($baggage['quantity'] >= $minimumCheckedBaggage) {
-                                $segmentHasCheckedBaggage = true;
-                            } else {
-                                return false; // Found a 'checked' baggage that does not meet the minimum quantity. Offer is invalid
+                            if (!empty($cabinBaggages)) {
+                                $cabinBaggage = reset($cabinBaggages);
+                                if ($cabinBaggage['quantity'] >= $minimumCabinBaggage) {
+                                    $hasCabinBaggage = true;
+                                }
                             }
                         }
                     }
-                }
 
-                // If no 'checked' baggage was found in this segment, the offer is invalid
-                if (!$segmentHasCheckedBaggage) {
-                    return false;
+                    if (!$isValidOffer || !$hasCheckedBaggage || !$hasCabinBaggage) {
+                        return false;
+                    }
                 }
             }
         }
@@ -462,37 +451,5 @@ class DuffelApiController extends Controller
         ];
 
         return Validator::make($request->all(), $rules, $messages);
-    }
-
-    private function offerHasCabinBaggage($offer, $request)
-    {
-        $minimumCabinBaggage = $request->get('minimumCabinBaggage');
-
-        foreach ($offer['slices'] as $slice) {
-
-            foreach ($slice['segments'] as $segment) {
-
-                $segmentHasCabinBaggage = false;
-                foreach ($segment['passengers'] as $passenger) {
-                    foreach ($passenger['baggages'] as $baggage) {
-                        if ($baggage['type'] === 'carry_on') {
-                            if ($baggage['quantity'] >= $minimumCabinBaggage) {
-                                $segmentHasCabinBaggage = true;
-                            } else {
-                                return false; // Found a 'cabin' baggage that does not meet the minimum quantity. Offer is invalid
-                            }
-                        }
-                    }
-                }
-
-                // If no 'cabin' baggage was found in this segment, the offer is invalid
-                if (!$segmentHasCabinBaggage) {
-                    return false;
-                }
-            }
-        }
-
-        // All 'cabin' baggages meet the minimum quantity requirement
-        return true;
     }
 }
