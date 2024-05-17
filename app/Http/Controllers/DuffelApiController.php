@@ -351,42 +351,37 @@ class DuffelApiController extends Controller
 
     private function offerHasCheckedBaggage($offer, $request)
     {
+        $minimumCheckedBaggage = $request->get('minimumCheckedBaggage');
+
+        // each slice is an inbound or an outbound
         foreach ($offer['slices'] as $slice) {
-            if (!isset($slice['segments'])) {
-                continue; // Skip this slice if 'segments' key is missing
-            }
 
             foreach ($slice['segments'] as $segment) {
-                if (!isset($segment['passengers'])) {
-                    continue; // Skip this segment if 'passengers' key is missing
-                }
 
+                $segmentHasCheckedBaggage = false;
                 foreach ($segment['passengers'] as $passenger) {
-                    if (!isset($passenger['baggages'])) {
-                        continue; // Skip this passenger if 'baggages' key is missing
-                    }
-
-                    $checkedFound = false;
-
                     foreach ($passenger['baggages'] as $baggage) {
-                        if ($baggage['type'] === 'checked' && $baggage['quantity'] >= $request->get('minimumCheckedBaggage')) {
-                            $checkedFound = true;
-                            break; // Found at least one 'checked', no need to keep checking
+                        if ($baggage['type'] === 'checked') {
+                            if ($baggage['quantity'] >= $minimumCheckedBaggage) {
+                                $segmentHasCheckedBaggage = true;
+                            } else {
+                                return false; // Found a 'checked' baggage that does not meet the minimum quantity. Offer is invalid
+                            }
                         }
                     }
+                }
 
-                    // If no 'checked' found, return false
-                    if (!$checkedFound) {
-                        return false;
-                    }
+                // If no 'checked' baggage was found in this segment, the offer is invalid
+                if (!$segmentHasCheckedBaggage) {
+                    return false;
                 }
             }
+           
         }
 
-        return true; // At least one 'checked' found in all baggages
+        // All 'checked' baggages meet the minimum quantity requirement
+        return true;
     }
-
-
 
     private function handleOffers($offers, $request)
     {
