@@ -162,7 +162,7 @@ class DuffelApiController extends Controller
     private function getFilteredOffers($offers, $offersQuantity, $request)
     {
         $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
-        $offers = $this->getBaggageOffers($offers, $offersQuantity, $request);
+        $offers = $this->validateOffers($offers, $offersQuantity, $request);
 
         return $offers;
     }
@@ -216,6 +216,7 @@ class DuffelApiController extends Controller
             'minimumCheckedBaggage' => 'sometimes|integer|min:1',
             'minimumCabinBaggage' => 'sometimes|integer|min:1',
             'stops' => 'required|string|in:any,direct,upToOneStop,upToTwoStops',
+            'sortByLeastExpensive' => 'sometimes',
         ];
 
         $messages = [
@@ -284,9 +285,9 @@ class DuffelApiController extends Controller
         return $url;
     }
 
-    private function getBaggageOffers($offers, $offersQuantity, $request)
+    private function validateOffers($offers, $offersQuantity, $request)
     {
-        $baggageOffers = [];
+        $validatedOffers = [];
         $count = 0; // Variable to keep track of filtered offers count
 
         // Iterate over the offers
@@ -307,11 +308,29 @@ class DuffelApiController extends Controller
                 }
             }
 
-            $baggageOffers[] = $offer; // Add the offer if it has baggage
+            $validatedOffers[] = $offer; // Add the offer if it has baggage
             $count++; // Increment the count of baggage offers
         }
 
-        return $baggageOffers;
+        $validatedOffers = $this->sortOffers($validatedOffers, $request);
+        return $validatedOffers;
+    }
+
+    private function sortOffers($offers, $request)
+    {
+        $newOffers = $offers; // Initially, the new offers will be a copy of the original array
+
+        if ($request->has('sortByLeastExpensive')) {
+            // Define a comparison function to sort by base_amount
+            $compareOffers = function ($a, $b) {
+                return floatval($a['base_amount']) <=> floatval($b['base_amount']);
+            };
+
+            // Sort the offers by base_amount in ascending order
+            usort($newOffers, $compareOffers);
+        }
+
+        return $newOffers;
     }
 
     private function validateParamsWhenOfferById($request)
