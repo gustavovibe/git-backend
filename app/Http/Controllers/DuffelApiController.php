@@ -215,6 +215,7 @@ class DuffelApiController extends Controller
             'perPage' => 'required_with:page|integer|min:1', // the pagination will ignore 'limit'
             'minimumCheckedBaggage' => 'sometimes|integer|min:1',
             'minimumCabinBaggage' => 'sometimes|integer|min:1',
+            'stops' => 'required|string|in:any,direct,upToOneStop,upToTwoStops',
         ];
 
         $messages = [
@@ -294,12 +295,20 @@ class DuffelApiController extends Controller
                 break; // Exit the loop if we've already reached the required quantity
             }
 
-            $isValidOffer = $this->validateOffer($offer, $request);
-
-            if ($isValidOffer) {
-                $baggageOffers[] = $offer; // Add the offer if it has baggage
-                $count++; // Increment the count of baggage offers
+            $isValidOffer = $this->validateBaggages($offer, $request);
+            if (!$isValidOffer) {
+                continue;
             }
+
+            if ($request->has('stops')) {
+                $isValidOffer = $this->validateStops($offer, $request);
+                if (!$isValidOffer) {
+                    continue;
+                }
+            }
+
+            $baggageOffers[] = $offer; // Add the offer if it has baggage
+            $count++; // Increment the count of baggage offers
         }
 
         return $baggageOffers;
@@ -317,7 +326,7 @@ class DuffelApiController extends Controller
         return Validator::make($request->all(), $rules, $messages);
     }
 
-    private function validateOffer($offer, $request)
+    private function validateBaggages($offer, $request)
     {
         foreach ($offer['slices'] as $slice) {
             foreach ($slice['segments'] as $segment) {
@@ -372,6 +381,38 @@ class DuffelApiController extends Controller
         }
 
         // All 'checked' baggages meet the minimum quantity requirement
+        return true;
+    }
+
+    private function validateStops($offer, $request)
+    {
+        if ($request->get('stops') === 'any') {
+            return true;
+        }
+
+        foreach ($offer['slices'] as $slice) {
+            // only direct flights
+            if ($request->get('stops') === "direct") {
+                if (count($slice['segments']) != 1) {
+                    return false;
+                }
+            }
+
+            // direct or one stop
+            if ($request->get('stops') === "upToOneStop") {
+                if (count($slice['segments']) > 2) {
+                    return false;
+                }
+            }
+
+            // direct or one stop or two stops
+            if ($request->get('stops') === "upToTwoStops") {
+                if (count($slice['segments']) > 3) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
