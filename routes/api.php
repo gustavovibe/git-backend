@@ -57,4 +57,4 @@ Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestB
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
 Route::post('/book-package', [PackageController::class, 'bookPackage']);
-Route::get('tours/departures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
+Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
