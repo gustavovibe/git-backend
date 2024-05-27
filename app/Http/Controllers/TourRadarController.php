@@ -36,6 +36,37 @@ class TourRadarController extends Controller
         }
     }
 
+public static function getDeparturesByTour($params)
+    {
+        $accessToken = self::getAccessToken();
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        $tourId = $params['tourId'];
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?";
+
+        if (isset($params['currency'])) {
+            $url .= "currency=" . $params['currency'] . "&";
+        }
+        if (isset($params['page'])) {
+            $url .= "page=" . $params['page'] . "&";
+        }
+        if (isset($params['user_country'])) {
+            $url .= "user_country=" . $params['user_country'] . "&";
+        }
+        if (isset($params['date_range'])) {
+            $url .= "date_range=" . $params['date_range'] . "&";
+        }
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
  public function getMultipleDeparturesByTours(Request $request)
     {
         $params = $request->all();
