@@ -11,6 +11,7 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\TourCountriesController;
 use App\Http\Controllers\TourNaturalDestinationController;
 use App\Http\Controllers\ProxyTourRadarController;
+use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
@@ -56,3 +57,4 @@ Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestB
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
 Route::post('/book-package', [PackageController::class, 'bookPackage']);
+Route::get('tours/departures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
