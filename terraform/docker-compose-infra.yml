@@ -1,0 +1,12 @@
+services:
+  terraform:
+    image: hashicorp/terraform:latest
+    container_name: terraform
+    volumes:
+      - .:/infra
+    working_dir: /infra
+    env_file:
+      - ../.env
+    environment:
+      - AWS_ACCESS_KEY_ID=AKIA4MTWNXIEFTLHSBNR
+      - AWS_SECRET_ACCESS_KEY=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
