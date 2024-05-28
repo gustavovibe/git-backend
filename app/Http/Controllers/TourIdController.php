@@ -52,7 +52,7 @@ class TourIdController extends Controller
         $query->where('departures', 'guaranteed');
         
         // Get all matching tour IDs
-        $tourIds = $query->pluck('id'); // Assuming 'id' is the column name for tour_id
+        $tourIds = $query->pluck('tour_id'); // Assuming 'id' is the column name for tour_id
 
         // Count the total number of tour IDs
         $total = $tourIds->count();
