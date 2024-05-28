@@ -45,7 +45,6 @@ class GustavoDuffelController extends Controller
             return response()->json(['error' => 'Missing required parameters: ' . implode(', ', $missingParameters)], 400);
         }
 
-
         try {
             // Construct the passengers array based on counts
             $passengers = [];
@@ -109,7 +108,6 @@ class GustavoDuffelController extends Controller
                 return true; // Include this offer if operating carrier is not "Duffel Airways"
             });
 
-
             // Filter offers with at least one checked or carry-on baggage
             $baggageOffers = array_filter($filteredOffers, function ($offer) {
                 foreach ($offer['slices'] as $slice) {
@@ -135,7 +133,7 @@ class GustavoDuffelController extends Controller
                 return false;
             });
 
-            $filteredOffers = $baggageOffers;
+            $filteredOffers = array_values($baggageOffers); // Re-index the array to remove numeric keys
 
             // Extract the offers from the response
             $offers = collect($filteredOffers);
