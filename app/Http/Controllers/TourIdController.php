@@ -48,6 +48,9 @@ class TourIdController extends Controller
             }
         }
 
+        // Filter by guaranteed departures
+        $query->where('departures', 'guaranteed');
+        
         // Get all matching tour IDs
         $tourIds = $query->pluck('id'); // Assuming 'id' is the column name for tour_id
 
