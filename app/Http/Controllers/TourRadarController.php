@@ -67,7 +67,7 @@ public static function getDeparturesByTour($params)
         }
     }
     
- public function getMultipleDeparturesByTours(Request $request)
+    public function getMultipleDeparturesByTours(Request $request)
     {
         $params = $request->all();
 
@@ -102,7 +102,6 @@ public static function getDeparturesByTour($params)
             if (isset($response['items'])) {
                 Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
 
-                // Find the cheapest departure for this tourId
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
                     if (isset($departure['prices']['price_total'])) {
@@ -128,6 +127,7 @@ public static function getDeparturesByTour($params)
 
         return response()->json(['items' => $departures]);
     }
+
 
     private function getDeparturesByTourParams($params)
     {
