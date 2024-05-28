@@ -55,6 +55,7 @@ class TourController extends Controller
         if ($request->has('tour_ids')) {
             $tourIds = $this->extractArrayFromQueryParam($request->input('tour_ids'));
             $query->whereIn('tour_id', $tourIds);
+            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         $results = $query->get();
