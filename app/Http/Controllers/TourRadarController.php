@@ -77,8 +77,7 @@ public static function getDeparturesByTour($params)
 
         $tourIds = explode(',', $params['tourIds']);
         $departures = [];
-        $delay = 500000; // delay in microseconds (500000 microseconds = 0.5 seconds)
-        $itemsPerPage = 10;
+        $itemsPerPage = 12;
         $page = isset($params['page']) ? (int)$params['page'] : 1;
         $start = ($page - 1) * $itemsPerPage;
 
@@ -122,7 +121,7 @@ public static function getDeparturesByTour($params)
                 Log::info('No departures found for tour', ['tourId' => $tourId]);
             }
 
-            usleep($delay); // delay between API calls
+            sleep(0.1); // delay between API calls
         }
 
         Log::info('Returning departures', ['departures' => $departures]);

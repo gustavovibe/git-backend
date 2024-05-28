@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
-
 
 class TourController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->per_page;
-
         $query = Tour::query();
 
         if ($request->has('country')) {
@@ -56,7 +52,12 @@ class TourController extends Controller
             }
         }
 
-        $results = $query->paginate($perPage);
+        if ($request->has('tour_ids')) {
+            $tourIds = $this->extractArrayFromQueryParam($request->input('tour_ids'));
+            $query->whereIn('tour_id', $tourIds);
+        }
+
+        $results = $query->get();
 
         return ApiResponse::success($results);
     }
@@ -68,4 +69,3 @@ class TourController extends Controller
         return array_map('trim', $values);
     }
 }
-
