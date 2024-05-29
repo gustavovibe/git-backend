@@ -77,7 +77,7 @@ public static function getDeparturesByTour($params)
 
         $tourIds = explode(',', $params['tourIds']);
         $departures = [];
-        $itemsPerPage = 12;
+        $itemsPerPage = 10;
         $page = isset($params['page']) ? (int)$params['page'] : 1;
         $start = ($page - 1) * $itemsPerPage;
 
