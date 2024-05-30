@@ -505,6 +505,7 @@ class DuffelApiController extends Controller
             'limit' => 'sometimes',
             'sort' => 'sometimes',
             'maxConnections' => 'sometimes',
+            'sortByLeastExpensive' => 'sometimes',
         ];
         $messages = [
             'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
