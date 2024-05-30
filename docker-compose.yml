@@ -1,31 +1,29 @@
 version: '3'
 
 services:
-  db:
-    image: mysql:8.3.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'vibe_adventure'
-      MYSQL_USER: 'vibe_adventure_user_admin'
-      MYSQL_PASSWORD: 'adventure'
-      MYSQL_ROOT_PASSWORD: 'adventure'
-    ports:
-      - '3306:3306'
-    expose:
-      - '3306'
-    volumes:
-      - my-db:/var/lib/mysql
-    networks:
-      - app-network
-   
+  # db:
+  #   image: mysql:8.3.0
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: 'vibe_adventure'
+  #     MYSQL_USER: 'vibe_adventure_user_admin'
+  #     MYSQL_PASSWORD: 'adventure'
+  #     MYSQL_ROOT_PASSWORD: 'adventure'
+  #   ports:
+  #     - '3306:3306'
+  #   expose:
+  #     - '3306'
+  #   volumes:
+  #     - my-db:/var/lib/mysql
+  #   networks:
+  #     - app-network
+
   app:
     build:
       context: .
       dockerfile: Dockerfile-app
     networks:
       - app-network
-    depends_on:
-      - db
 
   nginx:
     image: nginx:latest
@@ -38,8 +36,9 @@ services:
       - app
     networks:
       - app-network
-volumes:
-  my-db:
+# volumes:
+#   my-db:
+
 
 networks:
   app-network:

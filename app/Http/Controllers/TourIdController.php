@@ -6,7 +6,7 @@ use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 
-class TourController extends Controller
+class TourIdController extends Controller
 {
     public function index(Request $request)
     {
@@ -17,7 +17,6 @@ class TourController extends Controller
             $query->orWhereHas('countries', function ($q) use ($countries) {
                 $q->whereIn('t_country_id', $countries);
             });
-            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('city')) {
@@ -25,7 +24,6 @@ class TourController extends Controller
             $query->orWhereHas('cities', function ($q) use ($cities) {
                 $q->whereIn('t_city_id', $cities);
             });
-            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('natural_destination')) {
@@ -33,7 +31,6 @@ class TourController extends Controller
             $query->orWhereHas('natural_destination', function ($q) use ($naturalDestinations) {
                 $q->whereIn('t_natural_id', $naturalDestinations);
             });
-            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('tour_type')) {
@@ -41,7 +38,6 @@ class TourController extends Controller
             $query->orWhereHas('type', function ($q) use ($tourType) {
                 $q->whereIn('tour_type_id', $tourType);
             });
-            $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
         if ($request->has('sort_by') && $request->has('sort_order')) {
@@ -52,15 +48,23 @@ class TourController extends Controller
             }
         }
 
-        if ($request->has('tour_ids')) {
-            $tourIds = $this->extractArrayFromQueryParam($request->input('tour_ids'));
-            $query->whereIn('tour_id', $tourIds);
-            $query->with(['cities', 'natural_destination', 'type', 'countries']);
-        }
+        // Filter by guaranteed departures
+        $query->where('departures', 'guaranteed');
+        
+        // Get all matching tour IDs
+        $tourIds = $query->pluck('tour_id'); // Assuming 'id' is the column name for tour_id
 
-        $results = $query->get();
+        // Count the total number of tour IDs
+        $total = $tourIds->count();
 
-        return ApiResponse::success($results);
+        // Prepare the response
+        $response = [
+            'tour_ids' => $tourIds,
+            'total' => $total
+        ];
+
+        // Return the response using the ApiResponse helper
+        return ApiResponse::success($response);
     }
 
     protected function extractArrayFromQueryParam($param)

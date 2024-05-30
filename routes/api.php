@@ -11,11 +11,13 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\TourCountriesController;
 use App\Http\Controllers\TourNaturalDestinationController;
 use App\Http\Controllers\ProxyTourRadarController;
+use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\TourIdController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('test', [AuthController::class, 'test']);
@@ -56,3 +58,5 @@ Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestB
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
 Route::post('/book-package', [PackageController::class, 'bookPackage']);
+Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
+Route::get('/tour-ids', [TourIdController::class, 'index']);
