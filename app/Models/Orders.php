@@ -7,7 +7,12 @@ class Order extends Model
 {
     use HasFactory;
 
+    protected $table = 'orders';
+
+    protected $primaryKey = 'booking_id';
+
     protected $fillable = [
+        'booking_id',
         'created',
         'departure',
         'start',
@@ -21,7 +26,6 @@ class Order extends Model
         'operator',
         'start_city',
         'end_city',
-        'booking_id',
         'booking_status',
         'duffel_status',
         'tourradar_status',
