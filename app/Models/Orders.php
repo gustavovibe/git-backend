@@ -73,4 +73,5 @@ class Order extends Model
         'suscribed',
         'hear',
     ];
+    protected $hidden = ['created_at', 'updated_at'];
 }
