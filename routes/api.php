@@ -62,4 +62,4 @@ Route::post('/book-package', [PackageController::class, 'bookPackage']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
 
-Route::post('/orders', [OrderController::class, 'store']);
+Route::post('orders', [OrderController::class, 'store']);
