@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDeletedTables2 extends Migration
+class CreateTravelersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -29,7 +29,7 @@ class CreateDeletedTables2 extends Migration
             $table->string('pass');
             $table->boolean('newsletter');
             $table->boolean('active');
-            $table->timestamps();  
+            $table->timestamps();
         });
     }
 
