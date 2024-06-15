@@ -4,5 +4,6 @@ docker compose -f ./terraform/docker-compose-infra.yml run --rm terraform apply 
 
 docker compose -f ./terraform/docker-compose-infra.yml run --rm terraform destroy --auto-approve
 
-ssh -i ./terraform/nginx-api-server.key ubuntu@18.191.246.229
+ssh -i ./terraform/nginx-api-server.key ubuntu@3.21.236.25
+
 

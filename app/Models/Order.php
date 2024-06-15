@@ -13,9 +13,12 @@ class Order extends Model
 
     protected $primaryKey = 'booking_id';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'booking_id',
-        'created',
         'departure',
         'start',
         'arrival',
@@ -30,10 +33,11 @@ class Order extends Model
         'end_city',
         'booking_status',
         'duffel_status',
+        'tourradar_id',
         'tourradar_status',
         'tourradar_reason',
         'tourradar_text',
-        'duffel',
+        'duffel_id',
         'source',
         'device',
         'affiliate',
@@ -47,17 +51,7 @@ class Order extends Model
         'destination_carrier',
         'return_carrier',
         'checked_bags',
-        'title',
-        'gender',
-        'name',
-        'country',
-        'city',
-        'address',
-        'zip',
-        'birthdate',
-        'mail',
-        'mobile',
-        'travelers',
+        'travelers_number',
         'reference',
         'method',
         'currency',
@@ -72,8 +66,12 @@ class Order extends Model
         'promo',
         'profit',
         'ratio',
-        'suscribed',
-        'hear',
+        'user_id',
     ];
+    public function travelers()
+    {
+        return $this->belongsToMany(Traveler::class, 'order_traveler', 'booking_id', 'traveler_id');
+    }
     protected $hidden = ['created_at', 'updated_at'];
 }
+
