@@ -101,6 +101,10 @@ class OrderController extends Controller
             }
         }
 
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->query('user_id'));
+        }    
+
         if ($request->query('travelers') == 'true') {
             $query->with('travelers');
         }
