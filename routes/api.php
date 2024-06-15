@@ -67,4 +67,5 @@ Route::get('/travelers', [TravelersController::class, 'getTravelers']);
 Route::post('/write-travelers', [TravelersController::class, 'writeTravelers']);
 Route::post('/write-orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'getOrders']);
+Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);

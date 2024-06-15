@@ -79,40 +79,85 @@ class OrderController extends Controller
         return response()->json($order, 201);
     }
 
+    public function adminOrders(Request $request)
+        {
+            $query = Order::query();
+
+            if ($request->has('created')) {
+                $dates = explode('-', $request->query('created'));
+                if (count($dates) == 2) {
+                    $startDate = date('Y-m-d', strtotime($dates[0]));
+                    $endDate = date('Y-m-d', strtotime($dates[1]));
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                }
+            }
+
+            if ($request->has('departure')) {
+                $dates = explode('-', $request->query('departure'));
+                if (count($dates) == 2) {
+                    $startDate = date('Y-m-d', strtotime($dates[0]));
+                    $endDate = date('Y-m-d', strtotime($dates[1]));
+                    $query->whereBetween('departure', [$startDate, $endDate]);
+                }
+            }
+
+            if ($request->has('user_id')) {
+                $query->where('user_id', $request->query('user_id'));
+            }    
+
+            if ($request->query('travelers') == 'true') {
+                $query->with('travelers');
+            }
+
+            $orders = $query->get();
+
+            return response()->json($orders);
+        }
+
     public function getOrders(Request $request)
     {
-        $query = Order::query();
+        $today = date('Y-m-d');
+
+        // Query for orders with departure dates before today
+        $beforeTodayQuery = Order::query()
+            ->where('departure', '<', $today);
+
+        // Query for orders with departure dates after today
+        $afterTodayQuery = Order::query()
+            ->where('departure', '>=', $today);
 
         if ($request->has('created')) {
             $dates = explode('-', $request->query('created'));
             if (count($dates) == 2) {
                 $startDate = date('Y-m-d', strtotime($dates[0]));
                 $endDate = date('Y-m-d', strtotime($dates[1]));
-                $query->whereBetween('created_at', [$startDate, $endDate]);
-            }
-        }
-
-        if ($request->has('departure')) {
-            $dates = explode('-', $request->query('departure'));
-            if (count($dates) == 2) {
-                $startDate = date('Y-m-d', strtotime($dates[0]));
-                $endDate = date('Y-m-d', strtotime($dates[1]));
-                $query->whereBetween('departure', [$startDate, $endDate]);
+                $beforeTodayQuery->whereBetween('created_at', [$startDate, $endDate]);
+                $afterTodayQuery->whereBetween('created_at', [$startDate, $endDate]);
             }
         }
 
         if ($request->has('user_id')) {
-            $query->where('user_id', $request->query('user_id'));
-        }    
-
-        if ($request->query('travelers') == 'true') {
-            $query->with('travelers');
+            $userId = $request->query('user_id');
+            $beforeTodayQuery->where('user_id', $userId);
+            $afterTodayQuery->where('user_id', $userId);
         }
 
-        $orders = $query->get();
+        if ($request->query('travelers') == 'true') {
+            $beforeTodayQuery->with('travelers');
+            $afterTodayQuery->with('travelers');
+        }
 
-        return response()->json($orders);
+        // Paginate the results (3 per page)
+        $beforeTodayOrders = $beforeTodayQuery->paginate(3, ['*'], 'before_page');
+        $afterTodayOrders = $afterTodayQuery->paginate(3, ['*'], 'after_page');
+
+        // Return the results as a combined JSON response
+        return response()->json([
+            'before_today' => $beforeTodayOrders,
+            'after_today' => $afterTodayOrders,
+        ]);
     }
+
 
     public function getOrderWithTravelers(Request $request, $booking_id)
     {
