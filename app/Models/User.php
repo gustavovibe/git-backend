@@ -18,35 +18,25 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'full_name', 'email', 'password', 'id_profile'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
-        'password', 'remember_token',
+        'password','created_at', 'updated_at'
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+
 
     public function profile()
     {
-        return $this->hasOne(Profile::class, 'id', 'id_profile');
+        return $this->hasOne(Profile::class, 'id', 'profile_id');
     }
 
-    public function courses()
+    public function permissions()
     {
-        return $this->belongsToMany(Course::class, 'courses_for_users', 'id_user', 'id_course')  ->withPivot('id', 'progress');
+        return $this->belongsToMany(Permission::class);
     }
+
+
 
 }

@@ -42,6 +42,11 @@ class PackageController extends Controller
                 "flightResponse" => $flightResponse,
             ]);
         }
+
+        //stripe payment
+
+
+        
         return response()->json([
             "tourResponse" => $tourResponse,
             "flightResponse" => $flightResponse,

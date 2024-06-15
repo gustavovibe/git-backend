@@ -34,6 +34,6 @@ class CreateToursCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tours_cities');
+        Schema::dropIfExists('tour_cities');
     }
 }
