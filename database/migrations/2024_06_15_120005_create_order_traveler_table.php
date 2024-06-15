@@ -18,7 +18,6 @@ class CreateDeletedTables3 extends Migration
             $table->string('booking_id');
             $table->unsignedBigInteger('traveler_id');
             $table->timestamps();
-
             $table->foreign('booking_id')->references('booking_id')->on('orders')->onDelete('cascade');
             $table->foreign('traveler_id')->references('traveler_id')->on('travelers')->onDelete('cascade');
         });
