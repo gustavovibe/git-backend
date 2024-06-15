@@ -28,12 +28,13 @@ class TravelersController extends Controller
     public function writeTravelers(Request $request)
     {
         $request->validate([
+            'traveler_id' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'last' => 'required|string|max:255',
             'birth' => 'required|date',
-            'passport' => 'required|string|max:255',
+            'passport' => 'required|integer',
             'place' => 'required|string|max:255',
             'issue' => 'required|date',
             'expire' => 'required|date',
