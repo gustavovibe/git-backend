@@ -28,7 +28,6 @@ class TravelersController extends Controller
     public function writeTravelers(Request $request)
     {
         $request->validate([
-            'traveler_id' => 'required|integer',
             'title' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'name' => 'required|string|max:255',
