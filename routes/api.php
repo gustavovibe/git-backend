@@ -20,6 +20,8 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TravelersController;
+use App\Http\Controllers\UserController;
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('test', [AuthController::class, 'test']);
@@ -69,3 +71,5 @@ Route::post('/write-orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'getOrders']);
 Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
+
+Route::get('/users', [UserController::class, 'getUserByEmail']);
