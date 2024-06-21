@@ -87,8 +87,6 @@ class Citycontroller extends Controller
                 'natural_destinations' => $responseDataNatural
             ];
 
-       
-
             return ApiResponse::success($responseData);
         }
     }

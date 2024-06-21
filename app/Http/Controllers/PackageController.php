@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
+use App\Models\Traveler;
 
 class PackageController extends Controller
 {
@@ -24,31 +25,50 @@ class PackageController extends Controller
         }
 
         // book tour
-        $tourBody = $request->input('tour');
-        $tourResponse = TourRadarController::createNewBooking($tourBody);
-        if (isset($tourResponse['status']) && $tourResponse['status'] !== "confirmed") {
-            return response()->json([
-                "tourResponse" => $tourResponse,
-                "flightResponse" => null,
-            ]);
-        }
-
+        // $tourBody = $request->input('tour');
+        // $tourResponse = TourRadarController::createNewBooking($tourBody);
+        // if (isset($tourResponse['status']) && $tourResponse['status'] !== "confirmed") {
+        //     return response()->json([
+        //         "tourResponse" => $tourResponse,
+        //         "flightResponse" => null,
+        //     ]);
+        // }
+ 
         // book flights
         $flightBody = $request->input('flight');
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
         if (isset($flightResponse['errors'])) {
             return response()->json([
-                "tourResponse" => $tourResponse,
+                // "tourResponse" => $tourResponse,
                 "flightResponse" => $flightResponse,
             ]);
         }
 
-        //stripe payment
+
+        $passengers = $flightResponse['data']['passengers'];
+
+        foreach ($passengers as $passenger) {
+            $traveler = Traveler::create([
+                'title' => $passenger['title'],
+                'gender' => $passenger['gender'],
+                'name' => $passenger['given_name'],
+                'last' => $passenger['family_name'],
+                'birth' => $passenger['born_on'],
+                'passport' => 1,
+                'place' => "place",
+                'issue' => "2024-06-20",
+                'expire' => "2024-06-20",
+                'mail' => $passenger['email'],
+                'phone' => $passenger['phone_number'],
+                'pass' => "pass",
+                'newsletter' => 1,
+                'active' => 1,
+            ]);
+        }
 
 
-        
         return response()->json([
-            "tourResponse" => $tourResponse,
+            // "tourResponse" => $tourResponse,
             "flightResponse" => $flightResponse,
         ]);
     }
