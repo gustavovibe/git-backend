@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ContactFilters;
 use App\Models\User;
+use Error;
 use Illuminate\Http\Request;
-
+use App\Mail\ContactMail;
+use App\Models\ContactEmail;
+use Exception;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 class UserController extends Controller
 {
+    protected $contactFilters;
+
     public function getUserByEmail(Request $request)
     {
         $email = $request->query('email');
@@ -43,5 +51,37 @@ class UserController extends Controller
             'status' => true,
             'user' => $userData
         ], 200);
+    }
+
+    public function Contac(Request $r){
+        DB::beginTransaction();
+            try{
+            $details = [
+                'email'=>$r->email,
+                'reference' => $r->reference,
+                'trip' => $r->trip,
+                'subject' => $r->subject,
+                'message' => $r->message,
+            ];
+
+            $Contact = new ContactEmail();
+            $Contact->fill($details)->save();
+            Mail::to('adan_gonzalez@vibeadventures.com')->send(new ContactMail($details));
+            DB::commit();
+            return response()->json(['status'=>200,'response'=>'entro a servicio']);
+        }catch(Error $e){
+            DB::rollback();
+            return response()->json(['status'=>500,'response'=>$e]);
+        }
+    }
+
+    public function showContac(Request $r){
+        try{
+            //$Contact= ContactEmail::all();
+            $Contact = (new ContactFilters)->ContactE($r);
+            return response()->json(['status'=>200,'response'=>$Contact]);
+        }catch(Exception $e){
+            return response()->json(['status'=>500,'response'=>$e]);
+        }
     }
 }
