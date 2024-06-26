@@ -26,9 +26,9 @@ class CreateTravelersTable extends Migration
             $table->date('expire');
             $table->string('mail');
             $table->string('phone');
-            $table->string('pass');
-            $table->boolean('newsletter');
-            $table->boolean('active');
+            $table->string('address');
+            $table->boolean('country');
+            $table->boolean('lead');
             $table->timestamps();
         });
     }
