@@ -21,6 +21,7 @@ use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WishlistController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -76,3 +77,6 @@ Route::get('/users', [UserController::class, 'getUserByEmail']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
+
+Route::get('/wishlists', [WishlistController::class, 'index']);
+Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
