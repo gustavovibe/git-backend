@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
 use App\Models\Traveler;
+use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 
 class PackageController extends Controller
 {
-    public function bookPackage(Request $request)
+    public function bookPackage(TourStoreRequest $request)
     {
         // validations
         $tourValidator = $this->validateTourParams($request);
@@ -25,7 +29,7 @@ class PackageController extends Controller
         }
 
         // book tour
-        // $tourBody = $request->input('tour');
+        $tourBody = $request->input('tour');
         // $tourResponse = TourRadarController::createNewBooking($tourBody);
         // if (isset($tourResponse['status']) && $tourResponse['status'] !== "confirmed") {
         //     return response()->json([
@@ -33,7 +37,7 @@ class PackageController extends Controller
         //         "flightResponse" => null,
         //     ]);
         // }
- 
+
         // book flights
         $flightBody = $request->input('flight');
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
@@ -45,28 +49,45 @@ class PackageController extends Controller
         }
 
 
-        $passengers = $flightResponse['data']['passengers'];
-
+        $passengers =    $tourBody['passengers'];
+        $firstIteration = true;
         foreach ($passengers as $passenger) {
+            if ($firstIteration) {
+                $user = User::updateOrCreate(
+                    ['email' => $passenger['fields']['email']],
+                    [
+                        'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
+                        'password' => Hash::make('password123'),
+                        'profile_id' => 2,
+                        'phone' => $passenger['fields']['phone_number'],
+                        'country' => $passenger['fields']['country'],
+                        'role' => 'role',
+                        'active' => 1,
+                        'suscribed' => 1,
+                        'hear' => "without comment",
+                    ]
+                );
+                $firstIteration = false;
+            }
             $traveler = Traveler::create([
-                'title' => $passenger['title'],
-                'gender' => $passenger['gender'],
-                'name' => $passenger['given_name'],
-                'last' => $passenger['family_name'],
-                'birth' => $passenger['born_on'],
-                'passport' => 1,
-                'place' => "place",
-                'issue' => "2024-06-20",
-                'expire' => "2024-06-20",
-                'mail' => $passenger['email'],
-                'phone' => $passenger['phone_number'],
-                'pass' => "pass",
-                'newsletter' => 1,
-                'active' => 1,
+                'title' => $passenger['fields']['title'],
+                'gender' => $passenger['fields']['gender'],
+                'name' => $passenger['fields']['first_name'],
+                'last' => $passenger['fields']['last_name'],
+                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->format('Y-m-d'),
+                'passport' => intval($passenger['fields']['passport_number']),
+                'place' => $passenger['fields']['place_of_issue'],
+                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->format('Y-m-d'),
+                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'),
+                'mail' => $passenger['fields']['email'],
+                'phone' => $passenger['fields']['phone_number'],
+                'address' => $passenger['fields']['address'],
+                'country' => $passenger['fields']['country'],
+                'lead' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
         }
-
-
         return response()->json([
             // "tourResponse" => $tourResponse,
             "flightResponse" => $flightResponse,
@@ -93,12 +114,10 @@ class PackageController extends Controller
     {
         $rules = [
             'flight.data.selected_offers' => 'required', // OFFER_ID
-
             'flight.data.payments' => 'required|array',
             'flight.data.payments.*.type' => 'required|in:arc_bsp_cash,balance',
             'flight.data.payments.*.currency' => 'required', // TOTAL_CURRENCY
             'flight.data.payments.*.amount' => 'required', // TOTAL_AMOUNT
-
             'flight.data.passengers' => 'required|array',
             'flight.data.passengers.*.id' => 'required', // ADULT_PASSENGER_ID_1
             'flight.data.passengers.*.given_name' => 'required',
