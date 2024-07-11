@@ -15,7 +15,7 @@ class CreateOrderTravelerTable extends Migration
     {
         Schema::create('order_traveler', function (Blueprint $table) {
             $table->id();
-            $table->string('booking_id');
+            $table->unsignedBigInteger('booking_id');
             $table->unsignedBigInteger('traveler_id');
             $table->timestamps();
             $table->foreign('booking_id')->references('booking_id')->on('orders')->onDelete('cascade');
