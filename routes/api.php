@@ -80,3 +80,5 @@ Route::get('/show-contact', [UserController::class, 'showContac']);
 
 Route::get('/wishlists', [WishlistController::class, 'index']);
 Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
+
+Route::post('/add-user', [UserController::class, 'createUser']);
