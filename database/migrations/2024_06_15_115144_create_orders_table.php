@@ -14,56 +14,44 @@ class CreateOrdersTable extends Migration
     public function up()
     {
     Schema::create('orders', function (Blueprint $table) {
-        $table->string('booking_id', 255)->primary(); // Assuming booking_id is the primary key
+        $table->id('booking_id');
         $table->date('departure');
         $table->date('start');
         $table->date('arrival');
         $table->date('end');
-        $table->tinyInteger('duration');
-        $table->tinyInteger('tour_length');
-        $table->string('tour_name', 255);
-        $table->integer('tour_id');
-        $table->integer('style');
+        $table->integer('duration');
+        $table->integer('tour_length');
+        $table->string('tour_name');
+        $table->unsignedBigInteger('tour_id');
         $table->integer('operator');
-        $table->integer('start_city');
-        $table->integer('end_city');
-        $table->string('booking_status', 255);
-        $table->string('duffel_status', 255);
-        $table->string('tourradar_id', 255);
-        $table->string('tourradar_status', 255);
-        $table->string('tourradar_reason', 255);
+        $table->string('start_city');
+        $table->string('end_city');
+        $table->string('booking_status');
+        $table->string('tourradar_id');
+        $table->string('tourradar_status');
+        $table->string('tourradar_reason');
         $table->text('tourradar_text');
-        $table->string('duffel_id', 255);
-        $table->string('source', 255);
-        $table->string('device', 255);
-        $table->integer('affiliate');
-        $table->string('origin', 255);
-        $table->tinyInteger('f_destination'); // (hours)
-        $table->tinyInteger('f_return'); // (hours)
-        $table->tinyInteger('f_duration'); // (hours)
-        $table->tinyInteger('destination_stops');
-        $table->tinyInteger('return_stops');
-        $table->tinyInteger('total_stops');
-        $table->string('destination_carrier', 255);
-        $table->string('return_carrier', 255);
-        $table->tinyInteger('checked_bags');
-        $table->tinyInteger('travelers_number');
-        $table->string('reference', 255);
-        $table->string('method', 255);
-        $table->string('currency', 255);
-        $table->string('invoice', 255);
+        $table->string('duffel_id');
+        $table->string('origin');
+        $table->string('f_destination');
+        $table->string('f_return');
+        $table->integer('f_duration');
+        $table->integer('destination_stops');
+        $table->integer('return_stops');
+        $table->integer('total_stops');
+        $table->string('destination_carrier');
+        $table->string('return_carrier');
+        $table->integer('checked_bags');
+        $table->integer('travelers_number');
+        $table->string('reference');
+        $table->string('currency');
         $table->decimal('paid', 10, 2);
-        $table->decimal('fees', 10, 2);
-        $table->decimal('markup', 10, 2);
-        $table->decimal('refunded', 10, 2);
         $table->decimal('p_flight', 10, 2);
         $table->decimal('p_tour', 10, 2);
         $table->decimal('discounted', 10, 2);
-        $table->string('promo', 255);
-        $table->decimal('profit', 10, 2);
-        $table->decimal('ratio', 10, 2);
-        $table->string('user_id', 255);
-        $table->timestamps(); // created_at and updated_at
+        $table->string('promo');
+        $table->string('user_id');
+        $table->timestamps();
     });
 }
 
