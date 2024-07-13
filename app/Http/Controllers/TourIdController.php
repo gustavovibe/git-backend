@@ -40,6 +40,11 @@ class TourIdController extends Controller
             });
         }
 
+        if ($request->has('day_price')) {
+            $dayPrice = $request->input('day_price');
+            $query->whereRaw('price_total / tour_length_days <= ?', [$dayPrice]);
+        }
+
         if ($request->has('sort_by') && $request->has('sort_order')) {
             $sortBy = $request->input('sort_by');
             $sortOrder = $request->input('sort_order');
