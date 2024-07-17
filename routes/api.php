@@ -22,6 +22,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\SystemUserController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -81,4 +82,6 @@ Route::get('/show-contact', [UserController::class, 'showContac']);
 Route::get('/wishlists', [WishlistController::class, 'index']);
 Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
 
-Route::post('/add-user', [UserController::class, 'createUser']);
+Route::post('/add-users', [SystemUserController::class, 'createUser']);
+Route::get('/get-users', [SystemUserController::class, 'getUsers']);
+Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);

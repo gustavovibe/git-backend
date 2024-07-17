@@ -46,27 +46,4 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function createUser(Request $r){
-        try{
-           /*  $u=$r->id?User::find($r->id):new User;
-            $u->fill([
-                'name'=>$r->name,
-                'email'=>$r->email,
-                'profile_id'=>$r->profile_id,
-                'phone'=>$r->phoneNumber
-            ]); */
-            return response()->json(['status'=>200,'response'=>$r->all()]);
-        }catch(Error $e){
-            return response()->json(['status'=>500,'response'=>$e]);
-        }
-    }
-
-
-    public function getUsers(){
-        try{
-            return response()->json(['status'=>200,'response'=>'']);
-        }catch(Error $e){
-            return response()->json(['status'=>500,'response'=>$e]);
-        }
-    }
 }
