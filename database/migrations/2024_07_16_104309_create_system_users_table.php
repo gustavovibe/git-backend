@@ -18,11 +18,12 @@ class CreateSystemUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->unsignedBigInteger('profile_id');
+            $table->unsignedBigInteger('job_id');
             $table->string('phone');
             $table->string('phone_code');
             $table->integer('active')->default(1);
             $table->timestamps();
+
         });
     }
 

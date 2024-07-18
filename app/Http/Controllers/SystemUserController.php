@@ -11,9 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Validator;
 class SystemUserController extends Controller
 {
+    protected $email_validations;
+    public function __construct()
+    {
+        $this->email_validations=[
+            '0'=>'Correct',
+            '1'=>'Email cannot be empty',
+            '2'=>'This email is actually register',
+            '3'=>'This email required a correct format'
+        ];
+    }
 
     public function createUser(Request $r){
         /* return response()->json(['status'=>200,'response'=>$r->all()]); */
@@ -25,7 +35,7 @@ class SystemUserController extends Controller
                 'email'=>$r->email,
                 'phone'=>$r->phone,
                 'phone_code'=>$r->phone_code,
-                'profile_id'=>$r->profile_id,
+                'job_id'=>$r->job_id,
             ])->save();
 
            $existingPermissions = SystemPermission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
@@ -61,7 +71,7 @@ class SystemUserController extends Controller
             $user = SystemUser::with('permission')->find($r->user_id);
            /*  return $this->authorize('viewAny',$user); */
            $u = (new UsersFilters)->UsersF($r);
-           return response()->json(['status' => 200, 'response' => $u]);
+           return response()->json(['status' => 200,'count'=>count($u),'response' => $u]);
          /*   if (Gate::forUser($user)->allows('viewAny', SystemPermission_User::class)) {
             } else {
                 return response()->json(['status' => 500, 'response' => 'User has not Access']);
@@ -87,5 +97,29 @@ class SystemUserController extends Controller
             DB::rollback();
             return response()->json(['status' => 500, 'response' => $e]);
         }
+    }
+
+    public function validateEmail(Request $request) {
+        // Definir las reglas de validación
+        $rules = [
+            'email' => 'required|email|unique:system_users,email'
+        ];
+
+        // Mensajes de error personalizados
+        $messages = [
+            'required' => 'The email field is required.',
+            'email' => 'The email must be a valid email address.',
+            'unique' => 'The email is already registered.'
+        ];
+
+        // Realizar la validación
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            $error=$validator->errors()->toArray();
+            return response()->json(['status' => false, 'response' =>['message'=>$error,'value'=>false]]);
+        }
+
+        return response()->json(['status' => true, 'response' => 'The email is valid and not registered.']);
     }
 }

@@ -10,7 +10,7 @@ class SystemUser extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'email', 'password', 'profile_id', 'phone','phone_code', 'active',
+        'name', 'email', 'password', 'phone','phone_code', 'active','job_id'
     ];
 
     protected $hidden = [
@@ -18,14 +18,12 @@ class SystemUser extends Model
     ];
 
 
-
-    public function profile()
-    {
-        return $this->hasOne(Profile::class, 'id', 'profile_id');
-    }
-
     public function permission(){
         return $this->hasMany(SystemPermission_User::class,'user_id','id');
+    }
+
+    public function job(){
+        return $this->hasOne(Job::class,'id','job_id');
     }
 
 }

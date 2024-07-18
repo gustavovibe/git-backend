@@ -16,9 +16,11 @@ use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
+use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
@@ -84,4 +86,9 @@ Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
 
 Route::post('/add-users', [SystemUserController::class, 'createUser']);
 Route::get('/get-users', [SystemUserController::class, 'getUsers']);
+Route::get('/validate-email', [SystemUserController::class, 'validateEmail']);
 Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
+
+
+Route::resource('jobs', JobsController::class);
+Route::resource('roles', RolesController::class);
