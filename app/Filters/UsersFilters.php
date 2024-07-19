@@ -12,6 +12,8 @@ class UsersFilters
 {
     protected $notifications;
     protected $permissions;
+    protected $permission_text;
+
     public function __construct(){
 
         $this->permissions=[
@@ -29,6 +31,16 @@ class UsersFilters
             'cart'=>false,
             'bounced'=>false,
             'report'=>false
+        ];
+
+        $this->permission_text=[
+            'inventory'=>'Inventory',
+            'orders_p'=>'Orders',
+            'travelers'=>'Travelers',
+            'reports'=>'Reports',
+            'users'=>'Settings: Users',
+            'emails'=>'Settings: Emails',
+            'actions'=>'Settings: Action logs',
         ];
     }
 
@@ -71,7 +83,13 @@ class UsersFilters
                     })->values()->all();
                 }
                 $u->permissions = $permissions;
-                $admin?:$u->permissions=implode(',',$u->permissions);
+                if(!$admin){
+                    foreach( $u->permissions as $p){
+                        $val[]=$this->permission_text[$p];
+                    }
+                    $u->permissions=$val;
+                    $admin?:$u->permissions=implode(',',$u->permissions);
+                }
                 !$admin?:$u->notifications = $notifications;
 
             unset($u->job);
