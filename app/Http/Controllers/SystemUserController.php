@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Filters\UsersFilters;
 use App\Models\Permission;
-use App\Models\SystemPermission_User;
-use App\Models\SystemUser;
+use App\Models\Permission_User;
+use App\Models\User;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 class SystemUserController extends Controller
 {
     protected $email_validations;
@@ -29,30 +30,34 @@ class SystemUserController extends Controller
         /* return response()->json(['status'=>200,'response'=>$r->all()]); */
         DB::beginTransaction();
         try{
-            $u=$r->id?SystemUser::find($r->id):new SystemUser;
+            $u=$r->id?User::find($r->id):new User;
+            $random=Str::random(10);
             $u->fill([
                 'name'=>$r->name,
                 'email'=>$r->email,
                 'phone'=>$r->phone,
                 'phone_code'=>$r->phone_code,
                 'job_id'=>$r->job_id,
+                'active'=>1,
+                'role'=>1,
+                'password'=>$r->id?$u->code:$random
             ])->save();
 
-           $existingPermissions = SystemPermission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
+           $existingPermissions = Permission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
 
            foreach ($r->permissions as $key => $value) {
             $p = Permission::where('description', $key)->first();
             if ($p) {
                 if ($value) {
                     if (!in_array($p->id, $existingPermissions)) {
-                        $usp = new SystemPermission_User;
+                        $usp = new Permission_User;
                         $usp->fill([
                             'user_id' => $u->id,
                             'permission_id' => $p->id,
                         ])->save();
                     }
                 } else {
-                    SystemPermission_User::where('user_id', $u->id)->where('permission_id', $p->id)->delete();
+                    Permission_User::where('user_id', $u->id)->where('permission_id', $p->id)->delete();
                     }
                 }
             }
@@ -68,7 +73,8 @@ class SystemUserController extends Controller
 
     public function getUsers(Request $r){
         try {
-            $user = SystemUser::with('permission')->find($r->user_id);
+            $user = User::with('permission')->find($r->user_id);
+
            /*  return $this->authorize('viewAny',$user); */
            $u = (new UsersFilters)->UsersF($r);
            return response()->json(['status' => 200,'count'=>count($u),'response' => $u]);
@@ -86,11 +92,8 @@ class SystemUserController extends Controller
         DB::beginTransaction();
         try{
             $user = SystemUser::find($r->user_id);
-            $perm= SystemPermission_User::where('user_id',$r->user_id)->get();
-            foreach ($perm as $permission) {
-                $permission->delete();
-            }
-            $user->delete();
+            $user->active=0;
+            $user->save();
             DB::commit();
             return response()->json(['status' => 200, 'response' => ['user'=>$user,'perm'=>$perm]]);
         }catch(Error $e){

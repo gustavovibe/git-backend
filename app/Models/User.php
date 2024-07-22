@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','phone_code'
     ];
 
     protected $hidden = [
@@ -37,6 +37,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Permission::class);
     }
 
+    public function permission(){
+        return $this->hasMany(Permission_User::class,'user_id','id');
+    }
 
 
+    public function job(){
+        return $this->hasOne(Job::class,'id','job_id');
+    }
 }

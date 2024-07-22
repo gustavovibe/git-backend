@@ -3,7 +3,6 @@
 namespace App\Filters;
 
 use App\Models\ContactEmail;
-use App\Models\SystemUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -45,24 +44,26 @@ class UsersFilters
     }
 
     public function UsersF(Request $r){
+
         $admin=$r->admin;
         $filter=$r->filter;
-        $users = (new SystemUser)->newQuery();
+        $users = (new User)->newQuery();
         !$r->name?:$users->where('name', 'like', '%' . $r->name . '%');
         !$r->id?:$users->where('id', $r->id);
-        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'phone_code', 'job_id');
+        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'phone_code', 'job_id','password');
         !$r->limit?:$users->limit($r->limit);
         !$r->filter?:$users->where(function($query)use($filter){
             $query->where('name', 'like', '%' . $filter . '%')
             ->orWhere('email', 'like', '%' . $filter . '%');
         });
         $users = $users->get();
-
         $users = $users->map(function($u) use($admin) {
             $u->phone = (int) $u->phone;
             $u->job_title=$u->job->name;
+            !$admin?:$u->code=$u->password;
             $permissions =$admin?$this->permissions:[];
             $notifications =$this->notifications;
+
             if ($u->permission && is_iterable($u->permission)) {
                 $u->permission->map(function($uu) use (&$permissions, &$notifications,$admin) {
                         $description = $uu->details->description ?? null;
@@ -84,10 +85,11 @@ class UsersFilters
                 }
                 $u->permissions = $permissions;
                 if(!$admin){
+                    $this->val=[];
                     foreach( $u->permissions as $p){
-                        $val[]=$this->permission_text[$p];
+                        $this->val[]=$this->permission_text[$p];
                     }
-                    $u->permissions=$val;
+                    $u->permissions=$this->val;
                     $admin?:$u->permissions=implode(',',$u->permissions);
                 }
                 !$admin?:$u->notifications = $notifications;
