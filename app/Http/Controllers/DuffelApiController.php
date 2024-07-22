@@ -158,6 +158,32 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    public function getOrderById(Request $request)
+    {
+        // Validations
+        $validator = $this->validateParamsWhenOrderById($request);
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        try {
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
+            $url = 'https://api.duffel.com/air/orders/' . $request->orderId;
+
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     // private functions
     private function getFilteredOffers($offers, $offersQuantity, $request)
     {
@@ -340,6 +366,18 @@ class DuffelApiController extends Controller
         ];
         $messages = [
             'offerId.regex' => 'El campo :attribute debe comenzar diciendo "off_".',
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
+    }
+
+    private function validateParamsWhenOrderById($request)
+    {
+        $rules = [
+            'orderId' => 'required|string|regex:/^ord_.+$/',
+        ];
+        $messages = [
+            'orderId.regex' => 'El campo :attribute debe comenzar diciendo "ord_".',
         ];
 
         return Validator::make($request->all(), $rules, $messages);
