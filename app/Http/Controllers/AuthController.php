@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\MailRegistro;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 
 class AuthController extends Controller
@@ -50,7 +51,8 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request['email'])->with('profile', 'permissions')->firstOrFail();
-
+        $user->last_login=Carbon::now();
+        $user->save();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

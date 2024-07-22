@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 class SystemUserController extends Controller
 {
     protected $email_validations;
@@ -36,11 +37,12 @@ class SystemUserController extends Controller
                 'name'=>$r->name,
                 'email'=>$r->email,
                 'phone'=>$r->phone,
-                'phone_code'=>$r->phone_code,
+                'country'=>$r->country,
                 'job_id'=>$r->job_id,
+                'profile_id'=>1,
                 'active'=>1,
                 'role'=>1,
-                'password'=>$r->id?$u->code:$random
+                'password'=>Hash::make($r->id?$u->code:$random)
             ])->save();
 
            $existingPermissions = Permission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();

@@ -50,7 +50,7 @@ class UsersFilters
         $users = (new User)->newQuery();
         !$r->name?:$users->where('name', 'like', '%' . $r->name . '%');
         !$r->id?:$users->where('id', $r->id);
-        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'phone_code', 'job_id','password');
+        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'job_id','password','last_login','profile_id','country')->where('profile_id',1);
         !$r->limit?:$users->limit($r->limit);
         !$r->filter?:$users->where(function($query)use($filter){
             $query->where('name', 'like', '%' . $filter . '%')
