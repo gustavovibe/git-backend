@@ -59,6 +59,7 @@ Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
 Route::get('duffel/get-offer-by-id', [DuffelApiController::class, 'getOfferById']);
+Route::get('duffel/get-order-by-id', [DuffelApiController::class, 'getOrderById']);
 Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestById']);
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
