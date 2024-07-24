@@ -49,10 +49,14 @@ class TourIdController extends Controller
             $sortBy = $request->input('sort_by');
             $sortOrder = $request->input('sort_order');
 
-            $validSortFields = ['price_total', 'tour_length_days', 'reviews_count', 'ratings_overall'];
+            $validSortFields = ['price_total', 'tour_length_days', 'reviews_count', 'ratings_overall', 'price_day'];
 
             if (in_array($sortBy, $validSortFields)) {
-                $query->orderBy($sortBy, $sortOrder);
+                if ($sortBy == 'price_day') {
+                    $query->orderByRaw('price_total / tour_length_days ' . $sortOrder);
+                } else {
+                    $query->orderBy($sortBy, $sortOrder);
+                }
             }
         }
 
