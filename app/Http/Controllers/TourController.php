@@ -44,11 +44,23 @@ class TourController extends Controller
             $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
+        if ($request->has('day_price')) {
+            $dayPrice = $request->input('day_price');
+            $query->whereRaw('price_total / tour_length_days <= ?', [$dayPrice]);
+        }
+
         if ($request->has('sort_by') && $request->has('sort_order')) {
             $sortBy = $request->input('sort_by');
             $sortOrder = $request->input('sort_order');
-            if ($sortBy === 'price_total') {
-                $query->orderBy('price_total', $sortOrder);
+
+            $validSortFields = ['price_total', 'tour_length_days', 'reviews_count', 'ratings_overall', 'price_day'];
+
+            if (in_array($sortBy, $validSortFields)) {
+                if ($sortBy == 'price_day') {
+                    $query->orderByRaw('price_total / tour_length_days ' . $sortOrder);
+                } else {
+                    $query->orderBy($sortBy, $sortOrder);
+                }
             }
         }
 
