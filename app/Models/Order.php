@@ -67,6 +67,8 @@ class Order extends Model
         'profit',
         'ratio',
         'user_id',
+        'created_at',
+        'updated_at'
     ];
     public function travelers()
     {

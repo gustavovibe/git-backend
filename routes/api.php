@@ -77,7 +77,7 @@ Route::get('/orders', [OrderController::class, 'getOrders']);
 Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
 
-Route::get('/users', [UserController::class, 'getUserByEmail']);
+Route::get('/users', [UserController::class, 'getUserById']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
