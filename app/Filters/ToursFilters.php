@@ -13,6 +13,8 @@ class ToursFilters
     public function ToursP(Request $r){
         $tour_type=$r->tour_type?$r->tour_type:0;
         $city=$r->city?explode(',',$r->city)  :[];
+        $country=$r->country;
+        $admin=$r->admin;
 
         $tour= (new Tour)->newQuery();
 
@@ -24,10 +26,13 @@ class ToursFilters
             $q->whereIn('t_city_id',$city);
         });
 
+        !$r->country?:$tour->WhereHas('country', function ($q) use ($country) {
+            $q->whereIn('t_country_id',$country);
+        });
+
         if($r->commission){
             $commission=explode(',',$r->commission);
             $com=(double)$commission[0];
-          /*   return $com; */
             $commission[0]==$commission[1]?$tour->where('commission','like',"%{$com}%"):$tour->whereBetween('commission',[(double)$commission[0],(double)$commission[1]]);
         }
 
@@ -41,19 +46,21 @@ class ToursFilters
         !$r->admin?:$tour->select('tour_name','end_city','departures','max_group_size','commission','price_total','tour_id','operator_id');
         !$r->limit?:$tour->limit($r->limit);
         $tour=$tour->with('natural_destination')->with('type')->with('cities')->get();
-        $tour=$tour->map(function($t){
-            $this->entro1=[];
-            $this->entro2=[];
-            $t->type=$t->type->map(function($tt) {
-                $this->entro1[]=$tt->type->tourtype_name;
-                return $tt;
-            })->values()->all();
-            $t->cities=$t->cities->map(function($tt) {
-                $this->entro2[]=$tt->city->city_name;
-                return $tt;
-            })->values()->all();
-            $t->travel_style=$this->entro1;
-            $t->cities_tour=$this->entro2;
+        $tour=$tour->map(function($t) use($admin){
+            if($admin){
+                $this->entro1=[];
+                $this->entro2=[];
+                $t->type=$t->type->map(function($tt) {
+                    $this->entro1[]=$tt->type->tourtype_name;
+                    return $tt;
+                })->values()->all();
+                $t->cities=$t->cities->map(function($tt) {
+                    $this->entro2[]=$tt->city->city_name;
+                    return $tt;
+                })->values()->all();
+                $t->travel_style=$this->entro1;
+                $t->cities_tour=$this->entro2;
+            }
             $t->city_name=$t->city->city_name;
             $t->comision=((double)$t->price_total)*$t->commission;
             $t->total_commision='$'.$t->comision;

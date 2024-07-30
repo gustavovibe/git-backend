@@ -12,8 +12,6 @@ class TourController extends Controller
 {
     public function index(Request $request)
     {
-        $tour= (new ToursFilters)->ToursP($request);
-        return response()->json(['status'=>true,'count'=>count($tour), 'response'=>$tour]);
         $query = Tour::query();
 
         if ($request->has('country')) {
@@ -76,7 +74,8 @@ class TourController extends Controller
 
     public static function getText(Request $r)
     {
-        $accessToken = TourRadarController::getAccessToken();
+        $scope = "com.tourradar.bookings/read";
+        $accessToken = TourRadarController::getAccessToken($scope);
         $url = "https://api.sandbox.b2b.tourradar.com/v1/operators/{$r->operatorId}";
         $headers = [
             'Accept' => 'application/json',
@@ -88,6 +87,15 @@ class TourController extends Controller
             return response()->json(['status'=>true,'response'=>$response->json()]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show(Request $r){
+        try{
+            $tour= (new ToursFilters)->ToursP($r);
+            return response()->json(['status'=>true,'count'=>count($tour), 'response'=>$tour]);
+        }catch(Error $e){
+            return response()->json(['status'=>false, 'response'=>$e]);
         }
     }
 }
