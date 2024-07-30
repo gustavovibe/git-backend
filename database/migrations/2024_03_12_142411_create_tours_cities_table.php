@@ -15,6 +15,7 @@ class CreateToursCitiesTable extends Migration
     {
         Schema::create('tour_cities', function (Blueprint $table) {
             $table->id();
+            $table->string('city_name');
             $table->unsignedBigInteger('tour_id')->index();
             $table->unsignedBigInteger('t_city_id')->index();
             $table->timestamps();

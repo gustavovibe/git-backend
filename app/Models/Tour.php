@@ -89,4 +89,8 @@ class Tour extends Model
             $q->whereIn('tour_type_id', $typeIds);
         });
     }
+
+    public function city(){
+        return $this->hasOne(City::class,'t_city_id','end_city');
+    }
 }

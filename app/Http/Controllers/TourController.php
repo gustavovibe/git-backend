@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ToursFilters;
 use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
-
+use App\Http\Controllers\TourRadarController;
+use Illuminate\Support\Facades\Http;
 class TourController extends Controller
 {
     public function index(Request $request)
@@ -80,5 +82,32 @@ class TourController extends Controller
         $param = trim($param, '[]');
         $values = explode(',', $param);
         return array_map('trim', $values);
+    }
+
+    public static function getText(Request $r)
+    {
+        $scope = "com.tourradar.bookings/read";
+        $accessToken = TourRadarController::getAccessToken($scope);
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/operators/{$r->operatorId}";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+ /*        return $url; */
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return response()->json(['status'=>true,'response'=>$response->json()]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show(Request $r){
+        try{
+            $tour= (new ToursFilters)->ToursP($r);
+            return response()->json(['status'=>true,'count'=>count($tour), 'response'=>$tour]);
+        }catch(Error $e){
+            return response()->json(['status'=>false, 'response'=>$e]);
+        }
     }
 }

@@ -15,12 +15,12 @@ class TourType extends Model
         'tour_type_id',
     ];
 
-    
+
     protected $hidden = ['created_at', 'updated_at'];
 
 
     public function type()
     {
-        return $this->belongsTo(Type::class, 'tour_type_id', 'tourtype_id');
+        return $this->belongsTo(Type::class, 'tour_type_id', 'tour_type_id');
     }
 }

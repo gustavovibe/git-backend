@@ -15,6 +15,6 @@ class Type extends Model
         'tourtype_name',
     ];
 
-    
+
     protected $hidden = ['created_at', 'updated_at'];
 }
