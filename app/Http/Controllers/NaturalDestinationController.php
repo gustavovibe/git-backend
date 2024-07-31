@@ -51,7 +51,7 @@ class NaturalDestinationController extends Controller
     public function show($id)
     {
 
-        $natural = NaturalDestination::where('destination_id', '=', $id)->first();
+        $natural = NaturalDestination::where('t_natural_id', '=', $id)->first();
 
 
         if (!$natural) {
