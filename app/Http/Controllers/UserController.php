@@ -3,22 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Error;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function getUserByEmail(Request $request)
+    public function getUserById(Request $request)
     {
-        $email = $request->query('email');
+        $id = $request->query('id');
 
-        if (!$email) {
+        if (!$id) {
             return response()->json([
                 'status' => false,
-                'message' => 'Email query parameter is required.'
+                'message' => 'id query parameter is required.'
             ], 400);
         }
 
-        $user = User::where('email', $email)->first();
+        $user = User::where('id', $id)->first();
 
         if (!$user) {
             return response()->json([
@@ -44,4 +45,5 @@ class UserController extends Controller
             'user' => $userData
         ], 200);
     }
+
 }

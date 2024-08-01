@@ -10,12 +10,11 @@ use App\Helpers\ApiResponse;
 
 class TourRadarController extends Controller
 {
-
-    public static function getAccessToken($scope = "com.tourradar.tours/read")
+    public static function getAccessToken()
     {
         // ToDo: Move these variables to a .env file
-        $clientId = 'hpg0tvme3ujrwcnd6fcyttwst8';
-        $clientSecret = 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594';
+        $clientId = env('TOURRADAR_CLIENT_ID', 'hpg0tvme3ujrwcnd6fcyttwst8');
+        $clientSecret = env('TOURRADAR_CLIENT_SECRET', 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594');
         $urlToken = 'https://oauth.api.sandbox.b2b.tourradar.com/oauth2/token';
         $authorization = base64_encode($clientId . ':' . $clientSecret);
         $headers = [
@@ -24,7 +23,10 @@ class TourRadarController extends Controller
         ];
         $body = [
             'grant_type' => 'client_credentials',
-            'scope' => $scope,
+            'scope' => [
+                'com.tourradar.tours/read',
+                'com.tourradar.operators/read'
+            ],
         ];
 
         try {

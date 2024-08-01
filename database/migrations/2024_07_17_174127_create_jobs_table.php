@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNaturalDestinationsTable extends Migration
+class CreateJobsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateNaturalDestinationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('natural_destinations', function (Blueprint $table) {
+        Schema::create('jobs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('t_natural_id')->index();
-            $table->string('destination_name');
-            $table->string('type');
-            $table->timestamps();
+            $table->string('name');
         });
     }
 
@@ -29,6 +26,6 @@ class CreateNaturalDestinationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('natural_destinations');
+        Schema::dropIfExists('jobs');
     }
 }

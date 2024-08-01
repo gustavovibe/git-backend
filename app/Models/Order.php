@@ -11,7 +11,16 @@ class Order extends Model
 {
     use HasFactory;
 
+    protected $table = 'orders';
+
+    protected $primaryKey = 'booking_id';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
+        'booking_id',
         'departure',
         'start',
         'arrival',
@@ -68,7 +77,9 @@ class Order extends Model
         'age_group',
         'group_size',
         'country',
-        'carrier'
+        'carrier',
+        'created_at',
+        'updated_at'
     ];
 
     public function travelers()

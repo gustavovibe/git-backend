@@ -16,12 +16,15 @@ use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
+use App\Http\Controllers\JobsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\SystemUserController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -55,6 +58,8 @@ Route::get('confirm-payment', [ProxyKiwiController::class, 'confirmPayment']);
 Route::get('confirm-payment-zooz', [ProxyKiwiController::class, 'confirmPaymentZooz']);
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
+Route::get('show-tours', [TourController::class,'show']);
+Route::get('tours-text',[TourController::class,'getText']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
@@ -74,7 +79,7 @@ Route::get('/orders', [OrderController::class, 'getOrders']);
 Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
 
-Route::get('/users', [UserController::class, 'getUserByEmail']);
+Route::get('/users', [UserController::class, 'getUserById']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
@@ -86,3 +91,12 @@ Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 Route::get('/orders-all', [OrderController::class, 'index']);
 
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
+
+Route::post('/add-users', [SystemUserController::class, 'createUser']);
+Route::get('/get-users', [SystemUserController::class, 'getUsers']);
+Route::get('/validate-email', [SystemUserController::class, 'validateEmail']);
+Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
+
+
+Route::resource('jobs', JobsController::class);
+Route::resource('roles', RolesController::class);
