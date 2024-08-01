@@ -82,23 +82,20 @@ public static function getDeparturesByTour($params)
         $itemsPerPage = 10;
         $page = isset($params['page']) ? (int)$params['page'] : 1;
         $start = ($page - 1) * $itemsPerPage;
-
+        $end = $start + $itemsPerPage;
+        
         Log::info('Starting to fetch departures', [
             'tourIds' => $tourIds,
             'params' => $params,
             'start' => $start,
+            'end' => $end,
         ]);
 
-        $tourIds = array_slice($tourIds, $start);
-        $currentCount = 0;
+        $tourIds = array_slice($tourIds, $start, $itemsPerPage);
 
         foreach ($tourIds as $tourId) {
-            if ($currentCount >= $itemsPerPage) {
-                break;
-            }
-
             $params['tourId'] = $tourId;
-            $params['page'] = 1;
+            $params['page'] = 1; // Always fetch first page of departures for each tourId
             $response = $this->getDeparturesByTourParams($params);
 
             if (isset($response['items'])) {
@@ -116,7 +113,6 @@ public static function getDeparturesByTour($params)
                 }
                 if ($cheapestDeparture !== null) {
                     $departures[] = $cheapestDeparture;
-                    $currentCount++;
                 }
             } else {
                 Log::info('No departures found for tour', ['tourId' => $tourId]);
@@ -129,7 +125,6 @@ public static function getDeparturesByTour($params)
 
         return response()->json(['items' => $departures]);
     }
-
 
     private function getDeparturesByTourParams($params)
     {
@@ -174,6 +169,7 @@ public static function getDeparturesByTour($params)
         }
 
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$params['tourId']}/departures";
+
 
         try {
             $response = Http::withHeaders($headers)->get($url, $queryParams);
