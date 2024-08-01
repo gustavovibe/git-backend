@@ -2,14 +2,93 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FlightTourResource;
+use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Helpers\ApiResponse;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
+    public function index(Request $request)
+    {
+        $perPage = 10;
+
+        $date = $request->input('date');
+
+        if ($date) {
+            $paginatedData = Order::with('flightTour')->where('name', 'like', $date . '%')->paginate($perPage);
+        } else {
+            $paginatedData = Order::with('flightTour')->paginate($perPage);
+        }
+        $responseData = $paginatedData->toArray();
+
+        $responseData['data'] = OrderResource::collection($paginatedData->items());
+
+        return ApiResponse::success($responseData);
+    }
+
+    public function adminReports(Request $request)
+    {
+        $filters = $request->only([
+            'fechaInicio', 'fechaFin', 'destinations',
+            'operator', 'adventure', 'status',
+            'duration_adventure', 'duration_whole_trip',
+            'carrier'
+        ]);
+
+        $orders = Order::filter($filters)->get();
+
+        $totalOrders = Order::count();
+        $totalSales = 0;
+        $totalPrice = 0;
+        $numberOfPeople = 0;
+        $totalDays = 0;
+        $totalPaidToSuppliers = 0;
+        $totalRefunded = 0;
+        $totalDiscount = 0;
+        $totalGrossProfit = 0;
+
+        foreach ($orders as $order) {
+            $totalSales += $order->paid;
+            $totalPrice += $order->p_tour;
+            $numberOfPeople += $order->travelers_number;
+
+            $totalPaidToSuppliers += $order->paid_to_suppliers;
+            $totalRefunded += $order->refunded;
+            $totalDiscount += $order->discounted;
+
+            $startDate = Carbon::parse($order->start);
+            $endDate = Carbon::parse($order->end);
+            $days = $startDate->diffInDays($endDate) + 1;
+            $totalDays += $days * $order->travelers_number;
+
+            $grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
+            $totalGrossProfit += $grossProfit;
+        }
+        $averageSalesPerPerson = $totalSales / $numberOfPeople;
+
+        $averagePricePerPersonPerDay = $totalPrice / $totalDays;
+
+        $grossProfitRatio = ($totalGrossProfit / $totalSales) * 100;
+
+        return ApiResponse::success([[
+            'total_sales' => $totalSales,
+            'orders' => $totalOrders,
+            'travelers' => $numberOfPeople,
+            'average_sales' => $averageSalesPerPerson,
+            'average_price' => $averagePricePerPersonPerDay,
+            'suppliers_paid' => $totalPaidToSuppliers,
+            'refunded' => $totalRefunded,
+            'discount' => $totalDiscount,
+            'gross_profit' => $totalGrossProfit,
+            'profit_ratio' => $grossProfitRatio,
+        ]]);
+    }
+
     public function store(Request $request)
     {
-        // Validate the request
         $validatedData = $request->validate([
             'booking_id' => 'required|string',
             'booking_status' => 'required|string',
@@ -62,57 +141,49 @@ class OrderController extends Controller
             'user_id' => 'required|string|max:255',
         ]);
 
-        // Log the validated data for debugging
-        // \Log::info('Validated Data:', $validatedData);
-
-        // Create a new order
         $order = Order::create($validatedData);
 
         if ($request->has('traveler_ids')) {
             $order->travelers()->attach($request->input('traveler_ids'));
         }
 
-        // Log the created order for debugging
-        // \Log::info('Created Order:', $order->toArray());
-
-        // Return a response
         return response()->json($order, 201);
     }
 
     public function adminOrders(Request $request)
-        {
-            $query = Order::query();
+    {
+        $query = Order::query();
 
-            if ($request->has('created')) {
-                $dates = explode('-', $request->query('created'));
-                if (count($dates) == 2) {
-                    $startDate = date('Y-m-d', strtotime($dates[0]));
-                    $endDate = date('Y-m-d', strtotime($dates[1]));
-                    $query->whereBetween('created_at', [$startDate, $endDate]);
-                }
+        if ($request->has('created')) {
+            $dates = explode('-', $request->query('created'));
+            if (count($dates) == 2) {
+                $startDate = date('Y-m-d', strtotime($dates[0]));
+                $endDate = date('Y-m-d', strtotime($dates[1]));
+                $query->whereBetween('created_at', [$startDate, $endDate]);
             }
-
-            if ($request->has('departure')) {
-                $dates = explode('-', $request->query('departure'));
-                if (count($dates) == 2) {
-                    $startDate = date('Y-m-d', strtotime($dates[0]));
-                    $endDate = date('Y-m-d', strtotime($dates[1]));
-                    $query->whereBetween('departure', [$startDate, $endDate]);
-                }
-            }
-
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->query('user_id'));
-            }    
-
-            if ($request->query('travelers') == 'true') {
-                $query->with('travelers');
-            }
-
-            $orders = $query->get();
-
-            return response()->json($orders);
         }
+
+        if ($request->has('departure')) {
+            $dates = explode('-', $request->query('departure'));
+            if (count($dates) == 2) {
+                $startDate = date('Y-m-d', strtotime($dates[0]));
+                $endDate = date('Y-m-d', strtotime($dates[1]));
+                $query->whereBetween('departure', [$startDate, $endDate]);
+            }
+        }
+
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->query('user_id'));
+        }
+
+        if ($request->query('travelers') == 'true') {
+            $query->with('travelers');
+        }
+
+        $orders = $query->get();
+
+        return response()->json($orders);
+    }
 
     public function getOrders(Request $request)
     {
@@ -175,5 +246,5 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
     }
-    
+
 }

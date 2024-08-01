@@ -81,3 +81,8 @@ Route::get('/show-contact', [UserController::class, 'showContac']);
 
 Route::get('/wishlists', [WishlistController::class, 'index']);
 Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
+Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
+
+Route::get('/orders-all', [OrderController::class, 'index']);
+
+Route::get('/admin-reports', [OrderController::class, 'adminReports']);

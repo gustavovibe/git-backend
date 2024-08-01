@@ -31,6 +31,7 @@ return [
     ],
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
+        'urlAppFront' => env('APP_URL_FRONT'),
     ],
 
 ];
