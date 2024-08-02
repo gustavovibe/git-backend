@@ -30,12 +30,13 @@ class OperatorsFilters
         $minCommission = (double)$commission[0];
         $maxCommission = (double)$commission[1];
 
-
-        $operator->whereHas('tours', function ($query) use ($city) {
-            $query->whereHas('cities', function ($query) use ($city) {
-                $query->whereIn('t_city_id', $city);
+        if(count($city)){
+            $operator->whereHas('tours', function ($query) use ($city) {
+                $query->whereHas('cities', function ($query) use ($city) {
+                    $query->whereIn('t_city_id', $city);
+                });
             });
-        });
+        }
 
         $operator = $operator->with([
             'tours:tour_id,operator_id,commission,price_total,max_group_size',
@@ -48,7 +49,7 @@ class OperatorsFilters
             $op->total_commission = 0;
             $totalGroupSize = 0;
             $op->total_paid_commission = 0;
-
+            $comission_r = [];
 
             foreach ($op->tours as $tour) {
                 foreach ($tour->countries as $country) {
@@ -63,13 +64,16 @@ class OperatorsFilters
                 if ($order->commission >= $minCommission && $order->commission <= $maxCommission) {
                     $op->total_paid_commission += $order->commission * (double)$order->paid;
                     $op->total_paid += (double)$order->paid;
+                    if(!in_array((100*$order->commission), $comission_r)){
+                        $comission_r[]=100*$order->commission;
+                    }
                 }
             }
 
             $text=Country::wherein('t_country_id',$countries)->select('name','t_country_id')->get()->map(function($t){
               return $t->name;
             });
-
+            $op->comission_r = count($comission_r)?implode(',',$comission_r):'0';
             $op->countries_name=$text;
             $op->total_paid_commission = round($op->total_paid_commission, 2);
             $op->total_paid = round($op->total_paid, 2);
