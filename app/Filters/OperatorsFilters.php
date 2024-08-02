@@ -16,6 +16,7 @@ class OperatorsFilters
     public function OperatorsF (Request $r){
         $operator = Operators::query();
         $orderby=$r->order;
+        $city= $r->city?explode(',',$r->city):[];
         !$r->name?:$operator->where('name','like',"%{$r->name}%");
         !$r->operator_id?:$operator->where('operator_id',$r->operator_id);
         if(in_array($orderby,[1,2])){
@@ -28,6 +29,13 @@ class OperatorsFilters
         $maxRange =(int) $range[1];
         $minCommission = (double)$commission[0];
         $maxCommission = (double)$commission[1];
+
+
+        $operator->whereHas('tours', function ($query) use ($city) {
+            $query->whereHas('cities', function ($query) use ($city) {
+                $query->whereIn('t_city_id', $city);
+            });
+        });
 
         $operator = $operator->with([
             'tours:tour_id,operator_id,commission,price_total,max_group_size',
