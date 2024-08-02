@@ -65,7 +65,7 @@ class Citycontroller extends Controller
             $responseDataCountry = $country->toArray();
             $responseDataCountry['data'] = CountryResource::collection($country->items());
 
-  
+
 
 
             $city = City::where('city_name', 'like', $q . '%')->paginate($perPage);
@@ -89,5 +89,19 @@ class Citycontroller extends Controller
 
             return ApiResponse::success($responseData);
         }
+    }
+
+    public function cities(Request $r)
+    {
+        try{
+            $city= (new City)->newQuery();
+            !$r->city_name?:$city->where('city_name','like',"%{$r->city_name}%");
+            !$r->limit?:$city->limit($r->limit);
+            $city=$city->get();
+            return response()->json(['status'=>true,'response'=>$city]);
+        }catch(Error $e){
+            return response()->json(['status'=>false,'response'=>$e]);
+        }
+
     }
 }
