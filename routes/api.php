@@ -97,3 +97,4 @@ Route::resource('roles', RolesController::class);
 
 Route::resource('operators',OperatorsController::class);
 Route::get('operators-import',[OperatorsController::class,'import']);
+Route::get('tours-text',[OperatorsController::class,'text']);

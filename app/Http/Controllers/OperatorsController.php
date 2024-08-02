@@ -2,97 +2,65 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\OperatorsFilters;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\TourRadarController;
+use App\Models\Operators;
+use Exception;
 
 class OperatorsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $r)
     {
         try{
-
-            return response()->json(['status'=>true,'response'=>'']);
-        }catch(Error $e){
-            return response()->json(['status'=>false,'response'=>$e]);
+            $operator = OperatorsFilters::OperatorsF($r);
+            return response()->json(['status'=>true,'count'=>count($operator), 'response'=>$operator]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
         //
     }
 
     public function import(){
-        $accessToken = TourRadarController::getAccessToken();
-        return $accessToken;
+        $scope = 'com.tourradar.operators/read';
+        $accessToken =TourRadarController::getAccessToken($scope) ;
         $url = "https://api.sandbox.b2b.tourradar.com/v1/operators";
         $headers = [
             'Accept' => 'application/json',
@@ -101,9 +69,37 @@ class OperatorsController extends Controller
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
+            $response= $response->json();
+            /* return $response; */
+            array_map(function($res){
+                $op=Operators::where('operator_id',$res['id'])->first();
+                $operator=$op?$op:new Operators;
+                $operator->fill([
+                    'operator_id'=>$res['id'],
+                    'name'=>$res['name'],
+                ])->save();
+              return $res;
+            },$response);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function text(Request $r){
+        try{
+            $scope = 'com.tourradar.operators/read';
+            $accessToken =TourRadarController::getAccessToken($scope) ;
+            $url = "https://api.sandbox.b2b.tourradar.com/v1/operators/{$r->operator_id}";
+            $headers = [
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $accessToken,
+            ];
+            $response = Http::withHeaders($headers)->get($url);
+            $response= $response->json();
+            return response()->json(['status'=>true,'response'=>$response]);
+        }catch(Error $e){
+            return response()->json(['status'=>true, 'response' =>$e ]);
         }
     }
 }
