@@ -42,7 +42,7 @@ class OperatorsFilters
             'tours:tour_id,operator_id,commission,price_total,max_group_size',
             'tours.countries:t_country_id,tour_id',
             'orders:operator,paid,commission'
-        ])->withCount('tours')->get()->map(function($op) use($minCommission, $maxCommission){
+        ])->withCount('tours')->withcount('orders')->get()->map(function($op) use($minCommission, $maxCommission){
             $countries = [];
             $op->total_paid = 0;
             $op->total_paid_2 = 0;
