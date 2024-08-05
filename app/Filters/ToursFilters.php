@@ -2,7 +2,9 @@
 
 namespace App\Filters;
 
+use App\Models\City;
 use App\Models\ContactEmail;
+use App\Models\Order;
 use App\Models\Tour;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,7 +18,7 @@ class ToursFilters
         $country=$r->country;
         $admin=$r->admin;
 
-        $tour= (new Tour)->newQuery();
+        $tour= Tour::query();
 
         !$r->tour_type?:$tour->WhereHas('type', function ($q) use ($tour_type) {
             $q->whereIn('tour_type_id',[ $tour_type]);
@@ -73,6 +75,37 @@ class ToursFilters
             return $t;
         })->values()->all();
         return $tour;
+    }
+
+    public function destinations(Request $r){
+        $destination= City::query();
+        !$r->city_name?:$destination->where('city_name','like',"%{$r->city_name}%");
+        !$r->t_city_id?:$destination->where('t_city_id',$r->t_city_id);
+        !$r->limit?:$destination->limit($r->limit);
+
+        $destination=$destination->withCount('tours')->get()->map(function($des){
+            $commision_r=[];
+            /* $commision=[];
+            $paid=[]; */
+            $des->tour_ids = $des->tours->map(function($tour) {
+                return $tour->tour_id;
+            })->values()->toArray();
+
+            $des->tour_ids=Order::wherein('tour_id',$des->tour_ids)->select('tour_id','paid','commission')->get();
+            foreach($des->tour_ids as $ti){
+                if(!in_array(100*$ti->commission,$commision_r)){
+                    $des->total_paid_commission += $ti->commission * (double)$ti->paid;
+                    $des->total_paid += (double)$ti->paid;
+                    $commision_r[]=100*$ti->commission;
+                }
+            }
+            $des->commission_r=count($commision_r)?implode(',',$commision_r):'0';
+            $des->total_paid_commission = round($des->total_paid_commission, 2);
+            $des->total_paid = round($des->total_paid, 2);
+            unset($des->tours);
+            return $des;
+        })->values()->all();
+        return $destination;
     }
 
 }

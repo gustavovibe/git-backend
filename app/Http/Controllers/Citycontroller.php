@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ToursFilters;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CitiesImport;
@@ -12,6 +13,7 @@ use App\Models\Country;
 use App\Models\NaturalDestination;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\NaturalDestinationResource;
+use Exception;
 
 class Citycontroller extends Controller
 {
@@ -83,6 +85,15 @@ class Citycontroller extends Controller
             ];
 
             return ApiResponse::success($responseData);
+        }
+    }
+
+    public function destinations(Request $r){
+        try{
+            $destinations=ToursFilters::destinations($r);
+            return response()->json(['status'=>true,'count'=>count($destinations),'response'=>$destinations]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
     }
 }
