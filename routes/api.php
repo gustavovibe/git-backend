@@ -68,6 +68,7 @@ Route::get('duffel/get-order-by-id', [DuffelApiController::class, 'getOrderById'
 Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestById']);
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
+
 Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
@@ -100,3 +101,5 @@ Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
+
+Route::get('/traveler-data', [TravelerController::class, 'getTravelerData']);
