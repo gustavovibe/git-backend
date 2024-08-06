@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Citycontroller;
@@ -102,4 +103,4 @@ Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
 
-Route::get('/traveler-data', [TravelerController::class, 'getTravelerData']);
+Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
