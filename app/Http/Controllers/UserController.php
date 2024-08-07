@@ -30,7 +30,6 @@ class UserController extends Controller
             ], 404);
         }
 
-        // Customize the attributes you want to return
         $userData = [
             'name' => $user->name,
             'email' => $user->email,
@@ -61,7 +60,7 @@ class UserController extends Controller
                 continue;
             }
 
-            $orders = $user->orders;
+            $orders = $user->orders()->with(['tour.cities.city', 'tour.natural_destination.natural_destination', 'tour.type.type', 'tour.countries.country'])->get();
 
             $totalPaid = 0;
             $totalCommission = 0;
@@ -89,7 +88,7 @@ class UserController extends Controller
                     $firstBookingDate = $order->created_at;
                 }
 
-                $ordersData[] = [
+                $orderData = [
                     'start' => $order->start,
                     'created_at' => $order->created_at,
                     'departure' => $order->departure,
@@ -105,6 +104,15 @@ class UserController extends Controller
                     'paid' => $order->paid,
                     'commission' => $order->commission,
                 ];
+    
+                if ($order->tour) {
+                    $orderData['cities'] = $order->tour->cities;
+                    $orderData['natural_destination'] = $order->tour->natural_destination;
+                    $orderData['type'] = $order->tour->type;
+                    $orderData['countries'] = $order->tour->countries;
+                }
+    
+                $ordersData[] = $orderData;
             }
 
             $result[] = [
