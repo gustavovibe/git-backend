@@ -1,10 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use App\Models\User;
 use Error;
-use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\Traveler;
+use App\Helpers\ApiResponse;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
