@@ -54,9 +54,9 @@ class UserController extends Controller
         $query = User::query();
 
         if ($request->has('created_at')) {
-            $dates = explode('-', $request->input('created_at'));
-            $startDate = Carbon::createFromFormat('d/m/Y', trim($dates[0]))->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('d/m/Y', trim($dates[1]))->format('Y-m-d');
+            $dateRange = explode(',', $request->input('created_at'));
+            $startDate = Carbon::createFromFormat('Y-m-d', $dateRange[0])->startOfDay();
+            $endDate = Carbon::createFromFormat('Y-m-d', $dateRange[1])->endOfDay();
             $query->whereHas('orders', function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('created_at', [$startDate, $endDate]);
             });
@@ -163,18 +163,19 @@ class UserController extends Controller
             });
         }
 
+
         if ($request->has('age')) {
-            $ages = explode('-', $request->input('age'));
-            $startAge = Carbon::now()->subYears(trim($ages[1]))->format('Y-m-d');
-            $endAge = Carbon::now()->subYears(trim($ages[0]))->format('Y-m-d');
-            $query->whereHas('travelers', function ($q) use ($startAge, $endAge) {
-                $q->whereBetween('birth', [$startAge, $endAge]);
+            $ageRange = $request->input('age');
+            [$minAge, $maxAge] = explode('-', $ageRange);
+    
+            $query->whereHas('travelers', function ($q) use ($minAge, $maxAge) {
+                $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
             });
         }
 
         if ($request->has('gender')) {
             $gender = $request->input('gender');
-            $query->whereHas('travelers', function ($q) use ($gender) {
+            $query->whereHas('traveler', function ($q) use ($gender) {
                 $q->where('gender', $gender);
             });
         }

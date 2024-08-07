@@ -50,4 +50,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'user_id', 'id');
     }
+
+    public function traveler()
+    {
+        return $this->hasOne(Traveler::class, 'mail', 'email'); // Adjust the foreign key and local key accordingly
+    }
+
 }
