@@ -45,4 +45,9 @@ class User extends Authenticatable
     public function job(){
         return $this->hasOne(Job::class,'id','job_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
 }
