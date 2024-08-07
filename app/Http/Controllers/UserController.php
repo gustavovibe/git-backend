@@ -49,7 +49,128 @@ class UserController extends Controller
 
     public function getUsersWithOrders(Request $request)
     {
-        $users = User::whereHas('orders')->get();
+        $usersQuery = User::query();
+
+        // Filter by creation date range
+        if ($request->has('created_at')) {
+            [$startDate, $endDate] = explode('-', $request->input('created_at'));
+            $usersQuery->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+    
+        // Fetch users who have orders
+        $usersQuery->whereHas('orders', function($query) use ($request) {
+            // Filter by departure date range
+            if ($request->has('departure')) {
+                [$startDate, $endDate] = explode('-', $request->input('departure'));
+                $query->whereBetween('departure', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+            }
+    
+            // Filter by cities
+            if ($request->has('cities')) {
+                $cities = explode(',', $request->input('cities'));
+                $query->whereHas('tour.cities', function ($q) use ($cities) {
+                    $q->whereIn('t_city_id', $cities);
+                });
+            }
+    
+            // Filter by countries
+            if ($request->has('countries')) {
+                $countries = explode(',', $request->input('countries'));
+                $query->whereHas('tour.countries', function ($q) use ($countries) {
+                    $q->whereIn('t_country_id', $countries);
+                });
+            }
+    
+            // Filter by natural destinations
+            if ($request->has('natural_destinations')) {
+                $naturalDestinations = explode(',', $request->input('natural_destinations'));
+                $query->whereHas('tour.natural_destination', function ($q) use ($naturalDestinations) {
+                    $q->whereIn('t_natural_id', $naturalDestinations);
+                });
+            }
+    
+            // Filter by types
+            if ($request->has('types')) {
+                $types = explode(',', $request->input('types'));
+                $query->whereHas('tour.type', function ($q) use ($types) {
+                    $q->whereIn('tour_type_id', $types);
+                });
+            }
+    
+            // Filter by operators
+            if ($request->has('operators')) {
+                $operators = explode(',', $request->input('operators'));
+                $query->whereIn('operator', $operators);
+            }
+    
+            // Filter by duration range
+            if ($request->has('duration')) {
+                [$minDuration, $maxDuration] = explode('-', $request->input('duration'));
+                $query->whereBetween('duration', [(int)$minDuration, (int)$maxDuration]);
+            }
+    
+            // Filter by average duration range
+            if ($request->has('average_duration')) {
+                [$minAvgDuration, $maxAvgDuration] = explode('-', $request->input('average_duration'));
+                $query->havingRaw('AVG(duration) BETWEEN ? AND ?', [(int)$minAvgDuration, (int)$maxAvgDuration]);
+            }
+    
+            // Filter by stops range
+            if ($request->has('stops')) {
+                [$minStops, $maxStops] = explode('-', $request->input('stops'));
+                $query->whereBetween('total_stops', [(int)$minStops, (int)$maxStops]);
+            }
+    
+            // Filter by flight duration range
+            if ($request->has('f_duration')) {
+                [$minFDuration, $maxFDuration] = explode('-', $request->input('f_duration'));
+                $query->whereBetween('f_duration', [(int)$minFDuration, (int)$maxFDuration]);
+            }
+    
+            // Filter by total orders range
+            if ($request->has('total_orders')) {
+                [$minTotalOrders, $maxTotalOrders] = explode('-', $request->input('total_orders'));
+                $query->havingRaw('COUNT(*) BETWEEN ? AND ?', [(int)$minTotalOrders, (int)$maxTotalOrders]);
+            }
+    
+            // Filter by total paid range
+            if ($request->has('total_paid')) {
+                [$minTotalPaid, $maxTotalPaid] = explode('-', $request->input('total_paid'));
+                $query->havingRaw('SUM(paid) BETWEEN ? AND ?', [(int)$minTotalPaid, (int)$maxTotalPaid]);
+            }
+    
+            // Filter by frequency range
+            if ($request->has('frequency')) {
+                [$minFrequency, $maxFrequency] = explode('-', $request->input('frequency'));
+                $query->havingRaw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) BETWEEN ? AND ?', [(int)$minFrequency, (int)$maxFrequency]);
+            }
+    
+            // Filter by age range
+            if ($request->has('age')) {
+                [$minAge, $maxAge] = explode('-', $request->input('age'));
+                $query->whereHas('user', function ($q) use ($minAge, $maxAge) {
+                    $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+                });
+            }
+    
+            // Filter by gender
+            if ($request->has('gender')) {
+                $gender = $request->input('gender');
+                $query->whereHas('user', function ($q) use ($gender) {
+                    $q->where('gender', $gender);
+                });
+            }
+    
+            // Filter by country
+            if ($request->has('country')) {
+                $country = $request->input('country');
+                $query->whereHas('user', function ($q) use ($country) {
+                    $q->where('country', $country);
+                });
+            }
+        });
+    
+        $users = $usersQuery->get();
 
         $result = [];
 
@@ -103,6 +224,7 @@ class UserController extends Controller
                     'checked_bags' => $order->checked_bags,
                     'paid' => $order->paid,
                     'commission' => $order->commission,
+                    'channel' => $order->channel,
                 ];
     
                 if ($order->tour) {
@@ -119,6 +241,7 @@ class UserController extends Controller
                 'name' => $traveler->name,
                 'country' => $traveler->country,
                 'birth' => $traveler->birth,
+                'gender' => $traveler->gender,
                 'age' => Carbon::parse($traveler->birth)->age,
                 'orders' => $ordersData,
                 'last_booking_start_city' => $lastBookingStartCity,
