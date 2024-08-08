@@ -25,8 +25,6 @@ class User extends Authenticatable
         'password','created_at', 'updated_at'
     ];
 
-
-
     public function profile()
     {
         return $this->hasOne(Profile::class, 'id', 'profile_id');
@@ -55,5 +53,5 @@ class User extends Authenticatable
     {
         return $this->hasOne(Traveler::class, 'mail', 'email'); // Adjust the foreign key and local key accordingly
     }
-
+    
 }

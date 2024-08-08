@@ -146,19 +146,23 @@ class UserController extends Controller
                 $query->havingRaw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) BETWEEN ? AND ?', [(int)$minFrequency, (int)$maxFrequency]);
             }
     
+                // Filtering by age
             if ($request->has('age')) {
                 $ageRange = $request->input('age');
                 [$minAge, $maxAge] = explode('-', $ageRange);
-        
-                $query->whereHas('travelers', function ($q) use ($minAge, $maxAge) {
-                    $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+
+                $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
+                $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
+
+                $query->whereHas('travelers', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
+                    $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
                 });
             }
     
-            // Filter by gender
+                    // Filtering by gender
             if ($request->has('gender')) {
                 $gender = $request->input('gender');
-                $query->whereHas('user', function ($q) use ($gender) {
+                $query->whereHas('travelers', function ($q) use ($gender) {
                     $q->where('gender', $gender);
                 });
             }
