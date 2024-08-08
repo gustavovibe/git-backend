@@ -40,4 +40,8 @@ class Traveler extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
