@@ -8,6 +8,7 @@ use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -146,28 +147,29 @@ class UserController extends Controller
                 $query->havingRaw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) BETWEEN ? AND ?', [(int)$minFrequency, (int)$maxFrequency]);
             }
     
-                // Filtering by age
-    if ($request->has('age')) {
-        $ageRange = $request->input('age');
-        [$minAge, $maxAge] = explode('-', $ageRange);
 
-        $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
-        $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
-
-        $query->whereHas('traveler', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
-            Log::info('Age Filter:', ['min' => $minDateOfBirth, 'max' => $maxDateOfBirth]);
-            $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
-        });
-    }
-
-    // Filtering by gender
-    if ($request->has('gender')) {
-        $gender = $request->input('gender');
-        $query->whereHas('traveler', function ($q) use ($gender) {
-            Log::info('Gender Filter:', ['gender' => $gender]);
-            $q->where('gender', $gender);
-        });
-    }
+            // Filtering by age
+            if ($request->has('age')) {
+                $ageRange = $request->input('age');
+                [$minAge, $maxAge] = explode('-', $ageRange);
+        
+                $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
+                $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
+        
+                $query->whereHas('traveler', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
+                    Log::info('Age Filter:', ['min' => $minDateOfBirth, 'max' => $maxDateOfBirth]);
+                    $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
+                });
+            }
+        
+            // Filtering by gender
+            if ($request->has('gender')) {
+                $gender = $request->input('gender');
+                $query->whereHas('traveler', function ($q) use ($gender) {
+                    Log::info('Gender Filter:', ['gender' => $gender]);
+                    $q->where('gender', $gender);
+                });
+            }
     
             // Filter by country
             if ($request->has('country')) {
@@ -177,7 +179,7 @@ class UserController extends Controller
                 });
             }
         });
-        
+
         Log::info('SQL Query:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
 
         $users = $usersQuery->get();
