@@ -79,31 +79,79 @@ class ToursFilters
 
     public function destinations(Request $r){
         $destination= City::query();
+        $commission=explode(',',$r->commission);
+        $range=explode(',',$r->range);
+        $cities=$r->id_cities?explode(',',$r->id_cities):'';
+        $countries=$r->id_countries?explode(',',$r->id_countries):'';
+        $destinations=$r->id_destinations?explode(',',$r->id_destinations):'';
+        $minRange =(int) $range[0];
+        $maxRange =(int) $range[1];
+        $minCommission = (double)$commission[0];
+        $maxCommission = (double)$commission[1];
         !$r->city_name?:$destination->where('city_name','like',"%{$r->city_name}%");
         !$r->t_city_id?:$destination->where('t_city_id',$r->t_city_id);
+
+        $destination->whereHas('tours', function ($query) {
+            $query->whereHas('orders');
+        });
+
+        !$cities?:$destination->whereHas('tours', function($query) use ($cities) {
+            $query->whereIn('t_city_id', $cities);
+        });
+
+        !$destinations?:$destination->whereHas('tours', function($query) use ($countries) {
+            $query->whereHas('tour', function($query) use ($countries) {
+                $query->whereHas('countries', function($query) use ($countries) {
+                    $query->whereIn('t_country_id', $countries);
+                });
+            });
+        });
+
+        !$destinations?:$destination->whereHas('tours', function($query) use ($destinations) {
+            $query->whereHas('tour', function($query) use ($destinations) {
+                $query->whereHas('natural_destination', function($query) use ($destinations) {
+                    $query->whereIn('t_natural_id', $destinations);
+                });
+            });
+        });
+
         !$r->limit?:$destination->limit($r->limit);
 
-        $destination=$destination->withCount('tours')->get()->map(function($des){
-            $commision_r=[];
-            /* $commision=[];
-            $paid=[]; */
+        $destination = $destination->withCount('tours')->get()->map(function($des) use($minCommission, $maxCommission){
             $des->tour_ids = $des->tours->map(function($tour) {
                 return $tour->tour_id;
             })->values()->toArray();
 
-            $des->tour_ids=Order::wherein('tour_id',$des->tour_ids)->select('tour_id','paid','commission')->get();
-            foreach($des->tour_ids as $ti){
-                if(!in_array(100*$ti->commission,$commision_r)){
-                    $des->total_paid_commission += $ti->commission * (double)$ti->paid;
-                    $des->total_paid += (double)$ti->paid;
-                    $commision_r[]=100*$ti->commission;
+            $orders = Order::whereIn('tour_id', $des->tour_ids) ->whereBetween('commission', [$minCommission, $maxCommission])->select('tour_id', 'paid', 'commission')->get();
+
+            $des->total_paid_commission = 0;
+            $des->total_paid = 0;
+
+            $commision_r = [];
+            foreach ($orders as $order) {
+                $des->total_paid_commission += $order->commission * (double)$order->paid;
+                $des->total_paid += (double)$order->paid;
+                if (!in_array(100 * $order->commission, $commision_r)) {
+                    $commision_r[] = 100 * $order->commission;
                 }
             }
-            $des->commission_r=count($commision_r)?implode(',',$commision_r):'0';
+
+            $des->commission_r = count($commision_r) ? implode(',', $commision_r) : '0';
+            $des->commission_a =$commision_r;
+            $commision_r = [];
             $des->total_paid_commission = round($des->total_paid_commission, 2);
             $des->total_paid = round($des->total_paid, 2);
+
+            unset($des->tour_ids);
             unset($des->tours);
             return $des;
+        })->filter(function($des) use ($minRange, $maxRange,$minCommission) {
+            if ($minCommission == 0) {
+                return ($des->total_paid >= $minRange && $des->total_paid <= $maxRange);
+            } else {
+                return ($des->total_paid >= $minRange && $des->total_paid <= $maxRange) && !empty($des->commission_a);
+            }
+
         })->values()->all();
         return $destination;
     }

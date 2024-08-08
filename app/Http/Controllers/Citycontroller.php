@@ -13,10 +13,26 @@ use App\Models\Country;
 use App\Models\NaturalDestination;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\NaturalDestinationResource;
+use Illuminate\Support\Facades\DB;
+
 use Exception;
 
 class Citycontroller extends Controller
 {
+    protected $list;
+    protected $column;
+    public function __construct(){
+        $this->list=[
+            1=>'t_country_id as id, name as name',
+            2=>'t_city_id as id, city_name as name',
+            3=>'t_natural_id as id, destination_name as name',
+        ];
+        $this->column=[
+            1=>'name',
+            2=>'city_name',
+            3=>'destination_name',
+        ];
+    }
     public function import(Request $request)
     {
         $request->validate([
@@ -92,6 +108,18 @@ class Citycontroller extends Controller
         try{
             $destinations=ToursFilters::destinations($r);
             return response()->json(['status'=>true,'count'=>count($destinations),'response'=>$destinations]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+        }
+    }
+
+    public function selectiontable(Request $r){
+        try{
+            $selection=$r->code==3?NaturalDestination::query():($r->code==2?City::query():Country::query());
+            $selection->selectRaw($this->list[$r->code]);
+            !$r->name?:$selection->where( $this->column[$r->code],'like',"%{$r->name}%");
+            $selection=$selection->limit(15)->get();
+            return response()->json(['status'=>true,'response'=>$selection]);
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
