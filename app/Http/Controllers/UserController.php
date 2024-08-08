@@ -147,35 +147,33 @@ class UserController extends Controller
                 $query->havingRaw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) BETWEEN ? AND ?', [(int)$minFrequency, (int)$maxFrequency]);
             }
 
-            $users = User::whereHas('orders')->get();
-            
-            if ($request->has('age')) {
-                $ageRange = explode('-', $request->input('age'));
-                $minAge = $ageRange[0];
-                $maxAge = $ageRange[1];
-        
-                $users = $users->filter(function ($user) use ($minAge, $maxAge) {
-                    $traveler = Traveler::where('mail', $user->email)->first();
-                    if ($traveler) {
-                        $age = Carbon::parse($traveler->birth)->age;
-                        return $age >= $minAge && $age <= $maxAge;
-                    }
-                    return false;
+                // Filter by age range
+    if ($request->has('age')) {
+        $ageRange = explode('-', $request->input('age'));
+        $minAge = $ageRange[0];
+        $maxAge = $ageRange[1];
+
+        $query->whereHas('orders', function ($q) use ($minAge, $maxAge) {
+            $q->whereHas('user', function ($q) use ($minAge, $maxAge) {
+                $q->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
+                    $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
                 });
-            }
-        
-            // Filter by gender
-            if ($request->has('gender')) {
-                $gender = $request->input('gender');
-        
-                $users = $users->filter(function ($user) use ($gender) {
-                    $traveler = Traveler::where('mail', $user->email)->first();
-                    if ($traveler) {
-                        return $traveler->gender == $gender;
-                    }
-                    return false;
+            });
+        });
+    }
+
+    // Filter by gender
+    if ($request->has('gender')) {
+        $gender = $request->input('gender');
+
+        $query->whereHas('orders', function ($q) use ($gender) {
+            $q->whereHas('user', function ($q) use ($gender) {
+                $q->whereHas('traveler', function ($q) use ($gender) {
+                    $q->where('gender', $gender);
                 });
-            }
+            });
+        });
+    }
     
             // Filter by country
             if ($request->has('country')) {
