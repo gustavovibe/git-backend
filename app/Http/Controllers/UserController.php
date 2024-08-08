@@ -52,7 +52,7 @@ class UserController extends Controller
     public function getUsersWithOrders(Request $request)
     {
         $query = User::query();
-        
+
         // Filter by creation date range
         if ($request->has('created_at')) {
             [$startDate, $endDate] = explode('-', $request->input('created_at'));
@@ -146,28 +146,34 @@ class UserController extends Controller
                 [$minFrequency, $maxFrequency] = explode('-', $request->input('frequency'));
                 $query->havingRaw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) BETWEEN ? AND ?', [(int)$minFrequency, (int)$maxFrequency]);
             }
-    
 
-            // Filtering by age
+            $users = User::whereHas('orders')->get();
+            
             if ($request->has('age')) {
-                $ageRange = $request->input('age');
-                [$minAge, $maxAge] = explode('-', $ageRange);
+                $ageRange = explode('-', $request->input('age'));
+                $minAge = $ageRange[0];
+                $maxAge = $ageRange[1];
         
-                $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
-                $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
-        
-                $query->whereHas('traveler', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
-                    Log::info('Age Filter:', ['min' => $minDateOfBirth, 'max' => $maxDateOfBirth]);
-                    $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
+                $users = $users->filter(function ($user) use ($minAge, $maxAge) {
+                    $traveler = Traveler::where('mail', $user->email)->first();
+                    if ($traveler) {
+                        $age = Carbon::parse($traveler->birth)->age;
+                        return $age >= $minAge && $age <= $maxAge;
+                    }
+                    return false;
                 });
             }
         
-            // Filtering by gender
+            // Filter by gender
             if ($request->has('gender')) {
                 $gender = $request->input('gender');
-                $query->whereHas('traveler', function ($q) use ($gender) {
-                    Log::info('Gender Filter:', ['gender' => $gender]);
-                    $q->where('gender', $gender);
+        
+                $users = $users->filter(function ($user) use ($gender) {
+                    $traveler = Traveler::where('mail', $user->email)->first();
+                    if ($traveler) {
+                        return $traveler->gender == $gender;
+                    }
+                    return false;
                 });
             }
     
