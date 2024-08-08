@@ -7,7 +7,7 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
