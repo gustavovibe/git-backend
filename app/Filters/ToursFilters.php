@@ -2,11 +2,11 @@
 
 namespace App\Filters;
 
-use App\Models\ContactEmail;
+use App\Models\Order;
 use App\Models\Tour;
-use App\Models\User;
+use App\Models\Type;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+
 
 class ToursFilters
 {
@@ -75,4 +75,41 @@ class ToursFilters
         return $tour;
     }
 
+    public function travel_styles(Request $r){
+        $travel=Type::query();
+        $commission=explode(',',$r->commission);
+        $range=explode(',',$r->range);
+        !$r->name?:$travel->where('tourtype_name','like',"%{$r->name}%");
+        !$r->id?:$travel->where('tour_type_id',$r->id);
+        !$r->limit?:$travel->limit($r->limit);
+        $travel= $travel->with('type_t:tour_type_id,tour_id')->withCount('type_t')->get()->map(function($tra){
+            $tra->comission_range=[];
+            $tra->comission_total=0;
+            $tra->total_paid=0;
+                $tra->type_ids=$tra->type_t->pluck('tour_id')->toArray();
+                $order= Order::select('tour_id','paid','commission')->wherein('tour_id',$tra->type_ids)->get();
+                $tra->order=$order;
+                $comission_range = [];
+
+                  if(count($order)){
+                    foreach($order as $or){
+                        $tra->total_paid+=(double)$or->paid;
+                        $tra->comission_total+=((double)$or->paid*$or->commission);
+                        $commissionPercentage = 100 * $or->commission;
+                        if (!in_array($commissionPercentage,   $comission_range)) {
+                            $comission_range[] = $commissionPercentage;
+                        }
+                    }
+                }
+                $tra->comission_range =count($comission_range)>0?implode(',',$comission_range):'0' ;
+                $tra->comission_total =round($tra->comission_total,2);
+                $tra->total_paid =round($tra->total_paid,2);
+                unset($tra->order);
+                unset($tra->type_ids);
+                unset($tra->type_t);
+            return $tra;
+        });
+
+        return $travel;
+    }
 }

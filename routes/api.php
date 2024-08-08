@@ -58,6 +58,7 @@ Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
 Route::get('show-tours', [TourController::class,'show']);
 Route::get('tours-text',[TourController::class,'getText']);
+Route::get('show-type',[TourController::class,'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
