@@ -51,16 +51,16 @@ class UserController extends Controller
 
     public function getUsersWithOrders(Request $request)
     {
-        $usersQuery = User::query();
-
+        $query = User::query();
+        
         // Filter by creation date range
         if ($request->has('created_at')) {
             [$startDate, $endDate] = explode('-', $request->input('created_at'));
-            $usersQuery->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
         }
     
         // Fetch users who have orders
-        $usersQuery->whereHas('orders', function($query) use ($request) {
+        $query->whereHas('orders', function($query) use ($request) {
             // Filter by departure date range
             if ($request->has('departure')) {
                 [$startDate, $endDate] = explode('-', $request->input('departure'));
@@ -182,8 +182,8 @@ class UserController extends Controller
 
         Log::info('SQL Query:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
 
-        $users = $usersQuery->get();
-
+        $users = $query->whereHas('orders')->get();
+    
         $result = [];
 
         foreach ($users as $user) {
