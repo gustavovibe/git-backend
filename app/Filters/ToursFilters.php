@@ -79,6 +79,7 @@ class ToursFilters
 
     public function destinations(Request $r){
         $destination= City::query();
+        $orderby=$r->order;
         $commission=explode(',',$r->commission);
         $range=explode(',',$r->range);
         $cities=$r->id_cities?explode(',',$r->id_cities):'';
@@ -117,6 +118,10 @@ class ToursFilters
 
         !$r->limit?:$destination->limit($r->limit);
 
+        if(in_array($orderby,[1,2])){
+            $orderby==1?$destination->orderBy('city_name', 'ASC'):$destination->orderBy('city_name', 'DESC');
+        }
+
         $destination = $destination->withCount('tours')->get()->map(function($des) use($minCommission, $maxCommission){
             $des->tour_ids = $des->tours->map(function($tour) {
                 return $tour->tour_id;
@@ -145,14 +150,28 @@ class ToursFilters
             unset($des->tour_ids);
             unset($des->tours);
             return $des;
-        })->filter(function($des) use ($minRange, $maxRange,$minCommission) {
-            if ($minCommission == 0) {
-                return ($des->total_paid >= $minRange && $des->total_paid <= $maxRange);
-            } else {
-                return ($des->total_paid >= $minRange && $des->total_paid <= $maxRange) && !empty($des->commission_a);
-            }
+        })->filter(function($des) use ($minRange, $maxRange) {
+            return ($des->total_paid >= $minRange && $des->total_paid <= $maxRange);
 
         })->values()->all();
+
+        $val_list=[
+            3=>'total_paid',
+            4=>'total_paid',
+            7=>'tours_count',
+            8=>'tours_count',
+        ];
+        if ( in_array($orderby,[3,4,5,6,7,8])) {
+            usort($destination, function ($a, $b) use($orderby,$val_list){
+                if (in_array($orderby, [3, 5, 7])) {
+                    return $a->{$val_list[$orderby]} <=> $b->{$val_list[$orderby]};
+                }
+                if (in_array($orderby, [4, 6, 8])) {
+                    return $b->{$val_list[$orderby]} <=> $a->{$val_list[$orderby]};
+                }
+            });
+        }
+
         return $destination;
     }
 
