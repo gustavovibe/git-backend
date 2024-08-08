@@ -147,25 +147,27 @@ class UserController extends Controller
             }
     
                 // Filtering by age
-            if ($request->has('age')) {
-                $ageRange = $request->input('age');
-                [$minAge, $maxAge] = explode('-', $ageRange);
+    if ($request->has('age')) {
+        $ageRange = $request->input('age');
+        [$minAge, $maxAge] = explode('-', $ageRange);
 
-                $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
-                $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
+        $maxDateOfBirth = Carbon::now()->subYears($minAge)->toDateString();
+        $minDateOfBirth = Carbon::now()->subYears($maxAge)->toDateString();
 
-                $query->whereHas('travelers', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
-                    $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
-                });
-            }
-    
-                    // Filtering by gender
-            if ($request->has('gender')) {
-                $gender = $request->input('gender');
-                $query->whereHas('travelers', function ($q) use ($gender) {
-                    $q->where('gender', $gender);
-                });
-            }
+        $query->whereHas('traveler', function ($q) use ($minDateOfBirth, $maxDateOfBirth) {
+            Log::info('Age Filter:', ['min' => $minDateOfBirth, 'max' => $maxDateOfBirth]);
+            $q->whereBetween('birth', [$minDateOfBirth, $maxDateOfBirth]);
+        });
+    }
+
+    // Filtering by gender
+    if ($request->has('gender')) {
+        $gender = $request->input('gender');
+        $query->whereHas('traveler', function ($q) use ($gender) {
+            Log::info('Gender Filter:', ['gender' => $gender]);
+            $q->where('gender', $gender);
+        });
+    }
     
             // Filter by country
             if ($request->has('country')) {
@@ -175,7 +177,9 @@ class UserController extends Controller
                 });
             }
         });
-    
+        
+        Log::info('SQL Query:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
+
         $users = $usersQuery->get();
 
         $result = [];
