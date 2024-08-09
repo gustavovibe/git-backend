@@ -86,8 +86,8 @@ class Order extends Model
     {
         return $this->belongsToMany(Traveler::class, 'order_traveler', 'booking_id', 'traveler_id');
     }
-    
-    protected $hidden = ['created_at', 'updated_at'];
+
+    protected $hidden = [ 'updated_at'];
 
     public function flightTour()
     {
@@ -141,6 +141,11 @@ class Order extends Model
     public function tour()
     {
         return $this->belongsTo(Tour::class, 'tour_id', 'id');
+    }
+
+    public function operator()
+    {
+        return $this->hasOne(Operator::class,'operator_id','operator');
     }
 }
 
