@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ContactFilters;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Order;
@@ -244,5 +245,14 @@ class UserController extends Controller
             'status' => true,
             'data' => $result
         ], 200);
+    }
+
+    public function showContac(Request $r){
+        try{
+            $Contact =ContactFilters::ContactE($r);
+            return response()->json(['status'=>true,'response'=>$Contact]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+        }
     }
 }
