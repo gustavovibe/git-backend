@@ -51,21 +51,21 @@ class UserController extends Controller
 
     public function getUsersWithOrders(Request $request)
     {
-        $usersQuery = User::query();
+        $query = User::query();
 
         if ($request->has('created_at')) {
-            $dates = explode('-', $request->input('created_at'));
-            $startDate = Carbon::createFromFormat('d/m/Y', trim($dates[0]))->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('d/m/Y', trim($dates[1]))->format('Y-m-d');
+            $dateRange = explode(',', $request->input('created_at'));
+            $startDate = Carbon::createFromFormat('Y-m-d', $dateRange[0])->startOfDay();
+            $endDate = Carbon::createFromFormat('Y-m-d', $dateRange[1])->endOfDay();
             $query->whereHas('orders', function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('created_at', [$startDate, $endDate]);
             });
         }
 
         if ($request->has('departure')) {
-            $dates = explode('-', $request->input('departure'));
-            $startDate = Carbon::createFromFormat('d/m/Y', trim($dates[0]))->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('d/m/Y', trim($dates[1]))->format('Y-m-d');
+            $dates = explode(',', $request->input('departure'));
+            $startDate = Carbon::createFromFormat('Y-m-d', $dates[0])->startOfDay();
+            $endDate = Carbon::createFromFormat('Y-m-d', $dates[1])->endOfDay();
             $query->whereHas('orders', function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('departure', [$startDate, $endDate]);
             });
@@ -156,10 +156,13 @@ class UserController extends Controller
 
         if ($request->has('frequency')) {
             $frequencies = explode('-', $request->input('frequency'));
-            $query->whereHas('orders', function ($q) use ($frequencies) {
+            $minFrequency = trim($frequencies[0]);
+            $maxFrequency = trim($frequencies[1]);
+
+            $query->whereHas('orders', function ($q) use ($minFrequency, $maxFrequency) {
                 $q->select('user_id', DB::raw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) as frequency'))
                     ->groupBy('user_id')
-                    ->havingBetween('frequency', [trim($frequencies[0]), trim($frequencies[1])]);
+                    ->havingRaw('frequency BETWEEN ? AND ?', [$minFrequency, $maxFrequency]);
             });
         }
 
@@ -199,7 +202,7 @@ class UserController extends Controller
             });
         }
     
-        $users = $usersQuery->get();
+        $users = $query->get();
 
         $result = [];
 
@@ -212,21 +215,21 @@ class UserController extends Controller
 
             $orders = $user->orders()->with(['tour.cities.city', 'tour.natural_destination.natural_destination', 'tour.type.type', 'tour.countries.country'])->get();
 
+            if (!$orders) {
+                continue;
+            }
+
             $totalPaid = 0;
             $totalCommission = 0;
             $totalDuration = 0;
             $totalOrders = $orders->count();
+            $totalGroupSize = 0;
             $lastBookingDate = null;
             $firstBookingDate = null;
             $lastBookingStartCity = null;
-            $totalGroupSize = 0; 
             $ordersData = [];
 
             foreach ($orders as $order) {
-                $totalGroupSize += $order->group_size;
-                $totalPaid += $order->paid;
-                $totalCommission += $order->commission;
-                $totalDuration += $order->duration;
 
                 if (!$lastBookingDate || $order->start > $lastBookingDate) {
                     $lastBookingDate = $order->start;
@@ -238,6 +241,7 @@ class UserController extends Controller
                 }
 
                 $orderData = [
+                    'booking_id' => $order->booking_id,
                     'start' => $order->start,
                     'created_at' => $order->created_at,
                     'departure' => $order->departure,
@@ -252,38 +256,51 @@ class UserController extends Controller
                     'paid' => $order->paid,
                     'commission' => $order->commission,
                     'channel' => $order->channel,
-                    'group_size' => $order->group_size
                 ];
                 
                 if ($order->tour) {
+                    $orderData['group_size'] = $order->tour->max_group_size;
                     $orderData['cities'] = $order->tour->cities;
                     $orderData['natural_destination'] = $order->tour->natural_destination;
                     $orderData['type'] = $order->tour->type;
                     $orderData['countries'] = $order->tour->countries;
                 }
-    
+                
+                $totalGroupSize += $orderData['group_size'];
+
+                $totalPaid += $order->paid;
+                $totalCommission += $order->commission;
+                $totalDuration += $order->duration;
+
                 $ordersData[] = $orderData;
+
             }
 
             $groupSizeAverage = $totalOrders > 0 ? $totalGroupSize / $totalOrders : 0;
+            $averageCommission = $totalOrders > 0 ? $totalCommission / $totalOrders : 0;
+            $grossProfit = $totalOrders > 0 ? $totalPaid * ($totalCommission / $totalOrders) : 0;
+            $frequency = $totalOrders > 0 ? $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1) : 0;
 
             $result[] = [
+                'user_id' => $user->id,
+                'traveler_id' => $traveler->traveler_id,
                 'name' => $traveler->name,
                 'country' => $traveler->country,
                 'birth' => $traveler->birth,
                 'gender' => $traveler->gender,
                 'age' => Carbon::parse($traveler->birth)->age,
-                'orders' => $ordersData,
                 'last_booking_start_city' => $lastBookingStartCity,
                 'group_size_average' => $groupSizeAverage,
                 'last_booking_date' => $lastBookingDate,
                 'first_booking_date' => $firstBookingDate,
                 'total_paid' => $totalPaid,
-                'average_duration' => $totalDuration / $totalOrders,
-                'average_commission' => $totalCommission / $totalOrders,
-                'gross_profit' => $totalPaid * ($totalCommission / $totalOrders),
-                'frequency' => $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1),
                 'total_orders' => $totalOrders,
+                'total_duration' => $totalDuration,
+                'average_duration' => $totalOrders > 0 ? $totalDuration / $totalOrders : 0,
+                'average_commission' => $averageCommission,
+                'gross_profit' => $grossProfit,
+                'frequency' => $frequency,
+                'orders' => $ordersData,    
             ];
         }
 
