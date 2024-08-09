@@ -204,7 +204,7 @@ class UserController extends Controller
         $result = [];
 
         foreach ($users as $user) {
-            $traveler = Traveler::where('user_id', $user->id);
+            $traveler = Traveler::where('user_id', $user->id)->first(); 
 
             if (!$traveler) {
                 continue;
