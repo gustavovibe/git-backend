@@ -14,8 +14,10 @@ class ContactEmail extends Model
         'message',
         'mail_from',
         'order',
-        'subject',
-        'link'
+        'mail_type',
+        'link',
+        'status',
+        'id_user'
     ];
     protected $hidden = ['created_at', 'updated_at'];
 }
