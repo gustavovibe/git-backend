@@ -219,10 +219,11 @@ class UserController extends Controller
             $lastBookingDate = null;
             $firstBookingDate = null;
             $lastBookingStartCity = null;
-
+            $totalGroupSize = 0; 
             $ordersData = [];
 
             foreach ($orders as $order) {
+                $totalGroupSize += $order->group_size;
                 $totalPaid += $order->paid;
                 $totalCommission += $order->commission;
                 $totalDuration += $order->duration;
@@ -251,10 +252,10 @@ class UserController extends Controller
                     'paid' => $order->paid,
                     'commission' => $order->commission,
                     'channel' => $order->channel,
+                    'group_size' => $order->group_size
                 ];
-    
+                
                 if ($order->tour) {
-                    $orderData['group_size'] = $order->tour->max_group_size;
                     $orderData['cities'] = $order->tour->cities;
                     $orderData['natural_destination'] = $order->tour->natural_destination;
                     $orderData['type'] = $order->tour->type;
@@ -264,6 +265,8 @@ class UserController extends Controller
                 $ordersData[] = $orderData;
             }
 
+            $groupSizeAverage = $totalOrders > 0 ? $totalGroupSize / $totalOrders : 0;
+
             $result[] = [
                 'name' => $traveler->name,
                 'country' => $traveler->country,
@@ -272,7 +275,7 @@ class UserController extends Controller
                 'age' => Carbon::parse($traveler->birth)->age,
                 'orders' => $ordersData,
                 'last_booking_start_city' => $lastBookingStartCity,
-                'group_size_average' => $ordersData['group_size'] / $totalOrders,
+                'group_size_average' => $groupSizeAverage,
                 'last_booking_date' => $lastBookingDate,
                 'first_booking_date' => $firstBookingDate,
                 'total_paid' => $totalPaid,
