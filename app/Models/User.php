@@ -51,7 +51,7 @@ class User extends Authenticatable
 
     public function traveler()
     {
-        return $this->hasOne(Traveler::class, 'user_id', 'id'); 
+        return $this->hasOne(Traveler::class, 'user_id', 'id');
     }
     
 }

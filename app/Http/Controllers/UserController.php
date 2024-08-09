@@ -154,7 +154,7 @@ class UserController extends Controller
             $maxAge = $ageRange[1];
             $query->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
                 $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
-            });
+            });            
         }
 
         // Filter by gender
@@ -162,7 +162,7 @@ class UserController extends Controller
             $gender = $request->input('gender');
             $query->whereHas('traveler', function ($q) use ($gender) {
                 $q->where('gender', $gender);
-            });
+            });            
         }
 
         // Filter by country
@@ -174,13 +174,15 @@ class UserController extends Controller
 
     Log::info('SQL Query:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
 
-    $users = $query->whereHas('orders')->get();
+    $users = $query->with(['traveler', 'orders' => function ($q) {
+        $q->with(['tour.cities.city', 'tour.natural_destination.natural_destination', 'tour.type.type', 'tour.countries.country']);
+    }])->get();
 
     $result = [];
 
-    foreach ($users as $user) {
-        $traveler = Traveler::where('user_id', $user->id);
 
+    foreach ($users as $user) {
+        $traveler = $user->traveler; 
 
         if (!$traveler) {
             continue;
