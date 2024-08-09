@@ -165,23 +165,36 @@ class UserController extends Controller
 
         // Filter by age range
         if ($request->has('age')) {
-            [$minAge, $maxAge] = explode('-', $request->input('age'));
-            $query->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
-                $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+            $ageRange = explode('-', $request->input('age'));
+            $minAge = $ageRange[0];
+            $maxAge = $ageRange[1];
+
+            $query->whereHas('orders', function ($q) use ($minAge, $maxAge) {
+                $q->whereHas('user', function ($q) use ($minAge, $maxAge) {
+                    $q->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
+                        $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+                    });
+                });
             });
         }
 
         // Filter by gender
         if ($request->has('gender')) {
             $gender = $request->input('gender');
-            $query->whereHas('traveler', function ($q) use ($gender) {
-                $q->where('gender', $gender);
+
+            $query->whereHas('orders', function ($q) use ($gender) {
+                $q->whereHas('user', function ($q) use ($gender) {
+                    $q->whereHas('traveler', function ($q) use ($gender) {
+                        $q->where('gender', $gender);
+                    });
+                });
             });
         }
 
+        // Filter by country
         if ($request->has('country')) {
             $country = $request->input('country');
-            $query->whereHas('travelers', function ($q) use ($country) {
+            $query->whereHas('user', function ($q) use ($country) {
                 $q->where('country', $country);
             });
         }
@@ -191,7 +204,7 @@ class UserController extends Controller
         $result = [];
 
         foreach ($users as $user) {
-            $traveler = Traveler::where('mail', $user->email)->first();
+            $traveler = Traveler::where('user_id', $user->id);
 
             if (!$traveler) {
                 continue;
@@ -203,7 +216,6 @@ class UserController extends Controller
             $totalCommission = 0;
             $totalDuration = 0;
             $totalOrders = $orders->count();
-            $totalGroupSize = 0;
             $lastBookingDate = null;
             $firstBookingDate = null;
             $lastBookingStartCity = null;
@@ -214,7 +226,6 @@ class UserController extends Controller
                 $totalPaid += $order->paid;
                 $totalCommission += $order->commission;
                 $totalDuration += $order->duration;
-                $totalGroupSize += $order->travelers_number;
 
                 if (!$lastBookingDate || $order->start > $lastBookingDate) {
                     $lastBookingDate = $order->start;
@@ -232,7 +243,6 @@ class UserController extends Controller
                     'duration' => $order->duration,
                     'tour_length' => $order->tour_length,
                     'start_city' => $order->start_city,
-                    'group_size' => $order->travelers_number,
                     'tour_id' => $order->tour_id,
                     'operator' => $order->operator,
                     'f_duration' => $order->f_duration,
@@ -244,6 +254,7 @@ class UserController extends Controller
                 ];
     
                 if ($order->tour) {
+                    $orderData['group_size'] = $order->tour->max_group_size;
                     $orderData['cities'] = $order->tour->cities;
                     $orderData['natural_destination'] = $order->tour->natural_destination;
                     $orderData['type'] = $order->tour->type;
@@ -261,7 +272,7 @@ class UserController extends Controller
                 'age' => Carbon::parse($traveler->birth)->age,
                 'orders' => $ordersData,
                 'last_booking_start_city' => $lastBookingStartCity,
-                'group_size_average' => $totalGroupSize / $totalOrders,
+                'group_size_average' => $ordersData['group_size'] / $totalOrders,
                 'last_booking_date' => $lastBookingDate,
                 'first_booking_date' => $firstBookingDate,
                 'total_paid' => $totalPaid,
