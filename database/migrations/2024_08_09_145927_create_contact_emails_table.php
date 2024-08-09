@@ -15,14 +15,12 @@ class CreateContactEmailsTable extends Migration
     {
         Schema::create('contact_emails', function (Blueprint $table) {
             $table->id();
-            $table->string('sent');
-            $table->string('message');
             $table->string('mail_from');
-            $table->string('order');
             $table->string('mail_type');
+            $table->string('message');
             $table->string('link');
+            $table->string('order');
             $table->integer('status');
-            $table->integer('id_user');
             $table->timestamps();
         });
     }

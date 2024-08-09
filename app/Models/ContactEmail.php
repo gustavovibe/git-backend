@@ -10,14 +10,12 @@ class ContactEmail extends Model
     use HasFactory;
     protected $table = 'contact_emails';
     protected $fillable= [
-        'sent',
-        'message',
         'mail_from',
-        'order',
         'mail_type',
+        'message',
         'link',
+        'order',
         'status',
-        'id_user'
     ];
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = [ 'updated_at'];
 }

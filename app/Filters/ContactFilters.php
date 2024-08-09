@@ -19,6 +19,9 @@ class ContactFilters
                 $q->orWhere($column, 'LIKE', "%{$query}%");
             }
         });
+
+        !$r->email?:$results->where('mail_from',!$r->email);
+
         if ($start_date) {
             $results->whereBetween('created_at', [$start_date, $ends_date]);
         }
