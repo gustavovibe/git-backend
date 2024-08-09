@@ -198,24 +198,32 @@ class UserController extends Controller
             $firstBookingDate = $orders->min('created_at');
             $lastBookingStartCity = $orders->where('start', $lastBookingDate)->first()->start_city;
 
-            $ordersData = $orders->map(function ($order) {
-                return [
-                    'start' => $order->start,
-                    'created_at' => $order->created_at,
-                    'departure' => $order->departure,
-                    'duration' => $order->duration,
-                    'tour_length' => $order->tour_length,
-                    'start_city' => $order->start_city,
-                    'total_stops' => $order->total_stops,
-                    'f_duration' => $order->f_duration,
-                    'tour' => [
-                        'cities' => $order->tour->cities->pluck('city')->toArray(),
-                        'natural_destinations' => $order->tour->natural_destination->pluck('natural_destination')->toArray(),
-                        'types' => $order->tour->type->pluck('type')->toArray(),
-                        'countries' => $order->tour->countries->pluck('country')->toArray(),
-                    ],
-                ];
-            })->toArray();
+            $orderData = [
+                'start' => $order->start,
+                'created_at' => $order->created_at,
+                'departure' => $order->departure,
+                'duration' => $order->duration,
+                'tour_length' => $order->tour_length,
+                'start_city' => $order->start_city,
+                'group_size' => $order->travelers_number,
+                'tour_id' => $order->tour_id,
+                'operator' => $order->operator,
+                'f_duration' => $order->f_duration,
+                'total_stops' => $order->total_stops,
+                'checked_bags' => $order->checked_bags,
+                'paid' => $order->paid,
+                'commission' => $order->commission,
+                'channel' => $order->channel,
+            ];
+
+            if ($order->tour) {
+                $orderData['cities'] = $order->tour->cities;
+                $orderData['natural_destination'] = $order->tour->natural_destination;
+                $orderData['type'] = $order->tour->type;
+                $orderData['countries'] = $order->tour->countries;
+            }
+
+            $ordersData[] = $orderData;
 
             $result[] = [
                 'user' => $user,

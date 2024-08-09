@@ -93,4 +93,9 @@ class Tour extends Model
     public function city(){
         return $this->hasOne(City::class,'t_city_id','end_city');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'tour_id', 'tour_id');
+    }
 }
