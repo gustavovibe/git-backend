@@ -36,6 +36,7 @@ Route::post('import-countries', [CountryController::class, 'import']);
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
 Route::resource('cities', Citycontroller::class);
 Route::resource('countries', CountryController::class);
+Route::get('countries-filter',[CountryController::class,'getCountries'] );
 Route::resource('natural_destinations', NaturalDestinationController::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
@@ -78,6 +79,8 @@ Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
 
 Route::get('/users', [UserController::class, 'getUserById']);
+
+Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);

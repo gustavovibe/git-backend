@@ -13,7 +13,7 @@ class TravelersController extends Controller
     {
         if ($request->has('traveler_id')) {
             $traveler_id = $request->query('traveler_id');
-            $traveler = Traveler::where('traveler_id', $traveler_id)->first();
+            $traveler = Traveler::where('traveler_id', $traveler_id)->with('user_:hear,internal_notes,suscribed,id')->first();
 
             if ($traveler) {
                 return response()->json($traveler);
@@ -47,7 +47,8 @@ class TravelersController extends Controller
             'lead' => 'required|string|max:255',
         ]);
 
-        $traveler = Traveler::create($request->all());
+        $traveler= $request->traveler_id?Traveler::where('traveler_id',$request->traveler_id)->first():new Traveler();
+        $traveler->fill($request->all())->save();
 
         return response()->json($traveler, 201);
     }

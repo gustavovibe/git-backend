@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 
@@ -41,6 +42,7 @@ class UserController extends Controller
             'active' => $user->active,
             'suscribed' => $user->suscribed,
             'hear' => $user->hear,
+            'internal_notes'=>$user->internal_notes
         ];
 
         return response()->json([
@@ -201,13 +203,13 @@ class UserController extends Controller
                 $q->where('country', $country);
             });
         }
-    
+
         $users = $query->get();
 
         $result = [];
 
         foreach ($users as $user) {
-            $traveler = Traveler::where('user_id', $user->id)->first(); 
+            $traveler = Traveler::where('user_id', $user->id)->first();
 
             if (!$traveler) {
                 continue;
@@ -257,7 +259,7 @@ class UserController extends Controller
                     'commission' => $order->commission,
                     'channel' => $order->channel,
                 ];
-                
+
                 if ($order->tour) {
                     $orderData['group_size'] = $order->tour->max_group_size;
                     $orderData['cities'] = $order->tour->cities;
@@ -265,7 +267,7 @@ class UserController extends Controller
                     $orderData['type'] = $order->tour->type;
                     $orderData['countries'] = $order->tour->countries;
                 }
-                
+
                 $totalGroupSize += $orderData['group_size'];
 
                 $totalPaid += $order->paid;
@@ -300,11 +302,25 @@ class UserController extends Controller
                 'average_commission' => $averageCommission,
                 'gross_profit' => $grossProfit,
                 'frequency' => $frequency,
-                'orders' => $ordersData,    
+                'orders' => $ordersData,
             ];
         }
 
         return ApiResponse::success($result);
+    }
+
+    public function editTraveler(Request $r){
+        try{
+            $user= User::find($r->id);
+            $user->fill([
+                'hear'=>$r->hear,
+                'suscribed'=>$r->suscribed,
+                'internal_notes'=>$r->internal_notes,
+            ])->save();
+            return ApiResponse::success($user);
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage(),500);
+        }
     }
 
 }

@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login','internal_notes'
     ];
 
     protected $hidden = [
@@ -53,6 +53,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(Traveler::class, 'user_id', 'id');
     }
-    
+
 }
 
