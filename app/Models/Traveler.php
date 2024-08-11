@@ -45,5 +45,9 @@ class Traveler extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+    public function user_()
+    {
+        return $this->hasOne(User::class,'id', 'user_id');
+    }
 
 }

@@ -16,6 +16,7 @@ use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
@@ -35,7 +36,9 @@ Route::post('email-verification/verified', [VerificationController::class, 'veri
 Route::post('import-countries', [CountryController::class, 'import']);
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
 Route::resource('cities', Citycontroller::class);
+Route::get('selection', [Citycontroller::class,'selectiontable']);
 Route::resource('countries', CountryController::class);
+Route::get('get-destinations', [Citycontroller::class,'destinations']);
 Route::resource('natural_destinations', NaturalDestinationController::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
@@ -58,6 +61,7 @@ Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
 Route::get('show-tours', [TourController::class,'show']);
 Route::get('tours-text',[TourController::class,'getText']);
+Route::get('show-type',[TourController::class,'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
@@ -78,6 +82,8 @@ Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
 
 Route::get('/users', [UserController::class, 'getUserById']);
+
+Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
@@ -100,3 +106,6 @@ Route::resource('roles', RolesController::class);
 
 Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
 Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
+Route::resource('operators',OperatorsController::class);
+Route::get('operators-import',[OperatorsController::class,'import']);
+Route::get('tours-text',[OperatorsController::class,'text']);

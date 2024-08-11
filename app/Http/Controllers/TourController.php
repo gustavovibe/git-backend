@@ -104,10 +104,20 @@ class TourController extends Controller
 
     public function show(Request $r){
         try{
-            $tour= (new ToursFilters)->ToursP($r);
+            $tour=ToursFilters::ToursP($r);
             return response()->json(['status'=>true,'count'=>count($tour), 'response'=>$tour]);
         }catch(Error $e){
             return response()->json(['status'=>false, 'response'=>$e]);
         }
     }
+
+    public function show_type(Request $r){
+        try{
+            $travel=ToursFilters::travel_styles($r);
+            return response()->json(['status'=>true,'count'=>count($travel),'response'=>$travel]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+        }
+    }
+
 }

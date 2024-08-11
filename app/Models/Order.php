@@ -140,7 +140,7 @@ class Order extends Model
 
     public function tour()
     {
-        return $this->belongsTo(Tour::class, 'tour_id', 'id');
+        return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
     }
 
     public function operator()

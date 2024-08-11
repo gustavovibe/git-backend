@@ -2,11 +2,11 @@
 
 namespace App\Filters;
 
-use App\Models\ContactEmail;
+use App\Models\Order;
 use App\Models\Tour;
-use App\Models\User;
+use App\Models\Type;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ToursFilters
 {
@@ -16,7 +16,7 @@ class ToursFilters
         $country=$r->country;
         $admin=$r->admin;
 
-        $tour= (new Tour)->newQuery();
+        $tour= Tour::query();
 
         !$r->tour_type?:$tour->WhereHas('type', function ($q) use ($tour_type) {
             $q->whereIn('tour_type_id',[ $tour_type]);
@@ -75,4 +75,88 @@ class ToursFilters
         return $tour;
     }
 
+    public function travel_styles(Request $r){
+        $travel=Type::query();
+        $orderby=$r->order;
+        $commission=explode(',',$r->commission);
+        $range=explode(',',$r->range);
+        $minRange =(int) $range[0];
+        $maxRange =(int) $range[1];
+        $minCommission = (double)$commission[0];
+        $maxCommission = (double)$commission[1];
+
+        !$r->name?:$travel->where('tourtype_name','like',"%{$r->name}%");
+        !$r->id?:$travel->where('tour_type_id',$r->id);
+        if(in_array($orderby,[1,2])){
+            $orderby==1?$travel->orderBy('tourtype_name', 'ASC'):$travel->orderBy('tourtype_name', 'DESC');
+        }
+        $sums = Order::query();
+        $filteredTourIds = Order::query()
+        ->select('tour_id')
+        ->selectRaw('SUM(paid) as total_paid')
+        ->whereBetween('commission', [$minCommission, $maxCommission])
+        ->groupBy('tour_id')
+        ->havingRaw('SUM(paid) BETWEEN ? AND ?', [$minRange, $maxRange])
+        ->pluck('tour_id')
+        ->toArray();
+
+        $travel->whereHas('type_t', function ($query) use ($filteredTourIds) {
+            $query->whereIn('tour_id', $filteredTourIds);
+        });
+
+        !$r->limit?:$travel->limit($r->limit);
+        $sums=$sums->get()->pluck('tour_id')->toArray();
+      /*   return $sums; */
+        $travel= $travel->with('type_t:tour_type_id,tour_id')->withCount('type_t')->get()->map(function($tra) use($filteredTourIds,$minCommission,$maxCommission){
+            $tra->comission_range=[];
+            $tra->comission_total=0;
+            $tra->total_paid=0;
+                $tra->type_ids=$tra->type_t->pluck('tour_id')->toArray();
+                $iguales=array_intersect($filteredTourIds,$tra->type_ids);
+                $order= Order::select('tour_id','paid','commission')->wherein('tour_id',$iguales)->get();
+                $tra->order=$order;
+                $comission_range = [];
+
+                  if(count($order)){
+                    foreach($order as $or){
+                        if($or->commission>=$minCommission && $or->commission<=$maxCommission){
+                            $tra->total_paid+=(double)$or->paid;
+                            $tra->comission_total+=((double)$or->paid*$or->commission);
+                            $commissionPercentage = 100 * $or->commission;
+                            if (!in_array($commissionPercentage,   $comission_range)) {
+                                $comission_range[] = $commissionPercentage;
+                            }
+                        }
+                    }
+                }
+                $tra->comission_range =count($comission_range)>0?implode(',',$comission_range):'0' ;
+                $tra->comission_total =round($tra->comission_total,2);
+                $tra->total_paid =round($tra->total_paid,2);
+                unset($tra->order);
+                unset($tra->type_ids);
+                unset($tra->type_t);
+            return $tra;
+        })->filter(function($tra) use ($minRange, $maxRange) {
+            return ($tra->total_paid >= $minRange && $tra->total_paid <= $maxRange);
+        })->values()->all();
+
+        $val_list=[
+            3=>'total_paid',
+            4=>'total_paid',
+            7=>'type_t_count',
+            8=>'type_t_count',
+        ];
+        if ( in_array($orderby,[3,4,5,6,7,8])) {
+            usort($travel, function ($a, $b) use($orderby,$val_list){
+                if (in_array($orderby, [3, 5, 7])) {
+                    return $a->{$val_list[$orderby]} <=> $b->{$val_list[$orderby]};
+                }
+                if (in_array($orderby, [4, 6, 8])) {
+                    return $b->{$val_list[$orderby]} <=> $a->{$val_list[$orderby]};
+                }
+            });
+        }
+
+        return $travel;
+    }
 }

@@ -53,4 +53,13 @@ class CountryController extends Controller
 
         return ApiResponse::success(CountryResource::collection($countries));
     }
+
+    public function getCountries(Request $r)
+    {
+        $countries = Country::query();
+        !$r->name?:$countries->where('name','like',"{$r->name}");
+        !$r->id?:$countries->where('t_country_id',"{$r->country}");
+
+        return ApiResponse::success($countries->get());
+    }
 }
