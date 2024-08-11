@@ -61,6 +61,7 @@ Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
 Route::get('show-tours', [TourController::class,'show']);
 Route::get('tours-text',[TourController::class,'getText']);
+Route::get('show-type',[TourController::class,'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
@@ -103,6 +104,8 @@ Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
 
+Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
+Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
 Route::resource('operators',OperatorsController::class);
 Route::get('operators-import',[OperatorsController::class,'import']);
 Route::get('tours-text',[OperatorsController::class,'text']);
