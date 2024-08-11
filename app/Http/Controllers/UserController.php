@@ -1,5 +1,7 @@
 <?php
 namespace App\Http\Controllers;
+
+use App\Filters\ContactFilters;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Error;
