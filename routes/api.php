@@ -16,6 +16,7 @@ use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
@@ -102,5 +103,6 @@ Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
 
-Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
-Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
+Route::resource('operators',OperatorsController::class);
+Route::get('operators-import',[OperatorsController::class,'import']);
+Route::get('tours-text',[OperatorsController::class,'text']);
