@@ -10,11 +10,8 @@ use App\Helpers\ApiResponse;
 
 class TourRadarController extends Controller
 {
-  /*   $scope = ([
-        'com.tourradar.tours/read',
-        'com.tourradar.operators/read'
-    ]); */
-    public static function getAccessToken($scope)
+
+    public static function getAccessToken()
     {
 
         // ToDo: Move these variables to a .env file

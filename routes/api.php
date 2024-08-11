@@ -109,3 +109,6 @@ Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
 Route::resource('operators',OperatorsController::class);
 Route::get('operators-import',[OperatorsController::class,'import']);
 Route::get('tours-text',[OperatorsController::class,'text']);
+
+Route::get('cities-c', [Citycontroller::class,'cities']);
+Route::get('countries-filter',[CountryController::class,'getCountries'] );

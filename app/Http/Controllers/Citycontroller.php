@@ -70,6 +70,8 @@ class Citycontroller extends Controller
         return ApiResponse::success($responseData);
     }
 
+
+    
     public function DestinatioCityCountryNaturalDestination(Request $request)
     {
 
@@ -127,6 +129,19 @@ class Citycontroller extends Controller
             return response()->json(['status'=>true,'response'=>$selection]);
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+        }
+    }
+
+    public function cities(Request $r)
+    {
+        try{
+            $city= (new City)->newQuery();
+            !$r->city_name?:$city->where('city_name','like',"%{$r->city_name}%");
+            !$r->limit?:$city->limit($r->limit);
+            $city=$city->get();
+            return response()->json(['status'=>true,'response'=>$city]);
+        }catch(Error $e){
+            return response()->json(['status'=>false,'response'=>$e]);
         }
     }
 }

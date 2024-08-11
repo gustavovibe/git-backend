@@ -52,6 +52,16 @@ class UserController extends Controller
             'user' => $userData
         ], 200);
     }
+    
+    public function showContac(Request $r){
+        try{
+            //$Contact= ContactEmail::all();
+            $Contact = (new ContactFilters)->ContactE($r);
+            return response()->json(['status'=>200,'response'=>$Contact]);
+        }catch(Exception $e){
+            return response()->json(['status'=>500,'response'=>$e]);
+        }
+    }
 
     public function getUsersWithOrders(Request $request)
     {
