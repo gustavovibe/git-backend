@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login','internal_notes'
     ];
 
     protected $hidden = [
@@ -51,7 +51,8 @@ class User extends Authenticatable
 
     public function traveler()
     {
-        return $this->hasOne(Traveler::class, 'mail', 'email'); // Adjust the foreign key and local key accordingly
+        return $this->hasOne(Traveler::class, 'user_id', 'id');
     }
-    
+
 }
+

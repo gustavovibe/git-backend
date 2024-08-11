@@ -137,16 +137,10 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-    
-    public function traveler()
-    {
-        return $this->belongsTo(Traveler::class, 'traveler_id');
-    }
 
-    // Order belongs to a tour
     public function tour()
     {
-        return $this->belongsTo(Tour::class);
+        return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
     }
 }
 

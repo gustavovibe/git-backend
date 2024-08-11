@@ -51,6 +51,11 @@ class Tour extends Model
         return $this->hasMany(TourCountry::class, 'tour_id', 'tour_id')->with('country');
     }
 
+    public function tcountries()
+    {
+        return $this->hasMany(TourCountry::class, 'tour_id', 'tour_id');
+    }
+
     public function natural_destination()
     {
         return $this->hasMany(TourNaturalDestination::class, 'tour_id', 'tour_id')->with('natural_destination');
@@ -94,7 +99,8 @@ class Tour extends Model
         return $this->hasOne(City::class,'t_city_id','end_city');
     }
 
-    public function order(){
-        return $this->hasMany(Order::class,'tour_id','tour_id');
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'tour_id', 'tour_id');
     }
 }

@@ -16,7 +16,7 @@ class ToursFilters
         $country=$r->country;
         $admin=$r->admin;
 
-        $tour= (new Tour)->newQuery();
+        $tour= Tour::query();
 
         !$r->tour_type?:$tour->WhereHas('type', function ($q) use ($tour_type) {
             $q->whereIn('tour_type_id',[ $tour_type]);
