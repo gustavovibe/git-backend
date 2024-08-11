@@ -15,7 +15,7 @@ class CreateNaturalDestinationsTable extends Migration
     {
         Schema::create('natural_destinations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('destination_id')->index();
+            $table->unsignedBigInteger('t_natural_id')->index();
             $table->string('destination_name');
             $table->string('type');
             $table->timestamps();

@@ -18,35 +18,41 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'full_name', 'email', 'password', 'id_profile'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
-        'password', 'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
+        'password','created_at', 'updated_at'
     ];
 
     public function profile()
     {
-        return $this->hasOne(Profile::class, 'id', 'id_profile');
+        return $this->hasOne(Profile::class, 'id', 'profile_id');
     }
 
-    public function courses()
+    public function permissions()
     {
-        return $this->belongsToMany(Course::class, 'courses_for_users', 'id_user', 'id_course')  ->withPivot('id', 'progress');
+        return $this->belongsToMany(Permission::class);
     }
 
+    public function permission(){
+        return $this->hasMany(Permission_User::class,'user_id','id');
+    }
+
+
+    public function job(){
+        return $this->hasOne(Job::class,'id','job_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
+
+    public function traveler()
+    {
+        return $this->hasOne(Traveler::class, 'user_id', 'id');
+    }
+    
 }
+

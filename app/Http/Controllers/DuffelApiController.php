@@ -158,6 +158,32 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    public function getOrderById(Request $request)
+    {
+        // Validations
+        $validator = $this->validateParamsWhenOrderById($request);
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        try {
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
+            $url = 'https://api.duffel.com/air/orders/' . $request->orderId;
+
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     // private functions
     private function getFilteredOffers($offers, $offersQuantity, $request)
     {
@@ -345,6 +371,18 @@ class DuffelApiController extends Controller
         return Validator::make($request->all(), $rules, $messages);
     }
 
+    private function validateParamsWhenOrderById($request)
+    {
+        $rules = [
+            'orderId' => 'required|string|regex:/^ord_.+$/',
+        ];
+        $messages = [
+            'orderId.regex' => 'El campo :attribute debe comenzar diciendo "ord_".',
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
+    }
+
     private function validateBaggages($offer, $request)
     {
         foreach ($offer['slices'] as $slice) {
@@ -485,7 +523,7 @@ class DuffelApiController extends Controller
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
             'Duffel-Version' => 'v1',
-            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+            'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
         ];
     }
 

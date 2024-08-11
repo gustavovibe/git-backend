@@ -1,9 +1,6 @@
-version: '3'
-
 services:
   db:
-    image: mysql:8
-    restart: always
+    image: mysql:8.3.0
     environment:
       MYSQL_DATABASE: 'vibe_adventure'
       MYSQL_USER: 'vibe_adventure_user_admin'
@@ -14,8 +11,24 @@ services:
     expose:
       - '3306'
     volumes:
-      - my-db:/var/lib/mysql
+      - my-db-vibe:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-build-dev
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/var/www/html:cached
+      - vendor_vibe:/var/www/html/vendor
+    command: >
+      sh -c " if [ ! -d /var/www/html/vendor ]; then
+        cp -r /var/www/vendor_temp/* /var/www/html/vendor;
+      fi && php artisan serve --host=0.0.0.0 --port=8000 "
 
 volumes:
-  my-db:
+  vendor_vibe:
+  my-db-vibe:
+
 

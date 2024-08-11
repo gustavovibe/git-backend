@@ -13,3 +13,4 @@ yarn-error.log
 .vscode
 .terraform.lock.hcl
 .terraform
+.env

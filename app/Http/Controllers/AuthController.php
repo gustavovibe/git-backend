@@ -9,29 +9,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\MailRegistro;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:5',
 
-
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => $validator->errors()
-            ], 400);
-        }
         $user = User::create([
-            'full_name' => $request->full_name,
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'profile_id' => $request->profile_id,
+            'phone' => $request->phone,
+            'country' => $request->country,
+            'role' => $request->role,
+            'active' => $request->active,
+            'suscribed' => $request->suscribed,
+            'hear' => $request->hear,
         ]);
 
         // $correo = new MailRegistro($request->email, $request->password, $request->full_name);
@@ -54,15 +50,16 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = User::where('email', $request['email'])->firstOrFail();
+        $user = User::where('email', $request['email'])->with('profile', 'permissions')->firstOrFail();
+        $user->last_login=Carbon::now();
+        $user->save();
         $token = $user->createToken('auth_token')->plainTextToken;
-
 
         return response()->json([
             'status' => true,
             'message' => 'Inicio de sesion correcto',
             'access_token' => $token,
-            'user' => $user->id,
+            'user' => $user,
         ], 200);
     }
 

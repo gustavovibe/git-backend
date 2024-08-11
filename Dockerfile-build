@@ -1,12 +1,5 @@
 FROM php:7.4-fpm
-# ARG DB_CONNECTION
-# ARG DB_HOST
-# ARG DB_PORT
-# ARG DB_DATABASE
-# ARG DB_USERNAME
-# ARG DB_PASSWORD
 
-# Instalar dependencias y extensiones de PHP necesarias
 RUN apt-get update && \
     apt-get install -y \
     libpng-dev \
@@ -22,23 +15,15 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# RUN echo "DB_CONNECTION=${DB_CONNECTION}" > .env
-# RUN echo "DB_HOST=${DB_HOST}" > .env
-# RUN echo "DB_PORT=${DB_PORT}" > .env
-# RUN echo "DB_DATABASE=${DB_DATABASE}" > .env
-# RUN echo "DB_USERNAME=${DB_USERNAME}" > .env
-# RUN echo "DB_PASSWORD=${DB_PASSWORD}" > .env
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-RUN composer install 
+RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 
 RUN php artisan key:generate
 
 RUN php artisan optimize
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 CMD ["php-fpm"]
