@@ -35,6 +35,7 @@ Route::post('email-verification/verified', [VerificationController::class, 'veri
 Route::post('import-countries', [CountryController::class, 'import']);
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
 Route::resource('cities', Citycontroller::class);
+Route::get('cities-c', [Citycontroller::class,'cities']);
 Route::resource('countries', CountryController::class);
 Route::get('countries-filter',[CountryController::class,'getCountries'] );
 Route::resource('natural_destinations', NaturalDestinationController::class);
