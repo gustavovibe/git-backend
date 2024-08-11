@@ -263,6 +263,7 @@ class UserController extends Controller
                     'tour_length' => $order->tour_length,
                     'start_city' => $order->start_city,
                     'tour_id' => $order->tour_id,
+                    'tour_name' => $order->tour_name,
                     'operator' => $order->operator,
                     'f_duration' => $order->f_duration,
                     'total_stops' => $order->total_stops,
