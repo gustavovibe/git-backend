@@ -32,7 +32,7 @@ class CountryController extends Controller
     public function index(Request $request)
     {
         $perPage = 10;
-        
+
         $q = $request->input('q');
 
         if ($q) {
@@ -45,5 +45,21 @@ class CountryController extends Controller
         $responseData['data'] = CountryResource::collection($paginatedData->items());
 
         return ApiResponse::success($responseData);
+    }
+
+    public function getAllCountries(Request $request)
+    {
+        $countries = Country::all();
+
+        return ApiResponse::success(CountryResource::collection($countries));
+    }
+
+    public function getCountries(Request $r)
+    {
+        $countries = Country::query();
+        !$r->name?:$countries->where('name','like',"{$r->name}");
+        !$r->id?:$countries->where('t_country_id',"{$r->country}");
+
+        return ApiResponse::success($countries->get());
     }
 }

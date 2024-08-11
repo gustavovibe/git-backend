@@ -15,12 +15,12 @@ class TourNaturalDestination extends Model
         't_natural_id',
     ];
 
-    
+
     protected $hidden = ['created_at', 'updated_at'];
 
     public function natural_destination()
     {
-        return $this->belongsTo(NaturalDestination::class, 't_natural_id', 'destination_id');
+        return $this->belongsTo(NaturalDestination::class, 't_natural_id', 't_natural_id');
     }
     public function tour()
     {

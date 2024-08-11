@@ -27,7 +27,7 @@ class CreateTravelersTable extends Migration
             $table->string('mail');
             $table->string('phone');
             $table->string('address');
-            $table->boolean('country');
+            $table->string('country');
             $table->boolean('lead');
             $table->timestamps();
         });

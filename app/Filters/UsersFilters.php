@@ -48,6 +48,7 @@ class UsersFilters
         $admin=$r->admin;
         $filter=$r->filter;
         $users = (new User)->newQuery();
+
         !$r->name?:$users->where('name', 'like', '%' . $r->name . '%');
         !$r->id?:$users->where('id', $r->id);
         !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'job_id','password','last_login','profile_id','country')->where('profile_id',1);
@@ -56,6 +57,7 @@ class UsersFilters
             $query->where('name', 'like', '%' . $filter . '%')
             ->orWhere('email', 'like', '%' . $filter . '%');
         });
+        $users->where('active',1);
         $users = $users->get();
         $users = $users->map(function($u) use($admin) {
             $u->phone = (int) $u->phone;
