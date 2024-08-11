@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Citycontroller;
@@ -17,6 +16,7 @@ use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
+use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
@@ -25,7 +25,6 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
-
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('test', [AuthController::class, 'test']);
@@ -83,6 +82,8 @@ Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravele
 
 Route::get('/users', [UserController::class, 'getUserById']);
 
+Route::post('/users-travelers', [UserController::class, 'editTraveler']);
+
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
 
@@ -99,6 +100,9 @@ Route::get('/get-users', [SystemUserController::class, 'getUsers']);
 Route::get('/validate-email', [SystemUserController::class, 'validateEmail']);
 Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 
-
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
+
+Route::resource('operators',OperatorsController::class);
+Route::get('operators-import',[OperatorsController::class,'import']);
+Route::get('tours-text',[OperatorsController::class,'text']);

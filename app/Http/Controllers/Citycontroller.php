@@ -51,18 +51,23 @@ class Citycontroller extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
-    public function index(Request $r)
+    public function index(Request $request)
     {
-        try{
-            $city= (new City)->newQuery();
-            !$r->city_name?:$city->where('city_name','like',"%{$r->city_name}%");
-            !$r->limit?:$city->limit($r->limit);
-            $city=$city->get();
-            return response()->json(['status'=>true,'response'=>$city]);
-        }catch(Error $e){
-            return response()->json(['status'=>false,'response'=>$e]);
+        $perPage = 10;
+
+        $q = $request->input('q');
+
+        if ($q) {
+            $paginatedData = City::where('city_name', 'like', $q . '%')->paginate($perPage);
+        } else {
+            $paginatedData = City::paginate($perPage);
         }
 
+        $responseData = $paginatedData->toArray();
+
+        $responseData['data'] = CityResource::collection($paginatedData->items());
+
+        return ApiResponse::success($responseData);
     }
 
     public function DestinatioCityCountryNaturalDestination(Request $request)

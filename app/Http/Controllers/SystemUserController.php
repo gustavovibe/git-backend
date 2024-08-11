@@ -42,7 +42,7 @@ class SystemUserController extends Controller
                 'profile_id'=>1,
                 'active'=>1,
                 'role'=>1,
-                'password'=>Hash::make($r->id?$u->code:$random)
+                'password'=>$r->id?$u->code:Hash::make($random)
             ])->save();
 
            $existingPermissions = Permission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
