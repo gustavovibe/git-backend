@@ -113,4 +113,5 @@ Route::get('tours-text',[OperatorsController::class,'text']);
 Route::get('cities-c', [Citycontroller::class,'cities']);
 Route::get('countries-filter',[CountryController::class,'getCountries'] );
 
-Route::get('/email',[TourController::class,'email']);
+Route::get('/email-tour-details',[TourController::class,'emailTDetails']);
+Route::get('/email-booking-confirmation',[TourController::class,'emailTDetails']);
