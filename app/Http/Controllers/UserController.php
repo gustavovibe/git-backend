@@ -8,6 +8,7 @@ use Error;
 use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
+use App\Mail\ContactMail;
 use App\Models\ContactEmail;
 use Carbon\Carbon;
 use Exception;
