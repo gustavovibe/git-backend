@@ -216,6 +216,14 @@ class UserController extends Controller
             });
         }
 
+            // Filter by tour IDs
+        if ($request->has('tours')) {
+            $tourIds = explode(',', $request->input('tours'));
+            $query->whereHas('orders.tour', function ($q) use ($tourIds) {
+                $q->whereIn('tour_id', $tourIds);
+            });
+        }
+
         $users = $query->get();
 
         $result = [];
