@@ -8,6 +8,7 @@ use Error;
 use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
+use App\Models\ContactEmail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -52,12 +53,33 @@ class UserController extends Controller
             'user' => $userData
         ], 200);
     }
-    
+
+    public function Contac(Request $r){
+        DB::beginTransaction();
+            try{
+            $details = [
+                'link' => $r->link,
+                'order' => $r->order,
+                'mail_from'=>$r->mail_from,
+                'mail_type' => $r->mail_type,
+                'message' => $r->message,
+            ];
+
+            $Contact = new ContactEmail();
+            $Contact->fill($details)->save();
+            Mail::to('adan_gonzalez@vibeadventures.com')->send(new ContactMail($details));
+            DB::commit();
+            return response()->json(['status'=>200,'response'=>'entro a servicio']);
+        }catch(Error $e){
+            DB::rollback();
+            return response()->json(['status'=>500,'response'=>$e]);
+        }
+    }
+
     public function showContac(Request $r){
         try{
-            //$Contact= ContactEmail::all();
-            $Contact = (new ContactFilters)->ContactE($r);
-            return response()->json(['status'=>200,'response'=>$Contact]);
+            $contact =ContactFilters::ContactE($r);
+            return response()->json(['status'=>200, 'count'=>count($contact),'response'=>$contact]);
         }catch(Exception $e){
             return response()->json(['status'=>500,'response'=>$e]);
         }
