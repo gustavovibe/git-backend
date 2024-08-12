@@ -7,6 +7,7 @@ use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
+use App\Mail\TourDetails;
 use Illuminate\Support\Facades\Http;
 class TourController extends Controller
 {
@@ -118,6 +119,12 @@ class TourController extends Controller
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
+    }
+
+
+    public function email(Request $r){
+        Mail::to($r->email)->send(new TourDetails());
+        return 'mail template';
     }
 
 }
