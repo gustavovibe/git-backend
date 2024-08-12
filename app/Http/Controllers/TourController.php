@@ -9,6 +9,7 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
 use App\Mail\TourDetails;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 class TourController extends Controller
 {
     public function index(Request $request)
