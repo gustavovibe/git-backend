@@ -7,7 +7,10 @@ use App\Models\Tour;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
+use App\Mail\BookingMail;
+use App\Mail\TourDetails;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 class TourController extends Controller
 {
     public function index(Request $request)
@@ -93,7 +96,6 @@ class TourController extends Controller
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
- /*        return $url; */
         try {
             $response = Http::withHeaders($headers)->get($url);
             return response()->json(['status'=>true,'response'=>$response->json()]);
@@ -106,8 +108,8 @@ class TourController extends Controller
         try{
             $tour=ToursFilters::ToursP($r);
             return response()->json(['status'=>true,'count'=>count($tour), 'response'=>$tour]);
-        }catch(Error $e){
-            return response()->json(['status'=>false, 'response'=>$e]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false, 'response'=>$e->getMessage()]);
         }
     }
 
@@ -120,4 +122,14 @@ class TourController extends Controller
         }
     }
 
+
+    public function emailTDetails(Request $r){
+        Mail::to($r->email)->send(new TourDetails());
+        return 'mail template';
+    }
+
+    public function emailBConfirmation(Request $r){
+        Mail::to($r->email)->send(new BookingMail);
+        return 'booking confirmation';
+    }
 }
