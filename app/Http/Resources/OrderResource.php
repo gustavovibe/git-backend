@@ -16,7 +16,7 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'departure' => $this->booking_id,
+            'departure' => $this->departure,
             'start' => $this->start,
             'arrival' => $this->arrival,
             'end' => $this->end,
@@ -61,6 +61,9 @@ class OrderResource extends JsonResource
             'group_size' => $this->group_size,
             'country' => $this->country,
             'carrier' => $this->carrier,
+            'travelers' => TravelerResource::collection($this->travelers),
+            'user' => $this->user,
+            'flightTour' => $this->flightTour,
         ];
     }
 }

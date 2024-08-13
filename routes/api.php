@@ -59,8 +59,8 @@ Route::get('confirm-payment', [ProxyKiwiController::class, 'confirmPayment']);
 Route::get('confirm-payment-zooz', [ProxyKiwiController::class, 'confirmPaymentZooz']);
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
-Route::get('show-tours', [TourController::class,'show']);
-Route::get('tours-text',[TourController::class,'getText']);
+Route::get('show-tours', [TourController::class, 'show']);
+Route::get('tours-text', [TourController::class, 'getText']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
@@ -91,7 +91,7 @@ Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
-
+Route::get('/order/{id}', [OrderController::class, 'getOrder']);
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
 
 Route::post('/add-users', [SystemUserController::class, 'createUser']);
@@ -104,3 +104,5 @@ Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
 
 Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
+Route::put('/travelers/{id}', [TravelersController::class, 'update']);
+Route::delete('/travelers/{id}', [TravelersController::class, 'destroy']);

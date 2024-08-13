@@ -9,10 +9,6 @@ class Traveler extends Model
 {
     use HasFactory;
 
-    protected $table = 'travelers';
-    protected $primaryKey = 'traveler_id';
-    public $incrementing = true;
-    protected $keyType = 'int';
     protected $fillable = [
         'title',
         'gender',
@@ -27,15 +23,16 @@ class Traveler extends Model
         'phone',
         'address',
         'country',
-        'lead'
+        'lead',
+        'created_at',
+        'updated_at'
     ];
-
-    protected $hidden = ['created_at', 'updated_at'];
 
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_traveler', 'traveler_id', 'booking_id');
     }
+
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

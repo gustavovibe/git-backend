@@ -20,8 +20,7 @@ class CreateWishlistsTable extends Migration
             $table->integer('tour_id');
             $table->text('notes')->nullable;
             $table->timestamps();
-
-            $table->foreign('traveler_id')->references('traveler_id')->on('travelers')->onDelete('cascade');
+            $table->foreign('traveler_id')->references('id')->on('travelers')->onDelete('cascade');
         });
     }
 

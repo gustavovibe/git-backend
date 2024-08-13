@@ -19,7 +19,6 @@ class CreateFlightsToursTable extends Migration
             $table->json('tour');
             $table->unsignedBigInteger('id_order');
             $table->timestamps();
-
             $table->foreign('id_order')->references('id')->on('orders')->onDelete('cascade');
         });
     }

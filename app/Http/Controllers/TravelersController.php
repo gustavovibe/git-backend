@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Traveler;
@@ -129,5 +131,30 @@ class TravelersController extends Controller
         }
 
         return ApiResponse::success($result);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $traveler = Traveler::findOrFail($id);
+
+        $data = $request->only(['title', 'name', 'last', 'birth', 'country']);
+
+        $traveler->update($data);
+
+        return response()->json([
+            'message' => 'Traveler updated successfully',
+            'traveler' => $traveler
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $traveler = Traveler::findOrFail($id);
+
+        $traveler->delete();
+
+        return response()->json([
+            'message' => 'Traveler deleted successfully',
+        ], 200);
     }
 }

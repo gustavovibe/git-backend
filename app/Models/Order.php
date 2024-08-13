@@ -13,14 +13,7 @@ class Order extends Model
 
     protected $table = 'orders';
 
-    protected $primaryKey = 'booking_id';
-
-    public $incrementing = false;
-
-    protected $keyType = 'string';
-
     protected $fillable = [
-        'booking_id',
         'departure',
         'start',
         'arrival',
@@ -82,16 +75,19 @@ class Order extends Model
         'updated_at'
     ];
 
+    public function flightTour()
+    {
+        return $this->hasOne(FlightTour::class, 'id_order');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
     public function travelers()
     {
         return $this->belongsToMany(Traveler::class, 'order_traveler', 'booking_id', 'traveler_id');
-    }
-
-    protected $hidden = ['created_at', 'updated_at'];
-
-    public function flightTour()
-    {
-        return $this->hasMany(FlightTour::class, 'id_order');
     }
 
     public function scopeFilter(Builder $query, array $filters)

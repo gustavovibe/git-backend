@@ -18,15 +18,21 @@ class OrderController extends Controller
         $date = $request->input('date');
 
         if ($date) {
-            $paginatedData = Order::with('flightTour')->where('name', 'like', $date . '%')->paginate($perPage);
+            $paginatedData = Order::with(['flightTour', 'travelers', 'user'])->where('name', 'like', $date . '%')->paginate($perPage);
         } else {
-            $paginatedData = Order::with('flightTour')->paginate($perPage);
+            $paginatedData = Order::with(['flightTour', 'travelers', 'user'])->paginate($perPage);
         }
         $responseData = $paginatedData->toArray();
 
         $responseData['data'] = OrderResource::collection($paginatedData->items());
 
         return ApiResponse::success($responseData);
+    }
+
+    public function getOrder($id)
+    {
+        $order = Order::with(['flightTour', 'travelers', 'user'])->find($id);
+        return ApiResponse::success(new OrderResource($order));
     }
 
     public function adminReports(Request $request)

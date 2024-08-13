@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumntDepartureToTours extends Migration
+class ChangeColumnTypePassportInTravelers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddColumntDepartureToTours extends Migration
      */
     public function up()
     {
-        Schema::table('tours', function (Blueprint $table) {
-            $table->text('departures');
+        Schema::table('travelers', function (Blueprint $table) {
+            $table->bigInteger('passport')->change();
         });
     }
 
@@ -25,8 +25,8 @@ class AddColumntDepartureToTours extends Migration
      */
     public function down()
     {
-        Schema::table('tours', function (Blueprint $table) {
-            $table->dropColumn('departures');
+        Schema::table('travelers', function (Blueprint $table) {
+            $table->Integer('passport')->change();
         });
     }
 }

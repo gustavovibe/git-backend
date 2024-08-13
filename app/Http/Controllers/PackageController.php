@@ -56,6 +56,21 @@ class PackageController extends Controller
 
     }
 
+    public function test(Request $request)
+    {
+
+        $tourBody = $request->input('tour');
+        $tourResponse = TourRadarController::createNewBooking($tourBody);
+
+        $flightBody = $request->input('flight');
+        $flightResponse = DuffelApiController::createNewBooking($flightBody);
+
+        return [
+            'flight' => $flightResponse,
+            'tour' => $tourResponse
+        ];
+    }
+
     private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
     {
 
@@ -129,30 +144,14 @@ class PackageController extends Controller
 
                 $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
 
-
                 $today = Carbon::now();
 
                 $mainPassengerAge = $dob->diffInYears($today);
 
                 $firstIteration = false;
             }
-
-            $traveler = Traveler::create([
-                'title' => $passenger['fields']['title'],
-                'gender' => $passenger['fields']['gender'],
-                'name' => $passenger['fields']['first_name'],
-                'last' => $passenger['fields']['last_name'],
-                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->format('Y-m-d'),
-                'passport' => intval($passenger['fields']['passport_number']),
-                'place' => $passenger['fields']['place_of_issue'],
-                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->format('Y-m-d'),
-                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'), 'mail' => $passenger['fields']['email'],
-                'phone' => $passenger['fields']['phone_number'], 'address' => $passenger['fields']['address'],
-                'country' => $passenger['fields']['country'], 'lead' => 1,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
         }
+
 
         function convertDurationToMinutes($duration)
         {
@@ -305,8 +304,8 @@ class PackageController extends Controller
             'paid' => $tourResponse['total_value'] + $flightResponse['data']['total_amount'],
             'p_flight' => $flightResponse['data']['total_amount'],
             'p_tour' => $tourResponse['total_value'],
-            'discounted' => $tourResponse['promotions'][0]['prices'][0]['price_per_pax'],
-            'promo' => $tourResponse['promotions'][0]['id'],
+            'discounted' => $tourResponse['promotions'][0]['prices'][0]['price_per_pax'] ?? null,
+            'promo' => $tourResponse['promotions'][0]['id'] ?? null,
             'user_id' => $user->id,
             'whole_trip' => $tripDuration,
             'channel' => 'web',
@@ -321,14 +320,43 @@ class PackageController extends Controller
 
         $order = Order::create($orderData);
 
-        if ($order && $order->id) {
-            $order->flightTour()->create([
-                'flight' => $flightResponse,
-                'tour' => $tourResponse,
-            ]);
-        } else {
-            throw new \Exception('Order could not be created.');
+        try {
+            if ($order && $order->id) {
+                $order->flightTour()->create([
+                    'flight' => $flightResponse,
+                    'tour' => $tourResponse,
+                ]);
+            } else {
+                throw new \Exception('Order could not be created.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error creating flight tour: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+
+
+        foreach ($passengers as $passenger) {
+            $traveler = Traveler::create([
+                'title' => $passenger['fields']['title'],
+                'gender' => $passenger['fields']['gender'],
+                'name' => $passenger['fields']['first_name'],
+                'last' => $passenger['fields']['last_name'],
+                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->format('Y-m-d'),
+                'passport' => intval($passenger['fields']['passport_number']),
+                'place' => $passenger['fields']['place_of_issue'],
+                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->format('Y-m-d'),
+                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'),
+                'mail' => $passenger['fields']['email'],
+                'phone' => $passenger['fields']['phone_number'],
+                'address' => $passenger['fields']['address'],
+                'country' => $passenger['fields']['country'],
+                'lead' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+            $order->travelers()->attach($traveler->id);
+        }
+
 
         return $order;
     }
