@@ -9,6 +9,8 @@ class Traveler extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'traveler_id';
+
     protected $fillable = [
         'title',
         'gender',

@@ -14,7 +14,7 @@ class CreateTravelersTable extends Migration
     public function up()
     {
         Schema::create('travelers', function (Blueprint $table) {
-            $table->id();
+            $table->id('traveler_id');
             $table->string('title');
             $table->string('gender');
             $table->string('name');
@@ -31,7 +31,7 @@ class CreateTravelersTable extends Migration
             $table->boolean('lead');
             $table->unsignedBigInteger('order_id');
             $table->timestamps();
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->foreign('order_id')->references('booking_id')->on('orders')->onDelete('cascade');
         });
     }
 
