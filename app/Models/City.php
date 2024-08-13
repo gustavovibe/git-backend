@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class City extends Model
 {
     use HasFactory;
-    protected $table = 'cities'; 
+    protected $table = 'cities';
 
     protected $fillable = [
         't_city_id',
@@ -16,4 +16,11 @@ class City extends Model
         't_country_id',
     ];
     protected $hidden = ['created_at', 'updated_at'];
+
+
+       public function tours()
+       {
+           return $this->hasMany(TourCity::class,'t_city_id','t_city_id' );
+       }
+
 }

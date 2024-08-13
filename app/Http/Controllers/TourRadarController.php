@@ -10,8 +10,10 @@ use App\Helpers\ApiResponse;
 
 class TourRadarController extends Controller
 {
+
     public static function getAccessToken()
     {
+
         // ToDo: Move these variables to a .env file
         $clientId = env('TOURRADAR_CLIENT_ID', 'hpg0tvme3ujrwcnd6fcyttwst8');
         $clientSecret = env('TOURRADAR_CLIENT_SECRET', 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594');
@@ -68,7 +70,7 @@ public static function getDeparturesByTour($params)
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    
+
     public function getMultipleDeparturesByTours(Request $request)
     {
         $params = $request->all();
@@ -190,9 +192,9 @@ public static function getDeparturesByTour($params)
                 $dateRange = explode(',', $params['date_range']);
                 $travelers = $params['travelers'];
 
-                return ($date >= date('Y-m-d', strtotime($dateRange[0])) && 
-                        $date <= date('Y-m-d', strtotime($dateRange[1])) && 
-                        $availability >= $travelers && 
+                return ($date >= date('Y-m-d', strtotime($dateRange[0])) &&
+                        $date <= date('Y-m-d', strtotime($dateRange[1])) &&
+                        $availability >= $travelers &&
                         $departureType == "guaranteed");
             });
 
@@ -400,5 +402,9 @@ public static function getDeparturesByTour($params)
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function exportToken(){
+        return 'entro';
     }
 }

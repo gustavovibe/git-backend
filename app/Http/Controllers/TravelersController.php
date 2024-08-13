@@ -15,7 +15,7 @@ class TravelersController extends Controller
     {
         if ($request->has('traveler_id')) {
             $traveler_id = $request->query('traveler_id');
-            $traveler = Traveler::where('traveler_id', $traveler_id)->first();
+            $traveler = Traveler::where('traveler_id', $traveler_id)->with('user_:hear,internal_notes,suscribed,id')->first();
 
             if ($traveler) {
                 return response()->json($traveler);
@@ -33,12 +33,13 @@ class TravelersController extends Controller
     public function writeTravelers(Request $request)
     {
         $request->validate([
+            'traveler_id' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'last' => 'required|string|max:255',
             'birth' => 'required|date',
-            'passport' => 'required|string|max:255',
+            'passport' => 'required|integer',
             'place' => 'required|string|max:255',
             'issue' => 'required|date',
             'expire' => 'required|date',
@@ -49,7 +50,8 @@ class TravelersController extends Controller
             'lead' => 'required|string|max:255',
         ]);
 
-        $traveler = Traveler::create($request->all());
+        $traveler= $request->traveler_id?Traveler::where('traveler_id',$request->traveler_id)->first():new Traveler();
+        $traveler->fill($request->all())->save();
 
         return response()->json($traveler, 201);
     }

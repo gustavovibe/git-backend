@@ -18,14 +18,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login'
+        'name', 'email', 'password', 'profile_id', 'phone', 'country', 'role', 'active', 'suscribed', 'hear','job_id','last_login','internal_notes'
     ];
 
     protected $hidden = [
         'password','created_at', 'updated_at'
     ];
-
-
 
     public function profile()
     {
@@ -45,4 +43,16 @@ class User extends Authenticatable
     public function job(){
         return $this->hasOne(Job::class,'id','job_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'id');
+    }
+
+    public function traveler()
+    {
+        return $this->hasOne(Traveler::class, 'user_id', 'id');
+    }
+
 }
+

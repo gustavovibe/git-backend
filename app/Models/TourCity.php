@@ -25,4 +25,8 @@ class TourCity extends Model
     {
         return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'tour_id', 'tour_id');
+    }
 }
