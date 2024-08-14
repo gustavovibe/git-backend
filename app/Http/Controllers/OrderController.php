@@ -221,7 +221,9 @@ class OrderController extends Controller
 
         if ($request->query('travelers') == 'true') {
             $beforeTodayQuery->with('travelers');
+            $beforeTodayQuery->with('operator');
             $afterTodayQuery->with('travelers');
+            $afterTodayQuery->with('operator');
         }
 
         // Paginate the results (3 per page)
@@ -230,6 +232,7 @@ class OrderController extends Controller
 
         // Return the results as a combined JSON response
         return response()->json([
+            'status'=>true,
             'before_today' => $beforeTodayOrders,
             'after_today' => $afterTodayOrders,
         ]);

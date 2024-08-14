@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->boolean('suscribed')->nullable();
             $table->text('hear')->nullable();
             $table->datetime('last_login')->nullable();
+            $table->longtext('internal_notes')->nullable();
             $table->timestamps();
         });
     }

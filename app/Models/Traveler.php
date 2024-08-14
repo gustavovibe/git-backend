@@ -26,8 +26,7 @@ class Traveler extends Model
         'address',
         'country',
         'lead',
-        'created_at',
-        'updated_at'
+        'user_id'
     ];
 
     public function orders()
@@ -39,4 +38,13 @@ class Traveler extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function user_()
+    {
+        return $this->hasOne(User::class,'id', 'user_id');
+    }
+
 }

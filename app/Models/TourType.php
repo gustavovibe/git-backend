@@ -23,4 +23,8 @@ class TourType extends Model
     {
         return $this->belongsTo(Type::class, 'tour_type_id', 'tour_type_id');
     }
+    public function tour()
+    {
+        return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
+    }
 }
