@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateWishlistsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('wishlists', function (Blueprint $table) {
@@ -20,16 +15,10 @@ class CreateWishlistsTable extends Migration
             $table->integer('tour_id');
             $table->text('notes')->nullable;
             $table->timestamps();
-
             $table->foreign('traveler_id')->references('traveler_id')->on('travelers')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('wishlists');

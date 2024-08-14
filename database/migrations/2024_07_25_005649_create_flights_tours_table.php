@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateFlightsToursTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('flights_tours', function (Blueprint $table) {
@@ -19,16 +14,10 @@ class CreateFlightsToursTable extends Migration
             $table->json('tour');
             $table->unsignedBigInteger('id_order');
             $table->timestamps();
-
-            $table->foreign('id_order')->references('id')->on('orders')->onDelete('cascade');
+            $table->foreign('id_order')->references('booking_id')->on('orders')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('flights_tours');

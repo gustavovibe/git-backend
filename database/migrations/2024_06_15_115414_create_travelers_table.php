@@ -29,7 +29,9 @@ class CreateTravelersTable extends Migration
             $table->string('address');
             $table->string('country');
             $table->boolean('lead');
+            $table->unsignedBigInteger('order_id');
             $table->timestamps();
+            $table->foreign('order_id')->references('booking_id')->on('orders')->onDelete('cascade');
         });
     }
 

@@ -12,7 +12,9 @@ class FlightTour extends Model
     protected $table = 'flights_tours';
 
     protected $fillable = [
-        'flight', 'tour', 'id_order'
+        'flight',
+        'tour',
+        'id_order'
     ];
 
     protected $casts = [
@@ -20,8 +22,4 @@ class FlightTour extends Model
         'tour' => 'array',
     ];
 
-    public function order()
-    {
-        return $this->belongsTo(Order::class, 'id_order');
-    }
 }

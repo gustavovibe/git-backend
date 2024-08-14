@@ -93,7 +93,7 @@ Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
-
+Route::get('/order/{id}', [OrderController::class, 'getOrder']);
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
 
 Route::post('/add-users', [SystemUserController::class, 'createUser']);

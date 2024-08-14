@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateOrderTravelerTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('order_traveler', function (Blueprint $table) {
@@ -23,11 +18,6 @@ class CreateOrderTravelerTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('order_traveler');
