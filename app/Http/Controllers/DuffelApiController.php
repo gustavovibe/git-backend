@@ -147,6 +147,33 @@ class DuffelApiController extends Controller
         }
     }
 
+        // api/duffel/get-offer-by-id
+        public function getSeats(Request $request)
+        {
+            // Validations
+            $validator = $this->validateParamsWhenOfferById($request);
+            if ($validator->fails()) {
+                return ApiResponse::error($validator->errors());
+            }
+    
+            try {
+                // Getting Headers
+                $headers = self::getHeaders();
+    
+                // Building url
+                $url = 'https://api.duffel.com/air/seat_maps' . $request->offerId;
+    
+                // Make the request to the Duffel API
+                $response = Http::withHeaders($headers)->get($url);
+    
+                // Return the response from the Duffel API
+                return $response->json();
+            } catch (\Exception $e) {
+                // Handle exceptions
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
+        }
+
     public static function createNewBooking($body)
     {
         $headers = self::getHeaders();
