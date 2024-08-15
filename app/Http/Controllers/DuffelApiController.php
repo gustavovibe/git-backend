@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class DuffelApiController extends Controller
 {
@@ -162,6 +163,10 @@ class DuffelApiController extends Controller
             // Building URL with the offer ID as a query parameter
             $url = 'https://api.duffel.com/air/seat_maps?offer_id=' . $request->offerId;
     
+            // Log the request URL and headers for debugging
+            Log::info('Request URL: ' . $url);
+            Log::info('Request Headers: ', $headers);
+    
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
     
@@ -172,6 +177,7 @@ class DuffelApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    
 
     public static function createNewBooking($body)
     {
@@ -545,9 +551,8 @@ class DuffelApiController extends Controller
     private static function getHeaders()
     {
         return [
-            'Accept-Encoding' => 'gzip',
+            'Accept-Encoding' => 'gzip, deflate, br',
             'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
             'Duffel-Version' => 'v1',
             'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
         ];
