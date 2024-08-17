@@ -50,18 +50,18 @@ class ToursFilters
         $tour=$tour->with('natural_destination')->with('type')->with('cities')->get();
         $tour=$tour->map(function($t) use($admin){
             if($admin){
-                $this->entro1=[];
-                $this->entro2=[];
+                $entro1=[];
+                $entro2=[];
                 $t->type=$t->type->map(function($tt) {
-                    $this->entro1[]=$tt->type->tourtype_name;
+                    $entro1[]=$tt->type->tourtype_name;
                     return $tt;
                 })->values()->all();
                 $t->cities=$t->cities->map(function($tt) {
-                    $this->entro2[]=$tt->city->city_name;
+                    $entro2[]=$tt->city->city_name;
                     return $tt;
                 })->values()->all();
-                $t->travel_style=$this->entro1;
-                $t->cities_tour=$this->entro2;
+                $t->travel_style=$entro1;
+                $t->cities_tour=$entro2;
             }
             $t->city_name=$t->city->city_name;
             $t->comision=((double)$t->price_total)*$t->commission;
