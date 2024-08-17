@@ -1,4 +1,6 @@
 <?php
+
+
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Citycontroller;
@@ -25,6 +27,7 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('test', [AuthController::class, 'test']);
@@ -70,6 +73,7 @@ Route::get('duffel/get-order-by-id', [DuffelApiController::class, 'getOrderById'
 Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestById']);
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
+
 Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
@@ -101,10 +105,15 @@ Route::get('/get-users', [SystemUserController::class, 'getUsers']);
 Route::get('/validate-email', [SystemUserController::class, 'validateEmail']);
 Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 
+
 Route::resource('jobs', JobsController::class);
 Route::resource('roles', RolesController::class);
 
 Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
+
+Route::put('/travelers/{id}', [TravelersController::class, 'update']);
+Route::delete('/travelers/{id}', [TravelersController::class, 'destroy']);
+
 Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
 Route::resource('operators',OperatorsController::class);
 Route::get('operators-import',[OperatorsController::class,'import']);
@@ -115,5 +124,3 @@ Route::get('countries-filter',[CountryController::class,'getCountries'] );
 
 Route::get('/email-tour-details',[TourController::class,'emailTDetails']);
 Route::get('/email-booking-confirmation',[TourController::class,'emailTDetails']);
-
-Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
