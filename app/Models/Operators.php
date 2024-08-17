@@ -25,6 +25,6 @@ class Operators extends Model
     }
 
     public function orders(){
-        return $this->hasMany(Orders::class,'operator','operator_id');
+        return $this->hasMany(Order::class,'operator','operator_id');
     }
 }
