@@ -11,7 +11,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table = 'orders';
+    protected $primaryKey = 'booking_id';
 
     protected $fillable = [
         'departure',
@@ -77,7 +77,7 @@ class Order extends Model
 
     public function flightTour()
     {
-        return $this->hasOne(FlightTour::class, 'id_order');
+        return $this->hasOne(FlightTour::class, 'id_order', 'booking_id');
     }
 
     public function user()
@@ -125,7 +125,6 @@ class Order extends Model
         if (!empty($filters['carrier'])) {
             $query->where('carrier', $filters['carrier']);
         }
-
         return $query;
     }
 

@@ -25,7 +25,6 @@ class PackageController extends Controller
 
         Stripe::setApiKey($stripeSecret);
 
-
         $RequestFlight = $request->input('flight');
 
         $RequestTour = $request->input('tour');
@@ -113,7 +112,7 @@ class PackageController extends Controller
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        $passengers = $tourBody['passengers'];
+        $passengers = $tourResponse['passengers'];
 
         $firstIteration = true;
 
@@ -127,7 +126,9 @@ class PackageController extends Controller
 
         foreach ($passengers as $passenger) {
             if ($firstIteration) {
+
                 $mainPassenger = $passenger['fields']['gender'];
+
                 $mainPassengerCountry = $passenger['fields']['country'];
 
                 $user = User::updateOrCreate(
@@ -321,7 +322,7 @@ class PackageController extends Controller
         $order = Order::create($orderData);
 
         try {
-            if ($order && $order->id) {
+            if ($order && $order->booking_id) {
                 $order->flightTour()->create([
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
@@ -336,6 +337,9 @@ class PackageController extends Controller
 
 
         foreach ($passengers as $passenger) {
+            if ($passenger['fields']['email'] == $user->email) {
+                continue;
+            }
             $traveler = Traveler::create([
                 'title' => $passenger['fields']['title'],
                 'gender' => $passenger['fields']['gender'],
@@ -348,16 +352,14 @@ class PackageController extends Controller
                 'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'),
                 'mail' => $passenger['fields']['email'],
                 'phone' => $passenger['fields']['phone_number'],
-                'address' => $passenger['fields']['address'],
-                'country' => $passenger['fields']['country'],
+                'address' => $passengers[0]['fields']['address'],
+                'country' => $passengers[0]['fields']['country'],
                 'lead' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
             $order->travelers()->attach($traveler->id);
         }
-
-
         return $order;
     }
 }
