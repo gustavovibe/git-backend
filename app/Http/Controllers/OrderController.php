@@ -18,9 +18,9 @@ class OrderController extends Controller
         $date = $request->input('date');
 
         if ($date) {
-            $paginatedData = Order::with(['flightTour', 'travelers', 'user'])->where('name', 'like', $date . '%')->paginate($perPage);
+            $paginatedData = Order::with(['flightTour', 'travelers', 'user', 'tour'])->where('name', 'like', $date . '%')->paginate($perPage);
         } else {
-            $paginatedData = Order::with(['flightTour', 'travelers', 'user'])->paginate($perPage);
+            $paginatedData = Order::with(['flightTour', 'travelers', 'user', 'tour'])->paginate($perPage);
         }
         $responseData = $paginatedData->toArray();
 
@@ -232,7 +232,7 @@ class OrderController extends Controller
 
         // Return the results as a combined JSON response
         return response()->json([
-            'status'=>true,
+            'status' => true,
             'before_today' => $beforeTodayOrders,
             'after_today' => $afterTodayOrders,
         ]);

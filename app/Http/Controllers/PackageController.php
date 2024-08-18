@@ -305,6 +305,7 @@ class PackageController extends Controller
             'paid' => $tourResponse['total_value'] + $flightResponse['data']['total_amount'],
             'p_flight' => $flightResponse['data']['total_amount'],
             'p_tour' => $tourResponse['total_value'],
+            'commission_value_tour' => $tourResponse['partner_info']['commission_value'],
             'discounted' => $tourResponse['promotions'][0]['prices'][0]['price_per_pax'] ?? null,
             'promo' => $tourResponse['promotions'][0]['id'] ?? null,
             'user_id' => $user->id,
@@ -354,11 +355,11 @@ class PackageController extends Controller
                 'phone' => $passenger['fields']['phone_number'],
                 'address' => $passengers[0]['fields']['address'],
                 'country' => $passengers[0]['fields']['country'],
-                'lead' => 1,
+                'user_id' => $user->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-            $order->travelers()->attach($traveler->id);
+            $order->travelers()->attach($traveler->traveler_id);
         }
         return $order;
     }
