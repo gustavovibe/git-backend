@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class DuffelApiController extends Controller
 {
@@ -134,7 +135,7 @@ class DuffelApiController extends Controller
             $headers = self::getHeaders();
 
             // Building url
-            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
+            $url = 'https://api.duffel.com/air/offers/' . $request->offer_id;
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -147,6 +148,37 @@ class DuffelApiController extends Controller
         }
     }
 
+    public function getSeats(Request $request)
+    {
+        // Validations
+        $validator = $this->validateParamsWhenOfferById($request);
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+    
+        try {
+            // Getting Headers
+            $headers = self::getHeaders();
+    
+            // Building URL with the offer ID as a query parameter
+            $url = 'https://api.duffel.com/air/seat_maps?offer_id=' . $request->offerId;
+    
+            // Log the request URL and headers for debugging
+            Log::info('Request URL: ' . $url);
+            Log::info('Request Headers: ', $headers);
+    
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+    
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+
     public static function createNewBooking($body)
     {
         $headers = self::getHeaders();
@@ -156,6 +188,37 @@ class DuffelApiController extends Controller
         $response = Http::withHeaders($headers)->post($url, $body);
 
         return $response->json();
+    }
+
+    public function addSeats(Request $request)
+    {
+        $offerId = $request->query('offerId');
+        $amount = $request->query('amount');
+        $serviceId = $request->query('serviceId');
+
+        $headers = self::getHeaders();
+
+        $response = Http::withHeaders($headers)->post("https://api.duffel.com/air/orders/{$offerId}/services", [
+            'data' => [
+                'payment' => [
+                    'type' => 'balance',
+                    'currency' => 'USD',
+                    'amount' => $amount,
+                ],
+                'add_services' => [
+                    [
+                        'quantity' => 1,
+                        'id' => $serviceId
+                    ]
+                ]
+            ]
+        ]);
+    
+        if ($response->successful()) {
+            return response()->json(['message' => 'Service added successfully', 'data' => $response->json()]);
+        } else {
+            return response()->json(['message' => 'Failed to add service', 'error' => $response->json()], $response->status());
+        }
     }
 
     public function getOrderById(Request $request)
@@ -519,11 +582,10 @@ class DuffelApiController extends Controller
     private static function getHeaders()
     {
         return [
-            'Accept-Encoding' => 'gzip',
+            'Accept-Encoding' => 'gzip, deflate, br',
             'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
             'Duffel-Version' => 'v1',
-            'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
+            'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
         ];
     }
 
