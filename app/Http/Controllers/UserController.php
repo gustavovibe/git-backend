@@ -10,6 +10,7 @@ use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Mail\ContactMail;
 use App\Models\ContactEmail;
+use App\Models\UserHistory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -365,6 +366,21 @@ class UserController extends Controller
             return ApiResponse::success($user);
         }catch(Exception $e){
             return ApiResponse::error($e->getMessage(),500);
+        }
+    }
+
+    public function UserHistory(Request $r){
+        try{
+            $user= UserHistory::query();
+            !$r->id?:$user->where('user_id',$r->id);
+            $user = $user->get()->map(function ($users) {
+                $users->action_date = Carbon::parse($users->action_date)->format('d M Y, g:i a');
+                return $users;
+            })->values()->all();
+
+            return response()->json(['status'=>true, 'count'=>count($user),'response'=>$user]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
     }
 

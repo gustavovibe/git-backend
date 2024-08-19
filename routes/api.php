@@ -86,7 +86,7 @@ Route::get('/admin-orders', [OrderController::class, 'adminOrders']);
 Route::get('/orders/{booking_id}', [OrderController::class, 'getOrderWithTravelers']);
 
 Route::get('/users', [UserController::class, 'getUserById']);
-
+Route::get('/users-history', [UserController::class, 'UserHistory']);
 Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
