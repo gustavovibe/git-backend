@@ -27,6 +27,7 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
+use App\Http\Controllers\StripeController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -127,4 +128,4 @@ Route::get('/email-booking-confirmation',[TourController::class,'emailTDetails']
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
-Route::get('stripe', StripeController::class);
+Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
