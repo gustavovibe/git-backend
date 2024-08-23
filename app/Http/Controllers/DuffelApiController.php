@@ -190,6 +190,37 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    public function addSeats(Request $request)
+    {
+        $offerId = $request->query('offerId');
+        $amount = $request->query('amount');
+        $serviceId = $request->query('serviceId');
+
+        $headers = self::getHeaders();
+
+        $response = Http::withHeaders($headers)->post("https://api.duffel.com/air/orders/{$offerId}/services", [
+            'data' => [
+                'payment' => [
+                    'type' => 'balance',
+                    'currency' => 'USD',
+                    'amount' => $amount,
+                ],
+                'add_services' => [
+                    [
+                        'quantity' => 1,
+                        'id' => $serviceId
+                    ]
+                ]
+            ]
+        ]);
+    
+        if ($response->successful()) {
+            return response()->json(['message' => 'Service added successfully', 'data' => $response->json()]);
+        } else {
+            return response()->json(['message' => 'Failed to add service', 'error' => $response->json()], $response->status());
+        }
+    }
+
     public function getOrderById(Request $request)
     {
         // Validations
