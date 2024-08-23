@@ -43,8 +43,7 @@ class BackupDatabaseToS3 extends Command
         if ($result === 0) {
             $this->info('Respaldo generado exitosamente.');
 
-            $s3Path = 'database/' . $filename;
-            Storage::disk('s3')->put($s3Path, file_get_contents($filePath));
+            Storage::disk('s3')->put('database_backups/' . $filename, file_get_contents($filePath));
             unlink($filePath);
 
             $this->info('Respaldo subido a S3 exitosamente.');
