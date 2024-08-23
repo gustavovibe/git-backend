@@ -30,11 +30,13 @@ class BackupDatabaseToS3 extends Command
         $filename = 'backup-' . Carbon::now()->format('Y-m-d_H-i-s') . '.sql';
         $filePath = storage_path('app/' . $filename);
 
-        $command = "mysqldump --no-tablespaces --user=" . env('DB_USERNAME') .
-        " --password=" . env('DB_PASSWORD') .
-        " --host=" . env('DB_HOST') .
-        " --port=" . env('DB_PORT') .
-        " " . env('DB_DATABASE') . " > " . $filePath;
+        $command = "mysqldump --no-tablespaces --user=" . escapeshellarg(env('DB_USERNAME')) .
+        " --password=" . escapeshellarg(env('DB_PASSWORD')) .
+        " --host=" . escapeshellarg(env('DB_HOST')) .
+        " --port=" . escapeshellarg(env('DB_PORT')) .
+        " " . escapeshellarg(env('DB_DATABASE')) .
+        " > " . escapeshellarg($filePath);
+
 
         $result = null;
         $output = null;
