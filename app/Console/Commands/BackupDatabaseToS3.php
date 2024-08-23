@@ -37,6 +37,7 @@ class BackupDatabaseToS3 extends Command
         " " . escapeshellarg(env('DB_DATABASE')) .
         " > " . escapeshellarg($filePath);
 
+        $this->info($command);
 
         $result = null;
         $output = null;
