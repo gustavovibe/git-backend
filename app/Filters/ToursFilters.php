@@ -19,6 +19,7 @@ class ToursFilters
 
         $tour= Tour::query();
 
+        !$r->id?:$tour->where('tour_id',$r->id);
         !$r->tour_type?:$tour->WhereHas('type', function ($q) use ($tour_type) {
             $q->whereIn('tour_type_id',[ $tour_type]);
         });
@@ -46,19 +47,17 @@ class ToursFilters
         !$r->tour_name?:$tour->where('tour_name','like',"%{$r->tour_name}%");
         !$r->admin?:$tour->select('tour_name','end_city','departures','max_group_size','commission','price_total','tour_id','operator_id');
         !$r->limit?:$tour->limit($r->limit);
-        $tour=$tour->with('natural_destination')->with('type')->with('cities')->get();
-        $tour=$tour->map(function($t) use($admin){
+        $tour=$tour->with('natural_destination')->with('type')->with('cities')->paginate($r->limit, ['*'], 'page', $r->page);
+
+
+        $tour->getCollection()->transform(function($t) use($admin){
             if($admin){
-                $entro1=[];
-                $entro2=[];
-                $t->type=$t->type->map(function($tt) {
-                    $entro1[]=$tt->type->tourtype_name;
-                    return $tt;
-                })->values()->all();
-                $t->cities=$t->cities->map(function($tt) {
-                    $entro2[]=$tt->city->city_name;
-                    return $tt;
-                })->values()->all();
+                $entro1=$t->type->map(function($tt)  {
+                 return   $tt->type->tourtype_name;
+                });
+                $entro2=$t->cities->map(function($tt) use ($entro1) {
+                   return $tt->city->city_name;
+                });
                 $t->travel_style=$entro1;
                 $t->cities_tour=$entro2;
             }
@@ -67,7 +66,6 @@ class ToursFilters
             $t->total_commision='$'.$t->comision;
             $t->commission=($t->commission*100).'%';
             $t->price_total='$'.$t->price_total;
-            $t->sent='https://api.sandbox.b2b.tourradar.com/v1/operators/'.$t->operator_id;
             unset($t->cities);
             unset($t->type);
             unset($t->city);
@@ -101,46 +99,48 @@ class ToursFilters
         ->pluck('tour_id')
         ->toArray();
 
-        $travel->whereHas('type_t', function ($query) use ($filteredTourIds) {
+        $minCommission==0?: $travel->whereHas('type_t', function ($query) use ($filteredTourIds) {
             $query->whereIn('tour_id', $filteredTourIds);
         });
 
         !$r->limit?:$travel->limit($r->limit);
         $sums=$sums->get()->pluck('tour_id')->toArray();
-      /*   return $sums; */
-        $travel= $travel->with('type_t:tour_type_id,tour_id')->withCount('type_t')->get()->map(function($tra) use($filteredTourIds,$minCommission,$maxCommission){
-            $tra->comission_range=[];
-            $tra->comission_total=0;
-            $tra->total_paid=0;
-                $tra->type_ids=$tra->type_t->pluck('tour_id')->toArray();
-                $iguales=array_intersect($filteredTourIds,$tra->type_ids);
-                $order= Order::select('tour_id','paid','commission')->wherein('tour_id',$iguales)->get();
-                $tra->order=$order;
-                $comission_range = [];
 
-                  if(count($order)){
-                    foreach($order as $or){
-                        if($or->commission>=$minCommission && $or->commission<=$maxCommission){
-                            $tra->total_paid+=(double)$or->paid;
-                            $tra->comission_total+=((double)$or->paid*$or->commission);
-                            $commissionPercentage = 100 * $or->commission;
-                            if (!in_array($commissionPercentage,   $comission_range)) {
-                                $comission_range[] = $commissionPercentage;
-                            }
-                        }
-                    }
-                }
-                $tra->comission_range =count($comission_range)>0?implode(',',$comission_range):'0' ;
-                $tra->comission_total =round($tra->comission_total,2);
-                $tra->total_paid =round($tra->total_paid,2);
-                unset($tra->order);
-                unset($tra->type_ids);
-                unset($tra->type_t);
-            return $tra;
-        })->filter(function($tra) use ($minRange, $maxRange) {
-            return ($tra->total_paid >= $minRange && $tra->total_paid <= $maxRange);
-        })->values()->all();
+      $travel = $travel->with('type_t:tour_type_id,tour_id')
+      ->withCount('type_t')
+      ->paginate($r->limit, ['*'], 'page', $r->page);
 
+  // Procesar resultados
+  $travel->getCollection()->transform(function ($tra) use ($filteredTourIds, $minCommission, $maxCommission) {
+      $tra->comission_range = [];
+      $tra->comission_total = 0;
+      $tra->total_paid = 0;
+      $tra->type_ids = $tra->type_t->pluck('tour_id')->toArray();
+      $iguales = array_intersect($filteredTourIds, $tra->type_ids);
+      $order = Order::select('tour_id', 'paid', 'commission')->whereIn('tour_id', $iguales)->get();
+
+      $comission_range = [];
+      foreach ($order as $or) {
+          if ($or->commission >= $minCommission && $or->commission <= $maxCommission) {
+              $tra->total_paid += (double)$or->paid;
+              $tra->comission_total += ((double)$or->paid * $or->commission);
+              $commissionPercentage = 100 * $or->commission;
+              if (!in_array($commissionPercentage, $comission_range)) {
+                  $comission_range[] = $commissionPercentage;
+              }
+          }
+      }
+
+      $tra->comission_range = count($comission_range) > 0 ? implode(',', $comission_range) : '0';
+      $tra->comission_total = round($tra->comission_total, 2);
+      $tra->total_paid = round($tra->total_paid, 2);
+
+      unset($tra->order);
+      unset($tra->type_ids);
+      unset($tra->type_t);
+
+      return $tra;
+  });
         $val_list=[
             3=>'total_paid',
             4=>'total_paid',
@@ -160,6 +160,9 @@ class ToursFilters
 
         return $travel;
     }
+
+
+
     public function destinations(Request $r){
         $destination= City::query();
         $orderby=(int)$r->order;
