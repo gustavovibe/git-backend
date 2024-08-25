@@ -135,7 +135,7 @@ class DuffelApiController extends Controller
             $headers = self::getHeaders();
 
             // Building url
-            $url = 'https://api.duffel.com/air/offers/' . $request->offer_id;
+            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -584,7 +584,7 @@ class DuffelApiController extends Controller
         return [
             'Accept-Encoding' => 'gzip, deflate, br',
             'Accept' => 'application/json',
-            'Duffel-Version' => 'v1',
+            'Duffel-Version' => 'v2',
             'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
         ];
     }
