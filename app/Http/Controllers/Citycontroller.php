@@ -124,57 +124,75 @@ class Citycontroller extends Controller
 
     public function destinationsV2(Request $request)
     {
+        $categoryFilter = $request->input('categoryFilter', '');
+        $categories = array_map('trim', explode(',', $categoryFilter));
+
+        $totalAdventuresRangeFilter = $request->input('totalAdventuresRange', '');
+        $totalAdventuresRange = array_map('trim', explode(',', $totalAdventuresRangeFilter));
+
+        $totalCommissionRangeFilter = $request->input('totalCommissionRange', '');
+        $totalCommissionRange = array_map('trim', explode(',', $totalCommissionRangeFilter));
+
+        $totalPaidRangeFilter = $request->input('totalPaidRange', '');
+        $totalPaidRange = array_map('trim', explode(',', $totalPaidRangeFilter));
+
         $q = $request->input('q');
-        $category = $request->input('categoryFilter');
         $totalPaidFilter = $request->input('totalPaidFilter');
+        $adventuresFilter = $request->input('adventuresFilter');
         $commissionFilter = $request->input('commissionFilter');
         $alphabeticOrder = $request->input('alphabeticOrderFilter');
         $perPage = $request->input('perPage', 15);
         $page = $request->input('page', 1);
         $result = [];
 
-        if ($category == 'city') {
-            $entities = City::get();
-        } elseif ($category == 'country') {
-            $entities = Country::get();
-        } elseif ($category == 'natural_destination') {
-            $entities = NaturalDestination::get();
-        } else {
-            return ApiResponse::error('Invalid category filter');
+        if (empty($categories) || $categories == ['']) {
+            return ApiResponse::error('Category filter cannot be empty');
         }
 
-        foreach ($entities as $entity) {
-            $totalCommission = 0;
-            $totalPaid = 0;
-
-            $tours = $entity->tours()->get();
-            $tourIds = $tours->pluck('tour_id')->toArray();
-            $orders = Order::with(['flightTour', 'travelers', 'user', 'tour'])->whereIn('tour_id', $tourIds)->get();
-
-            foreach ($orders as $order) {
-                $totalCommission += $order->commission_value_tour ?? 0;
-                $totalPaid += $order->paid ?? 0;
+        foreach ($categories as $category) {
+            if ($category == 'city') {
+                $entities = City::get();
+            } elseif ($category == 'country') {
+                $entities = Country::get();
+            } elseif ($category == 'natural_destination') {
+                $entities = NaturalDestination::get();
+            } else {
+                continue; // Saltar categorías inválidas
             }
 
-            $item = [
-                'id' => $category == 'city' ? $entity->t_city_id : ($category == 'country' ? $entity->t_country_id : $entity->t_natural_id),
-                'name' => $category == 'city' ? $entity->city_name : ($category == 'country' ? $entity->name : $entity->destination_name),
-                'number_of_tours' => count($tourIds),
-                'commission' => $totalCommission,
-                'total_paid' => $totalPaid
-            ];
+            foreach ($entities as $entity) {
+                $totalCommission = 0;
+                $totalPaid = 0;
 
-            if ($q && stripos($item['name'], $q) !== 0) {
-                continue;
+                $tours = $entity->tours()->get();
+                $tourIds = $tours->pluck('tour_id')->toArray();
+                $orders = Order::with(['flightTour', 'travelers', 'user', 'tour'])->whereIn('tour_id', $tourIds)->get();
+
+                foreach ($orders as $order) {
+                    $totalCommission += $order->commission_value_tour ?? 0;
+                    $totalPaid += $order->paid ?? 0;
+                }
+
+                $item = [
+                    'id' => $category == 'city' ? $entity->t_city_id : ($category == 'country' ? $entity->t_country_id : $entity->t_natural_id),
+                    'name' => $category == 'city' ? $entity->city_name : ($category == 'country' ? $entity->name : $entity->destination_name),
+                    'number_of_tours' => count($tourIds),
+                    'commission' => $totalCommission,
+                    'total_paid' => $totalPaid,
+                    'category' => $category
+                ];
+
+                if ($q && stripos($item['name'], $q) !== 0) {
+                    continue;
+                }
+
+                $result[] = $item;
             }
-
-            $result[] = $item;
         }
 
         $result = collect($result);
-        $totalRecords = $result->count();
-        $totalPages = ceil($totalRecords / $perPage);
 
+        // Aplicar los filtros de ordenación
         if ($alphabeticOrder == 'desc') {
             $result = $result->sortByDesc('name')->values();
         } else {
@@ -185,10 +203,46 @@ class Citycontroller extends Controller
             $result = $commissionFilter == 'asc' ? $result->sortBy('commission')->values() : $result->sortByDesc('commission')->values();
         }
 
+        if ($adventuresFilter) {
+            $result = $adventuresFilter == 'asc' ? $result->sortBy('number_of_tours')->values() : $result->sortByDesc('number_of_tours')->values();
+        }
+
         if ($totalPaidFilter) {
             $result = $totalPaidFilter == 'asc' ? $result->sortBy('total_paid')->values() : $result->sortByDesc('total_paid')->values();
         }
 
+        // Aplicar el filtro de rango de aventuras
+        if ($totalAdventuresRangeFilter) {
+            $minAdventures = $totalAdventuresRange[0];
+            $maxAdventures = $totalAdventuresRange[1];
+
+            $result = $result->filter(function ($item) use ($minAdventures, $maxAdventures) {
+                return $item['number_of_tours'] >= $minAdventures && $item['number_of_tours'] <= $maxAdventures;
+            })->values();
+        }
+
+        if ($totalCommissionRangeFilter) {
+            $minCommission = $totalCommissionRange[0];
+            $maxCommission = $totalCommissionRange[1];
+
+            $result = $result->filter(function ($item) use ($minCommission, $maxCommission) {
+                return $item['commission'] >= $minCommission && $item['commission'] <= $maxCommission;
+            })->values();
+        }
+
+        if ($totalPaidRangeFilter) {
+            $minPaid = $totalPaidRange[0];
+            $maxPaid = $totalPaidRange[1];
+
+            $result = $result->filter(function ($item) use ($minPaid, $maxPaid) {
+                return $item['total_paid'] >= $minPaid && $item['total_paid'] <= $maxPaid;
+            })->values();
+        }
+
+        // Recalcular el total después de aplicar todos los filtros
+        $totalRecords = $result->count();
+
+        // Paginación
         $currentPageResults = $result->slice(($page - 1) * $perPage, $perPage)->values();
         $paginatedResult = new Paginator($currentPageResults, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
@@ -196,7 +250,7 @@ class Citycontroller extends Controller
         ]);
 
         $responseData = $paginatedResult->toArray();
-        $responseData['total'] = $totalRecords;
+        $responseData['total'] = $totalRecords; // Asegúrate de actualizar el total aquí
 
         return ApiResponse::success($responseData);
     }

@@ -14,11 +14,17 @@ class Country extends Model
     protected $fillable = [
         't_country_id',
         'name',
-        'created_at', 'updated_at'
+        'country_code',
+        'destination_id',
     ];
 
     public function tours()
     {
         return $this->hasMany(TourCountry::class, 't_country_id', 't_country_id');
+    }
+
+    public function destination()
+    {
+        return $this->hasOne(Destination::class, 'id', 'destination_id');
     }
 }

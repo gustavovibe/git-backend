@@ -15,13 +15,16 @@ class NaturalDestination extends Model
         't_natural_id',
         'destination_name',
         'type',
-        'created_at',
-        'updated_at'
+        'destination_id',
     ];
-    protected $hidden = ['created_at', 'updated_at'];
 
     public function tours()
     {
         return $this->hasMany(TourNaturalDestination::class, 't_natural_id', 't_natural_id');
+    }
+
+    public function destination()
+    {
+        return $this->hasOne(Destination::class, 'id', 'destination_id');
     }
 }

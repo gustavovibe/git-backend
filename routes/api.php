@@ -27,6 +27,7 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
+use App\Http\Controllers\DestinationController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -127,7 +128,9 @@ Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails
 
 Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
 
-Route::get('/email-tour-details',[TourController::class,'emailTDetails']);
-Route::get('/email-booking-confirmation',[TourController::class,'emailTDetails']);
+Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
+Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
+
+Route::resource('admin-destinations', DestinationController::class);
