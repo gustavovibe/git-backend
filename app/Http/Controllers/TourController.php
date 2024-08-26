@@ -9,6 +9,7 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
 use App\Mail\BookingMail;
 use App\Mail\TourDetails;
+use App\Models\Type;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 class TourController extends Controller
@@ -116,7 +117,8 @@ class TourController extends Controller
     public function show_type(Request $r){
         try{
             $travel=ToursFilters::travel_styles($r);
-            return response()->json(['status'=>true,'count'=>count($travel),'response'=>$travel]);
+        /*     return $travel; */
+            return response()->json(['status'=>true,'count'=>Type::count(),'response'=>$travel]);
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }

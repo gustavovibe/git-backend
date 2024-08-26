@@ -135,7 +135,7 @@ class DuffelApiController extends Controller
             $headers = self::getHeaders();
 
             // Building url
-            $url = 'https://api.duffel.com/air/offers/' . $request->offer_id;
+            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);

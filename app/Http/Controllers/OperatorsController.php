@@ -16,6 +16,7 @@ class OperatorsController extends Controller
     {
         try{
             $operator = OperatorsFilters::OperatorsF($r);
+           /*  return $operator; */
             return response()->json(['status'=>true,'count'=>count($operator), 'response'=>$operator]);
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
