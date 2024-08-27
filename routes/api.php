@@ -2,6 +2,8 @@
 
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Citycontroller;
 use App\Http\Controllers\CountryController;
