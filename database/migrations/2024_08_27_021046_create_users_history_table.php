@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateUsersHistoryTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('users_history', function (Blueprint $table) {
@@ -22,11 +17,6 @@ class CreateUsersHistoryTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('users_history');
