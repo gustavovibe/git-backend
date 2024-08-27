@@ -15,7 +15,7 @@ class OrderResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'booking_id' => $this->booking_id,
             'departure' => $this->departure,
             'start' => $this->start,
             'arrival' => $this->arrival,
@@ -49,6 +49,7 @@ class OrderResource extends JsonResource
             'paid' => $this->paid,
             'p_flight' => $this->p_flight,
             'p_tour' => $this->p_tour,
+            'commission_value_tour' => $this->commission_value_tour,
             'discounted' => $this->discounted,
             'promo' => $this->promo,
             'user_id' => $this->user_id,
@@ -64,6 +65,7 @@ class OrderResource extends JsonResource
             'travelers' => TravelerResource::collection($this->travelers),
             'user' => $this->user,
             'flightTour' => $this->flightTour,
+            'tour' => $this->tour,
         ];
     }
 }

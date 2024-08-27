@@ -9,7 +9,7 @@ class TravelerResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'traveler_id' => $this->traveler_id,
             'title' => $this->title,
             'gender' => $this->gender,
             'name' => $this->name,

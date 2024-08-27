@@ -57,6 +57,7 @@ class Order extends Model
         'refunded',
         'p_flight',
         'p_tour',
+        'commission_value_tour',
         'discounted',
         'promo',
         'profit',
@@ -82,7 +83,7 @@ class Order extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function travelers()
@@ -128,7 +129,6 @@ class Order extends Model
         return $query;
     }
 
-
     public function tour()
     {
         return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
@@ -136,7 +136,7 @@ class Order extends Model
 
     public function operator()
     {
-        return $this->hasOne(Operator::class,'operator_id','operator');
+        return $this->hasOne(Operator::class, 'operator_id', 'operator');
     }
 }
 

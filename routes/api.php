@@ -27,7 +27,6 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
-use App\Http\Controllers\StripeController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -116,16 +115,25 @@ Route::put('/travelers/{id}', [TravelersController::class, 'update']);
 Route::delete('/travelers/{id}', [TravelersController::class, 'destroy']);
 
 Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
-Route::resource('operators',OperatorsController::class);
-Route::get('operators-import',[OperatorsController::class,'import']);
-Route::get('tours-text',[OperatorsController::class,'text']);
+Route::resource('operators', OperatorsController::class);
+Route::get('operators-import', [OperatorsController::class, 'import']);
+Route::get('tours-text', [OperatorsController::class, 'text']);
 
-Route::get('cities-c', [Citycontroller::class,'cities']);
-Route::get('countries-filter',[CountryController::class,'getCountries'] );
+Route::get('cities-c', [Citycontroller::class, 'cities']);
+Route::get('countries-filter', [CountryController::class, 'getCountries']);
 
-Route::get('/email-tour-details',[TourController::class,'emailTDetails']);
-Route::get('/email-booking-confirmation',[TourController::class,'emailTDetails']);
+Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
+Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
+
+Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
+
+Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
+Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
+
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
+
+
+Route::resource('admin-destinations', DestinationController::class);
