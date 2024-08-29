@@ -9,6 +9,8 @@ services:
       dockerfile: Dockerfile-app
     networks:
       - app-network
+    environment:
+      - DB_HOST=${DB_HOST}
 
 
 
