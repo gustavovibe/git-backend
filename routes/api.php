@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\ActionLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\StripeController;
@@ -32,22 +33,24 @@ use App\Http\Controllers\SystemUserController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('admin-destinations', DestinationController::class);
     Route::get('test', [AuthController::class, 'test']);
     Route::get('logout', [AuthController::class, 'logout']);
 });
+
+Route::post('login', [AuthController::class, 'login']);
 Route::post('import-cities', [Citycontroller::class, 'import']);
 Route::post('email-verification/code', [VerificationController::class, 'store']);
 Route::post('email-verification/verified', [VerificationController::class, 'verified']);
 Route::post('import-countries', [CountryController::class, 'import']);
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
 Route::resource('cities', Citycontroller::class);
-Route::get('selection', [Citycontroller::class,'selectiontable']);
+Route::get('selection', [Citycontroller::class, 'selectiontable']);
 Route::resource('countries', CountryController::class);
-Route::get('get-destinations', [Citycontroller::class,'destinations']);
+Route::get('get-destinations', [Citycontroller::class, 'destinations']);
 Route::resource('natural_destinations', NaturalDestinationController::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
-Route::post('login', [AuthController::class, 'login']);
 Route::get('tour/{id}', [ProxyTourRadarController::class, 'show']);
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
 Route::get('departures', [ProxyTourRadarController::class, 'departures']);
@@ -64,9 +67,9 @@ Route::get('confirm-payment', [ProxyKiwiController::class, 'confirmPayment']);
 Route::get('confirm-payment-zooz', [ProxyKiwiController::class, 'confirmPaymentZooz']);
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
-Route::get('show-tours', [TourController::class,'show']);
-Route::get('tours-text',[TourController::class,'getText']);
-Route::get('show-type',[TourController::class,'show_type']);
+Route::get('show-tours', [TourController::class, 'show']);
+Route::get('tours-text', [TourController::class, 'getText']);
+Route::get('show-type', [TourController::class, 'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
 Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
@@ -134,8 +137,6 @@ Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
-
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
-
-Route::resource('admin-destinations', DestinationController::class);
+Route::resource('action-logs', ActionLogController::class);
