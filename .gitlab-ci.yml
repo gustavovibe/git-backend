@@ -7,12 +7,12 @@ Backup:
   stage: backup
   script:
     - mkdir backup_desde_cicd
-    - echo "Archivo de prueba" > backup_desde_cicd/test.txt  # Crear un archivo de prueba para tener algo que comprometer
+    - echo "Archivo de prueba" > backup_desde_cicd/test.txt
     - git config --global user.email "tu-email@example.com"
     - git config --global user.name "GitLab CI"
     - git add backup_desde_cicd
     - git commit -m "Add backup_desde_cicd folder from CI/CD pipeline"
-    - git push origin HEAD:develop  # Empuja los cambios al branch actual
+    - git push https://glpat-fMzcQdp8xN4LXWr_TxfB@gitlab.com/antoniovibeadventures/api.git HEAD:develop
   only:
     - develop
 
