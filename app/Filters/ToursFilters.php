@@ -8,147 +8,231 @@ use App\Models\Type;
 use App\Models\City;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 class ToursFilters
 {
     public function ToursP(Request $r){
-        $tour_type=$r->tour_type?$r->tour_type:0;
-        $city=$r->city?explode(',',$r->city)  :[];
-        $country=$r->country;
-        $admin=$r->admin;
+    $tour_type = $r->tour_type ?: 0;
+    $city = $r->city ? explode(',', $r->city) : [];
+    $country = $r->country;
+    $order= explode(',',$r->order);
+    $minRange = $maxRange = null;
+    [$minRange, $maxRange] = array_map('intval', explode(',', $r->range));
+    $val_list=[
+        1=>'tour_name',
+        2=>'max_group_size',
+        3=>'orders_count',
+        4=>'commission',
+        5=>'total_commision',
+        6=>'price_total',
+    ];
+    $tourQuery = Tour::query();
 
-        $tour= Tour::query();
+    !$r->id?:$tourQuery->where('tour_id', $r->id);
 
-        !$r->id?:$tour->where('tour_id',$r->id);
-        !$r->tour_type?:$tour->WhereHas('type', function ($q) use ($tour_type) {
-            $q->whereIn('tour_type_id',[ $tour_type]);
+    !$r->tour_type?:$tourQuery->whereHas('type', function ($q) use ($tour_type) {
+            $q->whereIn('tour_type_id', [$tour_type]);
         });
 
-        !$r->city?:$tour->WhereHas('cities', function ($q) use ($city) {
-            $q->whereIn('t_city_id',$city);
+    !$r->city?:$tourQuery->whereHas('cities', function ($q) use ($city) {
+            $q->whereIn('t_city_id', $city);
         });
 
-        !$r->country?:$tour->WhereHas('country', function ($q) use ($country) {
-            $q->whereIn('t_country_id',$country);
+
+    !$r->country?:$tourQuery->whereHas('country', function ($q) use ($country) {
+            $q->whereIn('t_country_id', $country);
         });
 
-        if($r->commission){
-            $commission=explode(',',$r->commission);
-            $com=(double)$commission[0];
-            $commission[0]==$commission[1]?$tour->where('commission','like',"%{$com}%"):$tour->whereBetween('commission',[(double)$commission[0],(double)$commission[1]]);
-        }
 
-        if($r->range){
-            $range=explode(',',$r->range);
-            $range[0]==$range[1]?$tour->where('price_total',(double)$range[0]):$tour->whereBetween('price_total',[(double)$range[0],(double)$range[1]]);
-        }
-
-        !$r->id?:$tour->where('tour_id',$r->id);
-        !$r->tour_name?:$tour->where('tour_name','like',"%{$r->tour_name}%");
-        !$r->admin?:$tour->select('tour_name','end_city','departures','max_group_size','commission','price_total','tour_id','operator_id');
-        !$r->limit?:$tour->limit($r->limit);
-        $tour=$tour->with('natural_destination')->with('type')->with('cities')->paginate($r->limit, ['*'], 'page', $r->page);
-
-
-        $tour->getCollection()->transform(function($t) use($admin){
-            if($admin){
-                $entro1=$t->type->map(function($tt)  {
-                 return   $tt->type->tourtype_name;
-                });
-                $entro2=$t->cities->map(function($tt) use ($entro1) {
-                   return $tt->city->city_name;
-                });
-                $t->travel_style=$entro1;
-                $t->cities_tour=$entro2;
-            }
-            $t->city_name=$t->city->city_name;
-            $t->comision=((double)$t->price_total)*$t->commission;
-            $t->total_commision='$'.$t->comision;
-            $t->commission=($t->commission*100).'%';
-            $t->price_total='$'.$t->price_total;
-            unset($t->cities);
-            unset($t->type);
-            unset($t->city);
-            return $t;
-        })->values()->all();
-        return $tour;
-    }
-
-    public function travel_styles(Request $r){
-        $travel=Type::query();
-        $orderby=$r->order;
-        $commission=explode(',',$r->commission);
-        $range=explode(',',$r->range);
-        $minRange =(int) $range[0];
-        $maxRange =(int) $range[1];
+    if ($r->commission) {
+        $commission = explode(',', $r->commission);
         $minCommission = (double)$commission[0];
         $maxCommission = (double)$commission[1];
 
-        !$r->name?:$travel->where('tourtype_name','like',"%{$r->name}%");
-        !$r->id?:$travel->where('tour_type_id',$r->id);
-        if(in_array($orderby,[1,2])){
-            $orderby==1?$travel->orderBy('tourtype_name', 'ASC'):$travel->orderBy('tourtype_name', 'DESC');
+        if ($minCommission == 0) {
+            $tourQuery->where(function($query) use($minCommission, $maxCommission) {
+                $query->whereDoesntHave('orders')
+                      ->orWhereHas('orders', function($q) use($minCommission, $maxCommission) {
+                          $q->whereBetween('commission', [$minCommission, $maxCommission]);
+                      });
+            });
+        }elseif($minCommission == $maxCommission){
+            if($minCommission==0){
+                $tourQuery->where(function($query)  {
+                    $query->whereDoesntHave('orders');
+                });
+            }else{
+                $tourQuery->where(function($query) use($minCommission) {
+                    $query->whereHas('orders', function($q) use($minCommission) {
+                              $q->where('commission','like',"%{$minCommission}%");
+                          });
+                });
+            }
         }
-        $sums = Order::query();
-        $filteredTourIds = Order::query()
-        ->select('tour_id')
-        ->selectRaw('SUM(paid) as total_paid')
-        ->whereBetween('commission', [$minCommission, $maxCommission])
-        ->groupBy('tour_id')
-        ->havingRaw('SUM(paid) BETWEEN ? AND ?', [$minRange, $maxRange])
-        ->pluck('tour_id')
-        ->toArray();
+        else {
+            $tourQuery->whereHas('orders', function($q) use($minCommission, $maxCommission) {
+                $q->whereBetween('commission', [$minCommission, $maxCommission]);
+            });
+        }
+    }
 
-        $minCommission==0?: $travel->whereHas('type_t', function ($query) use ($filteredTourIds) {
+    !$r->tour_name?:$tourQuery->where('tour_name', 'like', "%{$r->tour_name}%");
+    $tourQuery->select('tour_name', 'end_city', 'departures', 'max_group_size', 'commission', 'price_total', 'tour_id', 'operator_id')->with(['orders', 'natural_destination', 'type', 'cities'])->withCount('orders');
+
+    if(!in_array((int)$order[0],[4,5,6])){
+        $tourQuery->orderby($val_list[(int)$order[0]],(int)$order[1]==1?'Asc':'Desc');
+    }
+
+    $paginator =$tourQuery->get();
+
+    $paginator = $paginator->map(function ($t)  {
+
+        $t->travel_style = $t->type->map(function($tt) {
+            return $tt->type->tourtype_name;
+        });
+
+        $t->cities_tour = $t->cities->map(function($tt) {
+            return $tt->city->city_name;
+        });
+
+        $t->comision = 0;
+        $t->price_total = 0;
+        $list_c = [];
+
+        foreach ($t->orders as $o) {
+            $t->comision += $o->commission * $o->paid;
+            $t->price_total += $o->paid;
+            $commissionPercentage = $o->commission * 100;
+            if (!in_array($commissionPercentage, $list_c)) {
+                $list_c[] = $commissionPercentage;
+            }
+        }
+
+        $t->commission =count($list_c)?implode(',', $list_c):'0';
+        $t->total_commision =  $t->comision;
+        $t->price_total = $t->price_total;
+
+        return $t->makeHidden(['cities', 'type', 'city', 'orders']);
+    })->filter(function($t) use ($minRange, $maxRange) {
+        return $t->price_total >= $minRange && $t->price_total <= $maxRange;
+    })->values();
+
+    if (in_array((int)$order[0], [4, 5, 6])) {
+        $paginator = $paginator->sort(function ($a, $b) use ($order, $val_list) {
+            $field = $val_list[(int)$order[0]];
+
+            if ((int)$order[1] == 1) {
+                return (double)$a->{$field} <=> (double)$b->{$field};
+            } else {
+                return (double)$b->{$field} <=> (double)$a->{$field};
+            }
+        })->values();
+    }
+
+    $paginator = $paginator instanceof Collection ? $paginator : collect($paginator);
+    $perPage = $r->limit ?: 15;
+    $currentPage = $r->page ?: 1;
+    $paginator = new LengthAwarePaginator(
+        $paginator->forPage($currentPage, $perPage),
+        $paginator->count(),
+        $perPage,
+        $currentPage,
+        ['path' => $r->url()]
+    );
+
+
+    return $paginator;
+}
+
+
+
+
+    public function travel_styles(Request $r) {
+        $travel = Type::query();
+        $orderby = $r->order;
+        $commission = explode(',', $r->commission);
+        $range = explode(',', $r->range);
+        $minRange = (int) $range[0];
+        $maxRange = (int) $range[1];
+        $minCommission = (double)$commission[0];
+        $maxCommission = (double)$commission[1];
+
+        !$r->name ?: $travel->where('tourtype_name', 'like', "%{$r->name}%");
+        !$r->id ?: $travel->where('tour_type_id', $r->id);
+        if (in_array($orderby, [1, 2])) {
+            $orderby == 1 ? $travel->orderBy('tourtype_name', 'ASC') : $travel->orderBy('tourtype_name', 'DESC');
+        }
+
+        $filteredTourIds = Order::query()
+            ->select('tour_id')
+            ->selectRaw('SUM(paid) as total_paid')
+            ->whereBetween('commission', [$minCommission, $maxCommission])
+            ->groupBy('tour_id')
+            ->havingRaw('SUM(paid) BETWEEN ? AND ?', [$minRange, $maxRange])
+            ->pluck('tour_id')
+            ->toArray();
+
+        $minCommission == 0 ?: $travel->whereHas('type_t', function ($query) use ($filteredTourIds) {
             $query->whereIn('tour_id', $filteredTourIds);
         });
 
-        !$r->limit?:$travel->limit($r->limit);
-        $sums=$sums->get()->pluck('tour_id')->toArray();
+        $travel = $travel->with('type_t:tour_type_id,tour_id')->withCount('type_t')->get();
 
-      $travel = $travel->with('type_t:tour_type_id,tour_id')
-      ->withCount('type_t')
-      ->paginate($r->limit, ['*'], 'page', $r->page);
+        // Filtrar resultados
+        $filtered = $travel->filter(function ($tra) use ($filteredTourIds, $minCommission, $maxCommission, $minRange, $maxRange) {
+            $tra->comission_range = [];
+            $tra->comission_total = 0;
+            $tra->total_paid = 0;
+            $tra->type_ids = $tra->type_t->pluck('tour_id')->toArray();
+            $iguales = array_intersect($filteredTourIds, $tra->type_ids);
+            $order = Order::select('tour_id', 'paid', 'commission')->whereIn('tour_id', $iguales)->get();
 
-  // Procesar resultados
-  $travel->getCollection()->transform(function ($tra) use ($filteredTourIds, $minCommission, $maxCommission) {
-      $tra->comission_range = [];
-      $tra->comission_total = 0;
-      $tra->total_paid = 0;
-      $tra->type_ids = $tra->type_t->pluck('tour_id')->toArray();
-      $iguales = array_intersect($filteredTourIds, $tra->type_ids);
-      $order = Order::select('tour_id', 'paid', 'commission')->whereIn('tour_id', $iguales)->get();
+            $comission_range = [];
+            foreach ($order as $or) {
+                if ($or->commission >= $minCommission && $or->commission <= $maxCommission) {
+                    $tra->total_paid += (double)$or->paid;
+                    $tra->comission_total += ((double)$or->paid * $or->commission);
+                    $commissionPercentage = 100 * $or->commission;
+                    if (!in_array($commissionPercentage, $comission_range)) {
+                        $comission_range[] = $commissionPercentage;
+                    }
+                }
+            }
 
-      $comission_range = [];
-      foreach ($order as $or) {
-          if ($or->commission >= $minCommission && $or->commission <= $maxCommission) {
-              $tra->total_paid += (double)$or->paid;
-              $tra->comission_total += ((double)$or->paid * $or->commission);
-              $commissionPercentage = 100 * $or->commission;
-              if (!in_array($commissionPercentage, $comission_range)) {
-                  $comission_range[] = $commissionPercentage;
-              }
-          }
-      }
+            if ($tra->total_paid >= $minRange && $tra->total_paid <= $maxRange) {
+                $tra->comission_range = count($comission_range) > 0 ? implode(',', $comission_range) : '0';
+                $tra->comission_total = round($tra->comission_total, 2);
+                $tra->total_paid = round($tra->total_paid, 2);
+                unset($tra->order);
+                unset($tra->type_ids);
+                unset($tra->type_t);
+                return true;
+            }
 
-      $tra->comission_range = count($comission_range) > 0 ? implode(',', $comission_range) : '0';
-      $tra->comission_total = round($tra->comission_total, 2);
-      $tra->total_paid = round($tra->total_paid, 2);
+            return false;
+        });
 
-      unset($tra->order);
-      unset($tra->type_ids);
-      unset($tra->type_t);
+        // Aplicar la paginación después del filtrado
+        $perPage = $r->limit ?: 15;
+        $currentPage = $r->page ?: 1;
+        $paginated = new LengthAwarePaginator(
+            $filtered->forPage($currentPage, $perPage),
+            $filtered->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $r->url()]
+        );
 
-      return $tra;
-  });
-        $val_list=[
-            3=>'total_paid',
-            4=>'total_paid',
-            7=>'type_t_count',
-            8=>'type_t_count',
+        // Ordenar si es necesario
+        $val_list = [
+            3 => 'total_paid',
+            4 => 'total_paid',
+            7 => 'type_t_count',
+            8 => 'type_t_count',
         ];
-        if ( in_array($orderby,[3,4,5,6,7,8])) {
-            usort($travel, function ($a, $b) use($orderby,$val_list){
+
+        if (in_array($orderby, [3, 4, 5, 6, 7, 8])) {
+            $paginated->getCollection()->sort(function ($a, $b) use ($orderby, $val_list) {
                 if (in_array($orderby, [3, 5, 7])) {
                     return $a->{$val_list[$orderby]} <=> $b->{$val_list[$orderby]};
                 }
@@ -158,8 +242,9 @@ class ToursFilters
             });
         }
 
-        return $travel;
+        return $paginated;
     }
+
 
 
 

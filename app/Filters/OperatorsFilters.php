@@ -5,48 +5,91 @@ namespace App\Filters;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Operators;
+use App\Models\Order;
 use App\Models\Tour;
 use App\Models\TourCountry;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 class OperatorsFilters
 {
 
-    public function OperatorsF (Request $r){
-        $operator = Operators::query();
-        $orderby=$r->order;
-        $city= $r->city?explode(',',$r->city):[];
-        !$r->name?:$operator->where('name','like',"%{$r->name}%");
-        !$r->operator_id?:$operator->where('operator_id',$r->operator_id);
-        if(in_array($orderby,[1,2])){
-            $orderby==1?$operator->orderBy('name', 'ASC'):$operator->orderBy('name', 'DESC');
-        }
-        $commission=explode(',',$r->commission);
-        $range=explode(',',$r->range);
+    public function OperatorsF(Request $r) {
 
-        $minRange =(int) $range[0];
-        $maxRange =(int) $range[1];
-        $minCommission = (double)$commission[0];
-        $maxCommission = (double)$commission[1];
+        $minRange = (int) explode(',', $r->range)[0];
+        $maxRange = (int) explode(',', $r->range)[1];
+        $query = Operators::query();
+        $orderby = $r->order;
+        $city = $r->city ? explode(',', $r->city) : [];
+        $name = $r->name;
+        $operatorId = $r->operator_id;
 
-        if(count($city)){
-            $operator->whereHas('tours', function ($query) use ($city) {
+        !$r->id?:$query->where('id',$r->id);
+        !$name?:$query->where('name', 'like', "%{$name}%");
+        !$operatorId?:$query->where('operator_id', $operatorId);
+
+
+        if (count($city)) {
+            $query->whereHas('tours', function ($query) use ($city) {
                 $query->whereHas('cities', function ($query) use ($city) {
                     $query->whereIn('t_city_id', $city);
                 });
             });
         }
 
-        $operator = $operator->with([
+
+
+
+        if ($r->commission) {
+            $commission = explode(',', $r->commission);
+            $minCommission = (double)$commission[0];
+            $maxCommission = (double)$commission[1];
+
+            if ($minCommission == 0) {
+                $query->where(function($query) use($minCommission, $maxCommission) {
+                    $query->whereDoesntHave('orders')
+                          ->orWhereHas('orders', function($q) use($minCommission, $maxCommission) {
+                              $q->whereBetween('commission', [$minCommission, $maxCommission]);
+                          });
+                });
+            }elseif($minCommission == $maxCommission){
+                if($minCommission==0){
+                    $query->where(function($query)  {
+                        $query->whereDoesntHave('orders');
+                    });
+                }else{
+                    $query->where(function($query) use($minCommission) {
+                        $query->whereHas('orders', function($q) use($minCommission) {
+                                  $q->where('commission','like',"%{$minCommission}%");
+                              });
+                    });
+                }
+            }
+            else {
+                $query->whereHas('orders', function($q) use($minCommission, $maxCommission) {
+                    $q->whereBetween('commission', [$minCommission, $maxCommission]);
+                });
+            }
+        }
+
+        if (in_array($orderby, [1, 2])) {
+        $query->orderBy('name', $orderby == 1 ? 'ASC' : 'DESC');
+        }
+
+        if (in_array($orderby, [7, 8])) {
+            $query->orderBy('tours_count', $orderby == 7 ? 'ASC' : 'DESC');
+        }
+
+        $query->with([
             'tours:tour_id,operator_id,commission,price_total,max_group_size',
             'tours.countries:t_country_id,tour_id',
-            'orders:operator,paid,commission'
-        ])->withCount('tours')->withcount('orders') ->paginate($r->limit, ['*'], 'page', $r->page);
+        ])->withCount('tours')->with('orders')->withCount('orders');
 
+        $results = $query->get();
 
-        $operator->getCollection()->transform(function($op) use($minCommission, $maxCommission){
+        $filtered = $results->map(function($op){
             $countries = [];
+
             $op->total_paid = 0;
             $op->total_paid_2 = 0;
             $op->total_commission = 0;
@@ -61,53 +104,65 @@ class OperatorsFilters
                     }
                 }
                 $totalGroupSize += $tour->max_group_size;
-            }
 
-            foreach ($op->orders as $order) {
-                if ($order->commission >= $minCommission && $order->commission <= $maxCommission) {
-                    $op->total_paid_commission += $order->commission * (double)$order->paid;
-                    $op->total_paid += (double)$order->paid;
-                    if(!in_array((100*$order->commission), $comission_r)){
-                        $comission_r[]=100*$order->commission;
+            }
+            $total_comission=0;
+            $orders=Order::select('operator','paid','commission')->where('operator',$op->operator_id)->get();
+            if(count($orders)){
+                foreach ($orders as $order) {
+                    $paid = (double) $order->paid;
+                    $commission = (double) $order->commission;
+                    $total_comission += $commission * $paid;
+                    $op->total_paid += $paid;
+                   if (!in_array((100 * $commission), $comission_r)) {
+                        $comission_r[] = 100 * $commission;
                     }
                 }
             }
 
-            $text=Country::wherein('t_country_id',$countries)->select('name','t_country_id')->get()->map(function($t){
-              return $t->name;
-            });
-            $op->comission_r = count($comission_r)?implode(',',$comission_r):'0';
-            $op->countries_name=$text;
+            $op->total_paid_commission=$total_comission;
+
+            $op->comission_r = count($comission_r) ? implode(',', $comission_r) : '0';
+            $op->countries_name = Country::whereIn('t_country_id', $countries)->pluck('name');
             $op->total_paid_commission = round($op->total_paid_commission, 2);
             $op->total_paid = round($op->total_paid, 2);
-            $op->total_paid_2 = round($op->total_paid, 2);
-            $op->average_size_group = $op->tours_count > 0 ?  round($totalGroupSize / $op->tours_count) : 0;
+
+            $op->average_size_group = $op->tours_count > 0 ? round($totalGroupSize / $op->tours_count) : 0;
             $op->countries_t = count($countries);
+            unset($op->orders);
             unset($op->tours);
             return $op;
-        })->filter(function($op) use ($minRange, $maxRange) {
-            return $op->total_paid_2 >= $minRange && $op->total_paid_2 <= $maxRange;
-        })->values()->all();
+        })->filter(function($op) use ($minRange,$maxRange) {
+            return ($op->total_paid >= $minRange && $op->total_paid<= $maxRange);
+        })->values();
 
-        $val_list=[
-            3=>'total_paid_2',
-            4=>'total_paid_2',
-            5=>'total_paid_commission',
-            6=>'total_paid_commission',
-            7=>'tours_count',
-            8=>'tours_count',
+        // Ordenar resultados
+        $val_list = [
+            3 => 'total_paid',
+            4 => 'total_paid',
+            5 => 'total_paid_commission',
+            6 => 'total_paid_commission',
         ];
-        if ( in_array($orderby,[3,4,5,6,7,8])) {
-            usort($operator, function ($a, $b) use($orderby,$val_list){
-                if (in_array($orderby, [3, 5, 7])) {
-                    return $a->{$val_list[$orderby]} <=> $b->{$val_list[$orderby]};
-                }
-                if (in_array($orderby, [4, 6, 8])) {
-                    return $b->{$val_list[$orderby]} <=> $a->{$val_list[$orderby]};
-                }
-            });
+
+        if (in_array($orderby, [3, 4, 5, 6])) {
+            $filtered = $filtered->sortBy(function ($item) use ($orderby, $val_list) {
+                return $item->{$val_list[$orderby]};
+            }, SORT_REGULAR, in_array($orderby, [4, 6]));
+
+            // Convertir el resultado en una colección si no lo es ya
+            $filtered = $filtered->values();
         }
 
-        return $operator;
+        $page = $r->page ?: 1;
+        $limit = $r->limit ?: 15;
+        $paginated = new LengthAwarePaginator(
+            $filtered->forPage($page, $limit),
+            $filtered->count(),
+            $limit,
+            $page,
+            ['path' => $r->url()]
+        );
+
+        return $paginated;
     }
 }
