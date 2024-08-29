@@ -50,7 +50,7 @@ Deployment:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect node:20.5.1-alpine >/dev/null 2>&1 && docker image rm node:20.5.1-alpine || echo 'La imagen node:20.5.1-alpine no existe'"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose up -d --build"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && DB_HOST='$DB_HOST' docker compose up -d --build"
 
   only:
     - develop

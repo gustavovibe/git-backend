@@ -24,6 +24,9 @@ services:
       dockerfile: Dockerfile-app
     networks:
       - app-network
+    environment:
+      - DB_HOST=db
+
 
   nginx:
     image: nginx:latest
