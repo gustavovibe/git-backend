@@ -23,7 +23,6 @@ Backup:
 Builder:
   stage: builder
   image: docker:20.10.16
-
   services:
     - name: docker:dind
       alias: dind
@@ -44,7 +43,6 @@ Builder:
 Deployment:
   stage: deploy
   image: docker:20.10.16
-
   services:
     - name: docker:dind
       alias: dind
