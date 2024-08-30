@@ -14,6 +14,8 @@ Backup:
     - chmod 600 ~/.ssh/id_rsa
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u vibe_adventure_user_admin --password=adventure vibe_adventure > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "aws s3 sync backup s3://backupvibe"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && ls -t *.sql | tail -n +11 | xargs rm"
+
   only:
     - develop
 
