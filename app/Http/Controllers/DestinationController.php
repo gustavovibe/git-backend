@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
+use App\Models\ActionLog;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Destination;
@@ -36,6 +37,7 @@ class DestinationController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
         $category = $request->category;
         $id = $request->id;
 
@@ -50,14 +52,12 @@ class DestinationController extends Controller
                 $destination = City::with('destination')->where('t_city_id', $id)->first();
                 break;
             default:
-                return ApiResponse::invalid('Invalid category');
+                $destination = null;
         }
 
-        if (!$destination) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Destination not found'
-            ], 404);
+
+        if ($destination === null) {
+            return ApiResponse::notFound('Destination not found');
         }
 
         $validatedData = $request->validate([
@@ -66,7 +66,7 @@ class DestinationController extends Controller
             'things_to_do' => 'required|string',
             'travel_tips' => 'required|string',
             'best_time_to_visit' => 'required|string',
-            'slug' => 'required|string|unique:destinations,slug,' . ($destination->destination->id ?? 'null'),
+            'slug' => 'required|string',
             'excerpt' => 'required|string',
             'meta_description' => 'required|string',
         ]);
@@ -74,24 +74,34 @@ class DestinationController extends Controller
         $destination_detail = $destination->destination;
 
         if ($destination_detail) {
+
             $destination_detail->update($validatedData);
 
-            return response()->json([
-                'success' => true,
-                'data' => $destination_detail,
-                'message' => 'Destination updated successfully',
-            ], 200);
+            ActionLog::create([
+                'user_id' => $user->id,
+                'type' => 'Update',
+                'action' => 'Destination update successfully',
+                'item' => 'Destination',
+            ]);
+
+            return ApiResponse::success($destination_detail, 'Destination updated successfully');
         } else {
             $newDestination = Destination::create($validatedData);
+
             $destination->update(['destination_id' => $newDestination->id]);
 
             $destination->save();
 
-            return response()->json([
-                'success' => true,
-                'data' => $newDestination,
-                'message' => 'Destination created successfully',
-            ], 201);
+            ActionLog::create([
+                'user_id' => $user->id,
+                'type' => 'Create',
+                'action' => 'Destination created successfully',
+                'item' => 'Destination',
+            ]);
+
+            return ApiResponse::success($newDestination, 'Destination created successfully');
+
+
         }
     }
 
