@@ -8,6 +8,7 @@ RUN apt-get update && \
     libzip-dev \
     zip \
     unzip \
+    mariadb-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql zip
 
