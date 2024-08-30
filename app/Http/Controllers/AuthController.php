@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -51,16 +52,17 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request['email'])->with('profile', 'permissions')->firstOrFail();
-        $user->last_login=Carbon::now();
+        $user->last_login = Carbon::now();
         $user->save();
+        $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Inicio de sesion correcto',
+
+        return ApiResponse::success([
             'access_token' => $token,
             'user' => $user,
-        ], 200);
+        ], 'Successful login');
+
     }
 
     public function logout()
