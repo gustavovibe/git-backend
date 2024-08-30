@@ -17,7 +17,6 @@ Backup:
   only:
     - develop
 
-
 Builder:
   stage: builder
   image: docker:20.10.16
@@ -37,7 +36,6 @@ Builder:
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
     - develop
-
 
 Deployment:
   stage: deploy
