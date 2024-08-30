@@ -9,8 +9,8 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Mail\ContactMail;
+use App\Models\ActionLog;
 use App\Models\ContactEmail;
-use App\Models\UserHistory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -371,7 +371,7 @@ class UserController extends Controller
 
     public function UserHistory(Request $r){
         try{
-            $user= UserHistory::query();
+            $user= ActionLog::query();
             !$r->id?:$user->where('user_id',$r->id);
             $user = $user->get()->map(function ($users) {
                 $users->action_date = Carbon::parse($users->action_date)->format('d M Y, g:i a');
