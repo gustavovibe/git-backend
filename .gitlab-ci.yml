@@ -12,7 +12,7 @@ Backup:
     - echo "$SSH_PRIVATE_KEY_DATABASE" > ~/.ssh/id_rsa
     - ssh-keyscan "$SSH_HOST_DATABASE" >> ~/.ssh/known_hosts
     - chmod 600 ~/.ssh/id_rsa
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u ${user} --password=adventure vibe_adventure > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u vibe_adventure_user_admin --password=adventure vibe_adventure > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "aws s3 sync backup s3://backupvibe"
   only:
     - develop
@@ -35,7 +35,7 @@ Builder:
     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
-    - develop
+    - develop-1
 
 Deployment:
   stage: deploy
@@ -65,5 +65,4 @@ Deployment:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && APP_NAME='$APP_NAME' APP_ENV='$APP_ENV' APP_KEY='$APP_KEY' APP_DEBUG='$APP_DEBUG' APP_URL='$APP_URL' APP_URL_FRONT='$APP_URL_FRONT' STRIPE_SECRET='$STRIPE_SECRET' STRIPE_WEBHOOK_SECRET='$STRIPE_WEBHOOK_SECRET' LOG_CHANNEL='$LOG_CHANNEL' LOG_DEPRECATIONS_CHANNEL='$LOG_DEPRECATIONS_CHANNEL' LOG_LEVEL='$LOG_LEVEL' DB_CONNECTION='$DB_CONNECTION' DB_HOST='$DB_HOST' DB_PORT='$DB_PORT' DB_DATABASE='$DB_DATABASE' DB_USERNAME='$DB_USERNAME' DB_PASSWORD='$DB_PASSWORD' BROADCAST_DRIVER='$BROADCAST_DRIVER' CACHE_DRIVER='$CACHE_DRIVER' FILESYSTEM_DRIVER='$FILESYSTEM_DRIVER' QUEUE_CONNECTION='$QUEUE_CONNECTION' SESSION_DRIVER='$SESSION_DRIVER' SESSION_LIFETIME='$SESSION_LIFETIME' MEMCACHED_HOST='$MEMCACHED_HOST' REDIS_HOST='$REDIS_HOST' REDIS_PASSWORD='$REDIS_PASSWORD' REDIS_PORT='$REDIS_PORT' MAIL_MAILER='$MAIL_MAILER' MAIL_HOST='$MAIL_HOST' MAIL_PORT='$MAIL_PORT' MAIL_USERNAME='$MAIL_USERNAME' MAIL_PASSWORD='$MAIL_PASSWORD' MAIL_ENCRYPTION='$MAIL_ENCRYPTION' MAIL_FROM_ADDRESS='$MAIL_FROM_ADDRESS' MAIL_FROM_NAME=\"$MAIL_FROM_NAME\" PUSHER_APP_ID='$PUSHER_APP_ID' PUSHER_APP_KEY='$PUSHER_APP_KEY' PUSHER_APP_SECRET='$PUSHER_APP_SECRET' PUSHER_APP_CLUSTER='$PUSHER_APP_CLUSTER' MIX_PUSHER_APP_KEY='$MIX_PUSHER_APP_KEY' MIX_PUSHER_APP_CLUSTER='$MIX_PUSHER_APP_CLUSTER' AWS_ACCESS_KEY_ID='$AWS_ACCESS_KEY_ID' AWS_SECRET_ACCESS_KEY='$AWS_SECRET_ACCESS_KEY' AWS_DEFAULT_REGION='$AWS_DEFAULT_REGION' AWS_BUCKET='$AWS_BUCKET' AWS_URL='$AWS_URL' AWS_USE_PATH_STYLE_ENDPOINT='$AWS_USE_PATH_STYLE_ENDPOINT' AWS_SUPPRESS_PHP_DEPRECATION_WARNING='$AWS_SUPPRESS_PHP_DEPRECATION_WARNING' docker compose up -d --build"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker exec -i api-app-1 php artisan optimize"
   only:
-    - develop
-
+    - develop-1
