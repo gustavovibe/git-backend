@@ -6,7 +6,7 @@ use App\Models\ContactEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 class UsersFilters
 {
     protected $notifications;
@@ -87,11 +87,11 @@ class UsersFilters
                 }
                 $u->permissions = $permissions;
                 if(!$admin){
-                    $this->val=[];
+                    $val=[];
                     foreach( $u->permissions as $p){
-                        $this->val[]=$this->permission_text[$p];
+                        $val[]=$this->permission_text[$p];
                     }
-                    $u->permissions=$this->val;
+                    $u->permissions=$val;
                     $admin?:$u->permissions=implode(',',$u->permissions);
                 }
                 !$admin?:$u->notifications = $notifications;
@@ -99,8 +99,17 @@ class UsersFilters
             unset($u->job);
             unset($u->permission);
             return $u;
-        })->values()->all();
+        })->values();
 
+        $perPage = $r->limit ?: 15;
+        $currentPage = $r->page ?: 1;
+        $users = new LengthAwarePaginator(
+            $users->forPage($currentPage, $perPage),
+            $users->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $r->url()]
+        );
         return $users;
     }
 }
