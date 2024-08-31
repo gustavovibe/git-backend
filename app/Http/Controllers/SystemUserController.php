@@ -75,15 +75,8 @@ class SystemUserController extends Controller
 
     public function getUsers(Request $r){
         try {
-            $user = User::with('permission')->find($r->user_id);
-
-           /*  return $this->authorize('viewAny',$user); */
            $u = (new UsersFilters)->UsersF($r);
            return response()->json(['status' => 200,'count'=>count($u),'response' => $u]);
-         /*   if (Gate::forUser($user)->allows('viewAny', SystemPermission_User::class)) {
-            } else {
-                return response()->json(['status' => 500, 'response' => 'User has not Access']);
-            } */
         }catch (Error $e) {
             Log::error('Exception: ' . $e->getMessage());
             return response()->json(['status' => 500, 'response' => $e->getMessage()]);
