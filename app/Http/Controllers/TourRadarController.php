@@ -148,7 +148,7 @@ public static function getDeparturesByTour($params)
         }
         if (isset($params['date_range'])) {
             // Modify the date_range parameter format to YYYYMMDD-YYYYMMDD
-            $dateRange = explode('-', $params['date_range']);
+            $dateRange = explode(',', $params['date_range']);
             if (count($dateRange) === 2) {
                 $formattedDateRange = implode('-', array_map(function ($date) {
                     return date('Ymd', strtotime($date));
