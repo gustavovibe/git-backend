@@ -363,6 +363,177 @@ class PackageController extends Controller
         }
         return $order;
     }
+
+    public function createBaggageCheckoutSession(Request $r){
+        try{
+            $stripeSecret = config('services.stripe.secret');
+            $urlAppFront = config('services.stripe.urlAppFront');
+
+            Stripe::setApiKey($stripeSecret);
+            $baggageType = $r->baggage_type;
+            $baggageQuantity = $r->input('quantity', 1);
+            $amount = $r->price * 100;
+
+
+             $newUrl = $urlAppFront . "/my-trips/order?stripe_pay=true";
+             /*  $newUrl =  "http://localhost:3000/my-trips/order?stripe_pay=true"; */
+           /*    return $newUrl; */
+              $response = $this->createCheckoutSessionInternal(
+                ucfirst($baggageType) . ' Baggage',
+                ucfirst($baggageType) . ' baggage purchase',
+                $amount * $baggageQuantity,
+                $newUrl,
+                [
+                   'metadata' => [
+                    'order_id' => $r->order_id,
+                    'passenger_id' => $r->passenger_id,
+                    'checked' => $r->checked,
+                    ]
+                ]
+            );
+
+            if (isset($response['error'])) {
+                return response()->json(['status'=>false,'position'=>'stripe','response' => $response['error']]);
+            }
+            return response()->json(['status'=>true, 'url' => $response['url']]);
+
+        }catch(Exception $e){
+            return response()->json(['status' => false,'response'=>$e->getMessage()]);
+        }
+}
+private function getDuffelHeaders(){
+    return [
+        'Authorization' => 'Bearer ' . config('services.duffel.secret'),
+        'Duffel-Version' => 'v1',
+        'Content-Type' => 'application/json'
+        ];
+    }
+
+public function getOrderDetails($order_id){
+$url = 'https://api.duffel.com/air/orders/'.$order_id;
+$response = Http::withHeaders($this->getDuffelHeaders())->get($url);
+return $response->json();
+}
+
+public function getOfferIds($order_id){
+    $url = "https://api.duffel.com/air/orders/{$order_id}/available_services";
+    $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
+    $response=$response->json();
+    $list=[];
+    foreach( $response['data'] as $service){
+        if($service['type']=='baggage'){
+            $list[]=['baggage'=>$service['id'],'total_amount'=>$service['total_amount']];
+        }
+    }
+    return $list;
+}
+
+public function OrderServices(Request $r){
+    try{
+        $url = "https://api.duffel.com/air/orders/{$r->order_id}/available_services";
+        $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
+        $response=$response->json();
+        $response=json_decode($this->order_e,true);
+        $list=[];
+        foreach( $response['data'] as $service){
+            if($service['type']=='baggage'){
+                $list[]=['baggage_id'=>$service['id'],'total_amount'=>$service['total_amount']];
+            }
+        }
+        return  response()->json(['status'=>count($list)?true:false,'response'=>$list]);
+    }catch(Exception $e){
+        return  response()->json(['status'=>false,'response'=>$e->getMessage()]);
+    }
+}
+public function validBaggage($value){
+    try{
+        $offerId = $value;
+        $url = "https://api.duffel.com/air/offers/{$offerId}?return_available_services=true";
+
+        $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
+        return $response->json();
+        /* $offer['data']['owner']['iata_code']; */
+
+        return response()->json(['status'=>true,'response'=>true]);
+    }catch(Exception $e){
+        return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+    }
+}
+
+
+public function updateDuffelOrder(Request $r)
+{
+    $event = $r->input('type');
+    $session = $r->input('data.object');
+    if ($event === 'checkout.session.completed' && isset($session['metadata']['payment_type']) && $session['metadata']['payment_type'] === 'baggage') {
+        $order = $this->getOrderDetails($r->order_id);
+        $ids= $this->getOfferIds($order['data']['offer_id']);
+        $addServices=[];
+        if ($r->checked > 0) {
+            $addServices[] = [
+                'quantity' => $r->checked,
+                'id' => $ids[0]['baggage'],
+            ];
+        }
+
+        $body = [
+            'data' => [
+                'payment' => [
+                    'type' => 'balance',
+                    'currency' => 'USD',
+                    'amount' =>((double) $ids[0]['total_amount']*$r->checked).'',
+                ],
+                'add_services' => $addServices,
+            ]
+        ];
+        /* return $body; */
+
+        $url = "https://api.duffel.com/air/orders/{$r->order_id}";
+        $response = Http::withHeaders($this->getDuffelHeaders())->post($url, $body);
+
+        if ($response->failed()) {
+            return response()->json(['status'=>false,'error' => $response->json()]);
+        }
+
+        return  response()->json(['status'=>true,'response'=>$response->json()]);
+    }
+
+
+}
+
+public function handleStripeWebhook(Request $request)
+{
+    $stripeSecret = config('services.stripe.secret');
+    $endpointSecret = 'whsec_0a3df2c66784e65c3a762066ff57b4f8784b7bdeb28ac6088375b4c431045b5b';
+
+    Stripe::setApiKey($stripeSecret);
+
+    $payload = @file_get_contents('php://input');
+    $sigHeader = $request->header('Stripe-Signature');
+
+    try {
+        $event = Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
+    } catch (SignatureVerificationException $e) {
+        return response()->json(['status' => false, 'error' => 'Invalid signature'], 400);
+    }
+
+    if ($event->type == 'checkout.session.completed') {
+        $session = $event->data->object;
+
+        // Obtener los metadatos
+        $order_id = $session->metadata->order_id;
+        $passenger_id = $session->metadata->passenger_id;
+        $checked = $session->metadata->checked;
+        $this->updateDuffelOrder(new Request([
+            'order_id' => $order_id,
+            'passenger_id' => $passenger_id,
+            'checked' =>  $checked,
+        ]));
+        return response()->json(['status' => true,'response'=>'entro a contenido de acciones']);
+    }
+
+    return response()->json(['status' => false, 'error' => 'Unhandled event type'], 400);
+    }
 }
 
 
