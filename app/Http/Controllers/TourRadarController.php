@@ -73,6 +73,7 @@ public static function getDeparturesByTour($params)
 
     public function getMultipleDeparturesByTours(Request $request)
     {
+       try{
         $params = $request->all();
 
         if (!isset($params['tourIds'])) {
@@ -85,7 +86,7 @@ public static function getDeparturesByTour($params)
         $page = isset($params['page']) ? (int)$params['page'] : 1;
         $start = ($page - 1) * $itemsPerPage;
         $end = $start + $itemsPerPage;
-        
+
         Log::info('Starting to fetch departures', [
             'tourIds' => $tourIds,
             'params' => $params,
@@ -126,6 +127,9 @@ public static function getDeparturesByTour($params)
         Log::info('Returning departures', ['departures' => $departures]);
 
         return response()->json(['items' => $departures]);
+       }catch(Exception $e){
+        return response()->json(['status'=>false,'response'=>$e->getMessagge()]);
+       }
     }
 
     private function getDeparturesByTourParams($params)

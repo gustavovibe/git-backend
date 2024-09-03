@@ -5,6 +5,7 @@ namespace App\Filters;
 use App\Models\ContactEmail;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ContactFilters{
 
@@ -60,7 +61,7 @@ class ContactFilters{
         !$r->status?:$results->wherein('status',explode(',',$r->status));
         !$r->mail_type?:$results->wherein('mail_type',explode(',',$r->mail_type));
 
-        $results->limit($r->limit ? $r->limit : 10);
+       /*  $results->limit($r->limit ? $r->limit : 10); */
         $results = $results->get();
         $results = $results->map(function($re) {
             $re->traveler_name = $re->traveler->name . ' ' . $re->traveler->last;
@@ -70,7 +71,17 @@ class ContactFilters{
             $re->mail_type_name = $this->list_type[$re->mail_type];
             unset($re->traveler);
             return $re;
-        })->values()->all();
+        })->values();
+
+        $perPage = $r->limit ?: 15;
+        $currentPage = $r->page ?: 1;
+        $results = new LengthAwarePaginator(
+            $results->forPage($currentPage, $perPage),
+            $results->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $r->url()]
+        );
 
         return $results;
     }
