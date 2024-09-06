@@ -16,17 +16,39 @@ class ActionLogController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 10;
+        $perPage = $request->input('perPage', 10);
 
-        $q = $request->input('q');
+        // Inicia la consulta base
+        $query = ActionLog::with('user');
 
-        if ($q) {
-            $paginatedData = ActionLog::with('user')->where('name', 'like', $q . '%')->paginate($perPage);
-        } else {
-            $paginatedData = ActionLog::paginate($perPage);
+        // Filtrar por fechas si están presentes
+        if ($request->input('startDate') && $request->input('endDate')) {
+            $startDate = $request->input('startDate') . ' 00:00:00';
+            $endDate = $request->input('endDate') . ' 23:59:59';
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-        $responseData = $paginatedData->toArray();
 
+        // Filtrar por búsqueda de nombre del usuario relacionado
+        $q = $request->input('q');
+        if ($q) {
+            $query->whereHas('user', function ($subQuery) use ($q) {
+                $subQuery->where('name', 'like', $q . '%');
+            });
+        }
+
+        // Filtrar por tipo si está presente
+        $type = $request->input('type');
+        if ($type) {
+            if ($type != 'all') {
+                $query->where('type', $type);
+            }
+        }
+
+        // Paginar los resultados
+        $paginatedData = $query->paginate($perPage);
+
+        // Preparar los datos de respuesta
+        $responseData = $paginatedData->toArray();
         $responseData['data'] = ActionLogResource::collection($paginatedData->items());
 
         return ApiResponse::success($responseData);
