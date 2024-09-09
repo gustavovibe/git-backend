@@ -42,7 +42,7 @@ class SystemUserController extends Controller
                 'profile_id'=>1,
                 'active'=>1,
                 'role'=>1,
-                'password'=>$r->id?$u->code:Hash::make($random)
+                'password'=>$r->id?$u->password:Hash::make($random)
             ])->save();
 
            $existingPermissions = Permission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
@@ -100,7 +100,7 @@ class SystemUserController extends Controller
     public function validateEmail(Request $request) {
         // Definir las reglas de validación
         $rules = [
-            'email' => 'required|email|unique:system_users,email'
+            'email' => 'required|email|unique:users,email'
         ];
 
         // Mensajes de error personalizados
