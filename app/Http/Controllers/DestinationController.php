@@ -40,16 +40,20 @@ class DestinationController extends Controller
         $user = auth()->user();
         $category = $request->category;
         $id = $request->id;
-
+        $destination_name = '';
         switch ($category) {
             case 'natural_destination':
                 $destination = NaturalDestination::with('destination')->where('t_natural_id', $id)->first();
+                $destination_name = $destination->destination_name;
+
                 break;
             case 'country':
                 $destination = Country::with('destination')->where('t_country_id', $id)->first();
+                $destination_name = $destination->name;
                 break;
             case 'city':
                 $destination = City::with('destination')->where('t_city_id', $id)->first();
+                $destination_name = $destination->city_name;
                 break;
             default:
                 $destination = null;
@@ -60,16 +64,27 @@ class DestinationController extends Controller
             return ApiResponse::notFound('Destination not found');
         }
 
-        $validatedData = $request->validate([
-            'overview' => 'required|string',
-            'quick_facts' => 'required|string',
-            'things_to_do' => 'required|string',
-            'travel_tips' => 'required|string',
-            'best_time_to_visit' => 'required|string',
-            'slug' => 'required|string',
-            'excerpt' => 'required|string',
-            'meta_description' => 'required|string',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'overview' => 'required|string',
+                'quick_facts' => 'required|string',
+                'things_to_do' => 'required|string',
+                'travel_tips' => 'required|string',
+                'best_time_to_visit' => 'required|string',
+                'slug' => 'required|string',
+                'excerpt' => 'required|string',
+                'meta_description' => 'required|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->errors();
+
+            $customErrors = [];
+            foreach ($errors as $field => $messages) {
+                $customErrors[] = implode(' ', $messages); // Unir todos los mensajes de un campo en una sola cadena
+            }
+
+            return ApiResponse::error([implode(' ', $customErrors)]);
+        }
 
         $destination_detail = $destination->destination;
 
@@ -80,7 +95,7 @@ class DestinationController extends Controller
             ActionLog::create([
                 'user_id' => $user->id,
                 'type' => 'Update',
-                'action' => 'Destination update successfully',
+                'action' => 'Destination update successfully' . ' ' . $category . ' ' . $destination_name,
                 'item' => 'Destination',
             ]);
 
@@ -95,7 +110,7 @@ class DestinationController extends Controller
             ActionLog::create([
                 'user_id' => $user->id,
                 'type' => 'Create',
-                'action' => 'Destination created successfully',
+                'action' => 'Destination created successfully' . ' ' . $category . ' ' . $destination_name,
                 'item' => 'Destination',
             ]);
 
@@ -114,6 +129,7 @@ class DestinationController extends Controller
     public function show(Request $request, $id)
     {
         $category = $request->query('category');
+
         $destination = null;
 
         switch ($category) {
@@ -169,6 +185,6 @@ class DestinationController extends Controller
      */
     public function destroy($id)
     {
-        //
+
     }
 }

@@ -17,6 +17,8 @@ use App\Http\Resources\NaturalDestinationResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use App\Exports\DestinationsExport;
+
 
 use Exception;
 
@@ -126,16 +128,12 @@ class Citycontroller extends Controller
     {
         $categoryFilter = $request->input('categoryFilter', '');
         $categories = array_map('trim', explode(',', $categoryFilter));
-
         $totalAdventuresRangeFilter = $request->input('totalAdventuresRange', '');
         $totalAdventuresRange = array_map('trim', explode(',', $totalAdventuresRangeFilter));
-
         $totalCommissionRangeFilter = $request->input('totalCommissionRange', '');
         $totalCommissionRange = array_map('trim', explode(',', $totalCommissionRangeFilter));
-
         $totalPaidRangeFilter = $request->input('totalPaidRange', '');
         $totalPaidRange = array_map('trim', explode(',', $totalPaidRangeFilter));
-
         $q = $request->input('q');
         $totalPaidFilter = $request->input('totalPaidFilter');
         $adventuresFilter = $request->input('adventuresFilter');
@@ -157,7 +155,7 @@ class Citycontroller extends Controller
             } elseif ($category == 'natural_destination') {
                 $entities = NaturalDestination::get();
             } else {
-                continue; // Saltar categorías inválidas
+                continue;
             }
 
             foreach ($entities as $entity) {
@@ -192,7 +190,7 @@ class Citycontroller extends Controller
 
         $result = collect($result);
 
-        // Aplicar los filtros de ordenación
+
         if ($alphabeticOrder == 'desc') {
             $result = $result->sortByDesc('name')->values();
         } else {
@@ -211,7 +209,7 @@ class Citycontroller extends Controller
             $result = $totalPaidFilter == 'asc' ? $result->sortBy('total_paid')->values() : $result->sortByDesc('total_paid')->values();
         }
 
-        // Aplicar el filtro de rango de aventuras
+
         if ($totalAdventuresRangeFilter) {
             $minAdventures = $totalAdventuresRange[0];
             $maxAdventures = $totalAdventuresRange[1];
@@ -239,18 +237,20 @@ class Citycontroller extends Controller
             })->values();
         }
 
-        // Recalcular el total después de aplicar todos los filtros
-        $totalRecords = $result->count();
+        //implementing export to excel
+        if ($request->input('export') === 'excel') {
+            return Excel::download(new DestinationsExport($result), 'destinations.xlsx');
+        }
 
-        // Paginación
+        //implementing pagination
+        $totalRecords = $result->count();
         $currentPageResults = $result->slice(($page - 1) * $perPage, $perPage)->values();
         $paginatedResult = new Paginator($currentPageResults, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'total' => $totalRecords,
         ]);
-
         $responseData = $paginatedResult->toArray();
-        $responseData['total'] = $totalRecords; // Asegúrate de actualizar el total aquí
+        $responseData['total'] = $totalRecords;
 
         return ApiResponse::success($responseData);
     }
