@@ -36,16 +36,16 @@ class TravelersController extends Controller
 
 
     // Method to write travelers
-    public function writeTravelers(Request $request)
+    public function writeTravelers(Request $r)
     {
         try{
-            $request->validate([
-                'traveler_id' => 'required|string|max:255',
+            $r->validate([
+              /*   'traveler_id' => 'required|string|max:255', */
                 'title' => 'required|string|max:255',
                 'gender' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
                 'last' => 'required|string|max:255',
-                'birth' => 'required|date',
+                'birth' => 'required',
                 'passport' => 'required|integer',
                 'place' => 'required|string|max:255',
                 'issue' => 'required|date',
@@ -54,15 +54,17 @@ class TravelersController extends Controller
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string',
                 'country' => 'required|string|max:255',
-                'lead' => 'required|string|max:255',
+                /* 'lead' => 'required|string|max:255', */
             ]);
+            $local= $r->all();
 
-            $traveler= $request->traveler_id?Traveler::where('traveler_id',$request->traveler_id)->first():new Traveler();
-            $traveler->fill($request->all())->save();
+            unset($local->user_);
+            $traveler= $r->traveler_id?Traveler::where('traveler_id',$r->traveler_id)->first():new Traveler();
+            $traveler->fill($local)->save();
 
-            return response()->json($traveler, 201);
+            return ApiResponse::success($traveler);
         }catch(Exception $e){
-            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+            return ApiResponse::error($e->getMessage());
         }
 
     }

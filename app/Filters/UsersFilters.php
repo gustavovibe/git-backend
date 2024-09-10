@@ -152,7 +152,7 @@ class UsersFilters
         }
         !count($users_id)>0?:$action->wherein('user_id',$users_id);
         !$r->type?:$action->where('type',$r->type);
-
+        !$r->user_id?:$action->where('user_id',$r->user_id);
         $action = $action->get()->map(function ($actions) {
             $actions->action_date =Carbon::parse($actions->created_at)->format('d M Y, g:i a');
             $actions->email=$actions->user->email;
