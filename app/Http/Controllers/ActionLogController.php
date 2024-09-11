@@ -14,7 +14,6 @@ class ActionLogController extends Controller
     {
         $action= (new UsersFilters)->ActionLogs($request);
         return ApiResponse::success($action);
-        return $action;
         $perPage = 10;
 
         // Inicia la consulta base

@@ -82,9 +82,9 @@ class UserController extends Controller
     public function showContac(Request $r){
         try{
             $contact =(new ContactFilters)->ContactE($r);
-            return response()->json(['status'=>200, 'count'=>count($contact),'response'=>$contact]);
+            return ApiResponse::success($contact);
         }catch(Exception $e){
-            return response()->json(['status'=>500,'response'=>$e]);
+            return ApiResponse::error($e->getMessage());
         }
     }
 
@@ -365,7 +365,7 @@ class UserController extends Controller
             ])->save();
             return ApiResponse::success($user);
         }catch(Exception $e){
-            return ApiResponse::error($e->getMessage(),500);
+            return ApiResponse::error($e->getMessage());
         }
     }
 
