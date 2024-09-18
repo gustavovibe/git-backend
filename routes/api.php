@@ -140,3 +140,5 @@ Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
 Route::resource('action-logs', ActionLogController::class);
+
+Route::get('boooking-email',[TourController::class,'emailBConfirmation']);

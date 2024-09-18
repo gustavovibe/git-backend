@@ -12,15 +12,17 @@ class BookingMail extends Mailable
     use Queueable, SerializesModels;
 
 
-    public function __construct()
+    public function __construct($orders)
     {
-
+        $this->orders=$orders;
     }
 
 
     public function build()
     {
-        return $this->subject('Contact Form Submission')->view('emails.booking_confirmation');
+        return $this->subject('Contact Form Submission')->view('emails.booking_confirmation')->with([
+            'orders' => $this->orders,
+        ]);
 
     }
 }

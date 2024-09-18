@@ -9,9 +9,11 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
 use App\Mail\BookingMail;
 use App\Mail\TourDetails;
+use App\Models\Order;
 use App\Models\Type;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 class TourController extends Controller
 {
     public function index(Request $request)
@@ -131,7 +133,14 @@ class TourController extends Controller
     }
 
     public function emailBConfirmation(Request $r){
-        Mail::to($r->email)->send(new BookingMail);
+        $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->id);
+        $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
+        $orders->image=$orders->tour->main_image;
+        $orders->reviews_count=$orders->tour->reviews_count;
+        $orders->ratings_overall=$orders->tour->ratings_overall;
+        unset($orders->tour);
+        /* return view('emails.booking_confirmation',compact('orders')); */
+        Mail::to($r->email)->send(new BookingMail($orders));
         return 'booking confirmation';
     }
 }
