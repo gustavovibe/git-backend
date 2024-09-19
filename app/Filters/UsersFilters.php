@@ -85,7 +85,7 @@ class UsersFilters
         $users = $users->get();
         $users = $users->map(function($u) use($admin) {
             $u->phone = (int) $u->phone;
-            $u->job_title=$u->job->name;
+            $u->job_title=$u->job?$u->job->name:'N/A';
             !$admin?:$u->code=$u->password;
             $permissions =$admin?$this->permissions:[];
             $notifications =$this->notifications;
