@@ -73,7 +73,8 @@ class Order extends Model
         'country',
         'carrier',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'commission'
     ];
 
     public function flightTour()

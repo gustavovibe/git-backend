@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OrderTraveler extends Model
 {
     use HasFactory;
-
+    protected $table="order_traveler";
     protected $fillable = ['booking_id', 'traveler_id'];
 
     public function order()
