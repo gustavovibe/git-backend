@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
@@ -14,7 +12,6 @@ class TourRadarController extends Controller
     public static function getAccessToken()
     {
 
-        // ToDo: Move these variables to a .env file
         $clientId = env('TOURRADAR_CLIENT_ID', 'hpg0tvme3ujrwcnd6fcyttwst8');
         $clientSecret = env('TOURRADAR_CLIENT_SECRET', 'mjjqpzhg19rifw174ehlw1a56nufbvwxrcya2w4bz32dsbjf594');
         $urlToken = 'https://oauth.api.sandbox.b2b.tourradar.com/oauth2/token';
@@ -27,7 +24,9 @@ class TourRadarController extends Controller
             'grant_type' => 'client_credentials',
             'scope' => [
                 'com.tourradar.tours/read',
-                'com.tourradar.operators/read'
+                'com.tourradar.operators/read',
+                'com.tourradar.bookings/read',
+                'com.tourradar.bookings/write'
             ],
         ];
 
