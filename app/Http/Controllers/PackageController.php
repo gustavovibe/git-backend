@@ -11,6 +11,7 @@ use App\Models\Traveler;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\OrderTraveler;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -19,6 +20,7 @@ class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
+      /*   return $request->all(); */
         $stripeSecret = config('services.stripe.secret');
 
         $urlAppFront = config('services.stripe.urlAppFront');
@@ -31,6 +33,11 @@ class PackageController extends Controller
 
         $order = $this->bookPackage($RequestTour, $RequestFlight);
 
+        if($order[0]==1){
+            return response()->json(['success'=>false,'message'=>$order[1]]);
+            /* return ApiResponse::error($order[1]); */
+        }
+        $order=$order[1];
         $tour_id = (int)$RequestTour['tour_id'];
 
         $tour = Tour::find($tour_id);
@@ -43,7 +50,7 @@ class PackageController extends Controller
 
         parse_str($parsedUrl['query'], $queryParams);
 
-        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->id;
+        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
         $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
 
@@ -106,13 +113,20 @@ class PackageController extends Controller
 
     public function bookPackage($tour, $flight)
     {
+
         $tourBody = $tour;
         $tourResponse = TourRadarController::createNewBooking($tourBody);
-
+        if(isset($tourResponse['error']) && $tourResponse['error']){
+            return [1, 'Tour radar:'.$tourResponse['message']] ;
+        }
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
+        if(isset($flightResponse['errors']) && $flightResponse['errors']){
+            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+        }
         $passengers = $tourResponse['passengers'];
+
 
         $firstIteration = true;
 
@@ -123,13 +137,13 @@ class PackageController extends Controller
         $mainPassengerAge = 0;
 
         $groupSize = count($tourBody['passengers']);
-
+        $traveler_id=0;
         foreach ($passengers as $passenger) {
             if ($firstIteration) {
 
-                $mainPassenger = $passenger['fields']['gender'];
+                $mainPassenger = $passenger['fields']['title']=='Mr.'?'male':'female';
 
-                $mainPassengerCountry = $passenger['fields']['country'];
+                $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
                 $user = User::updateOrCreate(
                     ['email' => $passenger['fields']['email']],
@@ -137,12 +151,31 @@ class PackageController extends Controller
                         'password' => Hash::make('password123'),
                         'profile_id' => 2,
                         'phone' => $passenger['fields']['phone_number'],
-                        'country' => $passenger['fields']['country'],
+                        'country' => $passenger['fields']['place_of_issue'],
                         'role' => 'role',
                         'active' => 1,
                         'suscribed' => 1,
                         'hear' => "without comment",]);
 
+                $traveler=Traveler::updateOrCreate(
+                    ['mail'=>$passenger['fields']['email']],
+                    [
+                        'title'=>$passenger['fields']['title'],
+                        'gender'=> $passenger['fields']['title']=='Mr.'?'male':'female',
+                        'name'=>$passenger['fields']['first_name'],
+                        'last'=>$passenger['fields']['last_name'],
+                        'birth'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['date_of_birth']),
+                        'passport'=>$passenger['fields']['passport_number'],
+                        'country'=>$passenger['fields']['place_of_issue'],
+                        'place'=>$passenger['fields']['place_of_issue'],
+                        'issue'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['issue_date']),
+                        'expire'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['expiration_date']),
+                        'phone'=>$passenger['fields']['phone_number'],
+                        'address'=>isset($passengers[0]['fields']['address'])? $passengers[0]['fields']['address']:'n/a',
+                        'user_id'=>$user->id,
+                        'status'=>1,
+                    ]);
+                $traveler_id=$traveler->traveler_id;
                 $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
 
                 $today = Carbon::now();
@@ -270,7 +303,7 @@ class PackageController extends Controller
                 $ageGroup = '0';
                 break;
         }
-
+        $tour=Tour::where('tour_id',$tourResponse['tour']['tour_id'])->select('tour_id','commission')->first();
         $orderData = [
             'departure' => Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at'])->format('Y-m-d'),
             'start' => $tourResponse['departure_date'],
@@ -280,14 +313,15 @@ class PackageController extends Controller
             'tour_length' => $adventureDuration,
             'tour_name' => $tourResponse['tour']['tour_name'],
             'tour_id' => $tourResponse['tour']['tour_id'],
+            'commission' => $tour->commission,
             'operator' => $tourResponse['tour']['operator']['id'],
             'start_city' => $flightResponse['data']['slices'][0]['origin']['city_name'],
             'end_city' => $flightResponse['data']['slices'][0]['destination']['city_name'],
             'booking_status' => $tourResponse['status'],
             'tourradar_id' => $tourResponse['id'],
             'tourradar_status' => $tourResponse['status'],
-            'tourradar_reason' => $tourResponse['status_reason'],
-            'tourradar_text' => $tourResponse['status_reason_text'],
+            'tourradar_reason' => $tourResponse['status_reason']? $tourResponse['status_reason']:'travel',
+            'tourradar_text' => $tourResponse['status_reason_text']?$tourResponse['status_reason_text']:'n/a',
             'duffel_id' => $flightResponse['data']['id'],
             'origin' => $flightResponse['data']['slices'][0]['origin']['iata_code'],
             'f_destination' => $flightResponse['data']['slices'][0]['destination']['iata_code'],
@@ -321,7 +355,7 @@ class PackageController extends Controller
         ];
 
         $order = Order::create($orderData);
-
+        OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
                 $order->flightTour()->create([
@@ -336,7 +370,7 @@ class PackageController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-
+/*
         foreach ($passengers as $passenger) {
             if ($passenger['fields']['email'] == $user->email) {
                 continue;
@@ -353,15 +387,15 @@ class PackageController extends Controller
                 'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'),
                 'mail' => $passenger['fields']['email'],
                 'phone' => $passenger['fields']['phone_number'],
-                'address' => $passengers[0]['fields']['address'],
-                'country' => $passengers[0]['fields']['country'],
+                'address' => isset($passengers[0]['fields']['address'])? $passengers[0]['fields']['address']:'n/a',
+                'country' => $passengers[0]['fields']['place_of_issue'],
                 'user_id' => $user->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
             $order->travelers()->attach($traveler->traveler_id);
-        }
-        return $order;
+        } */
+        return [0, $order];
     }
 
     public function createBaggageCheckoutSession(Request $r){

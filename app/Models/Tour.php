@@ -37,6 +37,7 @@ class Tour extends Model
         'main_thumbnail',
         'map_image',
         'map_thumbnail',
+        'commission',
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
