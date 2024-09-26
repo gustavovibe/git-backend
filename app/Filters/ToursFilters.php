@@ -9,6 +9,7 @@ use App\Models\City;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 class ToursFilters
 {
     public function ToursP(Request $r){
@@ -340,5 +341,16 @@ class ToursFilters
         }
 
         return $destination;
+    }
+
+    public function OrdersPrint(Request $r){
+        $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->id);
+        $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
+        $orders->image=$orders->tour->main_image;
+        $orders->reviews_count=$orders->tour->reviews_count;
+        $orders->ratings_overall=$orders->tour->ratings_overall;
+        unset($orders->tour);
+
+        return $orders;
     }
 }

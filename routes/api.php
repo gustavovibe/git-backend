@@ -142,3 +142,4 @@ Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 Route::resource('action-logs', ActionLogController::class);
 
 Route::get('boooking-email',[TourController::class,'emailBConfirmation']);
+Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
