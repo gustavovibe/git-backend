@@ -11,6 +11,7 @@ use App\Helpers\ApiResponse;
 use App\Mail\ContactMail;
 use App\Models\ActionLog;
 use App\Models\ContactEmail;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -384,4 +385,14 @@ class UserController extends Controller
         }
     }
 
+    public function changePassword(Request $r){
+        try{
+            $user= User::find($r->id);
+            $user->password=Hash::make($r->password);
+            $user->save();
+            return ApiResponse::success('Change success');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
+    }
 }
