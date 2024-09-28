@@ -179,7 +179,7 @@ class ToursFilters
         $travel = $travel->with('type_t:tour_type_id,tour_id')->withCount('type_t')->get();
 
         // Filtrar resultados
-        $filtered = $travel->filter(function ($tra) use ($filteredTourIds, $minCommission, $maxCommission, $minRange, $maxRange) {
+        $paginator = $travel->filter(function ($tra) use ($filteredTourIds, $minCommission, $maxCommission, $minRange, $maxRange) {
             $tra->comission_range = [];
             $tra->comission_total = 0;
             $tra->total_paid = 0;
@@ -210,20 +210,9 @@ class ToursFilters
             }
 
             return false;
-        });
+        })->values();
 
-        // Aplicar la paginación después del filtrado
-        $perPage = $r->limit ?: 15;
-        $currentPage = $r->page ?: 1;
-        $paginated = new LengthAwarePaginator(
-            $filtered->forPage($currentPage, $perPage),
-            $filtered->count(),
-            $perPage,
-            $currentPage,
-            ['path' => $r->url()]
-        );
 
-        // Ordenar si es necesario
         $val_list = [
             3 => 'total_paid',
             4 => 'total_paid',
@@ -231,19 +220,31 @@ class ToursFilters
             8 => 'type_t_count',
         ];
 
-        if (in_array($orderby, [3, 4, 5, 6, 7, 8])) {
-            $paginated->getCollection()->sort(function ($a, $b) use ($orderby, $val_list) {
+        if (in_array((int)$orderby, [3, 4, 5, 6, 7, 8])) {
+            $paginator= $paginator->sort(function ($a, $b) use ($orderby, $val_list) {
                 if (in_array($orderby, [3, 5, 7])) {
-                    return $a->{$val_list[$orderby]} <=> $b->{$val_list[$orderby]};
+                    return (double)$a->{$val_list[$orderby]} <=> (double)$b->{$val_list[$orderby]};
                 }
                 if (in_array($orderby, [4, 6, 8])) {
-                    return $b->{$val_list[$orderby]} <=> $a->{$val_list[$orderby]};
+                    return (double)$b->{$val_list[$orderby]} <=> (double)$a->{$val_list[$orderby]};
                 }
-            });
+            })->values();
         }
 
-        return $paginated;
+        $paginator = $paginator instanceof Collection ? $paginator : collect($paginator);
+        $perPage = $r->limit ?: 15;
+        $currentPage = $r->page ?: 1;
+        $paginator = new LengthAwarePaginator(
+            $paginator->forPage($currentPage, $perPage),
+            $paginator->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $r->url()]
+        );
+
+        return $paginator;
     }
+
 
 
 
