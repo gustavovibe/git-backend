@@ -475,11 +475,11 @@
         </div>
     </div>
     <br>
-    <div class="tt"  >
-        <label class="Tcolor" style="text-aling:center;widht:100%">Your trip has been booked successfully! Confirmation
-            <b>#:{{ $orders->booking_id }} .</b>
+    <div style="text-align: center; margin: 20px;">
+        <label style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
+            Your trip has been booked successfully! Confirmation
+            <b>#:{{ $orders->booking_id }}.</b>
         </label>
-        <label for=""></label>
     </div>
     <br>
     <div class="textG mh" style="text-align: justify;">

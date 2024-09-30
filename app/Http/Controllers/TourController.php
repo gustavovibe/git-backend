@@ -135,21 +135,18 @@ class TourController extends Controller
 
     public function emailBConfirmation(Request $r){
         $orders=ToursFilters::OrdersPrint($r);
-      /*   $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->id);
-        $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
-        $orders->image=$orders->tour->main_image;
-        $orders->reviews_count=$orders->tour->reviews_count;
-        $orders->ratings_overall=$orders->tour->ratings_overall;
-        unset($orders->tour); */
-        /* return view('emails.booking_confirmation',compact('orders')); */
         Mail::to($r->email)->send(new BookingMail($orders));
         return 'booking confirmation';
     }
 
     public function pdfOrder(Request $r){
-        $orders=ToursFilters::OrdersPrint($r);
+        try{
+            $orders=ToursFilters::OrdersPrint($r);
 
-        $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders])->set_option('isRemoteEnabled', true);
-        return $pdf->stream('emails.booking_confirmation.pdf');
+            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders])->set_option('isRemoteEnabled', true);
+            return $pdf->download('booking_confirmation.pdf');
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
     }
 }
