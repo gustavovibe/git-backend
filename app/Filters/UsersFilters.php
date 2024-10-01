@@ -75,7 +75,7 @@ class UsersFilters
         !$r->name?:$users->where('name', 'like', '%' . $r->name . '%');
         !$r->id?:$users->where('id', $r->id);
         !$r->role?:$users->where('role', $r->role);
-        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'job_id','password','last_login','profile_id','country')->where('profile_id',1);
+        !$r->admin?:$users->select('id', 'name', 'email', 'phone', 'job_id','password','last_login','profile_id','country');
         !$r->limit?:$users->limit($r->limit);
         !$r->filter?:$users->where(function($query)use($filter){
             $query->where('name', 'like', '%' . $filter . '%')
@@ -83,14 +83,14 @@ class UsersFilters
         });
         $users->where('active',1);
         $users = $users->get();
+
         $users = $users->map(function($u) use($admin) {
             $u->phone = (int) $u->phone;
             $u->job_title=$u->job?$u->job->name:'N/A';
-            !$admin?:$u->code=$u->password;
+            /* !$admin?:$u->code=$u->password; */
             $permissions =$admin?$this->permissions:[];
             $notifications =$this->notifications;
-
-            if ($u->permission && is_iterable($u->permission)) {
+            if (!empty($u->permission) && is_iterable($u->permission)) {
                 $u->permission->map(function($uu) use (&$permissions, &$notifications,$admin) {
                         $description = $uu->details->description ?? null;
 
@@ -109,7 +109,7 @@ class UsersFilters
                         return $uu;
                     })->values()->all();
                 }
-                $u->permissions = $permissions;
+                $u->permissions = $permissions?:[];
                 if(!$admin){
                     $val=[];
                     foreach( $u->permissions as $p){
