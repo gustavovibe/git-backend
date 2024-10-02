@@ -42,7 +42,7 @@ class PackageController extends Controller
 
         $tour = Tour::find($tour_id);
 
-        $amount = $request->input('price_total');
+        $amount = floatval($request->input('price_total'));
 
         $url = $request->url;
 
