@@ -144,4 +144,8 @@ Route::resource('action-logs', ActionLogController::class);
 
 Route::get('boooking-email',[TourController::class,'emailBConfirmation']);
 
-Route::postt('pass-email',[UserController::class,'sendEmailPass']);
+Route::post('pass-email',[UserController::class,'sendEmailPass']);
+
+Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
+
+

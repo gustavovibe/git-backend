@@ -42,7 +42,7 @@ class PackageController extends Controller
 
         $tour = Tour::find($tour_id);
 
-        $amount = $request->price_total;
+        $amount = $tour->price_total * 100;
 
         $url = $request->url;
 
