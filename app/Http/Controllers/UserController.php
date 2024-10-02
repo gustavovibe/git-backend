@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Mail\ContactMail;
+use App\Mail\SendPass;
 use App\Models\ActionLog;
 use App\Models\ContactEmail;
 use Illuminate\Support\Facades\Hash;
@@ -393,6 +394,23 @@ class UserController extends Controller
             return ApiResponse::success('Change success');
         }catch(Exception $e){
             return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    public function sendEmailPass(Request $r){
+        try{
+            $user= User::find($r->id);
+            $data=[
+                'password'=>$r->password,
+                'name'=>$user->name,
+                'id'=>$user->id
+            ];
+
+            /* return view('emails.send_pass',compact('data')); */
+            Mail::to($user->email)->send(new SendPass($data));
+            return 'entro a pass';
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'response'=>$e->getMessage()]);
         }
     }
 }
