@@ -397,11 +397,11 @@ class UserController extends Controller
         }
     }
 
-    public function sendEmailPass(Request $r){
+    public function EmailPass($id,$password){
         try{
-            $user= User::find($r->id);
+            $user= User::find($id);
             $data=[
-                'password'=>$r->password,
+                'password'=>$password,
                 'name'=>$user->name,
                 'id'=>$user->id
             ];
@@ -412,5 +412,9 @@ class UserController extends Controller
         }catch(Exception $e){
             return response()->json(['success'=>false,'response'=>$e->getMessage()]);
         }
+    }
+
+    public function sendEmailPass(Request $r){
+        $this->EmailPass($r->id,$r->password);
     }
 }
