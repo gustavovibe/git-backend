@@ -9,12 +9,15 @@ use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
 use App\Mail\BookingMail;
 use App\Mail\TourDetails;
+use App\Models\BookingSummary;
 use App\Models\Order;
 use App\Models\Type;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
+
 class TourController extends Controller
 {
     public function index(Request $request)
@@ -145,6 +148,22 @@ class TourController extends Controller
 
             $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders])->set_option('isRemoteEnabled', true);
             return $pdf->download('booking_confirmation.pdf');
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
+
+    public function bookingSummary(Request $r){
+        try{
+            $tour=Tour::where('tour_id',1787)->first();
+            $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour])->set_option('isRemoteEnabled', true);
+            return $pdf->stream('booking_confirmation.pdf');
+            $summary= new BookingSummary();
+            $summary->fill([
+                'tour_id'=>$r->tour_id,
+                'email'=>$r->email
+            ])->save();
+            return response()->json(['success'=>true,'data'=>$summary]);
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }

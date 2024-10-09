@@ -148,4 +148,6 @@ Route::post('pass-email',[UserController::class,'sendEmailPass']);
 
 Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
 
+Route::get('boooking-summary',[TourController::class,'bookingSummary']);
+
 
