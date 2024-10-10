@@ -11,6 +11,7 @@ use App\Mail\BookingMail;
 use App\Mail\TourDetails;
 use App\Models\Order;
 use App\Models\Type;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -133,9 +134,16 @@ class TourController extends Controller
         return 'mail template';
     }
 
-    public function emailBConfirmation(Request $r){
-        $orders=ToursFilters::OrdersPrint($r);
-        Mail::to($r->email)->send(new BookingMail($orders));
+    public function emailBConfirmation($booking_id){
+        $b=[
+            'id'=>$booking_id
+        ];
+
+        request()->merge($b);
+
+        $orders=ToursFilters::OrdersPrint(request());
+        $user= User::find($orders->user_id);
+        Mail::to($user->email)->send(new BookingMail($orders));
         return 'booking confirmation';
     }
 

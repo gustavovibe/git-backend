@@ -59,7 +59,7 @@ class PackageController extends Controller
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 500);
         }
-    
+        TourController::emailBConfirmation($order->booking_id);
         return response()->json(['url' => $response['url'], 'order' => $order]);
         }
     }
@@ -153,10 +153,12 @@ class PackageController extends Controller
 
                 $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
+                $pass_random=Str::random(10);
+                $new= User::where('email',$passenger['fields']['email'])->first()?0:1;
                 $user = User::updateOrCreate(
                     ['email' => $passenger['fields']['email']],
                     ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                        'password' => Hash::make('password123'),
+                        'password' => Hash::make($pass_random),
                         'profile_id' => 2,
                         'phone' => $passenger['fields']['phone_number'],
                         'country' => $passenger['fields']['place_of_issue'],
@@ -164,6 +166,8 @@ class PackageController extends Controller
                         'active' => 1,
                         'suscribed' => 1,
                         'hear' => "without comment",]);
+
+                   $new?:UserController::EmailPass($user->id,$pass_random);
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],
