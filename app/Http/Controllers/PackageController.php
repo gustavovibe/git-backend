@@ -35,8 +35,8 @@ class PackageController extends Controller
 
         if($order[0]==1){
             return response()->json(['success'=>false,'message'=>$order[1]]);
-        }
-
+            /* return ApiResponse::error($order[1]); */
+        } else {
         $order=$order[1];
         $tour_id = (int)$RequestTour['tour_id'];
 
@@ -61,7 +61,7 @@ class PackageController extends Controller
         }
         TourController::emailBConfirmation($order->booking_id);
         return response()->json(['url' => $response['url'], 'order' => $order]);
-
+        }
     }
 
     public function test(Request $request)
@@ -116,19 +116,25 @@ class PackageController extends Controller
     public function bookPackage($tour, $flight)
     {
 
+        // Step 1: Handle the tour booking first
         $tourBody = $tour;
         $tourResponse = TourRadarController::createNewBooking($tourBody);
-        if(isset($tourResponse['error']) && $tourResponse['error']){
-            return [1, 'Tour radar:'.$tourResponse['message']] ;
+        
+        // Check if there is an error in the tour response
+        if (isset($tourResponse['error']) && $tourResponse['error']) {
+            return [1, 'Tour radar: ' . $tourResponse['message']];
         }
+        
+        // Step 2: If tour booking is successful, proceed with the flight booking
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
-
-        if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+        
+        // Check if there are errors in the flight response
+        if (isset($flightResponse['errors']) && $flightResponse['errors']) {
+            return [1, 'Flight: ' . $flightResponse['errors'][0]['message']];
         }
-        $passengers = $tourResponse['passengers'];
 
+        $passengers = $tourResponse['passengers'];
 
         $firstIteration = true;
 
