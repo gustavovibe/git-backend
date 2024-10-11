@@ -20,98 +20,93 @@ class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
-      /*   return $request->all(); */
         $stripeSecret = config('services.stripe.secret');
-
         $urlAppFront = config('services.stripe.urlAppFront');
 
         Stripe::setApiKey($stripeSecret);
 
-        $RequestFlight = $request->input('flight');
-
         $RequestTour = $request->input('tour');
-
-        $order = $this->bookPackage($RequestTour, $RequestFlight);
-
-        if($order[0]==1){
-            return response()->json(['success'=>false,'message'=>$order[1]]);
-            /* return ApiResponse::error($order[1]); */
-        } else {
-        $order=$order[1];
         $tour_id = (int)$RequestTour['tour_id'];
-
         $tour = Tour::find($tour_id);
 
         $rawAmount = round($request->input('price_total'), 2);
-
-        $amount = $rawAmount * 100;
-
+        $amount = $rawAmount * 100; // Convert to cents for Stripe
         $url = $request->url;
 
         $parsedUrl = parse_url($url);
-
         parse_str($parsedUrl['query'], $queryParams);
 
-        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
+        // New confirmation URL with order_id appended
+        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams);
 
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
+        // Step 1: Hold payment (manual capture)
+        $paymentIntentId = $this->captureFunds($tour->tour_name, $tour->description, $amount, $newUrl, $url);
 
-        if (isset($response['error'])) {
-            return response()->json(['error' => $response['error']], 500);
+        // Check if there was an error in creating the payment intent
+        if (is_array($paymentIntentId) && isset($paymentIntentId['error'])) {
+            return response()->json(['error' => $paymentIntentId['error']], 500);
         }
-        TourController::emailBConfirmation($order->booking_id);
-        return response()->json(['url' => $response['url'], 'order' => $order]);
+
+        // Step 2: Book the package (booking logic)
+        $RequestFlight = $request->input('flight');
+        $order = $this->bookPackage($RequestTour, $RequestFlight);
+
+        if ($order[0] == 1) {
+            // If the booking fails, return an error response
+            return response()->json(['success' => false, 'message' => $order[1]]);
+        } else {
+            // Booking succeeded, now capture the funds
+            $order = $order[1];
+            $response = $this->createCheckoutSessionInternal($paymentIntentId, $newUrl);
+
+            if (isset($response['error'])) {
+                return response()->json(['error' => $response['error']], 500);
+            }
+
+            // Send confirmation email after successful payment
+            TourController::emailBConfirmation($order->booking_id);
+
+            // Return the success response with the confirmation URL
+            return response()->json(['url' => $response['url'], 'order' => $order]);
         }
     }
 
-    public function test(Request $request)
+    private function createCheckoutSessionInternal($paymentIntentId, $newUrl)
     {
-
-        $tourBody = $request->input('tour');
-        $tourResponse = TourRadarController::createNewBooking($tourBody);
-
-        $flightBody = $request->input('flight');
-        $flightResponse = DuffelApiController::createNewBooking($flightBody);
-
-        return [
-            'flight' => $flightResponse,
-            'tour' => $tourResponse
-        ];
-    }
-
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
-    {
-
         try {
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => $productName,
-                            'description' => $productDescription,
-                        ],
-                        'unit_amount' => $amount,
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => $url,
-                'cancel_url' => 'http://localhost:3000/book',
-                'payment_method_options' => [
-                    'card' => [
-                        'setup_future_usage' => 'off_session',
-                    ],
-                ],
-            ]);
-
-            return ['url' => $session->url];
-        } catch (Exception $e) {
+            // Step 3: Retrieve the PaymentIntent and capture the funds
+            $intent = \Stripe\PaymentIntent::retrieve($paymentIntentId);
+            $intent->capture();  // Capture the payment (move funds)
+            return ['url' => $newUrl];  // Return success with the confirmation URL
+        } catch (\Exception $e) {
+            // Handle error in capturing the payment
             return ['error' => $e->getMessage()];
         }
     }
 
+    private function captureFunds($productName, $productDescription, $amount, $currency = 'usd', $newUrl, $url)
+    {
+        try {
+            // Step 1: Create a PaymentIntent with manual capture
+            $paymentIntent = \Stripe\PaymentIntent::create([
+                'amount' => $amount,  // Already in cents
+                'currency' => $currency,
+                'payment_method_types' => ['card'],
+                'capture_method' => 'manual',  // Hold the payment for manual capture
+                'description' => $productDescription,
+                'metadata' => [
+                    'product_name' => $productName
+                ]
+            ]);
+
+            // Return the PaymentIntent ID for later capturing
+            return $paymentIntent->id;
+
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            // Handle Stripe error
+            return ['error' => $e->getMessage()];
+        }
+    }   
 
     public function bookPackage($tour, $flight)
     {
