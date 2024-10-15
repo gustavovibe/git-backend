@@ -471,7 +471,7 @@
                 <img style="width: 20%" src="{{ asset('images/logo.png') }}" alt="">
             </div>
             <div>
-                <label style="margin-top: 20px;">Hi {{ $data['name'] }}</label>
+                <label style="margin-top: 20px;">Hi</label>
                 <P style="text-align: right;">For more info, open <u>Help & support</u> </P>
             </div>
         </div>
@@ -480,28 +480,27 @@
 
     <br>
     <div class="textG mh" style="text-align: justify;">
-        <h1>Dear <a class="Tcolor">{{ $data['name'] }}!</a></h1>
-        <p>We hope this message finds you well. You have been issued a temporary password to access your account on our system.</p>
+        <h1>Welcome! <a class="Tcolor"></a></h1>
+        <p>Thank you for booking with us! We’re excited to share that your booking summary is now ready.</p>
+        <p>You can download your summary by clicking the link below:</p>
         <div style="text-align: center; margin: 20px;">
             <label
                 style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
-                Temporary Password for Your Account
-                <b>#:{{ $data['password'] }}.</b>
+                <a href="https://vibeadventures.be/api/boooking-summary?tour_id={{ $data['tour_id'] }}">Download itinerary</a>
             </label>
         </div>
-        <p>Please use this password to log in and make sure to update it immediately after logging in for security reasons.</p>
+        <p>If you have any questions or need assistance, feel free to contact our support team.</p>
 
-        <p>Important: To reset your password, go to the account settings page and follow the instructions.</p>
+        <p>Thank you for choosing us!</p>
 
         <p style="font-style: italic;">
-            If you encounter any issues or need further assistance, feel free to contact our support team.
-
-            Thank you for your cooperation, and we look forward to serving you!
+            Best regards,
+            Vibe Adventures Customer Support Team
         </p>
     </div>
-        <div style="text-align: center;">
-            <h3 style="color: orange;text-decoration: underline;"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/account/account?user_id={{$data['id']}}">Download itinerary</a>   </h3>
-        </div>
+     {{--    <div style="text-align: center;">
+            <h3 style="color: orange;text-decoration: underline;"></h3>
+        </div> --}}
 
     <br>
 

@@ -11,23 +11,16 @@ class SendSummary extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct()
+
+    public function __construct($data)
     {
-        //
+        $this->data=$data;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->view('view.name');
+        return $this->subject('Boooking Summary')->view('emails.summary_download')->with([
+            'data' => $this->data,
+        ]);
     }
 }
