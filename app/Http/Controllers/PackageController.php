@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
-
 class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
@@ -37,7 +36,7 @@ class PackageController extends Controller
         if($order[0]==1){
             return response()->json(['success'=>false,'message'=>$order[1]]);
             /* return ApiResponse::error($order[1]); */
-        } else {
+        }
         $order=$order[1];
         $tour_id = (int)$RequestTour['tour_id'];
 
@@ -55,14 +54,14 @@ class PackageController extends Controller
 
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $url, $newUrl);
+        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
 
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 500);
         }
-        TourController::emailBConfirmation($order->booking_id);
+
         return response()->json(['url' => $response['url'], 'order' => $order]);
-        }
+
     }
 
     public function test(Request $request)
@@ -80,8 +79,9 @@ class PackageController extends Controller
         ];
     }
 
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url, $newUrl)
+    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
     {
+
         try {
             $session = Session::create([
                 'payment_method_types' => ['card'],
@@ -97,8 +97,8 @@ class PackageController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $newUrl,
-                'cancel_url' => $url,
+                'success_url' => $url,
+                'cancel_url' => 'http://localhost:3000/book',
                 'payment_method_options' => [
                     'card' => [
                         'setup_future_usage' => 'off_session',
@@ -116,25 +116,19 @@ class PackageController extends Controller
     public function bookPackage($tour, $flight)
     {
 
-        // Step 1: Handle the tour booking first
         $tourBody = $tour;
         $tourResponse = TourRadarController::createNewBooking($tourBody);
-        
-        // Check if there is an error in the tour response
-        if (isset($tourResponse['error']) && $tourResponse['error']) {
-            return [1, 'Tour radar: ' . $tourResponse['message']];
+        if(isset($tourResponse['error']) && $tourResponse['error']){
+            return [1, 'Tour radar:'.$tourResponse['message']] ;
         }
-        
-        // Step 2: If tour booking is successful, proceed with the flight booking
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
-        
-        // Check if there are errors in the flight response
-        if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-            return [1, 'Flight: ' . $flightResponse['errors'][0]['message']];
-        }
 
+        if(isset($flightResponse['errors']) && $flightResponse['errors']){
+            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+        }
         $passengers = $tourResponse['passengers'];
+
 
         $firstIteration = true;
 
@@ -153,12 +147,10 @@ class PackageController extends Controller
 
                 $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
-                $pass_random=Str::random(10);
-                $new= User::where('email',$passenger['fields']['email'])->first()?0:1;
                 $user = User::updateOrCreate(
                     ['email' => $passenger['fields']['email']],
                     ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                        'password' => Hash::make($pass_random),
+                        'password' => Hash::make('password123'),
                         'profile_id' => 2,
                         'phone' => $passenger['fields']['phone_number'],
                         'country' => $passenger['fields']['place_of_issue'],
@@ -166,8 +158,6 @@ class PackageController extends Controller
                         'active' => 1,
                         'suscribed' => 1,
                         'hear' => "without comment",]);
-
-                   $new?:UserController::EmailPass($user->id,$pass_random);
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],
