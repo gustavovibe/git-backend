@@ -152,4 +152,4 @@ Route::post('boooking-summary',[TourController::class,'bookingSummarySend']);
 
 Route::get('boooking-summary-pdf',[TourController::class,'bookingSummaryPdf']);
 
-
+Route::post('google-register',[AuthController::class, 'googleRegister']);
