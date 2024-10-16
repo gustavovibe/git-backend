@@ -148,4 +148,4 @@ Route::post('pass-email',[UserController::class,'sendEmailPass']);
 
 Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
 
-
+Route::post('google-register',[AuthController::class, 'googleRegister']);
