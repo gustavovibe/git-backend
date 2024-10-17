@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Mail\MailRegistro;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
-
+use Google\Client;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -86,5 +87,35 @@ class AuthController extends Controller
     public function test(Request $request)
     {
         return "demo";
+    }
+
+    public function googleRegister(Request $r){
+        try{
+            $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+                $payload = $client->verifyIdToken($r->token);
+                   if ($payload) {
+                    $randomPassword = Str::random(12);
+                    $user=User::where('email',$payload['email'])->first();
+                        if(!$user){
+                            $user = User::fill([
+                                'email'=>$payload['email'],
+                                'name' => $payload['name'],
+                                'password' =>Hash::make($randomPassword),
+                                'profile_id' => 1,
+                                'role' => 1,
+                                'active' => 1,
+                                'suscribed' => 1,
+                                'last_login'=>Carbon::now(),
+                            ])->save();
+                        }else{
+                            $user->last_login = Carbon::now();
+                            $user->save();
+                        }
+                        return response()->json(['success' => true, 'data' => $user]);
+                   }
+        }catch(Exception $e){
+            return response()->json(['success'=>true,'data'=>$e->getMessage()]);
+        }
+
     }
 }

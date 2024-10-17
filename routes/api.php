@@ -150,3 +150,9 @@ Route::post('pass-email',[UserController::class,'sendEmailPass']);
 Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
 
 Route::post('/add-enquiry', [EnquiryController::class, 'create']);
+
+Route::post('boooking-summary',[TourController::class,'bookingSummarySend']);
+
+Route::get('boooking-summary-pdf',[TourController::class,'bookingSummaryPdf']);
+
+Route::post('google-register',[AuthController::class, 'googleRegister']);

@@ -20,116 +20,115 @@ class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
+      /*   return $request->all(); */
         $stripeSecret = config('services.stripe.secret');
+
         $urlAppFront = config('services.stripe.urlAppFront');
 
         Stripe::setApiKey($stripeSecret);
 
+        $RequestFlight = $request->input('flight');
+
         $RequestTour = $request->input('tour');
+
+        $order = $this->bookPackage($RequestTour, $RequestFlight);
+
+        if($order[0]==1){
+            return response()->json(['success'=>false,'message'=>$order[1]]);
+            /* return ApiResponse::error($order[1]); */
+        }
+        $order=$order[1];
         $tour_id = (int)$RequestTour['tour_id'];
+
         $tour = Tour::find($tour_id);
 
         $rawAmount = round($request->input('price_total'), 2);
-        $amount = $rawAmount * 100; // Convert to cents for Stripe
+
+        $amount = $rawAmount * 100;
+
         $url = $request->url;
 
         $parsedUrl = parse_url($url);
+
         parse_str($parsedUrl['query'], $queryParams);
 
-        // New confirmation URL with order_id appended
-        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams);
+        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
-        // Step 1: Hold payment (manual capture)
-        $paymentIntentId = $this->captureFunds($tour->tour_name, $tour->description, $amount, $newUrl, $url);
+        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
 
-        // Check if there was an error in creating the payment intent
-        if (is_array($paymentIntentId) && isset($paymentIntentId['error'])) {
-            return response()->json(['error' => $paymentIntentId['error']], 500);
+        if (isset($response['error'])) {
+            return response()->json(['error' => $response['error']], 500);
         }
 
-        // Step 2: Book the package (booking logic)
-        $RequestFlight = $request->input('flight');
-        $order = $this->bookPackage($RequestTour, $RequestFlight);
+        return response()->json(['url' => $response['url'], 'order' => $order]);
 
-        if ($order[0] == 1) {
-            // If the booking fails, return an error response
-            return response()->json(['success' => false, 'message' => $order[1]]);
-        } else {
-            // Booking succeeded, now capture the funds
-            $order = $order[1];
-            $response = $this->createCheckoutSessionInternal($paymentIntentId, $newUrl);
-
-            if (isset($response['error'])) {
-                return response()->json(['error' => $response['error']], 500);
-            }
-
-            // Send confirmation email after successful payment
-            TourController::emailBConfirmation($order->booking_id);
-
-            // Return the success response with the confirmation URL
-            return response()->json(['url' => $response['url'], 'order' => $order]);
-        }
     }
 
-    private function createCheckoutSessionInternal($paymentIntentId, $newUrl)
+    public function test(Request $request)
     {
-        try {
-            // Step 3: Retrieve the PaymentIntent and capture the funds
-            $intent = \Stripe\PaymentIntent::retrieve($paymentIntentId);
-            $intent->capture();  // Capture the payment (move funds)
-            return ['url' => $newUrl];  // Return success with the confirmation URL
-        } catch (\Exception $e) {
-            // Handle error in capturing the payment
-            return ['error' => $e->getMessage()];
-        }
+
+        $tourBody = $request->input('tour');
+        $tourResponse = TourRadarController::createNewBooking($tourBody);
+
+        $flightBody = $request->input('flight');
+        $flightResponse = DuffelApiController::createNewBooking($flightBody);
+
+        return [
+            'flight' => $flightResponse,
+            'tour' => $tourResponse
+        ];
     }
 
-    private function captureFunds($productName, $productDescription, $amount, $currency = 'usd', $newUrl, $url)
+    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
     {
+
         try {
-            // Step 1: Create a PaymentIntent with manual capture
-            $paymentIntent = \Stripe\PaymentIntent::create([
-                'amount' => $amount,  // Already in cents
-                'currency' => $currency,
+            $session = Session::create([
                 'payment_method_types' => ['card'],
-                'capture_method' => 'manual',  // Hold the payment for manual capture
-                'description' => $productDescription,
-                'metadata' => [
-                    'product_name' => $productName
-                ]
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => $productName,
+                            'description' => $productDescription,
+                        ],
+                        'unit_amount' => $amount,
+                    ],
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => $url,
+                'cancel_url' => 'http://localhost:3000/book',
+                'payment_method_options' => [
+                    'card' => [
+                        'setup_future_usage' => 'off_session',
+                    ],
+                ],
             ]);
 
-            // Return the PaymentIntent ID for later capturing
-            return $paymentIntent->id;
-
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            // Handle Stripe error
+            return ['url' => $session->url];
+        } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
-    }   
+    }
+
 
     public function bookPackage($tour, $flight)
     {
 
-        // Step 1: Handle the tour booking first
         $tourBody = $tour;
         $tourResponse = TourRadarController::createNewBooking($tourBody);
-        
-        // Check if there is an error in the tour response
-        if (isset($tourResponse['error']) && $tourResponse['error']) {
-            return [1, 'Tour radar: ' . $tourResponse['message']];
+        if(isset($tourResponse['error']) && $tourResponse['error']){
+            return [1, 'Tour radar:'.$tourResponse['message']] ;
         }
-        
-        // Step 2: If tour booking is successful, proceed with the flight booking
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
-        
-        // Check if there are errors in the flight response
-        if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-            return [1, 'Flight: ' . $flightResponse['errors'][0]['message']];
-        }
 
+        if(isset($flightResponse['errors']) && $flightResponse['errors']){
+            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+        }
         $passengers = $tourResponse['passengers'];
+
 
         $firstIteration = true;
 
@@ -148,12 +147,10 @@ class PackageController extends Controller
 
                 $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
-                $pass_random=Str::random(10);
-                $new= User::where('email',$passenger['fields']['email'])->first()?0:1;
                 $user = User::updateOrCreate(
                     ['email' => $passenger['fields']['email']],
                     ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                        'password' => Hash::make($pass_random),
+                        'password' => Hash::make('password123'),
                         'profile_id' => 2,
                         'phone' => $passenger['fields']['phone_number'],
                         'country' => $passenger['fields']['place_of_issue'],
@@ -161,8 +158,6 @@ class PackageController extends Controller
                         'active' => 1,
                         'suscribed' => 1,
                         'hear' => "without comment",]);
-
-                   $new?:UserController::EmailPass($user->id,$pass_random);
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],

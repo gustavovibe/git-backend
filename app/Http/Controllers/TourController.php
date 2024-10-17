@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\TourRadarController;
 use App\Mail\BookingMail;
+use App\Mail\SendSummary;
 use App\Mail\TourDetails;
+use App\Models\BookingSummary;
 use App\Models\Order;
 use App\Models\Type;
 use App\Models\User;
@@ -16,6 +18,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
+
 class TourController extends Controller
 {
     public function index(Request $request)
@@ -156,5 +160,46 @@ class TourController extends Controller
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
+    }
+
+    public function bookingSummarySend(Request $r){
+        try{
+            Mail::to($r->email)->send(new SendSummary(['tour_id'=>$r->tour_id]));
+            $summary= new BookingSummary();
+            $summary->fill([
+                'tour_id'=>$r->tour_id,
+                'email'=>$r->email
+            ])->save();
+            return response()->json(['success'=>true,'data'=>$summary]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
+
+    public function bookingSummaryPdf(Request $r){
+        $tourResponse = ProxyTourRadarController::show($r->tour_id);
+        $tourData = $tourResponse->getData(true);
+        $tour=$tourData['data'];
+
+        foreach($tour['destinations']['countries'] as $co){
+            $countries[]=$co['country_name'];
+        }
+
+        foreach($tour['tour_types'] as $to){
+            $tour_types[]=$to['type_name'];
+        }
+
+        foreach($tour['guide_languages'] as $text){
+            $guide_types[]=$text['name'];
+        }
+        $countries_d=[
+            'countries_text'=>implode(',',$countries),
+            'tour_text'=>implode(',',$tour_types),
+            'guide_text'=>implode(',',$guide_types),
+        ];
+
+        /* return $tour; */
+        $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour,'countries_d'=>$countries_d])->set_option('isRemoteEnabled', true);
+        return $pdf->stream('booking_summary_tour.pdf');
     }
 }
