@@ -18,6 +18,7 @@ use App\Http\Controllers\ProxyTourRadarController;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\ProxyKiwiController;
 use App\Http\Controllers\DuffelApiController;
+use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
@@ -148,4 +149,4 @@ Route::post('pass-email',[UserController::class,'sendEmailPass']);
 
 Route::get('boooking-pdf',[TourController::class,'pdfOrder']);
 
-
+Route::post('/add-enquiry', [EnquiryController::class, 'create']);
