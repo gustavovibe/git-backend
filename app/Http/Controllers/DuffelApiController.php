@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
+use App\Models\Order;
+use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class DuffelApiController extends Controller
 {
@@ -67,7 +70,7 @@ class DuffelApiController extends Controller
             // Filter offers
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
-                /* 
+                /*
                     Note:
                     This offers cannot be paginated because the request is always new, but
                     you can paginate when asking for request by its id
@@ -155,21 +158,21 @@ class DuffelApiController extends Controller
         if ($validator->fails()) {
             return ApiResponse::error($validator->errors());
         }
-    
+
         try {
             // Getting Headers
             $headers = self::getHeaders();
-    
+
             // Building URL with the offer ID as a query parameter
             $url = 'https://api.duffel.com/air/seat_maps?offer_id=' . $request->offerId;
-    
+
             // Log the request URL and headers for debugging
             Log::info('Request URL: ' . $url);
             Log::info('Request Headers: ', $headers);
-    
+
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
-    
+
             // Return the response from the Duffel API
             return $response->json();
         } catch (\Exception $e) {
@@ -177,7 +180,7 @@ class DuffelApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    
+
 
     public static function createNewBooking($body)
     {
@@ -213,7 +216,7 @@ class DuffelApiController extends Controller
                 ]
             ]
         ]);
-    
+
         if ($response->successful()) {
             return response()->json(['message' => 'Service added successfully', 'data' => $response->json()]);
         } else {
@@ -612,5 +615,56 @@ class DuffelApiController extends Controller
         ];
 
         return Validator::make($request->all(), $rules, $messages);
+    }
+
+    public function flightCancel(Request $r){
+        try{
+
+            $booking= Order::where('booking_id',$r->tour_id)->first();
+            $order_id=$booking->duffel_id;
+
+            $headers = self::getHeaders();
+
+            $quote_url = "https://api.duffel.com/air/order_cancellations";
+
+            $quote_response = Http::withHeaders($headers)->post($quote_url, [
+                'data' => ['order_id' => $order_id]
+            ]);
+            $quote_data = $quote_response->json();
+
+            if (isset($quote_data['data'])) {
+                $data= $quote_data['data'];
+                $data['expires_at']=Carbon::parse($data['expires_at'])->format('F j, Y g:i A');
+                return response()->json(['success' => true, 'data' =>$data ]);
+            } else {
+                return response()->json(['success' => false, 'data' =>$quote_data['errors'][0]['message']]);
+            }
+
+
+
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
+
+    public function confirmCancel(Request $r){
+        try{
+            $confirm_url = "https://api.duffel.com/air/order_cancellations/{$r->cancel_id}/actions/confirm";
+
+            $headers = self::getHeaders();
+
+            $confirm_response = Http::withHeaders($headers)->post($confirm_url);
+
+            $confirm_data = $confirm_response->json();
+
+            if (isset($confirm_data['data']['confirmed_at'])) {
+                return response()->json(['success' => true, 'data' => 'Order cancelled successfully.']);
+            } else {
+                return response()->json(['success' => false, 'data' =>$confirm_data['errors'][0]['message']]);
+            }
+
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
     }
 }
