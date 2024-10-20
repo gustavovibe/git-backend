@@ -14,6 +14,8 @@ use App\Models\Order;
 use App\Models\OrderTraveler;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
+use Stripe\Webhook;
+use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
 
 class PackageController extends Controller
@@ -572,39 +574,42 @@ public function handleStripeWebhook(Request $request)
     }
 }
 
-public function checkoutWebhook(Request $request, Response $response) {
+public function checkoutWebhook(Request $request)
+{
     $stripeSecret = config('services.stripe.secret');
     $urlAppFront = config('services.stripe.urlAppFront');
     Stripe::setApiKey($stripeSecret);
 
-    $logger = $this->get('logger');
-    $event = $request->getParsedBody();
-    // Parse the message body (and check the signature if possible)
     $webhookSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
-    if ($webhookSecret) {
-      try {
-        $event = \Stripe\Webhook::constructEvent(
-          $request->getBody(),
-          $request->getHeaderLine('stripe-signature'),
-          $webhookSecret
+
+    // Parse the incoming request body
+    $payload = $request->getContent();
+    $sigHeader = $request->header('stripe-signature');
+
+    try {
+        $event = Webhook::constructEvent(
+            $payload, $sigHeader, $webhookSecret
         );
-      } catch (\Exception $e) {
-        return $response->withJson([ 'error' => $e->getMessage() ])->withStatus(403);
-      }
-    } else {
-      $event = $request->getParsedBody();
+    } catch (\UnexpectedValueException $e) {
+        // Invalid payload
+        return response()->json(['error' => 'Invalid payload'], 400);
+    } catch (\Stripe\Exception\SignatureVerificationException $e) {
+        // Invalid signature
+        return response()->json(['error' => 'Invalid signature'], 400);
     }
-    $type = $event['type'];
-    $object = $event['data']['object'];
-    
-    if (
-        $event->type == 'checkout.session.completed'
-        || $event->type == 'checkout.session.async_payment_succeeded'
-      ) {
-        $logger->info('💰 Checkout completed! ');
-        fulfill_checkout($event->data->object->id);
-      }
 
-    return $response->withJson([ 'status' => 'success' ])->withStatus(200);
+    // Handle the event
+    switch ($event->type) {
+        case 'checkout.session.completed':
+        case 'checkout.session.async_payment_succeeded':
+            $session = $event->data->object;
+            Log::info('Checkout session completed: ' . $session->id);
+            // Call your function to fulfill the checkout (e.g. create an order)
+            $this->fulfillCheckout($session->id);
+            break;
+        default:
+            Log::info('Received unknown event type: ' . $event->type);
+    }
+
+    return response()->json(['status' => 'success'], 200);
 }
-
