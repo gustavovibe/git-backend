@@ -159,3 +159,5 @@ Route::post('google-register',[AuthController::class, 'googleRegister']);
 
 Route::get('duffel-cancel-check',[DuffelApiController::class, 'flightCancel']);
 Route::post('duffel-cancel-confirm',[DuffelApiController::class, 'confirmCancel']);
+
+Route::post('/checkout', [PackageController::class, 'checkoutWebhook']);
