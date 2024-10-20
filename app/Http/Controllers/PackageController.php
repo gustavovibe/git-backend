@@ -579,38 +579,43 @@ public function handleStripeWebhook(Request $request)
         $stripeSecret = config('services.stripe.secret');
         Stripe::setApiKey($stripeSecret);
 
-        // Your Stripe secret key for webhook verification
-        $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; // Replace with your actual webhook secret
+        $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; 
 
-        // Retrieve the payload and signature from the request
-        $payload = $request->getContent();
-        $sigHeader = $request->header('stripe-signature');
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
         $event = null;
 
         try {
-            // Construct the event from Stripe using the payload and signature
-            $event = Webhook::constructEvent(
-                $payload, $sigHeader, $endpointSecret
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
             );
-        } catch (\UnexpectedValueException $e) {
+        } catch(\UnexpectedValueException $e) {
             // Invalid payload
-            return response()->json(['error' => 'Invalid payload'], 400);
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+        http_response_code(400);
+        echo json_encode(['Error parsing payload: ' => $e->getMessage()]);
+        exit();
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
-            return response()->json(['error' => 'Invalid signature'], 400);
+            http_response_code(400);
+            echo json_encode(['Error verifying webhook signature: ' => $e->getMessage()]);
+            exit();
         }
 
-        // Handle the event type "checkout.session.completed"
-        if ($event->type == 'checkout.session.completed') {
-            $session = $event->data->object; // The checkout session object
-
-            // Log the event or fulfill the checkout as needed
-            Log::info('Checkout session completed: ' . $session->id);
-
-            // Here you can call a function to fulfill the order or update your database
-            //$this->fulfillCheckout($session);
+        // Handle the event
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
+                //handlePaymentIntentSucceeded($paymentIntent);
+                break;
+            case 'checkout.session.completed':
+                $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
+                //handlePaymentMethodAttached($paymentMethod);
+                \Log::error('checckout session completed: ' . $event->type);
+                break;
+            // ... handle other event types
+            default:
+                echo 'Received unknown event type ' . $event->type;
         }
 
-        // Return a successful response to Stripe
-        return response()->json(['status' => 'success'], 200);
+        http_response_code(200);
     }
