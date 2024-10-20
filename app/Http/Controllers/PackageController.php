@@ -574,42 +574,43 @@ public function handleStripeWebhook(Request $request)
     }
 }
 
-public function checkoutWebhook(Request $request)
-{
-    $stripeSecret = config('services.stripe.secret');
-    $urlAppFront = config('services.stripe.urlAppFront');
-    Stripe::setApiKey($stripeSecret);
+    public function checkoutWebhook(Request $request)
+    {
+        $stripeSecret = config('services.stripe.secret');
+        Stripe::setApiKey($stripeSecret);
 
-    $webhookSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
+        // Your Stripe secret key for webhook verification
+        $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; // Replace with your actual webhook secret
 
-    // Parse the incoming request body
-    $payload = $request->getContent();
-    $sigHeader = $request->header('stripe-signature');
+        // Retrieve the payload and signature from the request
+        $payload = $request->getContent();
+        $sigHeader = $request->header('stripe-signature');
+        $event = null;
 
-    try {
-        $event = Webhook::constructEvent(
-            $payload, $sigHeader, $webhookSecret
-        );
-    } catch (\UnexpectedValueException $e) {
-        // Invalid payload
-        return response()->json(['error' => 'Invalid payload'], 400);
-    } catch (\Stripe\Exception\SignatureVerificationException $e) {
-        // Invalid signature
-        return response()->json(['error' => 'Invalid signature'], 400);
-    }
+        try {
+            // Construct the event from Stripe using the payload and signature
+            $event = Webhook::constructEvent(
+                $payload, $sigHeader, $endpointSecret
+            );
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload
+            return response()->json(['error' => 'Invalid payload'], 400);
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
 
-    // Handle the event
-    switch ($event->type) {
-        case 'checkout.session.completed':
-        case 'checkout.session.async_payment_succeeded':
-            $session = $event->data->object;
+        // Handle the event type "checkout.session.completed"
+        if ($event->type == 'checkout.session.completed') {
+            $session = $event->data->object; // The checkout session object
+
+            // Log the event or fulfill the checkout as needed
             Log::info('Checkout session completed: ' . $session->id);
-            // Call your function to fulfill the checkout (e.g. create an order)
-            $this->fulfillCheckout($session->id);
-            break;
-        default:
-            Log::info('Received unknown event type: ' . $event->type);
-    }
 
-    return response()->json(['status' => 'success'], 200);
-}
+            // Here you can call a function to fulfill the order or update your database
+            //$this->fulfillCheckout($session);
+        }
+
+        // Return a successful response to Stripe
+        return response()->json(['status' => 'success'], 200);
+    }
