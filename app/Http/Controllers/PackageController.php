@@ -56,7 +56,7 @@ class PackageController extends Controller
 
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
+        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url);
 
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 500);
@@ -81,7 +81,7 @@ class PackageController extends Controller
         ];
     }
 
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
+    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url)
     {
 
         try {
@@ -99,8 +99,9 @@ class PackageController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $url,
-                'cancel_url' => 'http://localhost:3000/book',
+                'payment_intent_data' => ['capture_method' => 'manual'],
+                'success_url' => $newUrl,
+                'cancel_url' => $url,
                 'payment_method_options' => [
                     'card' => [
                         'setup_future_usage' => 'off_session',
