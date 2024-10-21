@@ -578,7 +578,7 @@ public function handleStripeWebhook(Request $request)
         $stripeSecret = config('services.stripe.secret');
         Stripe::setApiKey($stripeSecret);
 
-        $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; 
+        $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; 
 
         $payload = @file_get_contents('php://input');
         $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
