@@ -7,6 +7,7 @@ use App\Models\Tour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
+use App\Mail\SendPass;
 use App\Models\Traveler;
 use Carbon\Carbon;
 use App\Models\User;
@@ -15,7 +16,8 @@ use App\Models\OrderTraveler;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
-
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
@@ -54,6 +56,7 @@ class PackageController extends Controller
 
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
+        TourController::emailBConfirmation($order->booking_id);
         $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
 
         if (isset($response['error'])) {
@@ -147,7 +150,26 @@ class PackageController extends Controller
 
                 $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
-                $user = User::updateOrCreate(
+                $random= Str::random(12);
+                $u= User::where('email',$passenger['fields']['email'])->first();
+                $user=$u?$u: new User;
+                if(!$u){
+                    $user->fill([
+                        'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
+                        'password' => Hash::make($random),
+                        'profile_id' => 2,
+                        'phone' => $passenger['fields']['phone_number'],
+                        'country' => $passenger['fields']['place_of_issue'],
+                        'role' => 'role',
+                        'active' => 1,
+                        'suscribed' => 1,
+                        'hear' => "without comment",
+                        ]);
+
+                        Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
+                }
+
+              /*   $user = User::updateOrCreate(
                     ['email' => $passenger['fields']['email']],
                     ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
                         'password' => Hash::make('password123'),
@@ -157,7 +179,7 @@ class PackageController extends Controller
                         'role' => 'role',
                         'active' => 1,
                         'suscribed' => 1,
-                        'hear' => "without comment",]);
+                        'hear' => "without comment",]); */
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],
@@ -177,6 +199,7 @@ class PackageController extends Controller
                         'user_id'=>$user->id,
                         'status'=>1,
                     ]);
+
                 $traveler_id=$traveler->traveler_id;
                 $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
 
@@ -185,6 +208,8 @@ class PackageController extends Controller
                 $mainPassengerAge = $dob->diffInYears($today);
 
                 $firstIteration = false;
+
+
             }
         }
 

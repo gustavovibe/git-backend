@@ -11,7 +11,7 @@ class BookingMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-
+    protected $orders;
     public function __construct($orders)
     {
         $this->orders=$orders;
