@@ -18,6 +18,8 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Http\Controllers\TourController;
+
 class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
