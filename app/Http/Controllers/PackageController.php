@@ -572,7 +572,6 @@ public function handleStripeWebhook(Request $request)
 
     return response()->json(['status' => false, 'error' => 'Unhandled event type'], 400);
     }
-}
 
     public function checkoutWebhook(Request $request)
     {
@@ -619,3 +618,4 @@ public function handleStripeWebhook(Request $request)
 
         http_response_code(200);
     }
+}
