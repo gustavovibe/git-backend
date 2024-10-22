@@ -11,7 +11,7 @@ class SendPass extends Mailable
 {
     use Queueable, SerializesModels;
 
-
+    protected $data;
     public function __construct($data)
     {
         $this->data=$data;
