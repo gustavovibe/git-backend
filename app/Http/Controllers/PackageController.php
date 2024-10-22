@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
