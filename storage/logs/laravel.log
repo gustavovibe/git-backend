@@ -67,3 +67,72 @@
 #32 C:\\Users\\Gustavo\\Desktop\\api\\artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
 #33 {main}
 "} 
+[2024-10-22 13:50:33] production.ERROR: SQLSTATE[HY000] [2002] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+ (SQL: select * from information_schema.tables where table_schema = forge and table_name = migrations and table_type = 'BASE TABLE') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+
+ (SQL: select * from information_schema.tables where table_schema = forge and table_name = migrations and table_type = 'BASE TABLE') at C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:712)
+[stacktrace]
+#0 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback()
+#1 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(376): Illuminate\\Database\\Connection->run()
+#2 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(44): Illuminate\\Database\\Connection->select()
+#3 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\DatabaseMigrationRepository.php(169): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable()
+#4 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(673): Illuminate\\Database\\Migrations\\DatabaseMigrationRepository->repositoryExists()
+#5 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->repositoryExists()
+#6 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(78): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->prepareDatabase()
+#7 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(606): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->Illuminate\\Database\\Console\\Migrations\\{closure}()
+#8 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(98): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#9 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#10 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#11 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure()
+#12 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#13 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call()
+#14 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(136): Illuminate\\Container\\Container->call()
+#15 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Command\\Command.php(298): Illuminate\\Console\\Command->execute()
+#16 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(121): Symfony\\Component\\Console\\Command\\Command->run()
+#17 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(1040): Illuminate\\Console\\Command->run()
+#18 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(301): Symfony\\Component\\Console\\Application->doRunCommand()
+#19 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(171): Symfony\\Component\\Console\\Application->doRun()
+#20 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(94): Symfony\\Component\\Console\\Application->run()
+#21 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(129): Illuminate\\Console\\Application->run()
+#22 C:\\Users\\Gustavo\\Desktop\\api\\artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#23 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+
+ at C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:70)
+[stacktrace]
+#0 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(70): PDO->__construct()
+#1 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(46): Illuminate\\Database\\Connectors\\Connector->createPdoConnection()
+#2 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection()
+#3 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\MySqlConnector->connect()
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1064): call_user_func()
+#6 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1100): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(442): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(368): Illuminate\\Database\\Connection->getPdoForSelect()
+#9 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(705): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}()
+#10 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(672): Illuminate\\Database\\Connection->runQueryCallback()
+#11 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(376): Illuminate\\Database\\Connection->run()
+#12 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(44): Illuminate\\Database\\Connection->select()
+#13 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\DatabaseMigrationRepository.php(169): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable()
+#14 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(673): Illuminate\\Database\\Migrations\\DatabaseMigrationRepository->repositoryExists()
+#15 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->repositoryExists()
+#16 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(78): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->prepareDatabase()
+#17 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(606): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->Illuminate\\Database\\Console\\Migrations\\{closure}()
+#18 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(98): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#20 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(40): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#21 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(37): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(653): Illuminate\\Container\\BoundMethod::call()
+#24 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(136): Illuminate\\Container\\Container->call()
+#25 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Command\\Command.php(298): Illuminate\\Console\\Command->execute()
+#26 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(121): Symfony\\Component\\Console\\Command\\Command->run()
+#27 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(1040): Illuminate\\Console\\Command->run()
+#28 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(301): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\symfony\\console\\Application.php(171): Symfony\\Component\\Console\\Application->doRun()
+#30 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(94): Symfony\\Component\\Console\\Application->run()
+#31 C:\\Users\\Gustavo\\Desktop\\api\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(129): Illuminate\\Console\\Application->run()
+#32 C:\\Users\\Gustavo\\Desktop\\api\\artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+"} 
