@@ -31,7 +31,7 @@ use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
-
+use Illuminate\Support\Facades\File;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
@@ -156,3 +156,27 @@ Route::post('boooking-summary',[TourController::class,'bookingSummarySend']);
 Route::get('boooking-summary-pdf',[TourController::class,'bookingSummaryPdf']);
 
 Route::post('google-register',[AuthController::class, 'googleRegister']);
+
+Route::get('duffel-cancel-check',[DuffelApiController::class, 'flightCancel']);
+Route::post('duffel-cancel-confirm',[DuffelApiController::class, 'confirmCancel']);
+
+Route::post('/checkout', [PackageController::class, 'checkoutWebhook']);
+
+Route::get('/logs', function () {
+    // Path to the Laravel log file
+    $path = storage_path('logs/laravel.log');
+
+    // Check if the file exists
+    if (!File::exists($path)) {
+        abort(404, 'Log file not found');
+    }
+
+    // Get the contents of the log file
+    $logs = File::get($path);
+
+    // Optional: Limit the number of lines for large log files
+    $lines = collect(explode("\n", $logs))->reverse()->take(100)->reverse()->implode("\n");
+
+    // Return the log content as plain text
+    return response($lines, 200, ['Content-Type' => 'text/plain']);
+});

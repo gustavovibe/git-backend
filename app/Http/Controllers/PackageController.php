@@ -15,6 +15,8 @@ use App\Models\Order;
 use App\Models\OrderTraveler;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe;
+use Stripe\Webhook;
+use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -59,7 +61,8 @@ class PackageController extends Controller
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
 
         TourController::emailBConfirmation($order->booking_id);
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl);
+        
+        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url);
 
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 500);
@@ -84,7 +87,7 @@ class PackageController extends Controller
         ];
     }
 
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $url)
+    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url)
     {
 
         try {
@@ -102,8 +105,9 @@ class PackageController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $url,
-                'cancel_url' => 'http://localhost:3000/book',
+                'payment_intent_data' => ['capture_method' => 'manual'],
+                'success_url' => $newUrl,
+                'cancel_url' => $url,
                 'payment_method_options' => [
                     'card' => [
                         'setup_future_usage' => 'off_session',
@@ -597,7 +601,50 @@ public function handleStripeWebhook(Request $request)
 
     return response()->json(['status' => false, 'error' => 'Unhandled event type'], 400);
     }
+
+    public function checkoutWebhook(Request $request)
+    {
+        $stripeSecret = config('services.stripe.secret');
+        Stripe::setApiKey($stripeSecret);
+
+        $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; 
+
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $event = null;
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch(\UnexpectedValueException $e) {
+            // Invalid payload
+        http_response_code(400);
+        echo json_encode(['Error parsing payload: ' => $e->getMessage()]);
+        exit();
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            http_response_code(400);
+            echo json_encode(['Error verifying webhook signature: ' => $e->getMessage()]);
+            exit();
+        }
+
+        // Handle the event
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
+                //handlePaymentIntentSucceeded($paymentIntent);
+                break;
+            case 'checkout.session.completed':
+                $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
+                //handlePaymentMethodAttached($paymentMethod);
+                \Log::error('checckout session completed: ' . $event->type);
+                break;
+            // ... handle other event types
+            default:
+                echo 'Received unknown event type ' . $event->type;
+        }
+
+        http_response_code(200);
+    }
 }
-
-
-
