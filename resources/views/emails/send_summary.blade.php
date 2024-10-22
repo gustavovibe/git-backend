@@ -6,7 +6,7 @@
                 <tr>
                     <td>
                         <img style="width: 18px; height: 17.54px; left: 3.81px;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/globe.png" />
+                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" />
                     </td>
                     <td>
                         <p
@@ -16,7 +16,7 @@
                     <td style="width: 10%;"></td>
                     <td>
                         <img style="width: 18px; height: 17.54px; left: 3.81px;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/thumbs-up.png" />
+                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/thumbs-up.png" />
                     </td>
                     <td>
                         <p
@@ -26,7 +26,7 @@
                     <td style="width: 10%;"></td>
                     <td>
                         <img style="width: 18px; height: 17.54px; left: 3.81px;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/key.png" />
+                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/key.png" />
                     </td>
                     <td>
                         <p
@@ -43,7 +43,7 @@
             style="width: 202px; height: 19px; left: 333.40px; top: 185px; position: absolute; color: #4F5E71; font-size: 18.61px; font-family: Inter; font-weight: 700; text-decoration: underline; word-wrap: break-word">
             Itinerary & Trip Notes</div>
         <img style="width: 226px; height: 68.99px; left: 185.40px; top: 58px; position: absolute"
-            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" />
+            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
         <img style="width: 487px; height: 324.67px; left: 54.40px; top: 407px; position: absolute"
             src="{{ $tour['images'][0] }}" />
     </div>
@@ -57,7 +57,7 @@
                     <div style="width: 595px; height: 842px; left: 0px; top: 0px; position: absolute">
 
                         <img style="width: 481.50px; height: 283.50px; left: 57px; top: -680.75px; position: absolute"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" />
+                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </div>
 
                 </div>
@@ -149,7 +149,7 @@
             </div>
             <div style="left: 20%; top: 90%; position: absolute; ">
                 <img style="width:80%;height:50%;left: 56.68px; top: 94.83px;"
-                    src="https://hopeful-nobel.74-208-189-166.plesk.page/images/pay_methods.jpeg">
+                    src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/pay_methods.jpeg">
             </div>
             <div
                 style="width: 222.24px; height: 34.01px; left: 56.68px; top: 94.83px; position: absolute; color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word">
@@ -164,7 +164,7 @@
                             <div style="width: 119.25px; height: 19.50px; left: 0px; top: -49.38px; position: absolute">
                             </div>
                             <img style="width: 129px; height: 39.38px; left: 19.50px; top: -39.38px; position: absolute"
-                                src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" />
+                                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                         </div>
                     </div>
                     <div
@@ -178,7 +178,7 @@
     <div style="page-break-before: always;">
         <div>
             <img style="width: 18%; height: 4%; margin-left:6%; "
-                                src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" />
+                                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                                 <hr style="margin-top:10%;color:#4F5E71">
         </div>
 
@@ -205,7 +205,7 @@
         <br style="margin-top: 5%;">
         <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
             <img style="width:50%;height:10%;left: 56.68px; top: 94.83px;"
-                src="https://hopeful-nobel.74-208-189-166.plesk.page/images/pay_methods.jpeg">
+                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/pay_methods.jpeg">
         </div>
     </div>
 

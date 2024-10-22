@@ -463,7 +463,7 @@
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" alt="">
+                <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Manage my booking</label>
@@ -722,7 +722,7 @@
         <p>Adding these services to your trip now can save you money to purchasing them later or in the destination</p>
         <div class="card-container">
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/transfer.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.svg">
                 <div class="card-body">
                     <h5 class="card-title">Airport transfer</h5>
                     <p class="card-text">Airport transfers not included adventure?</p>
@@ -730,7 +730,7 @@
                 <a>Go somewhere <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/insurance.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.svg">
                 <div class="card-body">
                     <h5 class="card-title">Insurance</h5>
                     <p class="card-text">Available up to 24h before departure</p>
@@ -738,7 +738,7 @@
                 <a>Manager Insurance <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/accommodation.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.svg">
                 <div class="card-body">
                     <h5 class="card-title">Accommodation</h5>
                     <p class="card-text">Need pre- or post-tour accommodation?</p>
@@ -746,7 +746,7 @@
                 <a>Book Accommodation <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/activities.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.svg">
                 <div class="card-body">
                     <h5 class="card-title">Activities</h5>
                     <p class="card-text">Got extra days in the destination before or after the adventure?</p>
@@ -789,11 +789,11 @@
                         </div>
                     </div>
                     <div class="col">
-                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/usa.png">
+                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/usa.png">
                             +1-201-500-1310</p>
-                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/uk.png">
+                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/uk.png">
                             +44-7440-963840</p>
-                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/mex.png">
+                        <p id="pf"><img id="flag" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/mex.png">
                             +52-55-8526-6910</p>
                     </div>
                 </div>
@@ -801,9 +801,9 @@
             </div>
             <div id="el">
                 <h5>Supporting</h5>
-                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/united.jpeg" alt="">
-                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/future.jpeg" alt="">
-                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/adventure.jpeg" alt="">
+                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/united.jpeg" alt="">
+                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/future.jpeg" alt="">
+                <img id="sp" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/adventure.jpeg" alt="">
             </div>
             <div id="el">
                 <div>
@@ -844,7 +844,7 @@
                 </div>
                 <div>
                     <h5>Payment Methods</h5>
-                    <img id="pay" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/pay_methods.jpeg" alt="">
+                    <img id="pay" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/pay_methods.jpeg" alt="">
                 </div>
             </div>
 
