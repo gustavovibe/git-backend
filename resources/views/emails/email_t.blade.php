@@ -192,12 +192,12 @@
     </div> --}}
     <br>
     <div class="box mh">
-        <img src="{{ asset('images/logo.png') }}">
+        <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png">
         <h3>Confirmed Order</h3>
     </div>
     <br>
     <div class="mh">
-        <img class="imgP" src="{{ asset('images/template_vibe.jpg') }}" alt="Girl in a jacket" width="100%" height="auto">
+        <img class="imgP" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/template_vibe.jpg" alt="Girl in a jacket" width="100%" height="auto">
     </div>
     <br>
     <br>
@@ -296,7 +296,7 @@
 
         </div>
         <div class="column" style="width: 20%;">
-            <img src="{{ asset('images/qr.png') }}">
+            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/qr.png">
         </div>
     </div>
     <br>
@@ -316,7 +316,7 @@
 
             </div>
             <div class="column"  style="width: 30%">
-                <img src="{{ asset('images/city.png') }}">
+                <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/city.png">
             </div>
         </div>
     </div>
