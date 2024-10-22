@@ -26,50 +26,43 @@ class PackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
-      /*   return $request->all(); */
         $stripeSecret = config('services.stripe.secret');
-
         $urlAppFront = config('services.stripe.urlAppFront');
-
         Stripe::setApiKey($stripeSecret);
-
+    
         $RequestFlight = $request->input('flight');
-
         $RequestTour = $request->input('tour');
-
-        $order = $this->bookPackage($RequestTour, $RequestFlight);
-
-        if($order[0]==1){
-            return response()->json(['success'=>false,'message'=>$order[1]]);
-            /* return ApiResponse::error($order[1]); */
-        }
-        $order=$order[1];
+    
         $tour_id = (int)$RequestTour['tour_id'];
-
         $tour = Tour::find($tour_id);
-
+    
         $rawAmount = round($request->input('price_total'), 2);
-
         $amount = $rawAmount * 100;
-
+    
         $url = $request->url;
-
         $parsedUrl = parse_url($url);
-
         parse_str($parsedUrl['query'], $queryParams);
-
-        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams) . '&order_id=' . $order->booking_id;
-
-        TourController::emailBConfirmation($order->booking_id);
         
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url);
-
+        // Prepare the URL without the order ID for now
+        $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams);
+    
+        // Create the checkout session with metadata included
+        $response = $this->createCheckoutSessionInternal(
+            $tour->tour_name,
+            $tour->description,
+            $amount,
+            $newUrl,
+            $url,
+            $RequestTour,
+            $RequestFlight
+        );
+    
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 500);
         }
-
-        return response()->json(['url' => $response['url'], 'order' => $order]);
-
+    
+        // Return only the session URL for the front end to redirect
+        return response()->json(['url' => $response['url']]);
     }
 
     public function test(Request $request)
@@ -87,9 +80,8 @@ class PackageController extends Controller
         ];
     }
 
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url)
+    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
     {
-
         try {
             $session = Session::create([
                 'payment_method_types' => ['card'],
@@ -104,6 +96,10 @@ class PackageController extends Controller
                     ],
                     'quantity' => 1,
                 ]],
+                'metadata' => [
+                    'flight' => json_encode($RequestFlight),
+                    'tour' => json_encode($RequestTour),
+                ],
                 'mode' => 'payment',
                 'payment_intent_data' => ['capture_method' => 'manual'],
                 'success_url' => $newUrl,
@@ -114,12 +110,11 @@ class PackageController extends Controller
                     ],
                 ],
             ]);
-
             return ['url' => $session->url];
         } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
-    }
+    }    
 
 
     public function bookPackage($tour, $flight)
@@ -568,83 +563,71 @@ public function updateDuffelOrder(Request $r)
 
 }
 
-public function handleStripeWebhook(Request $request)
+
+public function checkoutWebhook(Request $request)
 {
     $stripeSecret = config('services.stripe.secret');
-    $endpointSecret = 'whsec_0a3df2c66784e65c3a762066ff57b4f8784b7bdeb28ac6088375b4c431045b5b';
-
     Stripe::setApiKey($stripeSecret);
 
+    $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
     $payload = @file_get_contents('php://input');
-    $sigHeader = $request->header('Stripe-Signature');
+    $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+    $event = null;
 
     try {
-        $event = Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
-    } catch (SignatureVerificationException $e) {
-        return response()->json(['status' => false, 'error' => 'Invalid signature'], 400);
-    }
-
-    if ($event->type == 'checkout.session.completed') {
-        $session = $event->data->object;
-
-        // Obtener los metadatos
-        $order_id = $session->metadata->order_id;
-        $passenger_id = $session->metadata->passenger_id;
-        $checked = $session->metadata->checked;
-        $this->updateDuffelOrder(new Request([
-            'order_id' => $order_id,
-            'passenger_id' => $passenger_id,
-            'checked' =>  $checked,
-        ]));
-        return response()->json(['status' => true,'response'=>'entro a contenido de acciones']);
-    }
-
-    return response()->json(['status' => false, 'error' => 'Unhandled event type'], 400);
-    }
-
-    public function checkoutWebhook(Request $request)
-    {
-        $stripeSecret = config('services.stripe.secret');
-        Stripe::setApiKey($stripeSecret);
-
-        $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx'; 
-
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-        $event = null;
-
-        try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
-        } catch(\UnexpectedValueException $e) {
-            // Invalid payload
+        $event = \Stripe\Webhook::constructEvent(
+            $payload, $sig_header, $endpoint_secret
+        );
+    } catch (\UnexpectedValueException $e) {
         http_response_code(400);
         echo json_encode(['Error parsing payload: ' => $e->getMessage()]);
         exit();
-        } catch(\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            http_response_code(400);
-            echo json_encode(['Error verifying webhook signature: ' => $e->getMessage()]);
-            exit();
-        }
-
-        // Handle the event
-        switch ($event->type) {
-            case 'payment_intent.succeeded':
-                $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
-                //handlePaymentIntentSucceeded($paymentIntent);
-                break;
-            case 'checkout.session.completed':
-                $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
-                //handlePaymentMethodAttached($paymentMethod);
-                \Log::error('checckout session completed: ' . $event->type);
-                break;
-            // ... handle other event types
-            default:
-                echo 'Received unknown event type ' . $event->type;
-        }
-
-        http_response_code(200);
+    } catch (\Stripe\Exception\SignatureVerificationException $e) {
+        http_response_code(400);
+        echo json_encode(['Error verifying webhook signature: ' => $e->getMessage()]);
+        exit();
     }
+
+    switch ($event->type) {
+        case 'payment_intent.succeeded':
+            $paymentIntent = $event->data->object;
+            break;
+        case 'checkout.session.completed':
+            $session = $event->data->object;
+
+            $RequestFlight = $session->metadata->flight ?? null;
+            $RequestTour = $session->metadata->tour ?? null;
+
+            if ($RequestTour && $RequestFlight) {
+                $RequestTour = json_decode($RequestTour, true);
+                $RequestFlight = json_decode($RequestFlight, true);
+
+                $order = $this->bookPackage($RequestTour, $RequestFlight);
+
+                if ($order[0] == 1) {
+                    \Log::error('Booking package failed: ' . $order[1]);
+                } else {
+                    $order = $order[1];
+                    // Capture payment
+                    \Stripe\PaymentIntent::capture($session->payment_intent);
+
+                    // Send confirmation email
+                    TourController::emailBConfirmation($order->booking_id);
+
+                    // Redirect after capturing payment and confirming the booking
+                    $newUrl = config('services.stripe.urlAppFront') . '/confirmation?order_id=' . $order->booking_id;
+                    \Log::info('Redirect URL for confirmation: ' . $newUrl);
+                }
+            } else {
+                \Log::error('Required metadata for booking is missing.');
+            }
+
+            \Log::debug('Checkout session completed: ' . json_encode($session));
+            break;
+        default:
+            echo 'Received unknown event type ' . $event->type;
+    }
+
+    http_response_code(200);
+}
 }
