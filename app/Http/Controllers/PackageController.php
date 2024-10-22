@@ -28,42 +28,36 @@ class PackageController extends Controller
     {
         $stripeSecret = config('services.stripe.secret');
         $urlAppFront = config('services.stripe.urlAppFront');
+
         Stripe::setApiKey($stripeSecret);
-    
+
         $RequestFlight = $request->input('flight');
         $RequestTour = $request->input('tour');
-    
+
         $tour_id = (int)$RequestTour['tour_id'];
         $tour = Tour::find($tour_id);
-    
+
         $rawAmount = round($request->input('price_total'), 2);
         $amount = $rawAmount * 100;
-    
+
         $url = $request->url;
         $parsedUrl = parse_url($url);
         parse_str($parsedUrl['query'], $queryParams);
-        
-        // Prepare the URL without the order ID for now
+
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams);
-    
-        // Create the checkout session with metadata included
-        $response = $this->createCheckoutSessionInternal(
-            $tour->tour_name,
-            $tour->description,
-            $amount,
-            $newUrl,
-            $url,
-            $RequestTour,
-            $RequestFlight
-        );
-    
+
+        // Call the function and get the response
+        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+
+        // Check if an error occurred
         if (isset($response['error'])) {
-            return response()->json(['error' => $response['error']], 500);
+            return response()->json(['error' => $response['error']], 400);
         }
-    
-        // Return only the session URL for the front end to redirect
-        return response()->json(['url' => $response['url']]);
+
+        // Return the session URL and attempt ID
+        return response()->json(['url' => $response['url'], 'attempt_id' => $response['attempt_id']]);
     }
+
 
     public function test(Request $request)
     {
@@ -80,42 +74,53 @@ class PackageController extends Controller
         ];
     }
 
-    private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
-    {
-        try {
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => $productName,
-                            'description' => $productDescription,
-                        ],
-                        'unit_amount' => $amount,
-                    ],
-                    'quantity' => 1,
-                ]],
-                'metadata' => [
-                    'flight' => json_encode($RequestFlight),
-                    'tour' => json_encode($RequestTour),
-                ],
-                'mode' => 'payment',
-                'payment_intent_data' => ['capture_method' => 'manual'],
-                'success_url' => $newUrl,
-                'cancel_url' => $url,
-                'payment_method_options' => [
-                    'card' => [
-                        'setup_future_usage' => 'off_session',
-                    ],
-                ],
-            ]);
-            return ['url' => $session->url];
-        } catch (Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }    
+private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
+{
+    try {
+        // Insert the data into the 'attempts' table and get the newly created id
+        $attemptId = DB::table('attempts')->insertGetId([
+            'tour' => json_encode($RequestTour),
+            'flight' => json_encode($RequestFlight),
+            'new_url' => $newUrl,
+            'url' => $url,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
+        // Create the Stripe session
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $productName,
+                        'description' => $productDescription,
+                    ],
+                    'unit_amount' => $amount,
+                ],
+                'quantity' => 1,
+            ]],
+            'metadata' => [
+                'attempt_id' => $attemptId, // Add the attempt ID to the metadata
+            ],
+            'mode' => 'payment',
+            'payment_intent_data' => ['capture_method' => 'manual'],
+            'success_url' => $newUrl,
+            'cancel_url' => $url,
+            'payment_method_options' => [
+                'card' => [
+                    'setup_future_usage' => 'off_session',
+                ],
+            ],
+        ]);
+
+        // Return the session URL and attempt ID
+        return ['url' => $session->url, 'attempt_id' => $attemptId];
+    } catch (Exception $e) {
+        return ['error' => $e->getMessage()];
+    }
+} 
 
     public function bookPackage($tour, $flight)
     {
@@ -570,6 +575,7 @@ public function checkoutWebhook(Request $request)
     Stripe::setApiKey($stripeSecret);
 
     $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
+
     $payload = @file_get_contents('php://input');
     $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
     $event = null;
@@ -588,41 +594,68 @@ public function checkoutWebhook(Request $request)
         exit();
     }
 
+    // Handle the event
     switch ($event->type) {
-        case 'payment_intent.succeeded':
-            $paymentIntent = $event->data->object;
-            break;
         case 'checkout.session.completed':
             $session = $event->data->object;
 
-            $RequestFlight = $session->metadata->flight ?? null;
-            $RequestTour = $session->metadata->tour ?? null;
+            // Get the attempt ID from metadata
+            $attemptId = $session->metadata->attempt_id ?? null;
 
-            if ($RequestTour && $RequestFlight) {
-                $RequestTour = json_decode($RequestTour, true);
-                $RequestFlight = json_decode($RequestFlight, true);
+            if ($attemptId) {
+                // Retrieve the attempt record from the database
+                $attempt = DB::table('attempts')->where('id', $attemptId)->first();
 
-                $order = $this->bookPackage($RequestTour, $RequestFlight);
+                if ($attempt) {
+                    // Process the stored data from the attempt
+                    $RequestTour = json_decode($attempt->tour, true);
+                    $RequestFlight = json_decode($attempt->flight, true);
 
-                if ($order[0] == 1) {
-                    \Log::error('Booking package failed: ' . $order[1]);
+                    // Log the start of the booking process
+                    \Log::info('Starting booking process for attempt ID: ' . $attemptId);
+
+                    // Execute the booking process as needed
+                    $order = $this->bookPackage($RequestTour, $RequestFlight);
+
+                    // Log the response from the bookPackage function
+                    \Log::info('bookPackage response for attempt ID ' . $attemptId . ': ' . json_encode($order));
+
+                    if ($order[0] == 1) {
+                        \Log::error('Booking package failed: ' . $order[1]);
+                    } else {
+                        $order = $order[1];
+                        // Update the attempt record with the booking ID
+                        DB::table('attempts')
+                            ->where('id', $attemptId)
+                            ->update([
+                                'booking_id' => $order->booking_id,
+                                'status' => 'completed', // Optionally add a status
+                                'updated_at' => now(),
+                            ]);
+                        try {
+                            // Attempt to capture the payment
+                            $captureResponse = Stripe::paymentIntents()->capture($event->data->object->payment_intent);
+                            
+                            // Log the response from Stripe::paymentIntents()->capture
+                            \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
+
+                            // Send the booking confirmation email
+                            $emailResponse = TourController::emailBConfirmation($order->booking_id);
+
+                            // Log the response from emailBConfirmation
+                            \Log::info('emailBConfirmation response for booking ID ' . $order->booking_id . ': ' . json_encode($emailResponse));
+
+                        } catch (\Exception $e) {
+                            \Log::error('Error during payment capture or email confirmation: ' . $e->getMessage());
+                        }
+                    }
                 } else {
-                    $order = $order[1];
-                    // Capture payment
-                    \Stripe\PaymentIntent::capture($session->payment_intent);
-
-                    // Send confirmation email
-                    TourController::emailBConfirmation($order->booking_id);
-
-                    // Redirect after capturing payment and confirming the booking
-                    $newUrl = config('services.stripe.urlAppFront') . '/confirmation?order_id=' . $order->booking_id;
-                    \Log::info('Redirect URL for confirmation: ' . $newUrl);
+                    \Log::error('Attempt not found for ID: ' . $attemptId);
                 }
             } else {
-                \Log::error('Required metadata for booking is missing.');
+                \Log::error('No attempt ID found in session metadata.');
             }
 
-            \Log::debug('Checkout session completed: ' . json_encode($session));
             break;
         default:
             echo 'Received unknown event type ' . $event->type;
@@ -630,4 +663,19 @@ public function checkoutWebhook(Request $request)
 
     http_response_code(200);
 }
+
+
+public function checkBookingStatus(Request $request)
+{
+    $attemptId = $request->attempt_id;
+
+    $attempt = DB::table('attempts')->where('id', $attemptId)->first();
+
+    if ($attempt && $attempt->booking_id) {
+        return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
+    }
+
+    return response()->json(['status' => 'pending']);
+}
+
 }
