@@ -18,8 +18,8 @@ class CreateAttemptsTable extends Migration
             $table->string('booking_id')->nullable(); // Adding booking_id as a nullable string 
             $table->json('tour'); // JSON field for $RequestTour
             $table->json('flight'); // JSON field for $RequestFlight
-            $table->string('new_url'); // String field for $newUrl
-            $table->string('url'); // String field for $url
+            $table->text('new_url'); // String field for $newUrl
+            $table->text('url'); // String field for $url
             $table->string('status')->default('pending'); // Adding status
             $table->timestamps(); // Adds created_at and updated_at columns
         });

@@ -635,7 +635,8 @@ public function checkoutWebhook(Request $request)
                             ]);
                         try {
                             // Attempt to capture the payment
-                            $captureResponse = Stripe::paymentIntents()->capture($event->data->object->payment_intent);
+                            $stripe = new \Stripe\StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
+                            $captureResponse = $stripe->paymentIntents->capture($event->data->object->payment_intent);
                             
                             // Log the response from Stripe::paymentIntents()->capture
                             \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
