@@ -468,7 +468,7 @@
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="{{ asset('images/logo.png') }}" alt="">
+                <img style="width: 20%" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi {{ $data['name'] }}</label>
@@ -518,40 +518,40 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ asset('images/transfer.svg') }}">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/transfer.svg">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="{{ asset('images/box-arrow-up-right.svg') }}"> </a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/box-arrow-up-right.svg"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ asset('images/insurance.svg') }}">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/insurance.svg">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="{{ asset('images/box-arrow-up-right.svg') }}"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/box-arrow-up-right.svg"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ asset('images/accommodation.svg') }}">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/accommodation.svg">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation <img id="iconic"
-                                            src="{{ asset('images/box-arrow-up-right.svg') }}"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/box-arrow-up-right.svg"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ asset('images/activities.svg') }}">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/activities.svg">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities <img id="iconic"
-                                            src="{{ asset('images/box-arrow-up-right.svg') }}"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/images/box-arrow-up-right.svg"></a>
                                 </div>
                             </td>
                         </tr>
@@ -568,11 +568,11 @@
                     <tr>
                         <label style="font-size: 18px;">
                             Excellent
-                            <img src="{{ asset('images/ranking.png') }}" alt=""
+                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/ranking.png') }}" alt=""
                                 style="vertical-align: middle;">
                         </label>
                         <td style="text-align: right;">
-                            <img src="{{ asset('images/trust-index.png') }}" alt="">
+                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/trust-index.png') }}" alt="">
                         </td>
                     </tr>
                 </table>
@@ -582,11 +582,11 @@
             <div>
                 <table width="100%">
                     <tr>
-                        <img style="width:35%;" src="{{ asset('images/logo.png') }}">
+                        <img style="width:35%;" src="https://hopeful-nobel.74-208-189-166.plesk.page/images/logo.png') }}">
                         <td style="text-align: right;">
-                            <img src="{{ asset('images/face-icon.png') }}">
-                            <img src="{{ asset('images/insta-icon.png') }}">
-                            <img src="{{ asset('images/youtube-icon.png') }}">
+                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/face-icon.png') }}">
+                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/insta-icon.png') }}">
+                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/images/youtube-icon.png') }}">
                         </td>
                     </tr>
                 </table>

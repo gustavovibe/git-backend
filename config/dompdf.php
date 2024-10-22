@@ -265,7 +265,7 @@ return array(
          * @var bool
          */
         "enable_remote" => true,
-
+        /* 'isRemoteEnabled' => true, */
         /**
          * A ratio applied to the fonts height to be more like browsers' line height
          */

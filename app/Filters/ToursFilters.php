@@ -345,8 +345,9 @@ class ToursFilters
     }
 
     public function OrdersPrint(Request $r){
-        $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->id);
-        $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
+        $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->tour_id);
+
+       $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
         $orders->image=$orders->tour->main_image;
         $orders->reviews_count=$orders->tour->reviews_count;
         $orders->ratings_overall=$orders->tour->ratings_overall;

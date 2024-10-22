@@ -154,9 +154,8 @@ class TourController extends Controller
     public function pdfOrder(Request $r){
         try{
             $orders=ToursFilters::OrdersPrint($r);
-
-            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders])->set_option('isRemoteEnabled', true);
-            return $pdf->download('booking_confirmation.pdf');
+            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders]);
+            return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
