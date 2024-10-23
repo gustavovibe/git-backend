@@ -39,9 +39,9 @@ class SystemUserController extends Controller
                 'phone'=>$r->phone,
                 'country'=>$r->country,
                 'job_id'=>$r->job_id,
-                'profile_id'=>1,
-                'active'=>1,
-                'role'=>1,
+                'profile_id'=>$r->id?$u->profile_id:1,
+                'active'=>$r->id?$u->active:1,
+                'role'=>$r->id?$u->role:1,
                 'password'=>$r->id?$u->password:Hash::make($random)
             ])->save();
 
