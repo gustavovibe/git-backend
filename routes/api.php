@@ -182,3 +182,5 @@ Route::get('/logs', function () {
 });
 
 Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
+
+Route::get('status',[PackageController::class, 'checkBookingStatus']);

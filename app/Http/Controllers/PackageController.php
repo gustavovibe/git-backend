@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\FlightTour;
 use App\Models\Tour;
 use Illuminate\Http\Request;
