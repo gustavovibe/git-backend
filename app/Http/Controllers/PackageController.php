@@ -86,7 +86,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        $attemptUrl = $newUrl . '&attempt_id=' . $response['attempt_id'];
+        $attemptUrl = $newUrl . '&attempt_id=' . $attemptId;
         // Create the Stripe session
         $session = Session::create([
             'payment_method_types' => ['card'],
