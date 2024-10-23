@@ -76,6 +76,7 @@ class PackageController extends Controller
 private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
 {
     try {
+        
         // Insert the data into the 'attempts' table and get the newly created id
         $attemptId = DB::table('attempts')->insertGetId([
             'tour' => json_encode($RequestTour),
@@ -85,7 +86,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
+        $attemptUrl = $newUrl . '&attempt_id=' . $response['attempt_id'];
         // Create the Stripe session
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -101,11 +102,11 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'quantity' => 1,
             ]],
             'metadata' => [
-                'attempt_id' => $attemptId, // Ensure that it's a simple string
+                'attempt_id' => $attemptId, 
             ],
             'mode' => 'payment',
             'payment_intent_data' => ['capture_method' => 'manual'],
-            'success_url' => $newUrl,
+            'success_url' => $attemptUrl,
             'cancel_url' => $url,
             'payment_method_options' => [
                 'card' => [
