@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\FlightTour;
 use App\Models\Tour;
 use Illuminate\Http\Request;
@@ -100,9 +102,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 ],
                 'quantity' => 1,
             ]],
-            //'metadata' => [
-            //    'attempt_id' => (string) $attemptId, // Ensure that it's a simple string
-            //],
+            'metadata' => [
+                'attempt_id' => $attemptId, // Add the attempt ID to the metadata
+            ],
             'mode' => 'payment',
             'payment_intent_data' => ['capture_method' => 'manual'],
             'success_url' => $newUrl,
@@ -633,8 +635,7 @@ public function checkoutWebhook(Request $request)
                             ]);
                         try {
                             // Attempt to capture the payment
-                            $stripe = new \Stripe\StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
-                            $captureResponse = $stripe->paymentIntents->capture($event->data->object->payment_intent);
+                            $captureResponse = Stripe::paymentIntents()->capture($event->data->object->payment_intent);
                             
                             // Log the response from Stripe::paymentIntents()->capture
                             \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
