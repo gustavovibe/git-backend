@@ -184,4 +184,13 @@ class TravelersController extends Controller
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
     }
+
+    public function traveler_id(Request $r){
+        try{
+            $traveler = Traveler::where('user_id',$r->user_id)->first();
+            return response()->json(['success'=>true,'data'=>$traveler->traveler_id]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
 }
