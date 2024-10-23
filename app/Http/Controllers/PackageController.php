@@ -101,7 +101,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'quantity' => 1,
             ]],
             'metadata' => [
-                'attempt_id' => $attemptId, // Add the attempt ID to the metadata
+                'attempt_id' => (string) $attemptId, // Ensure that it's a simple string
             ],
             'mode' => 'payment',
             'payment_intent_data' => ['capture_method' => 'manual'],
