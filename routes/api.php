@@ -180,3 +180,5 @@ Route::get('/logs', function () {
     // Return the log content as plain text
     return response($lines, 200, ['Content-Type' => 'text/plain']);
 });
+
+Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
