@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
+use App\Models\ActionLog;
 use App\Models\Order;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -658,6 +659,14 @@ class DuffelApiController extends Controller
             $confirm_data = $confirm_response->json();
 
             if (isset($confirm_data['data']['confirmed_at'])) {
+
+                ActionLog::create([
+                    'user_id' => $r->user_log,
+                    'type' => 'Cancel',
+                    'action' => $r->traveler_id? 'Traveler update successfully':'Traveler created successfully',
+                    'item' => 'Traveler',
+                ]);
+
                 return response()->json(['success' => true, 'data' => 'Order cancelled successfully.']);
             } else {
                 return response()->json(['success' => false, 'data' =>$confirm_data['errors'][0]['message']]);

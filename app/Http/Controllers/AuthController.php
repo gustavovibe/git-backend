@@ -32,10 +32,12 @@ class AuthController extends Controller
             'hear' => $request->hear,
         ]);
 
-        // $correo = new MailRegistro($request->email, $request->password, $request->full_name);
-
-        // Mail::to($request->email)->send($correo);
-
+        ActionLog::create([
+            'user_id' => $user->id,
+            'type' => 'Created',
+            'action' =>'User created successfully',
+            'item' => 'User',
+        ]);
         return response()->json([
             'status' => true,
             'message' => 'Registro exitoso'
@@ -58,6 +60,12 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        ActionLog::create([
+            'user_id' => $user->id,
+            'type' => 'Login',
+            'action' =>'User Login successfully',
+            'item' => 'User',
+        ]);
 
         return ApiResponse::success([
             'access_token' => $token,
@@ -71,6 +79,13 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $user->tokens()->delete();
+
+            ActionLog::create([
+                'user_id' => $user->id,
+                'type' => 'Logout',
+                'action' =>'User Logout successfully',
+                'item' => 'User',
+            ]);
             return response()->json([
                 'status' => true,
                 'message' => 'logout successful'
@@ -96,6 +111,7 @@ class AuthController extends Controller
                    if ($payload) {
                     $randomPassword = Str::random(12);
                     $user=User::where('email',$payload['email'])->first();
+                    $action='';
                         if(!$user){
                             $user = User::fill([
                                 'email'=>$payload['email'],
@@ -107,10 +123,19 @@ class AuthController extends Controller
                                 'suscribed' => 1,
                                 'last_login'=>Carbon::now(),
                             ])->save();
+                            $action='Register';
                         }else{
                             $user->last_login = Carbon::now();
                             $user->save();
+                            $action='Login';
                         }
+
+                        ActionLog::create([
+                            'user_id' => $user->id,
+                            'type' => $action,
+                            'action' =>'User '.$action.' successfully',
+                            'item' => 'User',
+                        ]);
                         return response()->json(['success' => true, 'data' => $user]);
                    }
         }catch(Exception $e){

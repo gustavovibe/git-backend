@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
+use App\Models\ActionLog;
 use Carbon\Carbon;
 use Exception;
-
+use Illuminate\Http\Request;
 class TravelersController extends Controller
 {
     // Method to get travelers
@@ -61,6 +62,13 @@ class TravelersController extends Controller
             unset($local->user_);
             $traveler= $r->traveler_id?Traveler::where('traveler_id',$r->traveler_id)->first():new Traveler();
             $traveler->fill($local)->save();
+
+            ActionLog::create([
+                'user_id' => $r->traveler_id,
+                'type' => $r->traveler_id? 'Update':'Create',
+                'action' => $r->traveler_id? 'Traveler update successfully':'Traveler created successfully',
+                'item' => 'Traveler',
+            ]);
 
             return ApiResponse::success($traveler);
         }catch(Exception $e){
@@ -152,14 +160,21 @@ class TravelersController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $r, $id)
     {
         try{
             $traveler = Traveler::findOrFail($id);
 
-            $data = $request->only(['title', 'name', 'last', 'birth', 'country']);
+            $data = $r->only(['title', 'name', 'last', 'birth', 'country']);
 
             $traveler->update($data);
+
+            ActionLog::create([
+                'user_id' => $r->user_log,
+                'type' => 'Update',
+                'action' =>'User update successfully',
+                'item' => 'Traveler',
+            ]);
 
             return response()->json([
                 'message' => 'Traveler updated successfully',
@@ -171,12 +186,19 @@ class TravelersController extends Controller
 
     }
 
-    public function destroy($id)
+    public function destroy(Request $r,$id)
     {
         try{
             $traveler = Traveler::findOrFail($id);
             $traveler->status=0;
             $traveler->save();
+
+            ActionLog::create([
+                'user_id' => $r->user_log,
+                'type' => 'Deleted',
+                'action' =>'Traveler deleted successfully',
+                'item' => 'Traveler',
+            ]);
             return response()->json([
                 'message' => 'Traveler deleted successfully',
             ], 200);
