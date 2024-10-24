@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\UsersFilters;
+use App\Models\ActionLog;
 use App\Models\Permission;
 use App\Models\Permission_User;
 use App\Models\User;
@@ -45,6 +46,7 @@ class SystemUserController extends Controller
                 'password'=>$r->id?$u->password:Hash::make($random)
             ])->save();
 
+
            $existingPermissions = Permission_User::where('user_id', $u->id)->pluck('permission_id')->toArray();
 
            foreach ($r->permissions as $key => $value) {
@@ -63,7 +65,12 @@ class SystemUserController extends Controller
                     }
                 }
             }
-
+            ActionLog::create([
+                'user_id' => $u->user_log,
+                'type' =>$r->id?'Update':'Created',
+                'action' =>$r->id? 'User update successfully':'User created successfully',
+                'item' => 'User',
+            ]);
             DB::commit();
             return response()->json(['status'=>200,'response'=>$r->all()]);
         }catch(Error $e){
@@ -89,6 +96,13 @@ class SystemUserController extends Controller
             $user = SystemUser::find($r->user_id);
             $user->active=0;
             $user->save();
+
+            ActionLog::create([
+                'user_id' => $r->user_log,
+                'type' => 'Delete',
+                'action' =>'User deleted successfully',
+                'item' => 'User',
+            ]);
             DB::commit();
             return response()->json(['status' => 200, 'response' => ['user'=>$user,'perm'=>$perm]]);
         }catch(Error $e){
