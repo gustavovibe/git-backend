@@ -14,8 +14,8 @@ class UpdateAttemptsTable extends Migration
     public function up()
     {
          Schema::table('attempts', function (Blueprint $table) {
-            $table->json('duffel_res');
-            $table->json('tourradar_res');
+            $table->json('duffel_res')->nullable();
+            $table->json('tourradar_res')->nullable();
         });
     }
 
@@ -32,3 +32,4 @@ class UpdateAttemptsTable extends Migration
         });
     }
 }
+

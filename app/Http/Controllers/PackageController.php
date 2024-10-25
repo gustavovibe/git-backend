@@ -638,6 +638,8 @@ public function checkoutWebhook(Request $request)
                             ->where('id', $attemptId)
                             ->update([
                                 'status' => 'failed',
+                                'tour_response' => json_encode($tourResponse),
+                                'flight_response' => json_encode($flightResponse),
                                 'updated_at' => now(),
                             ]);
                     } else {
