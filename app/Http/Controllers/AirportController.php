@@ -18,6 +18,7 @@ class AirportController extends Controller
         ];
 
         $airports = [];
+        $processedIataCodes = []; // Array to keep track of already processed iata_city_codes
         $after = null;
         $limit = 200;
 
@@ -37,13 +38,19 @@ class AirportController extends Controller
             // Decode the response
             $responseData = json_decode($response->getBody()->getContents(), true);
 
-            // Filter and collect the required fields
+            // Filter and collect the required fields while checking for duplicates
             foreach ($responseData['data'] as $airport) {
-                $airports[] = [
-                    'iata_city_code' => $airport['iata_city_code'],
-                    'city_name' => $airport['city_name'],
-                    'iata_country_code' => $airport['iata_country_code']
-                ];
+                // Use 'iata_city_code' to check for duplicates
+                if (!in_array($airport['iata_city_code'], $processedIataCodes)) {
+                    $airports[] = [
+                        'iata_city_code' => $airport['iata_city_code'],
+                        'city_name' => $airport['city_name'],
+                        'iata_country_code' => $airport['iata_country_code']
+                    ];
+
+                    // Add the iata_city_code to the processed list to avoid duplicates
+                    $processedIataCodes[] = $airport['iata_city_code'];
+                }
             }
 
             // Get the 'after' parameter for the next request
