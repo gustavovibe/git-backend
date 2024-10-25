@@ -428,7 +428,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             ]);
             $order->travelers()->attach($traveler->traveler_id);
         } */
-        return [0, $order];
+        return [0, $order, $tourResponse, $flightResponse];
     }
 
     public function createBaggageCheckoutSession(Request $r){
@@ -571,27 +571,31 @@ public function updateDuffelOrder(Request $r)
 
 public function checkoutWebhook(Request $request)
 {
+    // Set Stripe secret key
     $stripeSecret = config('services.stripe.secret');
     Stripe::setApiKey($stripeSecret);
 
-    $endpoint_secret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
+    // Webhook secret
+    $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
 
-    $payload = @file_get_contents('php://input');
-    $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+    // Retrieve the payload and signature header
+    $payload = $request->getContent();
+    $sigHeader = $request->header('Stripe-Signature');
     $event = null;
 
     try {
+        // Construct the event from the payload and header
         $event = \Stripe\Webhook::constructEvent(
-            $payload, $sig_header, $endpoint_secret
+            $payload, $sigHeader, $endpointSecret
         );
     } catch (\UnexpectedValueException $e) {
-        http_response_code(400);
-        echo json_encode(['Error parsing payload: ' => $e->getMessage()]);
-        exit();
+        // Invalid payload
+        \Log::error('Error parsing payload: ' . $e->getMessage());
+        return response()->json(['error' => 'Invalid payload'], 400);
     } catch (\Stripe\Exception\SignatureVerificationException $e) {
-        http_response_code(400);
-        echo json_encode(['Error verifying webhook signature: ' => $e->getMessage()]);
-        exit();
+        // Invalid signature
+        \Log::error('Error verifying webhook signature: ' . $e->getMessage());
+        return response()->json(['error' => 'Invalid signature'], 400);
     }
 
     // Handle the event
@@ -599,7 +603,7 @@ public function checkoutWebhook(Request $request)
         case 'checkout.session.completed':
             $session = $event->data->object;
 
-            // Get the attempt ID from metadata
+            // Get the attempt ID from the session metadata
             $attemptId = $session->metadata->attempt_id ?? null;
 
             if ($attemptId) {
@@ -613,57 +617,80 @@ public function checkoutWebhook(Request $request)
 
                     // Log the start of the booking process
                     \Log::info('Starting booking process for attempt ID: ' . $attemptId);
+                    
+                    // Execute the booking process
+                    $response = $this->bookPackage($RequestTour, $RequestFlight);
 
-                    // Execute the booking process as needed
-                    $order = $this->bookPackage($RequestTour, $RequestFlight);
+                    // Extract the responses
+                    $status = $response[0];
+                    $order = $response[1];
+                    $tourResponse = $response[2] ?? null;
+                    $flightResponse = $response[3] ?? null;
 
-                    // Log the response from the bookPackage function
-                    \Log::info('bookPackage response for attempt ID ' . $attemptId . ': ' . json_encode($order));
+                    // Log the response from bookPackage
+                    \Log::info('bookPackage response for attempt ID ' . $attemptId . ': ' . json_encode($response));
 
-                    if ($order[0] == 1) {
-                        \Log::error('Booking package failed: ' . $order[1]);
+                    if ($status == 1) {
+                        // Booking failed, update the attempt record
+                        \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
+
+                        DB::table('attempts')
+                            ->where('id', $attemptId)
+                            ->update([
+                                'status' => 'failed',
+                                'updated_at' => now(),
+                            ]);
                     } else {
-                        $order = $order[1];
-                        // Update the attempt record with the booking ID
+                        // Booking successful, update the attempt record
                         DB::table('attempts')
                             ->where('id', $attemptId)
                             ->update([
                                 'booking_id' => $order->booking_id,
-                                'status' => 'completed', // Optionally add a status
+                                'tour_response' => json_encode($tourResponse),
+                                'flight_response' => json_encode($flightResponse),
+                                'status' => 'completed',
                                 'updated_at' => now(),
                             ]);
+                        
                         try {
                             // Attempt to capture the payment
-                            $stripe = new \Stripe\StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
-                            $captureResponse = $stripe->paymentIntents->capture($event->data->object->payment_intent);
+                            $stripe = new \Stripe\StripeClient($stripeSecret);
+                            $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
                             
-                            // Log the response from Stripe::paymentIntents()->capture
+                            // Log the payment capture response
                             \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
 
                             // Send the booking confirmation email
                             $emailResponse = TourController::emailBConfirmation($order->booking_id);
 
-                            // Log the response from emailBConfirmation
+                            // Log the email response
                             \Log::info('emailBConfirmation response for booking ID ' . $order->booking_id . ': ' . json_encode($emailResponse));
 
                         } catch (\Exception $e) {
-                            \Log::error('Error during payment capture or email confirmation: ' . $e->getMessage());
+                            // Handle errors during payment capture or email sending
+                            \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
                         }
                     }
                 } else {
+                    // Attempt record not found
                     \Log::error('Attempt not found for ID: ' . $attemptId);
                 }
             } else {
+                // No attempt ID found in the session metadata
                 \Log::error('No attempt ID found in session metadata.');
             }
 
             break;
         default:
-            echo 'Received unknown event type ' . $event->type;
+            // Log unknown event type
+            \Log::warning('Received unknown event type: ' . $event->type);
+            return response()->json(['error' => 'Unhandled event type'], 400);
     }
 
-    http_response_code(200);
+    // Return a 200 response for handled events
+    return response()->json(['status' => 'success'], 200);
 }
+
 
 
 public function checkBookingStatus(Request $request)
