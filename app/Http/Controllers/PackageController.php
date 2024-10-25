@@ -638,8 +638,8 @@ public function checkoutWebhook(Request $request)
                             ->where('id', $attemptId)
                             ->update([
                                 'status' => 'failed',
-                                'tour_response' => json_encode($tourResponse),
-                                'flight_response' => json_encode($flightResponse),
+                                'tourradar_res' => json_encode($tourResponse),
+                                'duffel_res' => json_encode($flightResponse),
                                 'updated_at' => now(),
                             ]);
                     } else {
@@ -648,8 +648,8 @@ public function checkoutWebhook(Request $request)
                             ->where('id', $attemptId)
                             ->update([
                                 'booking_id' => $order->booking_id,
-                                'tour_response' => json_encode($tourResponse),
-                                'flight_response' => json_encode($flightResponse),
+                                'tourradar_res' => json_encode($tourResponse),
+                                'duffel_res' => json_encode($flightResponse),
                                 'status' => 'completed',
                                 'updated_at' => now(),
                             ]);
