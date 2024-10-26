@@ -19,6 +19,6 @@ class EnquiryClient extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Enquiry Has Been Received')->view('emails.enquery_client')->with('data', $this->data);
+        return $this->subject('Your Enquiry Has Been Received')->view('emails.enquery_client')->with('data', $this->data)->embed(public_path('images/insta-icon.png'));
     }
 }
