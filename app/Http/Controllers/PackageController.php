@@ -129,7 +129,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
-        \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
+        \Log::info('Tour response: ' . json_encode($tourResponse));
         
         if(isset($tourResponse['error']) && $tourResponse['error']){
             return [1, 'Tour radar:'.$tourResponse['message']] ;
@@ -137,7 +137,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
+        \Log::info('Flight response: ' . json_encode($flightResponse));
         
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
