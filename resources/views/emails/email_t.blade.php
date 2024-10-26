@@ -192,12 +192,12 @@
     </div> --}}
     <br>
     <div class="box mh">
-        <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
         <h3>Confirmed Order</h3>
     </div>
     <br>
     <div class="mh">
-        <img class="imgP" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/template_vibe.jpg" alt="Girl in a jacket" width="100%" height="auto">
+        <img class="imgP" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/template_vibe.jpg')))}}" alt="Girl in a jacket" width="100%" height="auto">
     </div>
     <br>
     <br>
@@ -296,7 +296,7 @@
 
         </div>
         <div class="column" style="width: 20%;">
-            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/qr.png">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/qr.png')))}}">
         </div>
     </div>
     <br>
@@ -316,7 +316,7 @@
 
             </div>
             <div class="column"  style="width: 30%">
-                <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/city.png">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/city.png')))}}">
             </div>
         </div>
     </div>
@@ -386,17 +386,6 @@
             </div>
         </div>
     </div>
- {{--    <div>
-        <h4>General Terms and Conditions foor Vibe Adventures</h4>
-        <label>BOOKING TERMS & CONDITIONS</label>
-        <p>By booking this travel product (hereinafter refered to as "Tour") organized by Vibe Adventures SAS de CV (hereinafter referred to as "Company"), you (the party agreeing to these terms by reserving, purchasing, and/or participating in the Tour; hereinafter also referred to as "Customer") confirm that you have read. understood, and accepted these Booking Terms & Conditions (hereinafter referred to as "Terms").If you make an order on behalf of other participants, you guarantee that you are authorized to accept and agree to these Terms on their behalf</p>
-        <br>
-        <label>I.PRICE OF THE TOUR</label>
-        <P>The price of the tour is contractual and includes VAT. A non-refundable deposit of $99 USD or the full amount must be paid upon signing up for the Tour. Payment of the deposit means the Customer's agreement with the content of these Terms and the entry of the contract between him/her and the Company into force. The rest of the price must be paid by the Customer no later than 60 days befire the start of the Tour. If a contractual relationship arises less than 60 days before the start of the Tour, the Customer pays the full price.
-            By booking this Tour, you confirm that you have read, understood, and accepted these Terms. If you make and order on behalf of other participants, you guarantee that you are authorized to accept and agree to these Terms on theri behalf.
-        </P>
-
-    </div> --}}
 </body>
 </html>
 
