@@ -580,7 +580,7 @@
                                 {{-- opcion 1 --}}
                                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png'))) }}">
                                 {{-- <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/face-icon.png"> --}}
-                                <img src="{{ $message->embed(public_path('images/insta-icon.png')) }}">
+                              {{--   <img src="{{ $message->embed(public_path('images/insta-icon.png')) }}"> --}}
                                 {{-- <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insta-icon.png"> --}}
                                 <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/youtube-icon.png">
                         </td>
