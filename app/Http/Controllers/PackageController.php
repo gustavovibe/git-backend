@@ -34,7 +34,6 @@ class PackageController extends Controller
         $RequestTour = $request->input('tour');
 
         $tour_id = (int)$RequestTour['tour_id'];
-        $tour = Tour::find($tour_id);
 
         $rawAmount = round($request->input('price_total'), 2);
         $amount = $rawAmount * 100;
@@ -44,10 +43,15 @@ class PackageController extends Controller
         parse_str($parsedUrl['query'], $queryParams);
 
         $newUrl = $urlAppFront . '/confirmation?' . http_build_query($queryParams);
-
-        // Call the function and get the response
-        $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
-
+        $tour = Tour::find($tour_id);
+        if($tour){
+            \Log::info('tour found: ' . $tour->tour_name);
+            // Call the function and get the response
+            $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+        }else{
+            \Log::info('tour not found on db, id: ' . $tour_id);
+            $response = $this->createCheckoutSessionInternal($RequestTour->tour_name, $RequestTour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+        }
         // Check if an error occurred
         if (isset($response['error'])) {
             return response()->json(['error' => $response['error']], 400);
