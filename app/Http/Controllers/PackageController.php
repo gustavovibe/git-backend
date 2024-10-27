@@ -440,7 +440,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             ]);
             $order->travelers()->attach($traveler->traveler_id);
         } */
-        return [0, $order, $tourResponse, $flightResponse];
+        return [0, $tourResponse, $flightResponse, $order];
     }
 
     public function createBaggageCheckoutSession(Request $r){
@@ -632,12 +632,13 @@ public function checkoutWebhook(Request $request)
                     
                     // Execute the booking process
                     $response = $this->bookPackage($RequestTour, $RequestFlight);
-
+                    // Log the start of the booking process
+                    \Log::info('Response (general): ' . $response);
                     // Extract the responses
                     $status = $response[0];
-                    $order = $response[1];
-                    $tourResponse = $response[2] ?? null;
-                    $flightResponse = $response[3] ?? null;
+                    $tourResponse = $response[1] ?? null;
+                    $flightResponse = $response[2] ?? null;
+                    $order = $response[3];
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
