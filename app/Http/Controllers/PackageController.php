@@ -633,7 +633,7 @@ public function checkoutWebhook(Request $request)
                     // Execute the booking process
                     $response = $this->bookPackage($RequestTour, $RequestFlight);
                     // Log the start of the booking process
-                    \Log::info('Response (general): ' . $response);
+                    \Log::info('Response (general): ' . json_encode($response));
                     // Extract the responses
                     $status = $response[0];
                     $tourResponse = $response[1] ?? null;
