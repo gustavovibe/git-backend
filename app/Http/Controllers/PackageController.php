@@ -638,14 +638,13 @@ public function checkoutWebhook(Request $request)
                     $status = $response[0];
                     $tourResponse = $response[1] ?? null;
                     $flightResponse = $response[2] ?? null;
-                    $order = $response[3];
+                    $order = $response[3] ?? null;
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
                     // Log both tour and flight responses
                     \Log::info('status ' . $attemptId . ': ' . $status);
-                    // Log the response from bookPackage
-                    \Log::info('bookPackage response for attempt ID ' . $attemptId . ': ' . json_encode($response));
+
 
                     if ($status == 1) {
                         // Booking failed, update the attempt record
