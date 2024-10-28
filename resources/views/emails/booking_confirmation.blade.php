@@ -722,7 +722,7 @@
         <p>Adding these services to your trip now can save you money to purchasing them later or in the destination</p>
         <div class="card-container">
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.png">
                 <div class="card-body">
                     <h5 class="card-title">Airport transfer</h5>
                     <p class="card-text">Airport transfers not included adventure?</p>
@@ -730,7 +730,7 @@
                 <a>Go somewhere <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.png">
                 <div class="card-body">
                     <h5 class="card-title">Insurance</h5>
                     <p class="card-text">Available up to 24h before departure</p>
@@ -738,7 +738,7 @@
                 <a>Manager Insurance <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.png">
                 <div class="card-body">
                     <h5 class="card-title">Accommodation</h5>
                     <p class="card-text">Need pre- or post-tour accommodation?</p>
@@ -746,7 +746,7 @@
                 <a>Book Accommodation <i class="bi bi-arrow-up-right-square"></i></a>
             </div>
             <div class="card">
-                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.svg">
+                <img class="card-img-top" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.png">
                 <div class="card-body">
                     <h5 class="card-title">Activities</h5>
                     <p class="card-text">Got extra days in the destination before or after the adventure?</p>

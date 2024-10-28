@@ -175,7 +175,7 @@
             color: grey;
         }
 
-        .svg {
+        .png {
             vertical-align: middle;
             margin: 0 5px;
 
@@ -333,7 +333,7 @@
 
 
         .card #img_ {
-            width: 80%;
+            width: 100%;
             height: 100px;
             /* padding: 5%; */
             border-radius: 10px
@@ -509,40 +509,40 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.svg')))}}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.svg')))}}"> </a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.svg')))}}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.svg')))}}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.svg')))}}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.svg')))}}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.svg')))}}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.svg')))}}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                         </tr>

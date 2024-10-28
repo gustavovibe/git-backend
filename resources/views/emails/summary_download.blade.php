@@ -517,40 +517,40 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.svg">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.png">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.svg"> </a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.svg">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.png">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.svg"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.svg">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.png">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.svg"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.svg">
+                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.png">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.svg"></a>
+                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
                                 </div>
                             </td>
                         </tr>
