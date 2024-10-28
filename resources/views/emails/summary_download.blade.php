@@ -468,7 +468,7 @@
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" alt="">
+                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi</label>
@@ -517,40 +517,40 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/transfer.png">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"> </a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insurance.png">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/accommodation.png">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/activities.png">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities <img id="iconic"
-                                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/box-arrow-up-right.png"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                         </tr>
@@ -567,11 +567,11 @@
                     <tr>
                         <label style="font-size: 18px;">
                             Excellent
-                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/ranking.png" alt=""
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
                                 style="vertical-align: middle;">
                         </label>
                         <td style="text-align: right;">
-                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/trust-index.png" alt="">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt="">
                         </td>
                     </tr>
                 </table>
@@ -581,11 +581,11 @@
             <div>
                 <table width="100%">
                     <tr>
-                        <img style="width:35%;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png">
+                        <img style="width:35%;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
                         <td style="text-align: right;">
-                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/face-icon.png">
-                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/insta-icon.png">
-                            <img src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/youtube-icon.png">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}">
                         </td>
                     </tr>
                 </table>
