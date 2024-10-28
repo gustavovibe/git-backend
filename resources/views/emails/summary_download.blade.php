@@ -486,7 +486,7 @@
         <div style="text-align: center; margin: 20px;">
             <label
                 style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
-                <a href="https://vibeadventures.be/api/boooking-summary?tour_id={{ $data['tour_id'] }}">Download itinerary</a>
+                <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $data['tour_id'] }}">Download itinerary</a>
             </label>
         </div>
         <p>If you have any questions or need assistance, feel free to contact our support team.</p>
