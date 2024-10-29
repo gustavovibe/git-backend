@@ -20,6 +20,7 @@ use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Http\Controllers\TourController;
+use App\Models\ActionLog;
 
 class PackageController extends Controller
 {
@@ -50,6 +51,7 @@ class PackageController extends Controller
             \Log::info('tour found: ' . $tour->tour_name);
             // Call the function and get the response
             $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+
         }else{
             \Log::info('tour not found on db, id: ' . $tour_id);
             $response = $this->createCheckoutSessionInternal($tour_name, $tour_desc, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
@@ -82,7 +84,7 @@ class PackageController extends Controller
 private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
 {
     try {
-        
+
         // Insert the data into the 'attempts' table and get the newly created id
         $attemptId = DB::table('attempts')->insertGetId([
             'tour' => json_encode($RequestTour),
@@ -108,7 +110,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'quantity' => 1,
             ]],
             'metadata' => [
-                'attempt_id' => $attemptId, 
+                'attempt_id' => $attemptId,
             ],
             'mode' => 'payment',
             'payment_intent_data' => ['capture_method' => 'manual'],
@@ -126,7 +128,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
     } catch (Exception $e) {
         return ['error' => $e->getMessage()];
     }
-} 
+}
 
     public function bookPackage($tour, $flight)
     {
@@ -136,7 +138,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         // Log both tour and flight responses
         \Log::info('Tour response: ' . json_encode($tourResponse));
-        
+
         if(isset($tourResponse['error']) && $tourResponse['error']){
             return [1, 'Tour radar:'.$tourResponse['message']] ;
         }
@@ -144,7 +146,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
         \Log::info('Flight response: ' . json_encode($flightResponse));
-        
+
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
         }
@@ -161,8 +163,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $groupSize = count($tourBody['passengers']);
         $traveler_id=0;
+
+        $firstIteration = true;
         foreach ($passengers as $passenger) {
-            if ($firstIteration) {
+
 
                 $mainPassenger = $passenger['fields']['title']=='Mr.'?'male':'female';
 
@@ -186,18 +190,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
                         Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
                 }
-
-              /*   $user = User::updateOrCreate(
-                    ['email' => $passenger['fields']['email']],
-                    ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                        'password' => Hash::make('password123'),
-                        'profile_id' => 2,
-                        'phone' => $passenger['fields']['phone_number'],
-                        'country' => $passenger['fields']['place_of_issue'],
-                        'role' => 'role',
-                        'active' => 1,
-                        'suscribed' => 1,
-                        'hear' => "without comment",]); */
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],
@@ -225,10 +217,15 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
                 $mainPassengerAge = $dob->diffInYears($today);
 
-                $firstIteration = false;
-
-
-            }
+                if ($firstIteration) {
+                    ActionLog::create([
+                        'user_id' => $u->id,
+                        'type' => 'Create',
+                        'action' => 'Order created successfully',
+                        'item' => 'Order',
+                    ]);
+                    $firstIteration = false;
+                }
         }
 
 
@@ -480,6 +477,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             return response()->json(['status' => false,'response'=>$e->getMessage()]);
         }
 }
+
 private function getDuffelHeaders(){
     return [
         'Authorization' => 'Bearer ' . config('services.duffel.secret'),
@@ -567,6 +565,14 @@ public function updateDuffelOrder(Request $r)
         ];
         /* return $body; */
 
+            ActionLog::create([
+                'user_id' => $r->user_id,
+                'type' => 'Update',
+                'action' => 'Order updated successfully',
+                'item' => 'Order',
+            ]);
+
+
         $url = "https://api.duffel.com/air/orders/{$r->order_id}";
         $response = Http::withHeaders($this->getDuffelHeaders())->post($url, $body);
 
@@ -629,7 +635,7 @@ public function checkoutWebhook(Request $request)
 
                     // Log the start of the booking process
                     \Log::info('Starting booking process for attempt ID: ' . $attemptId);
-                    
+
                     // Execute the booking process
                     $response = $this->bookPackage($RequestTour, $RequestFlight);
                     // Log the start of the booking process
@@ -669,12 +675,12 @@ public function checkoutWebhook(Request $request)
                                 'status' => 'completed',
                                 'updated_at' => now(),
                             ]);
-                        
+
                         try {
                             // Attempt to capture the payment
                             $stripe = new \Stripe\StripeClient($stripeSecret);
                             $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
-                            
+
                             // Log the payment capture response
                             \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
 
