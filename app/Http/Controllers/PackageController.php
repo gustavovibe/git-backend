@@ -63,22 +63,6 @@ class PackageController extends Controller
         return response()->json(['url' => $response['url'], 'attempt_id' => $response['attempt_id']]);
     }
 
-
-    public function test(Request $request)
-    {
-
-        $tourBody = $request->input('tour');
-        $tourResponse = TourRadarController::createNewBooking($tourBody);
-
-        $flightBody = $request->input('flight');
-        $flightResponse = DuffelApiController::createNewBooking($flightBody);
-
-        return [
-            'flight' => $flightResponse,
-            'tour' => $tourResponse
-        ];
-    }
-
 private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
 {
     try {
@@ -138,18 +122,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
         \Log::info('Tour response: ' . json_encode($tourResponse));
         
         if(isset($tourResponse['error']) && $tourResponse['error']){
-            return [1, 'Tour radar:'.$tourResponse['message']] ;
-        }
-        $flightBody = $flight;
-        $flightResponse = DuffelApiController::createNewBooking($flightBody);
+            return [1, 'Tourradar:'.$tourResponse] ;
+        } else { 
+            $flightBody = $flight;
+            $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        \Log::info('Flight response: ' . json_encode($flightResponse));
+            \Log::info('Flight response: ' . json_encode($flightResponse));
+            if(isset($flightResponse['errors']) && $flightResponse['errors']){
+                return [1, 'Flight:'. $flightResponse] ;
+            } else {
         
-        if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
-        }
         $passengers = $tourResponse['passengers'];
-
 
         $firstIteration = true;
 
@@ -186,18 +169,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
                         Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
                 }
-
-              /*   $user = User::updateOrCreate(
-                    ['email' => $passenger['fields']['email']],
-                    ['name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                        'password' => Hash::make('password123'),
-                        'profile_id' => 2,
-                        'phone' => $passenger['fields']['phone_number'],
-                        'country' => $passenger['fields']['place_of_issue'],
-                        'role' => 'role',
-                        'active' => 1,
-                        'suscribed' => 1,
-                        'hear' => "without comment",]); */
 
                 $traveler=Traveler::updateOrCreate(
                     ['mail'=>$passenger['fields']['email']],
@@ -415,34 +386,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
             return response()->json(['error' => $e->getMessage()], 500);
         }
 
-/*
-        foreach ($passengers as $passenger) {
-            if ($passenger['fields']['email'] == $user->email) {
-                continue;
-            }
-            $traveler = Traveler::create([
-                'title' => $passenger['fields']['title'],
-                'gender' => $passenger['fields']['gender'],
-                'name' => $passenger['fields']['first_name'],
-                'last' => $passenger['fields']['last_name'],
-                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->format('Y-m-d'),
-                'passport' => intval($passenger['fields']['passport_number']),
-                'place' => $passenger['fields']['place_of_issue'],
-                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->format('Y-m-d'),
-                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->format('Y-m-d'),
-                'mail' => $passenger['fields']['email'],
-                'phone' => $passenger['fields']['phone_number'],
-                'address' => isset($passengers[0]['fields']['address'])? $passengers[0]['fields']['address']:'n/a',
-                'country' => $passengers[0]['fields']['place_of_issue'],
-                'user_id' => $user->id,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-            $order->travelers()->attach($traveler->traveler_id);
-        } */
         return [0, $tourResponse, $flightResponse, $order];
+        }
     }
-
+    }
     public function createBaggageCheckoutSession(Request $r){
         try{
             $stripeSecret = config('services.stripe.secret');
