@@ -463,12 +463,12 @@
     </style>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif;">
+<body style="font-family: 'Canaro', sans-serif; padding:2%;">
     <br>
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+                <img style="width: 50%; height:50%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi</label>
@@ -504,7 +504,7 @@
                 <p style="color: grey; font-size:12px;">Adding these services to your trip now can save you money to
                     purchasing them later or in the
                     destination</p>
-                <div>
+                <div style="padding: 2%">>
                     <table class="card">
                         <tr>
                             <td>

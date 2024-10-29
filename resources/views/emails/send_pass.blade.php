@@ -463,12 +463,12 @@
     </style>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif;">
+<body style="font-family: 'Canaro', sans-serif; padding:2%">
     <br>
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+                <img style="width: 50%; height:50%"  src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi {{ $data['name'] }}</label>
@@ -505,7 +505,7 @@
 
     <br>
 
-    <div>
+    <div style="padding: 2%">
         <br>
         <div style="page-break-before: always;" class="Recomend">
             <div id="container">
