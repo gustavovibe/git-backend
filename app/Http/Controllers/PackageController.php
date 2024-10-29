@@ -124,10 +124,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
         \Log::info('Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
-            return [1, 'Tourradar:'.$tourResponse] ;
-        } else { 
-            $flightBody = $flight;
-            $flightResponse = DuffelApiController::createNewBooking($flightBody);
+            return [1, 'Tour radar:'.$tourResponse['message']] ;
+        }
+        $flightBody = $flight;
+        $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
         \Log::info('Flight response: ' . json_encode($flightResponse));
 
@@ -135,6 +135,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
         }
         $passengers = $tourResponse['passengers'];
+
 
         $firstIteration = true;
 
@@ -396,9 +397,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }
 
         return [0, $tourResponse, $flightResponse, $order];
-        }
     }
-    }
+
     public function createBaggageCheckoutSession(Request $r){
         try{
             $stripeSecret = config('services.stripe.secret');
