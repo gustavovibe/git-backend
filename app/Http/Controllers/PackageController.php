@@ -125,7 +125,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             return [1, 'Tour radar:'.$tourResponse['message']] ;
-        }
+        } 
+        if($tourResponse['status']=="confirmed") {
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
@@ -134,8 +135,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
         }
+        
+        if($flightResponse['data']['booking_reference']) {
         $passengers = $tourResponse['passengers'];
-
 
         $firstIteration = true;
 
@@ -395,7 +397,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             \Log::error('Error creating flight tour: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
-
+        }
+        }
         return [0, $tourResponse, $flightResponse, $order];
     }
 
@@ -408,11 +411,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $baggageType = $r->baggage_type;
             $baggageQuantity = $r->input('quantity', 1);
             $amount = $r->price * 100;
-
-
              $newUrl = $urlAppFront . "/my-trips/order?stripe_pay=true";
-             /*  $newUrl =  "http://localhost:3000/my-trips/order?stripe_pay=true"; */
-           /*    return $newUrl; */
               $response = $this->createCheckoutSessionInternal(
                 ucfirst($baggageType) . ' Baggage',
                 ucfirst($baggageType) . ' baggage purchase',
