@@ -212,258 +212,86 @@
 
 
     <div style="page-break-before: always">
-        <div style="width: 595.92px; height: 842.88px; position: relative; background: white">
-            <div
-                style="width: 206.84px; height: 33px; left: 194.56px; top: 781px; position: absolute; justify-content: center; align-items: center; display: inline-flex">
-                <img style="width: 206.84px; height: 33px" src="https://via.placeholder.com/207x33" />
-            </div>
-            <div
-                style="width: 297.38px; left: 59.56px; top: 129px; position: absolute; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 20px; display: inline-flex">
-                <div
-                    style="align-self: stretch; height: 287.85px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 15px; display: flex">
-                    <div
-                        style="width: 258.25px; height: 34.01px; color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        What’s Included</div>
-                    <div
-                        style="height: 238.83px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
-                        <div
-                            style="align-self: stretch; height: 14.17px; color: #4F5E71; font-size: 13.77px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            Accommodation</div>
-                        <div
-                            style="align-self: stretch; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            Superior to Superior First-Class with private bath or shower</div>
-                        <div
-                            style="align-self: stretch; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            3 nights in London</div>
-                        <div
-                            style="align-self: stretch; height: 14.17px; color: #4F5E71; font-size: 13.88px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            Guide</div>
-                        <div
-                            style="align-self: stretch; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            The services of a Tour Director is included</div>
-                        <div
-                            style="align-self: stretch; height: 14.17px; color: #4F5E71; font-size: 13.44px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            Meals</div>
-                        <div
-                            style="align-self: stretch; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            Full buffet breakfast daily</div>
-                        <div
-                            style="align-self: stretch; height: 14.17px; color: #4F5E71; font-size: 13.44px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            Transport</div>
-                        <div
-                            style="align-self: stretch; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            Travel by coach or private car</div>
-                        <div
-                            style="width: 45.62px; height: 14.17px; color: #4F5E71; font-size: 13.44px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            Others</div>
-                        <div
-                            style="width: 283.64px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                            Includes hotel taxes, porterage, tips and service charges</div>
-                    </div>
-                </div>
-            </div>
-            <div
-                style="width: 596px; height: 92px; left: 0px; top: 0px; position: absolute; justify-content: center; align-items: center; display: inline-flex">
-                <div
-                    style="width: 596px; height: 92px; position: relative; border-bottom: 1px rgba(80, 80, 80, 0.20) solid; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: flex">
-                    <div
-                        style="width: 595.92px; height: 842.88px; padding-top: 27px; padding-bottom: 766.50px; padding-left: 22.50px; padding-right: 424.92px; flex-direction: column; justify-content: flex-start; align-items: center; display: inline-flex">
-                        <div style="width: 148.50px; height: 49.38px; position: relative">
-                            <div style="width: 119.25px; height: 19.50px; left: 0px; top: -49.38px; position: absolute">
-                            </div>
-                            <img style="width: 129px; height: 39.38px; left: 19.50px; top: -39.38px; position: absolute"
-                                src="https://via.placeholder.com/129x39" />
-                        </div>
-                    </div>
-                    {{-- <div
-                        style="width: 280px; height: 49px; color: #4F5E71; font-size: 10.95px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        Independent London City Stay</div> --}}
-                </div>
-            </div>
+        <div>
+            <img style="width: 18%; height: 4%; margin-left:6%; "
+                                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
+                                <hr style="margin-top:10%;color:#4F5E71">
         </div>
+        <div>
+            <p style="color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word;">Whats include!</p>
+        </div>
+        @foreach ( $tour['services']['included'] as $key=>$value)
+        <div style="page-break-inside: avoid;">
+          <h3>{{ ucfirst($key) }}</h3>
+            @foreach ( $value as $item )
+                <p  style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</p>
+            @endforeach
+        </div>
+          @endforeach
     </div>
+
+
     <div style="page-break-before: always">
-        <div style="width: 595.92px; height: 842.88px; position: relative; background: white">
-            <div
-                style="width: 206.84px; height: 33px; left: 194.56px; top: 781px; position: absolute; justify-content: center; align-items: center; display: inline-flex">
-                <img style="width: 206.84px; height: 33px" src="https://via.placeholder.com/207x33" />
-            </div>
-            <div
-                style="height: 548.16px; left: 59.56px; top: 129px; position: absolute; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 15px; display: inline-flex">
-                <div
-                    style="color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                    Departure Dates </div>
-                <div
-                    style="width: 393.46px; justify-content: flex-start; align-items: flex-start; gap: 194px; display: inline-flex">
-                    <div
-                        style="flex: 1 1 0; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 21px; display: inline-flex">
-                        <div
-                            style="align-self: stretch; height: 503.16px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 21px; display: flex">
-                            <div
-                                style="align-self: stretch; justify-content: flex-start; align-items: center; gap: 33px; display: inline-flex">
-                                <div
-                                    style="justify-content: flex-start; align-items: center; gap: 120px; display: flex">
-                                    <div
-                                        style="width: 71px; align-self: stretch; color: #4F5E71; font-size: 11.12px; font-family: Inter; font-weight: 700; text-decoration: underline; word-wrap: break-word">
-                                        STARTING IN</div>
-                                    <div style="width: 42px; height: 42px; position: relative">
-                                        <img style="width: 27.12px; height: 23.59px; left: 7.44px; top: 9.22px; position: absolute"
-                                            src="https://via.placeholder.com/27x24" />
-                                    </div>
-                                </div>
-                                <div
-                                    style="width: 57px; height: 42px; color: #4F5E71; font-size: 11.12px; font-family: Inter; font-weight: 700; text-decoration: underline; word-wrap: break-word">
-                                    ENDING IN</div>
-                            </div>
-                            <div
-                                style="width: 393.46px; height: 19.84px; padding-left: 0.44px; padding-right: 0.02px; justify-content: center; align-items: flex-start; gap: 12px; display: inline-flex">
-                                <div
-                                    style="width: 224px; height: 20px; color: #4F5E71; font-size: 18.56px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    London, UK</div>
-                                <div
-                                    style="width: 157px; height: 20px; text-align: right; color: #4F5E71; font-size: 18.56px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    London, UK</div>
-                            </div>
-                            <div
-                                style="align-self: stretch; justify-content: space-between; align-items: center; display: inline-flex">
-                                <div
-                                    style="width: 99.73px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    27 September 2024</div>
-                                <div
-                                    style="width: 99.73px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    30 September 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.41px; justify-content: center; align-items: flex-start; gap: 223.83px; display: inline-flex">
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.24px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    04 October 2024</div>
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    07 October 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.41px; justify-content: center; align-items: flex-start; gap: 223.83px; display: inline-flex">
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.77px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    11 October 2024</div>
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    14 October 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.41px; justify-content: center; align-items: flex-start; gap: 223.83px; display: inline-flex">
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    18 October 2024</div>
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    21 October 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.41px; justify-content: center; align-items: flex-start; gap: 223.83px; display: inline-flex">
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    25 October 2024</div>
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    28 October 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; justify-content: center; align-items: flex-start; gap: 201.33px; display: inline-flex">
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    01 November 2024</div>
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    04 November 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; justify-content: center; align-items: flex-start; gap: 201.33px; display: inline-flex">
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    08 November 2024</div>
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.77px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    11 November 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; justify-content: center; align-items: flex-start; gap: 201.33px; display: inline-flex">
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    15 November 2024</div>
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    18 November 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; justify-content: center; align-items: flex-start; gap: 201.33px; display: inline-flex">
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    22 November 2024</div>
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    25 November 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.45px; justify-content: center; align-items: flex-start; gap: 200.33px; display: inline-flex">
-                                <div
-                                    style="width: 96.11px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    29 November 2024</div>
-                                <div
-                                    style="width: 96.57px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    02 December 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.45px; justify-content: center; align-items: flex-start; gap: 199.87px; display: inline-flex">
-                                <div
-                                    style="width: 96.57px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    13 December 2024</div>
-                                <div
-                                    style="width: 96.57px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    16 December 2024</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.21px; justify-content: center; align-items: flex-start; gap: 218.83px; display: inline-flex">
-                                <div
-                                    style="width: 84.61px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    31 January 2025</div>
-                                <div
-                                    style="width: 89.81px; height: 11.33px; color: #4F5E71; font-size: 10.42px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    03 February 2025</div>
-                            </div>
-                            <div
-                                style="height: 11.33px; padding-right: 0.21px; justify-content: center; align-items: flex-start; gap: 213.63px; display: inline-flex">
-                                <div
-                                    style="width: 89.81px; height: 11.33px; color: #4F5E71; font-size: 10.59px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    07 February 2025</div>
-                                <div
-                                    style="width: 89.81px; height: 11.33px; color: #4F5E71; font-size: 10.77px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-                                    10 February 2025</div>
-                            </div>
+        <div>
+            <img style="width: 18%; height: 4%; margin-left:6%; "
+                                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
+                                <hr style="margin-top:10%;color:#4F5E71">
+        </div>
+        <div>
+            <h2 style="color: #82CF45;">Why Book With us?</h1>
+            <table>
+                <tr style="height: 30%; ">
+                    <td style="width: 50%;" >
+                        <div style="padding:2%">
+                            <img  style="width: 20%; height: auto;"  src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <h3 style="color: #82CF45;">Top tours</h3>
+                            <p style="text-align: justify;">Our thorough screening process ensures you'll choose from the finest adventures and travel packages worlwide</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div
-                style="width: 596px; height: 92px; left: 0px; top: 0px; position: absolute; justify-content: center; align-items: center; display: inline-flex">
-                <div
-                    style="width: 596px; height: 92px; position: relative; border-bottom: 1px rgba(80, 80, 80, 0.20) solid; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: flex">
-                    <div
-                        style="width: 595.92px; height: 842.88px; padding-top: 27px; padding-bottom: 766.50px; padding-left: 22.50px; padding-right: 424.92px; flex-direction: column; justify-content: flex-start; align-items: center; display: inline-flex">
-                        <div style="width: 148.50px; height: 49.38px; position: relative">
-                            <div
-                                style="width: 119.25px; height: 19.50px; left: 0px; top: -49.38px; position: absolute">
-                            </div>
-                            <img style="width: 129px; height: 39.38px; left: 19.50px; top: -39.38px; position: absolute"
-                                src="https://via.placeholder.com/129x39" />
+                    </td>
+
+
+
+                    <td style="width: 50%;">
+                        <div style="padding: 2%;">
+                            <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <h3 style="color: #82CF45;">Secure payments</h3>
+                            <p style="text-align: justify;">Enjoy secure and flexible payment options, including 'Book Now, Pay Later,' allowing you to plan your dream trip with ease and peace of mind.</p>
                         </div>
-                    </div>
-                    <div
-                        style="width: 280px; height: 49px; color: #4F5E71; font-size: 10.95px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        Independent London City Stay</div>
-                </div>
-            </div>
+                    </td>
+                </tr>
+
+            </table>
+            <br>
+            <table>
+                <tr style="height: 30%">
+                    <td  style="width: 50%">
+                        <div style="padding: 2%;">
+                            <img style="width: 20%; height: auto;" style="width: 20%; height: auto;"  src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <h3 style="color: #82CF45;">Wide selection</h3>
+                            <p style="text-align: justify;">Choose from over 20,000 adventures and book flights from almost any airport in the world, making it easy to find your ideal trip!</p>
+                        </div>
+                    </td>
+
+                    <td style="width: 50%">
+                        <div style="padding: 2%;">
+                            <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <h3 style="color: #82CF45;">Easy booking</h3>
+                            <p style="text-align: justify;">Book everything you need in one place—flights, accommodations, activities, and more—with just a few clicks.</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <table style="width: 100%">
+                <tr>
+                    <td style="width:30%; text-align:center;">
+                        <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                    </td>
+                    <td>
+                        <p style="text-align: justify;">Our knowledgeable team of travel experts has explored countless destinations worldwide and is ready to help you book your dream vacation. With a wealth of industry experience and a commitment to exceptional service, we’re here to assist you with every aspect of your journey.</p>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
