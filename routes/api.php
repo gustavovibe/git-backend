@@ -50,6 +50,7 @@ Route::resource('cities', Citycontroller::class);
 Route::get('selection', [Citycontroller::class, 'selectiontable']);
 Route::resource('countries', CountryController::class);
 Route::get('get-destinations', [Citycontroller::class, 'destinations']);
+Route::get('get_destination_guide', [DestinationController::class, 'getDestinationGuide']);
 Route::resource('natural_destinations', NaturalDestinationController::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
