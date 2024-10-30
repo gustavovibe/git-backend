@@ -140,7 +140,7 @@ class TourController extends Controller
 
     public function emailBConfirmation($booking_id){
         $b=[
-            'id'=>$booking_id
+            'tour_id'=>$booking_id
         ];
 
         request()->merge($b);
