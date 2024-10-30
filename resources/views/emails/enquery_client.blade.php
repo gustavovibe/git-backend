@@ -463,12 +463,12 @@
     </style>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif;">
+<body style="font-family: 'Canaro', sans-serif; padding:2%;">
     <br>
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+                <img style="width: 50%; height:50%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi</label>
@@ -480,7 +480,7 @@
 
     <br>
     <div class="textG mh" style="text-align: justify;">
-        <h1>Dear  {{ $data['name'] }}<a class="Tcolor"></a></h1>
+        <h2>Dear  {{ $data['name'] }}<a class="Tcolor"></a></h2>
         <p>Thank you for reaching out to us!</p>
         <p>We are pleased to inform you that your enquiry has been successfully registered in our system. One of our travel advisors will review your request and get back to you as soon as possible with the information you need.</p>
 
@@ -496,7 +496,7 @@
 
     <br>
 
-    <div>
+    <div style="padding: 2%">
         <br>
         <div style="page-break-before: always;" class="Recomend">
             <div id="container">
