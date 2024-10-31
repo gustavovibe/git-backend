@@ -596,8 +596,8 @@
                                 <table style="width: 100%">
                                     <tr>
                                         <td style=" width:20%"><img
-                                            {{-- src="{{ $logo2 }}" --}}
-                                            src="{{ public_path('storage/images/logo_flight.png')}}"
+                                            src="{{ $logo }}"
+                                            {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
                                                 style="width: 50%; height: 10%; border-radius: 12px;"></td>
                                         <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
                                         <td style="margin-left:50%;"><img
