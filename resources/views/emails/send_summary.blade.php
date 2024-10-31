@@ -220,7 +220,7 @@
         <div>
             <p style="color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word;">Whats include!</p>
         </div>
-        @foreach ( $tour['services']['included'] as $key=>$value)
+        @foreach ( $services as $key=>$value)
         <div style="page-break-inside: avoid;">
           <h3>{{ ucfirst($key) }}</h3>
             @foreach ( $value as $item )
@@ -228,6 +228,14 @@
             @endforeach
         </div>
           @endforeach
+    {{--     @foreach ( $tour['services']['included'] as $key=>$value)
+        <div style="page-break-inside: avoid;">
+          <h3>{{ ucfirst($key) }}</h3>
+            @foreach ( $value as $item )
+                <p  style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</p>
+            @endforeach
+        </div>
+          @endforeach --}}
     </div>
 
 

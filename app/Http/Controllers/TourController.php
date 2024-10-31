@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+
 use Exception;
 
 class TourController extends Controller
@@ -154,7 +156,17 @@ class TourController extends Controller
     public function pdfOrder(Request $r){
         try{
             $orders=ToursFilters::OrdersPrint($r);
-            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders]);
+
+            $logo=$orders->flightTour->flight['data']['owner']['logo_symbol_url'];
+
+            $imageContent = Http::get($logo)->body();
+            $logo = 'images/logo_flight.svg'; // Ruta donde guardar la imagen
+
+            Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
+
+            $logo = asset('storage/'.$logo);
+            /* return $logo; */
+            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
             return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
@@ -197,8 +209,8 @@ class TourController extends Controller
             'guide_text'=>implode(',',$guide_types),
         ];
 
-        /* return $tour; */
-        $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour,'countries_d'=>$countries_d])->set_option('isRemoteEnabled', true);
+    /*     return $tour['services']['included'] ; */
+        $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included'] ])->set_option('isRemoteEnabled', true);
         return $pdf->stream('booking_summary_tour.pdf');
     }
 }

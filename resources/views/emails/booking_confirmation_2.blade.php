@@ -511,9 +511,11 @@
         <div class="Borderg" style="padding: 1%;">
             <table width="100%">
                 <tr>
-                    <td style="width: 50%; vertical-align:middle;padding:2%;">
+                    @if ($orders->image)
+                    <td style="width: 50%; vertical-align:middle;padding:2%;" >
                         <img src="{{ $orders->image }}" style="width: 90%; height: 50%; border-radius:12px;" />
                     </td>
+                    @endif
                     <td style="width: 80%; vertical-align: top;">
                         <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
                         <p>
@@ -594,8 +596,8 @@
                                 <table style="width: 100%">
                                     <tr>
                                         <td style=" width:20%"><img
-                                                src="{{ $orders->flightTour->flight['data']['owner']['logo_symbol_url'] }}"
-                                                alt="{{ $orders->flightTour->flight['data']['owner']['name'] }}"
+                                            {{-- src="{{ $logo2 }}" --}}
+                                            src="{{ public_path('storage/images/logo_flight.svg')}}"
                                                 style="width: 50%; height: 10%; border-radius: 12px;"></td>
                                         <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
                                         <td style="margin-left:50%;"><img
