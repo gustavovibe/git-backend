@@ -20,7 +20,7 @@ class BookingMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Contact Form Submission')->view('emails.booking_confirmation_2')->with([
+        return $this->subject('Booking confirmation')->view('emails.booking_confirmation_2')->with([
             'orders' => $this->orders,
         ]);
 
