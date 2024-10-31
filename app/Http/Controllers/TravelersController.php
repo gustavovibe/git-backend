@@ -9,9 +9,9 @@ use App\Helpers\ApiResponse;
 use App\Models\ActionLog;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 class TravelersController extends Controller
 {
+
     // Method to get travelers
     public function getTravelers(Request $request)
     {
