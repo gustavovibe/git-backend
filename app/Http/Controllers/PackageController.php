@@ -398,7 +398,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             return response()->json(['error' => $e->getMessage()], 500);
         }
         }
-        }
+        } else{$flightResponse = "flight not requested because tour is pending";$order = "order not created because tour is pending"}
         return [0, $tourResponse, $flightResponse, $order];
     }
 
