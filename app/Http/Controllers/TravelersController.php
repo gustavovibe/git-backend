@@ -8,6 +8,7 @@ use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Models\ActionLog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 class TravelersController extends Controller
 {
@@ -19,7 +20,9 @@ class TravelersController extends Controller
             if ($request->has('traveler_id')) {
                 $traveler_id = $request->query('traveler_id');
                 $traveler = Traveler::where('traveler_id', $traveler_id)->with('user_:hear,internal_notes,suscribed,id')->first();
-
+                $traveler->birth=Carbon::parse($traveler->birth)->format('Y-m-d');
+                $traveler->issue=Carbon::parse($traveler->issue)->format('Y-m-d');
+                $traveler->expire=Carbon::parse($traveler->expire)->format('Y-m-d');
                 if ($traveler) {
                     return response()->json($traveler);
                 } else {
@@ -39,8 +42,9 @@ class TravelersController extends Controller
     // Method to write travelers
     public function writeTravelers(Request $r)
     {
+
         try{
-            $r->validate([
+            $rules=[
               /*   'traveler_id' => 'required|string|max:255', */
                 'title' => 'required|string|max:255',
                 'gender' => 'required|string|max:255',
@@ -48,23 +52,47 @@ class TravelersController extends Controller
                 'last' => 'required|string|max:255',
                 'birth' => 'required',
                 'passport' => 'required|integer',
-                'place' => 'required|string|max:255',
-                'issue' => 'required|date',
-                'expire' => 'required|date',
+                /* 'place' => 'required|string|max:255', */
+                'issue' => 'required',
+                'expire' => 'required',
                 'mail' => 'required|string|email|max:255',
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string',
                 'country' => 'required|string|max:255',
-                /* 'lead' => 'required|string|max:255', */
-            ]);
-            $local= $r->all();
+            ];
 
-            unset($local->user_);
+            $validator= Validator::make($r->all(),$rules);
+
+            if($validator->fails()){
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->all()
+                ]);
+            }
+
+
             $traveler= $r->traveler_id?Traveler::where('traveler_id',$r->traveler_id)->first():new Traveler();
-            $traveler->fill($local)->save();
+            $traveler->fill([
+                'title'=>$r->title,
+                'gender' => $r->gender,
+                'name' => $r->name,
+                'last' => $r->last,
+                'birth' =>Carbon::parse(strtotime($r->birth)),
+                'passport' => $r->passport,
+                'place' => $r->country,
+                'issue' =>Carbon::parse(strtotime($r->issue)),
+                'expire' =>Carbon::parse(strtotime($r->expire)),
+                'mail' => $r->mail,
+                'phone' => $r->phone,
+                'address' => $r->address,
+                'country' => $r->country,
+                'user_id'=>$r->user_id,
+                'status'=>1,
+            ])->save();
+
 
             ActionLog::create([
-                'user_id' => $r->traveler_id,
+                'user_id' => $r->user_log,
                 'type' => $r->traveler_id? 'Update':'Create',
                 'action' => $r->traveler_id? 'Traveler update successfully':'Traveler created successfully',
                 'item' => 'Traveler',
