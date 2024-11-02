@@ -156,7 +156,7 @@ class UsersFilters
         $action = $action->get()->map(function ($actions) {
             $actions->action_date =Carbon::parse($actions->created_at)->format('d M Y, g:i a');
             $actions->email=$actions->user->email;
-            $actions->type_name=$this->type_list[$actions->type];
+            /* $actions->type_name=$this->type_list[$actions->type]; */
             unset($actions->user);
             return $actions;
         })->values();

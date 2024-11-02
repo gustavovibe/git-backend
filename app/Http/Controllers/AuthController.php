@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\MailRegistro;
+use App\Models\Traveler;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Google\Client;
@@ -57,6 +58,9 @@ class AuthController extends Controller
         $user = User::where('email', $request['email'])->with('profile', 'permissions')->firstOrFail();
         $user->last_login = Carbon::now();
         $user->save();
+
+        $traveler= Traveler::where('user_id',$user->id)->first();
+        $user->traveler_id=$traveler->traveler_id;
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
