@@ -228,14 +228,20 @@
             @endforeach
         </div>
           @endforeach
-    {{--     @foreach ( $tour['services']['included'] as $key=>$value)
+        @foreach ( $services as $key=>$value)
         <div style="page-break-inside: avoid;">
           <h3>{{ ucfirst($key) }}</h3>
             @foreach ( $value as $item )
                 <p  style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</p>
             @endforeach
         </div>
-          @endforeach --}}
+          @endforeach
+
+          <br>
+          <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
+              <img style="width:50%;height:20%;left: 56.68px; top: 94.83px;"
+                  src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/pay_methods.jpeg">
+          </div>
     </div>
 
 
@@ -251,7 +257,7 @@
                 <tr style="height: 30%; ">
                     <td style="width: 50%;" >
                         <div style="padding:2%">
-                            <img  style="width: 20%; height: auto;"  src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <img  style="width: 20%; height: auto;"  src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/award.svg')))}}" alt="">
                             <h3 style="color: #82CF45;">Top tours</h3>
                             <p style="text-align: justify;">Our thorough screening process ensures you'll choose from the finest adventures and travel packages worlwide</p>
                         </div>
@@ -261,7 +267,7 @@
 
                     <td style="width: 50%;">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/lock.svg')))}}"  alt="">
                             <h3 style="color: #82CF45;">Secure payments</h3>
                             <p style="text-align: justify;">Enjoy secure and flexible payment options, including 'Book Now, Pay Later,' allowing you to plan your dream trip with ease and peace of mind.</p>
                         </div>
@@ -274,7 +280,7 @@
                 <tr style="height: 30%">
                     <td  style="width: 50%">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" style="width: 20%; height: auto;"  src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <img style="width: 20%; height: auto;" style="width: 20%; height: auto;"  src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/globe2.svg')))}}"  alt="">
                             <h3 style="color: #82CF45;">Wide selection</h3>
                             <p style="text-align: justify;">Choose from over 20,000 adventures and book flights from almost any airport in the world, making it easy to find your ideal trip!</p>
                         </div>
@@ -282,7 +288,7 @@
 
                     <td style="width: 50%">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                            <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/hand-thumbs-up.svg')))}}"  alt="">
                             <h3 style="color: #82CF45;">Easy booking</h3>
                             <p style="text-align: justify;">Book everything you need in one place—flights, accommodations, activities, and more—with just a few clicks.</p>
                         </div>
@@ -290,16 +296,24 @@
                 </tr>
             </table>
             <br>
+            <div style="text-align: center;">
+                <h1 style=" font-family: Inter; ">Expert Customer Support</h1>
+            </div>
             <table style="width: 100%">
                 <tr>
                     <td style="width:30%; text-align:center;">
-                        <img style="width: 20%; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" alt="">
+                        <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/people.svg')))}}"  alt="">
                     </td>
                     <td>
                         <p style="text-align: justify;">Our knowledgeable team of travel experts has explored countless destinations worldwide and is ready to help you book your dream vacation. With a wealth of industry experience and a commitment to exceptional service, we’re here to assist you with every aspect of your journey.</p>
                     </td>
                 </tr>
             </table>
+        </div>
+        <br>
+        <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
+            <img style="width:50%;height:30%;left: 56.68px; top: 94.83px;"
+                src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/pay_methods.jpeg">
         </div>
     </div>
 
