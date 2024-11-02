@@ -209,7 +209,7 @@ class TourController extends Controller
             'guide_text'=>implode(',',$guide_types),
         ];
 
-    /*     return $tour['services']['included'] ; */
+        /* return $tour['services']['included'] ; */
         $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included'] ])->set_option('isRemoteEnabled', true);
         return $pdf->stream('booking_summary_tour.pdf');
     }
