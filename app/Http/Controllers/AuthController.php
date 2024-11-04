@@ -108,43 +108,113 @@ class AuthController extends Controller
         return "demo";
     }
 
-    public function googleRegister(Request $r){
-        try{
+    // public function googleRegister(Request $r){
+    //     try{
+    //         $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+    //             $payload = $client->verifyIdToken($r->token);
+    //                if ($payload) {
+    //                 $randomPassword = Str::random(12);
+    //                 $user=User::where('email',$payload['email'])->first();
+    //                 $action='';
+    //                     if(!$user){
+    //                         $user = User::fill([
+    //                             'email'=>$payload['email'],
+    //                             'name' => $payload['name'],
+    //                             'password' =>Hash::make($randomPassword),
+    //                             'profile_id' => 1,
+    //                             'role' => 1,
+    //                             'active' => 1,
+    //                             'suscribed' => 1,
+    //                             'last_login'=>Carbon::now(),
+    //                         ])->save();
+    //                         $action='Register';
+    //                     }else{
+    //                         $user->last_login = Carbon::now();
+    //                         $user->save();
+    //                         $action='Login';
+    //                     }
+
+    //                     ActionLog::create([
+    //                         'user_id' => $user->id,
+    //                         'type' => $action,
+    //                         'action' =>'User '.$action.' successfully',
+    //                         'item' => 'User',
+    //                     ]);
+    //                     return response()->json(['success' => true, 'data' => $user]);
+    //                }
+    //     }catch(Exception $e){
+    //         return response()->json(['success'=>true,'data'=>$e->getMessage()]);
+    //     }
+
+    // }
+
+
+    public function googleRegister(Request $r)
+    {
+        try {
+            \Log::info('Google Register: Received token: ' . $r->token);
+
+            // Initialize Google client
             $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
-                $payload = $client->verifyIdToken($r->token);
-                   if ($payload) {
-                    $randomPassword = Str::random(12);
-                    $user=User::where('email',$payload['email'])->first();
-                    $action='';
-                        if(!$user){
-                            $user = User::fill([
-                                'email'=>$payload['email'],
-                                'name' => $payload['name'],
-                                'password' =>Hash::make($randomPassword),
-                                'profile_id' => 1,
-                                'role' => 1,
-                                'active' => 1,
-                                'suscribed' => 1,
-                                'last_login'=>Carbon::now(),
-                            ])->save();
-                            $action='Register';
-                        }else{
-                            $user->last_login = Carbon::now();
-                            $user->save();
-                            $action='Login';
-                        }
 
-                        ActionLog::create([
-                            'user_id' => $user->id,
-                            'type' => $action,
-                            'action' =>'User '.$action.' successfully',
-                            'item' => 'User',
-                        ]);
-                        return response()->json(['success' => true, 'data' => $user]);
-                   }
-        }catch(Exception $e){
-            return response()->json(['success'=>true,'data'=>$e->getMessage()]);
+            \Log::info('Google Client initialized successfully.');
+
+            // Set the ID token manually
+            $client->setAccessToken(['id_token' => $r->token]);
+
+            // Verify ID token
+            $payload = $client->verifyIdToken($r->token);
+
+            \Log::info('Token verified. Payload:', $payload);
+
+            if ($payload) {
+                // Proceed with user retrieval/creation logic
+                $user = User::where('email', $payload['email'])->first();
+
+                if (!$user) {
+                    \Log::info('Creating new user for email: ' . $payload['email']);
+                    $user = new User([
+                        'email' => $payload['email'],
+                        'name' => $payload['name'],
+                        'password' => Hash::make(uniqid()),
+                        'profile_id' => 1,
+                        'role' => 1,
+                        'active' => 1,
+                        'suscribed' => 1,
+                        'last_login' => Carbon::now(),
+                    ]);
+                    $user->save();
+                    $action = 'Register';
+                } else {
+                    \Log::info('Updating last login for existing user: ' . $user->id);
+                    $user->last_login = Carbon::now();
+                    $user->save();
+                    $action = 'Login';
+                }
+
+                \Log::info('Logging action: ' . $action);
+                ActionLog::create([
+                    'user_id' => $user->id,
+                    'type' => $action,
+                    'action' => 'User ' . $action . ' successfully',
+                    'item' => 'User',
+                ]);
+
+                return response()->json([
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'imageUrl' => $payload['picture'] ?? null,
+                    'profile_id' => $user->profile_id,
+                ]);
+            } else {
+                \Log::warning('Invalid Google token');
+                return response()->json(['error' => 'Invalid Google token'], 401);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Google Register Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server Error'], 500);
         }
-
     }
+
 }
