@@ -19,14 +19,72 @@ class OpenAIService
   public function getOpenAiChat($messages)
   {
     try {
+
+      $open_ai_key = env('OPENAI_API_KEY');
       $headers = [
         'Accept' => 'application/json',
-        'Authorization' => 'Bearer ' . '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',
+        'Authorization' => 'Bearer ' .$open_ai_key,
       ];
       $url = 'https://api.openai.com/v1/chat/completions';
+
+      $response_format = [
+        "type" => "json_schema",
+        "json_schema" => [
+          "name" => "travel_guide",
+          "schema" => [
+            "type" => "object",
+            "properties" => [
+              "quick_facts" => [
+                "type" => "object",
+                "properties" => [
+                  "population" => ["type" => "string"],
+                  "capital" => ["type" => "string"],
+                  "area" => ["type" => "string"],
+                  "currency" => ["type" => "string"],
+                  "official_language" => ["type"=> "string"],
+                  "country_code" => ["type" => "string"],
+                  "plug_type" => ["type" => "string"],
+                  "timezone" => ["type" => "string"],
+                  "high_season" => ["type" => "string"],
+                ],
+                "required" => [
+                  "population",
+                  "capital",
+                  "area",
+                  "currency",
+                  "official_language",
+                  "country_code",
+                  "plug_type",
+                  "timezone",
+                  "high_season"
+                ],
+                "additionalProperties" => false
+              ],
+              "things_to_do" => [
+                "type" => "array",
+                "items" => ["type" => "string"]
+              ],
+              "top_attractions" => [
+                "type" => "array",
+                "items" => ["type" => "string"]
+              ],
+              "travel_tips" => [
+                "type" => "array",
+                "items" => ["type" => "string"]
+              ],
+              "best_time_to_visit" => ["type" => "string"]
+            ],
+            "required" => ["quick_facts", "things_to_do", "top_attractions", "travel_tips", "best_time_to_visit"],
+            "additionalProperties" => false
+          ],
+          "strict" => true
+        ]
+      ];
+    
       $response = Http::withHeaders($headers)->post($url, [
-        'model' => 'gpt-3.5-turbo',
+        'model' => 'gpt-4o-mini',
         'messages' => $messages,
+        'response_format' => $response_format
       ]);
 
       return $response->json();
