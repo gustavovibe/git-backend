@@ -113,6 +113,35 @@ class Citycontroller extends Controller
         return ApiResponse::success($responseData);
     }
 
+    public function codes(Request $request)
+{
+    $q = $request->input('q');
+    $responseData = [];
+
+    if ($q) {
+        // Query the countries table
+        $country = Country::where('t_country_id', $q)->get();
+        if ($country->isNotEmpty()) {
+            $responseData['countries'] = CountryResource::collection($country);
+        }
+
+        // Query the cities table
+        $city = City::where('t_city_id', $q)->get();
+        if ($city->isNotEmpty()) {
+            $responseData['cities'] = CityResource::collection($city);
+        }
+
+        // Query the natural destinations table
+        $natural = NaturalDestination::where('t_natural_id', $q)->get();
+        if ($natural->isNotEmpty()) {
+            $responseData['natural_destinations'] = NaturalDestinationResource::collection($natural);
+        }
+    }
+
+    return ApiResponse::success($responseData);
+}
+
+
     public function destinations(Request $r)
     {
         try {

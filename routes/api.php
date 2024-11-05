@@ -56,6 +56,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
 Route::get('tour/{id}', [ProxyTourRadarController::class, 'show']);
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
+Route::get('codes', [Citycontroller::class, 'codes']);
 Route::get('departures', [ProxyTourRadarController::class, 'departures']);
 Route::get('departure', [ProxyTourRadarController::class, 'departure']);
 Route::get('prices', [ProxyTourRadarController::class, 'prices']);

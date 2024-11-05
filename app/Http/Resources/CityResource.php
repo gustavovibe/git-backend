@@ -17,6 +17,8 @@ class CityResource extends JsonResource
         return [
             'city_name' => $this->city_name,
             't_city_id' => $this->t_city_id,
+            'country' => $this->t_country_id,
+            "type": "city"
         ];
     }
 }
