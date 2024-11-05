@@ -18,7 +18,7 @@ class TourNaturalDestinationResource extends JsonResource
             'natural_destination' => $this->natural_destination,
             't_natural_id' => $this->t_natural_id,
             'tour' => $this->tour,
-            "type": "natural_destination"
+            "type"  => "natural_destination"
         ];
     }
 }
