@@ -254,7 +254,7 @@ class DestinationController extends Controller
         try {
 
           $open_ai_response = $this->openAIService->getOpenAiChat($messages);
-          
+          \Log::info('ChatGPT response received successfully.', ['response' => $open_ai_response]);
           if(empty($open_ai_response['choices'])){
             return ApiResponse::error($open_ai_response['error']['message']);
           }
@@ -338,7 +338,7 @@ class DestinationController extends Controller
                 'description' => $photo['description'],
             ];
         });
-
+        \Log::info('unsplash response.', ['response' => $response]);
         return ApiResponse::success($images, 'Images Found');
       } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
