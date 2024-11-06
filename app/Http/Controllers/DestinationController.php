@@ -254,9 +254,9 @@ class DestinationController extends Controller
         try {
 
           $open_ai_response = $this->openAIService->getOpenAiChat($messages);
-        
-          if(!isset($open_ai_response['choices'])){
-            ApiResponse::error($open_ai_response['error']['message']);
+          
+          if(empty($open_ai_response['choices'])){
+            return ApiResponse::error($open_ai_response['error']['message']);
           }
 
           $chat_completion = $open_ai_response['choices'][0]['message'];
