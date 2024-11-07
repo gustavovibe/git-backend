@@ -269,7 +269,7 @@ class DestinationController extends Controller
             'overview' => 'overview',
             'quick_facts' => 'quick_facts',
             'qf_population' => $content['quick_facts']['population'],
-            'qf_capital' => 'Berlin',
+            'qf_capital' => $content['quick_facts']['capital'],
             'qf_area' => $content['quick_facts']['area'],
             'qf_currency' => $content['quick_facts']['currency'],
             'qf_official_language' => $content['quick_facts']['official_language'],
@@ -341,7 +341,7 @@ class DestinationController extends Controller
         \Log::info('unsplash response log.', ['response' => $response]);
         return ApiResponse::success($images, 'Images Found');
       } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
+        return ApiResponse::error($e->getMessage()->json());
       }
 
     }
