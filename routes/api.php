@@ -37,7 +37,6 @@ use App\Http\Controllers\AirportController;
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
     Route::get('test', [AuthController::class, 'test']);
-    Route::get('logout', [AuthController::class, 'logout']);
 });
 
 Route::post('login', [AuthController::class, 'login']);
@@ -190,3 +189,10 @@ Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
 Route::get('status',[PackageController::class, 'checkBookingStatus']);
 
 Route::get('/airports', [AirportController::class, 'getAirports']);
+
+Route::get('/login', function () {
+    return response()->json(['message' => 'Please log in.'], 401);
+})->name('login');
+//Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');

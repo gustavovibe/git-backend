@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Google\Client;
 use Illuminate\Support\Str;
+use App\Models\ActionLog;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -82,19 +85,22 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
-            $user->tokens()->delete();
+            Log::info("Logging out user ID: " . $user->id);
 
+            $user->tokens()->delete(); // Delete tokens for authenticated user
             ActionLog::create([
                 'user_id' => $user->id,
                 'type' => 'Logout',
-                'action' =>'User Logout successfully',
+                'action' => 'User Logout successfully',
                 'item' => 'User',
             ]);
+
             return response()->json([
                 'status' => true,
-                'message' => 'logout successful'
+                'message' => 'Logout successful'
             ], 200);
         } else {
+            Log::warning("Unauthorized logout attempt");
             return response()->json([
                 'status' => false,
                 'message' => 'No autorizado. Debes iniciar sesión para acceder a esta información.'
@@ -103,66 +109,25 @@ class AuthController extends Controller
     }
 
 
+
+
+
     public function test(Request $request)
     {
         return "demo";
     }
-
-    // public function googleRegister(Request $r){
-    //     try{
-    //         $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
-    //             $payload = $client->verifyIdToken($r->token);
-    //                if ($payload) {
-    //                 $randomPassword = Str::random(12);
-    //                 $user=User::where('email',$payload['email'])->first();
-    //                 $action='';
-    //                     if(!$user){
-    //                         $user = User::fill([
-    //                             'email'=>$payload['email'],
-    //                             'name' => $payload['name'],
-    //                             'password' =>Hash::make($randomPassword),
-    //                             'profile_id' => 1,
-    //                             'role' => 1,
-    //                             'active' => 1,
-    //                             'suscribed' => 1,
-    //                             'last_login'=>Carbon::now(),
-    //                         ])->save();
-    //                         $action='Register';
-    //                     }else{
-    //                         $user->last_login = Carbon::now();
-    //                         $user->save();
-    //                         $action='Login';
-    //                     }
-
-    //                     ActionLog::create([
-    //                         'user_id' => $user->id,
-    //                         'type' => $action,
-    //                         'action' =>'User '.$action.' successfully',
-    //                         'item' => 'User',
-    //                     ]);
-    //                     return response()->json(['success' => true, 'data' => $user]);
-    //                }
-    //     }catch(Exception $e){
-    //         return response()->json(['success'=>true,'data'=>$e->getMessage()]);
-    //     }
-
-    // }
-
 
     public function googleRegister(Request $r)
     {
         try {
             \Log::info('Google Register: Received token: ' . $r->token);
 
-            // Initialize Google client
+
             $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
 
             \Log::info('Google Client initialized successfully.');
 
-            // Set the ID token manually
-            $client->setAccessToken(['id_token' => $r->token]);
 
-            // Verify ID token
             $payload = $client->verifyIdToken($r->token);
 
             \Log::info('Token verified. Payload:', $payload);

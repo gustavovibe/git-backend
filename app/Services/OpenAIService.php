@@ -20,7 +20,7 @@ class OpenAIService
   {
     try {
 
-      $open_ai_key = env('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'); 
+      $open_ai_key = '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'; 
       $headers = [
         'Accept' => 'application/json',
         'Authorization' => 'Bearer ' .$open_ai_key,
