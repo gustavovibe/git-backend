@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\Country;
 use App\Models\Destination;
 use App\Models\NaturalDestination;
+use App\Models\TravelGuideGallery;
 use Illuminate\Http\Request;
 use App\Services\OpenAIService;
 use Unsplash\HttpClient;
@@ -324,25 +325,54 @@ class DestinationController extends Controller
 
     function getUnsplashGallery(Request $request){
 
+      $gallery = null;
+      $id = $request->input('id');
       $destination = $request->input('destination');
-     
-      try {
-       
-        $response = Search::photos($destination, 1, 10);
+      $response_message = 'Travel guide found.';
+      $gallery = TravelGuideGallery::where('t_id', $id)->get();
+      
+      if($gallery->isEmpty()){
         
-        $images = collect($response->getResults())->map(function ($photo) {
-            return [
-                'id' => $photo['id'],
+        try {
+          
+          $num_items = 10;
+          $page = 1;
+          $orientation = 'landscape';
+          $insert_data = array();
+          $response = Search::photos($destination, $page, $num_items, $orientation);
+          $images = collect($response->getResults())->map(function ($photo) {
+              return [
+                'unsplash_id' => $photo['id'],
                 'url' => $photo['urls']['regular']. '&w=500&h=350',
-                'alt' => $photo['alt_description'],
-                'description' => $photo['description'],
+                'name' => $photo['alt_description'],
+                'author' => $photo['user']['first_name']. ' ' .$photo['user']['last_name'],
+                'author_url' => $photo['user']['links']['self']
+              ];
+          });
+
+          foreach($images as $image){
+            $insert_data[] = [
+              't_id' => (int)$id,
+              'unsplash_id' => $image['unsplash_id'],
+              'name' => $image['name'],
+              'url' => $image['url'],
+              'author' => $image['author'],
+              'author_url' => $image['author_url']
             ];
-        });
-        \Log::info('unsplash response log.', ['response' => $response]);
-        return ApiResponse::success($images, 'Images Found');
-      } catch (\Exception $e) {
-        return ApiResponse::error($e->getMessage()->json());
+          }
+          
+          \Log::info('unsplash api response log.', ['response' => $response]);
+          $new_gallery = TravelGuideGallery::insert($insert_data);
+
+          return ApiResponse::success($insert_data, 'Unsplash Images');
+
+        } catch (\Exception $e) {
+          return ApiResponse::error($e->getMessage());
+        }
+
+      }else{
+        return ApiResponse::success($gallery, $response_message);
       }
 
-    }
+    }// end 
 }
