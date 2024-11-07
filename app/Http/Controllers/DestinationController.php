@@ -25,7 +25,7 @@ class DestinationController extends Controller
     public function __construct(OpenAIService $openAIService)
     {
       $this->openAIService = $openAIService;
-      $unsplash_access_key = env('UNSPLASH_ACCESS_KEY');
+      $unsplash_access_key = 'RsB-POlI_RSW0h8EzKksRl97YlzJVjQIQ4eH7pn1j8Q';
       HttpClient::init([
         'applicationId'	=> $unsplash_access_key,
         'utmSource' => 'VibeAdventures'
