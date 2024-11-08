@@ -190,3 +190,7 @@ Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
 Route::get('status',[PackageController::class, 'checkBookingStatus']);
 
 Route::get('/airports', [AirportController::class, 'getAirports']);
+
+Route::get('/recover-pass',[AuthController::class, 'recoverPass']);
+
+Route::get('/check-token-pass',[AuthController::class, 'checkToken']);
