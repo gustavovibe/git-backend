@@ -388,9 +388,15 @@ class UserController extends Controller
 
     public function changePassword(Request $r){
         try{
-            $user= User::find($r->id);
+            $user=$r->id?User::find($r->id):User::where('email',$r->email)->first();
             $user->password=Hash::make($r->password);
             $user->save();
+            ActionLog::create([
+                'user_id' => $user->id,
+                'type' => 'Updated',
+                'action' =>'Password updated successfully',
+                'item' => 'User',
+            ]);
             return ApiResponse::success('Change success');
         }catch(Exception $e){
             return ApiResponse::error($e->getMessage());

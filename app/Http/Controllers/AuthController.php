@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Mail\MailRegistro;
-use App\Models\Traveler;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\RecoverMail;
+use App\Models\PasswordResets;
+use App\Models\Traveler;
 use Carbon\Carbon;
+use Exception;
 use Google\Client;
 use Illuminate\Support\Str;
 use App\Models\ActionLog;
@@ -182,4 +183,43 @@ class AuthController extends Controller
         }
     }
 
+    public function recoverPass(Request $r){
+        try{
+            $user= User::where('email',$r->email)->first();
+            if(!$user){
+                return response()->json(['success'=>false,'data'=>'User not found']);
+            }
+            $token= Str::random(60);
+            $expires_at= Carbon::now()->addMinutes(15);
+            PasswordResets::updateOrInsert(
+                ['email'=>$user->email],
+                [
+                    'email'=>$user->email ,
+                    'token'=>$token,
+                    'created_at'=>Carbon::now(),
+                    'expires_at'=>$expires_at,
+                ]
+                );
+
+              $user->url="https://hopeful-nobel.74-208-189-166.plesk.page/reset-password?token={$token}";
+            Mail::to($user->email)->send(new RecoverMail($user));
+            return response()->json(['success'=>true,'data'=>'Please check your inbox!!!']);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
+
+    public function checkToken(Request $r){
+        try{
+            $reset_pass= PasswordResets::where('token',$r->token)->first();
+
+            if(!$reset_pass || $reset_pass->expires_at < Carbon::now()){
+                return response()->json(['success'=>false,'data'=>'The reset link has not available.']);
+            }
+
+            return response()->json(['success'=>true,'data'=>$reset_pass->user->id]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
 }
