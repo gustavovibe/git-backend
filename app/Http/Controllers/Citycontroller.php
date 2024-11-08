@@ -122,19 +122,19 @@ class Citycontroller extends Controller
         // Query the countries table
         $country = Country::where('t_country_id', $q)->get();
         if ($country->isNotEmpty()) {
-            $responseData['countries'] = CountryResource::collection($country);
+            $responseData['country'] = CountryResource::collection($country);
         }
 
         // Query the cities table
         $city = City::where('t_city_id', $q)->get();
         if ($city->isNotEmpty()) {
-            $responseData['cities'] = CityResource::collection($city);
+            $responseData['city'] = CityResource::collection($city);
         }
 
         // Query the natural destinations table
         $natural = NaturalDestination::where('t_natural_id', $q)->get();
         if ($natural->isNotEmpty()) {
-            $responseData['natural_destinations'] = NaturalDestinationResource::collection($natural);
+            $responseData['natural'] = NaturalDestinationResource::collection($natural);
         }
     }
 

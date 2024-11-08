@@ -37,7 +37,6 @@ use App\Http\Controllers\AirportController;
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
     Route::get('test', [AuthController::class, 'test']);
-    Route::get('logout', [AuthController::class, 'logout']);
 });
 
 Route::post('login', [AuthController::class, 'login']);
@@ -194,3 +193,10 @@ Route::get('/airports', [AirportController::class, 'getAirports']);
 Route::get('/recover-pass',[AuthController::class, 'recoverPass']);
 
 Route::get('/check-token-pass',[AuthController::class, 'checkToken']);
+
+Route::get('/login', function () {
+    return response()->json(['message' => 'Please log in.'], 401);
+})->name('login');
+//Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
