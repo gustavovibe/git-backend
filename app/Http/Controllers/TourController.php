@@ -86,6 +86,8 @@ class TourController extends Controller
             $query->with(['cities', 'natural_destination', 'type', 'countries']);
         }
 
+        !$request->list?:$query->select('tour_name','tour_id');
+
         $results = $query->get();
 
         return ApiResponse::success($results);

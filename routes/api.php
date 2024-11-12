@@ -75,7 +75,8 @@ Route::get('show-tours', [TourController::class, 'show']);
 Route::get('tours-text', [TourController::class, 'getText']);
 Route::get('show-type', [TourController::class, 'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
-Route::resource('tour_natural_destinations', TourNaturalDestinationController::class);
+Route::resource('tour-natural-destinations', TourNaturalDestinationController::class);
+Route::get('tour-type-list', [TourNaturalDestinationController::class,'Type']);
 Route::get('duffel/create-request-get-offers', [DuffelApiController::class, 'createRequestGetOffers']);
 Route::get('duffel/get-offer-by-id', [DuffelApiController::class, 'getOfferById']);
 Route::get('duffel/get-order-by-id', [DuffelApiController::class, 'getOrderById']);
@@ -126,6 +127,7 @@ Route::delete('/travelers/{id}', [TravelersController::class, 'destroy']);
 
 Route::get('/users-with-orders', [UserController::class, 'getUsersWithOrders']);
 Route::resource('operators', OperatorsController::class);
+Route::get('operators-list', [OperatorsController::class,'operatorsList']);
 Route::get('operators-import', [OperatorsController::class, 'import']);
 Route::get('tours-text', [OperatorsController::class, 'text']);
 
