@@ -135,9 +135,19 @@ class Order extends Model
         return $this->belongsTo(Tour::class, 'tour_id', 'tour_id');
     }
 
+    public function type()
+    {
+        return $this->hasMany(Type::class, 'tour_type_id', 'tour_id');
+    }
+
     public function operator()
     {
         return $this->hasOne(Operator::class, 'operator_id', 'operator');
+    }
+
+    public function natural_destination()
+    {
+        return $this->hasMany(TourNaturalDestination::class, 'tour_id', 'tour_id');
     }
 }
 

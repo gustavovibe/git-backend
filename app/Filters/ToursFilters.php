@@ -10,8 +10,58 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+
 class ToursFilters
 {
+
+    protected $list_days;
+    protected $list_whole_trip;
+    protected $list_age_group;
+    protected $list_hours;
+    public function __construct()
+    {
+        $this->list_days=[
+            1=>Carbon::today(),
+            2=>Carbon::yesterdaY(),
+            3=>['start'=>Carbon::now()->subDays(7)->startOfDay(),'ends'=>Carbon::now()->endOfDay()],//ultimos 7 dias
+            4=>['start'=>Carbon::now()->subDays(30)->startOfDay(),'ends'=>Carbon::now()->endOfDay()],//ultimos 30 dias
+            5=>['start'=>Carbon::now()->startOfWeek(),'ends'=>Carbon::now()->endOfWeek()],//semana actual
+            6=>['start'=>Carbon::now()->subWeek()->startOfWeek(),'ends'=>Carbon::now()->subWeek()->endOfWeek()],//semana pasada
+            7=>['start'=>Carbon::now()->startOfMonth(),'ends'=>Carbon::now()->endOfMonth()],//mes actual
+            8=>['start'=>Carbon::now()->subMonth()->startOfMonth(),'ends'=>Carbon::now()->subMonth()->endOfMonth()],//mes pasado
+            9=>['start'=>Carbon::now()->startOfYear(),'ends'=>Carbon::now()->endOfYear()],//este año
+            10=>['start'=>Carbon::now()->subYear()->startOfYear(),'ends'=>Carbon::now()->subYear()->endOfYear()],//año pasado
+        ];
+
+        $this->list_whole_trip=[
+            1=>[1,3],
+            2=>[4,10],
+            3=>[11,15],
+            4=>[16,20],
+            5=>[21,25],
+            6=>[26,30],
+            7=>[31],
+        ];
+
+        $this->list_age_group =[
+            1=>[1,2],
+            2=>[3,5],
+            3=>[6,10],
+            4=>[11,15],
+            5=>[16,20],
+            6=>[21],
+        ];
+
+        $this->list_hours=[
+            1=>[0,4],
+            2=>[5,8],
+            3=>[9,12],
+            4=>[13,16],
+            5=>[17,20],
+            6=>[21,24],
+        ];
+    }
+
     public function ToursP(Request $r){
     $tour_type = $r->tour_type ?: 0;
     $city = $r->city ? explode(',', $r->city) : [];
@@ -354,5 +404,84 @@ class ToursFilters
         unset($orders->tour);
 
         return $orders;
+    }
+
+    public function OrdersAll(Request $r){
+
+        $orders = Order::query();
+        $orders->with(['flightTour', 'travelers', 'user','natural_destination']);
+
+        !$r->booking_id?:$orders->where('booking_id',$r->booking_id);
+
+        //dates (booking=created_at)
+        $orders->where(function ($query) use ($r){
+
+            if($r->booking){
+                in_array($r->booking,[1,2])?$query->orWhere('created_at',Carbon::parse($this->list_days[$r->booking])):
+                $query->orWhereBetween('created_at',[Carbon::parse($this->list_days[$r->booking]['start']),Carbon::parse($this->list_days[$r->booking]['ends'])]);
+            }
+
+            if($r->travel){
+                in_array($r->travel,[1,2])?$query->orWhere('start',Carbon::parse($this->list_days[$r->travel])):
+                $query->orWhereBetween('start',[Carbon::parse($this->list_days[$r->travel]['start']),Carbon::parse($this->list_days[$r->travel]['ends'])]);
+            }
+        });
+
+
+        //category (travel_style=type)
+        !$r->operator?:$orders->wherein('operator',explode(',', $r->operator));
+
+        if ($r->travel_style) {
+            $orders->whereHas('tour.type', function ($query) use ($r) {
+                $query->wherein('tour_type_id', explode(',',$r->travel_style));
+            });
+        }
+        if( $r->destination){
+            $orders->whereHas('natural_destination',function($query) use ($r){
+                $query->whereIn('t_natural_id',explode(',',$r->destination));
+            });
+        }
+
+        //adventure
+        !$r->adventure?:$orders->wherein('tour_id',explode(',', $r->adventure));
+        !$r->status?:$orders->wherein('tourradar_status',explode(',', $r->status));
+        if($r->whole_trip){
+            $value=$this->list_whole_trip[$r->whole_trip];
+            $r->whole_trip!=7?$orders->WhereBetween('whole_trip',[$value[0],$value[1]]) :$orders->where('whole_trip','>=',$value[0]);
+        }
+
+        if ($r->duration) {
+            $val_d= $this->list_whole_trip[$r->duration];
+            $orders->whereHas('tour', function ($query) use ($val_d, $r) {
+             $r->duration==7?$query->where('tour_length_days','>=',31):$query->whereBetween('tour_length_days',[$val_d[0],$val_d[1]]);
+
+            });
+        }
+
+        //traveler
+        if($r->age_group){
+            $val_age= $this->list_age_group[$r->age_group];
+            $r->age_group==6?$orders->where('age_group','>=',$val_age[0]):$orders->whereBetween('age_group',[$val_age[0],$val_age[1]]);
+        }
+
+        if($r->group_size){
+             $r->group_size<11?$orders->wherein('group_size',explode(',', $r->group_size)):$orders->where('group_size','>=',11);
+        }
+
+        !$r->gender?:$orders->wherein('gender',explode(',', $r->gender));
+        !$r->country?:$orders->wherein('country',explode(',', $r->country));
+
+        //booking
+        !$r->channel?:$orders->wherein('channel',explode(',', $r->channel));
+        !$r->payment_method?:$orders->wherein('payment_method',explode(',', $r->payment_method));
+        !$r->medium?:$orders->wherein('medium',explode(',', $r->medium));
+        !$r->day?:$orders->wherein(DB::raw('DAYOFWEEK(start)'),explode(',',$r->day));
+
+        if ($r->hour) {
+            $hours = $this->list_hours[$r->hour];
+            $orders->whereBetween(DB::raw('HOUR(created_at)'), $hours);
+        }
+
+        return $orders->paginate();
     }
 }

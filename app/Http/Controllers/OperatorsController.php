@@ -16,13 +16,23 @@ class OperatorsController extends Controller
     {
         try{
             $operator = OperatorsFilters::OperatorsF($r);
-         /*    return $operator; */
-            return response()->json(['status'=>true,'count'=>count($operator), 'response'=>$operator]);
+            return response()->json(['status'=>true, 'response'=>$operator]);
         }catch(Exception $e){
             return response()->json(['status'=>false,'response'=>$e->getMessage()]);
         }
     }
 
+    public function operatorsList(Request $r){
+        try{
+            $operator = Operators::query();
+            !$r->name?:$operator->where('name','like',"%$r->name%");
+            !$r->operator_id?:$operator->where('operator_id',$r->operator_id);
+
+             return response()->json(['success'=>true,'data'=>$operator->get()]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
 
     public function create()
     {

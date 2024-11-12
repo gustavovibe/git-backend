@@ -30,7 +30,7 @@ class OperatorsFilters
 
 
         if (count($city)) {
-            $query->('tours', function ($query) use ($city) {
+            $query->wherehas('tours', function ($query) use ($city) {
                 $query->whereHas('cities', function ($query) use ($city) {
                     $query->whereIn('t_city_id', $city);
                 });

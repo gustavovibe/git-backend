@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ToursFilters;
 use App\Http\Resources\FlightTourResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
@@ -14,6 +15,10 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $orders= (new ToursFilters)->OrdersAll($request);
+
+        return $orders;
+
         $perPage = 10;
 
         $date = $request->input('date');
@@ -157,7 +162,7 @@ class OrderController extends Controller
         return response()->json($order, 201);
     }
 
-    
+
     public function adminOrders(Request $request)
 {
     $query = Order::query();
