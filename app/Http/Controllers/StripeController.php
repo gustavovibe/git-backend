@@ -97,9 +97,12 @@ public function getReceiptUrl(Request $request)
         $receiptUrl = $responseData['charges']['data'][0]['receipt_url'] ?? null;
 
         if ($receiptUrl) {
+            // Format the receipt URL
+            $formattedUrl = stripslashes($receiptUrl);
+
             return response()->json([
                 'success' => true,
-                'receipt_url' => $receiptUrl,
+                'receipt_url' => $formattedUrl,
             ]);
         }
     }
@@ -109,6 +112,7 @@ public function getReceiptUrl(Request $request)
         'error' => 'No charges found or no receipt URL available.',
     ], 404);
 }
+
 
 
     public function handleWebhook(Request $request)
