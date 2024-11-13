@@ -43,17 +43,46 @@ class StripeController extends Controller
 
     $responseData = json_decode($response, true);
 
-    if (isset($responseData['error'])) {
+    if (isset($responseData['payment_method'])) {
+        $paymentMethodId = $responseData['payment_method'];
+
+        // Call Stripe API to retrieve payment method details
+        $paymentMethodUrl = "https://api.stripe.com/v1/payment_methods/{$paymentMethodId}";
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $paymentMethodUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERPWD => "{$stripeApiKey}:",
+            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+        ]);
+
+        $methodResponse = curl_exec($curl);
+        $methodError = curl_error($curl);
+        curl_close($curl);
+
+        if ($methodError) {
+            return response()->json([
+                'success' => false,
+                'error' => $methodError,
+            ], 400);
+        }
+
+        $methodData = json_decode($methodResponse, true);
+
+        // Append method detail to the original response
+        $responseData['method_detail'] = $methodData;
+
         return response()->json([
-            'success' => false,
-            'error' => $responseData['error']['message'] ?? 'Unknown error',
-        ], 400);
+            'success' => true,
+            'data' => $responseData,
+        ]);
     }
 
     return response()->json([
-        'success' => true,
-        'data' => $responseData,
-    ]);
+        'success' => false,
+        'error' => 'No payment method found for this payment intent.',
+    ], 404);
 }
 
 
