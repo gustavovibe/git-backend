@@ -9,33 +9,53 @@ class StripeController extends Controller
 {
 
     public function getPaymentIntent(Request $request)
-    {
-        // Validate the query parameter
-        $validated = $request->validate([
-            'q' => 'required|string',
-        ]);
+{
+    $validated = $request->validate([
+        'q' => 'required|string',
+    ]);
 
-        $paymentIntentId = $validated['q'];
+    $paymentIntentId = $validated['q'];
+    $stripeApiKey = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
 
-        try {
-            // Initialize the Stripe client
-            $stripe = new \Stripe\StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
+    $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
 
-            // Retrieve the payment intent
-            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
+    // Initialize cURL
+    $curl = curl_init();
 
-            return response()->json([
-                'success' => true,
-                'data' => $paymentIntent,
-            ]);
-        } catch (\Exception $e) {
-            // Handle errors (e.g., invalid payment intent ID)
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 400);
-        }
+    curl_setopt_array($curl, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_USERPWD => "{$stripeApiKey}:",
+        CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+    ]);
+
+    // Execute and handle the response
+    $response = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+
+    if ($error) {
+        return response()->json([
+            'success' => false,
+            'error' => $error,
+        ], 400);
     }
+
+    $responseData = json_decode($response, true);
+
+    if (isset($responseData['error'])) {
+        return response()->json([
+            'success' => false,
+            'error' => $responseData['error']['message'] ?? 'Unknown error',
+        ], 400);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => $responseData,
+    ]);
+}
+
 
     public function getReceiptUrl(Request $request)
     {
