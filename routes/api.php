@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\File;
 use App\Http\Controllers\AirportController;
 use App\Http\Controllers\PushNotificationsController;
 
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
     Route::get('test', [AuthController::class, 'test']);
@@ -147,6 +148,10 @@ Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
+
+Route::get('/stripe', [StripeController::class, 'getPaymentIntent']);
+
+Route::get('/stripe/receipt', [StripeController::class, 'getReceiptUrl']);
 
 Route::resource('action-logs', ActionLogController::class);
 

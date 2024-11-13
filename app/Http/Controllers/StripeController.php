@@ -3,9 +3,75 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Stripe\Stripe;
 
 class StripeController extends Controller
 {
+
+    public function getPaymentIntent(Request $request)
+    {
+        // Validate the query parameter
+        $validated = $request->validate([
+            'q' => 'required|string',
+        ]);
+
+        $paymentIntentId = $validated['q'];
+
+        try {
+            // Initialize the Stripe client
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+
+            // Retrieve the payment intent
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
+
+            return response()->json([
+                'success' => true,
+                'data' => $paymentIntent,
+            ]);
+        } catch (\Exception $e) {
+            // Handle errors (e.g., invalid payment intent ID)
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function getReceiptUrl(Request $request)
+    {
+        $validated = $request->validate([
+            'q' => 'required|string',
+        ]);
+
+        $paymentIntentId = $validated['q'];
+
+        try {
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+            
+            $paymentIntent = $this->stripe->paymentIntents->retrieve($paymentIntentId, []);
+
+            // Check if the payment intent contains charges
+            if (!isset($paymentIntent->charges->data[0])) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No charges found for this payment intent.',
+                ], 404);
+            }
+
+            $receiptUrl = $paymentIntent->charges->data[0]->receipt_url;
+
+            return response()->json([
+                'success' => true,
+                'receipt_url' => $receiptUrl,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
     public function handleWebhook(Request $request)
     {
         // Set your secret key. Remember to switch to your live secret key in production!
@@ -49,5 +115,8 @@ class StripeController extends Controller
 
         return response()->json(['message' => 'Webhook handled'], 200);
     }
+
+
 }
 ?>
+

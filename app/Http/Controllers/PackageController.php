@@ -643,8 +643,19 @@ public function checkoutWebhook(Request $request)
                             $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
 
                             // Log the payment capture response
-                            \Log::info('Stripe payment capture response for attempt ID ' . $attemptId . ': ' . json_encode($captureResponse));
-
+                            \Log::info(sprintf(
+                                'Stripe payment capture response for payment intent ID %s (Attempt ID: %s): %s',
+                                $session->payment_intent,
+                                $attemptId,
+                                json_encode($captureResponse)
+                            ));
+                            // Booking successful, update the attempt record
+                            DB::table('orders')
+                            ->where('booking_id', $order->booking_id)
+                            ->update([
+                                'payment_id' => $session->payment_intent,
+                                'updated_at' => now(),
+                            ]);
                             // Send the booking confirmation email
                             $emailResponse = TourController::emailBConfirmation($order->booking_id);
 
