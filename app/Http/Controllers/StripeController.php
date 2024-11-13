@@ -47,8 +47,8 @@ class StripeController extends Controller
 
         try {
             $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-            
-            $paymentIntent = $this->stripe->paymentIntents->retrieve($paymentIntentId, []);
+
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
 
             // Check if the payment intent contains charges
             if (!isset($paymentIntent->charges->data[0])) {
