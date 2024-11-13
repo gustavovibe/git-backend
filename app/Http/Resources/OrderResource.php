@@ -56,6 +56,7 @@ class OrderResource extends JsonResource
             'whole_trip' => $this->whole_trip,
             'channel' => $this->channel,
             'payment_method' => $this->payment_method,
+            'payment_id' => $this->payment_id,
             'medium' => $this->medium,
             'gender' => $this->gender,
             'age_group' => $this->age_group,
