@@ -48,22 +48,22 @@ class StripeController extends Controller
         try {
             $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
-            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
-
-            // Check if the payment intent contains charges
-            if (!isset($paymentIntent->charges->data[0])) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'No charges found for this payment intent.',
-                ], 404);
-            }
-
+            // Check if charges exist and are not empty
+        if (isset($paymentIntent->charges->data) && count($paymentIntent->charges->data) > 0) {
             $receiptUrl = $paymentIntent->charges->data[0]->receipt_url;
 
             return response()->json([
                 'success' => true,
                 'receipt_url' => $receiptUrl,
             ]);
+        }
+
+        // Handle cases where no charges are present
+        return response()->json([
+            'success' => false,
+            'error' => 'No charges found for this payment intent.',
+        ], 404);
+        
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
