@@ -19,7 +19,7 @@ class StripeController extends Controller
 
         try {
             // Initialize the Stripe client
-            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+            $stripe = new \Stripe\StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
 
             // Retrieve the payment intent
             $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
