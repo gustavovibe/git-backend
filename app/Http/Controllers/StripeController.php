@@ -10,8 +10,14 @@ use App\Helpers\ApiResponse;
 
 class StripeController extends Controller
 {
-    public function getPaymentIntent($paymentIntentId)
+    public function getPaymentIntent(Request $request)
     {
+        $validated = $request->validate([
+            'q' => 'required|string',
+        ]);
+    
+        $paymentIntentId = $validated['q'];
+        
         // Initialize the Stripe client with your secret API key
         $stripe = new StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
 
