@@ -10,14 +10,13 @@ use App\Helpers\ApiResponse;
 
 class StripeController extends Controller
 {
-    public function getPaymentIntent(Request $request)
+    public function getPaymentIntent(Request $request, $paymentIntentId)
     {
-        $validated = $request->validate([
-            'q' => 'required|string',
+        // You can validate the paymentIntentId (optional step)
+        $request->validate([
+            'paymentIntentId' => 'required|string|regex:/^pi_[a-zA-Z0-9]+$/', // Validate that the ID is in the correct format
         ]);
-    
-        $paymentIntentId = $validated['q'];
-        
+
         // Initialize the Stripe client with your secret API key
         $stripe = new StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
 
@@ -25,11 +24,11 @@ class StripeController extends Controller
             // Retrieve the payment intent using the provided payment intent ID
             $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
             
-            // Return the payment intent details as a JSON response
-            return response()->json($paymentIntent, 200);
+            // Use ApiResponse helper to return the payment intent details
+            return ApiResponse::success($paymentIntent);
         } catch (ApiErrorException $e) {
-            // If an error occurs, return the error message
-            return response()->json(['error' => $e->getMessage()], 400);
+            // If an error occurs, return the error message using ApiResponse helper
+            return ApiResponse::error($e->getMessage(), 400);
         }
     }
 
