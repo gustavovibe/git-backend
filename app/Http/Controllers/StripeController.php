@@ -4,39 +4,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
+use Stripe\StripeClient;
+use Stripe\Exception\ApiErrorException;
 use App\Helpers\ApiResponse;
 
 class StripeController extends Controller
 {
     public function getPaymentIntent($paymentIntentId)
     {
-        // Prepare the URL for the Stripe payment intent
-        $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
+        // Initialize the Stripe client with your secret API key
+        $stripe = new StripeClient('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
 
-        // Prepare the cURL request to Stripe API
-        $ch = curl_init();
-        
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/x-www-form-urlencoded',
-        ]);
-        curl_setopt($ch, CURLOPT_USERPWD, 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb:'); // Replace with your secret key
-
-        // Execute the cURL request
-        $response = curl_exec($ch);
-
-        // Check for errors
-        if (curl_errno($ch)) {
-            return response()->json(['error' => curl_error($ch)], 500);
+        try {
+            // Retrieve the payment intent using the provided payment intent ID
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, []);
+            
+            // Return the payment intent details as a JSON response
+            return response()->json($paymentIntent, 200);
+        } catch (ApiErrorException $e) {
+            // If an error occurs, return the error message
+            return response()->json(['error' => $e->getMessage()], 400);
         }
-
-        // Close the cURL session
-        curl_close($ch);
-
-        // Return the response to the client
-        return response()->json(json_decode($response), 200);
     }
 
     public function handleWebhook(Request $request)
