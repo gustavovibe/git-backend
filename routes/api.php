@@ -149,7 +149,7 @@ Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
-Route::get('/stripe/{paymentIntentId}', [StripeController::class, 'getPaymentIntent']);
+Route::get('/stripe', [StripeController::class, 'getPaymentIntent']);
 
 Route::get('/stripe/receipt', [StripeController::class, 'getReceiptUrl']);
 
