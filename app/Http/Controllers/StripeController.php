@@ -4,87 +4,55 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
+use App\Helpers\ApiResponse;
 
 class StripeController extends Controller
 {
-
     public function getPaymentIntent(Request $request)
-{
-    $validated = $request->validate([
-        'q' => 'required|string',
-    ]);
-
-    $paymentIntentId = $validated['q'];
-    $stripeApiKey = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
-
-    $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
-
-    // Initialize cURL
-    $curl = curl_init();
-
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_USERPWD => "{$stripeApiKey}:",
-        CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-    ]);
-
-    // Execute and handle the response
-    $response = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-
-    if ($error) {
-        return response()->json([
-            'success' => false,
-            'error' => $error,
-        ], 400);
-    }
-
-    $responseData = json_decode($response, true);
-
-    if (isset($responseData['payment_method'])) {
-        $paymentMethodId = $responseData['payment_method'];
-
-        // Call Stripe API to retrieve payment method details
-        $paymentMethodUrl = "https://api.stripe.com/v1/payment_methods/{$paymentMethodId}";
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'q' => 'required|string',
+        ]);
+    
+        $paymentIntentId = $validated['q'];
+        $stripeApiKey = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
+    
+        $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
+    
+        // Initialize cURL
         $curl = curl_init();
-
+    
         curl_setopt_array($curl, [
-            CURLOPT_URL => $paymentMethodUrl,
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_USERPWD => "{$stripeApiKey}:",
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
         ]);
-
-        $methodResponse = curl_exec($curl);
-        $methodError = curl_error($curl);
+    
+        // Execute and handle the response
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
         curl_close($curl);
-
-        if ($methodError) {
-            return response()->json([
-                'success' => false,
-                'error' => $methodError,
-            ], 400);
+    
+        // Handle cURL error
+        if ($error) {
+            return ApiResponse::error("cURL Error: {$error}", 400);
         }
-
-        $methodData = json_decode($methodResponse, true);
-
-        // Append method detail to the original response
-        $responseData['method_detail'] = $methodData;
-
-        return response()->json([
-            'success' => true,
-            'data' => $responseData,
+    
+        $responseData = json_decode($response, true);
+    
+        // Handle Stripe API error
+        if (isset($responseData['error'])) {
+            return ApiResponse::error($responseData['error']['message'] ?? 'Unknown error', 400);
+        }
+    
+        // Success response
+        return ApiResponse::success([
+            'payment_intent' => $responseData,
         ]);
     }
-
-    return response()->json([
-        'success' => false,
-        'error' => 'No payment method found for this payment intent.',
-    ], 404);
-}
-
+    
 
 public function getReceiptUrl(Request $request)
 {
