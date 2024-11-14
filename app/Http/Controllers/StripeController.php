@@ -40,7 +40,7 @@ class StripeController extends Controller
             return ApiResponse::error("cURL Error: {$error}", 400);
         }
     
-        $responseData = json_decode($response, true);
+        $responseData = $response->json();
     
         // Handle Stripe API error
         if (isset($responseData['error'])) {
