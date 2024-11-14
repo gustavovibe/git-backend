@@ -8,109 +8,36 @@ use App\Helpers\ApiResponse;
 
 class StripeController extends Controller
 {
-    public function getPaymentIntent(Request $request)
+    public function getPaymentIntent($paymentIntentId)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'q' => 'required|string',
-        ]);
-    
-        $paymentIntentId = $validated['q'];
-        $stripeApiKey = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
-    
+        // Prepare the URL for the Stripe payment intent
         $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
-    
-        // Initialize cURL
-        $curl = curl_init();
-    
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERPWD => "{$stripeApiKey}:",
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+
+        // Prepare the cURL request to Stripe API
+        $ch = curl_init();
+        
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
         ]);
-    
-        // Execute and handle the response
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        curl_close($curl);
-    
-        // Handle cURL error
-        if ($error) {
-            return ApiResponse::error("cURL Error: {$error}", 400);
+        curl_setopt($ch, CURLOPT_USERPWD, 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb:'); // Replace with your secret key
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if (curl_errno($ch)) {
+            return response()->json(['error' => curl_error($ch)], 500);
         }
-    
-        $responseData = $response->json();
-    
-        // Handle Stripe API error
-        if (isset($responseData['error'])) {
-            return ApiResponse::error($responseData['error']['message'] ?? 'Unknown error', 400);
-        }
-    
-        // Success response
-        return ApiResponse::success([
-            'payment_intent' => $responseData,
-        ]);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Return the response to the client
+        return response()->json(json_decode($response), 200);
     }
-    
-
-public function getReceiptUrl(Request $request)
-{
-    $validated = $request->validate([
-        'q' => 'required|string',
-    ]);
-
-    $paymentIntentId = $validated['q'];
-    $stripeApiKey = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
-
-    $url = "https://api.stripe.com/v1/payment_intents/{$paymentIntentId}";
-
-    // Initialize cURL
-    $curl = curl_init();
-
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_USERPWD => "{$stripeApiKey}:",
-        CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-    ]);
-
-    // Execute and handle the response
-    $response = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-
-    if ($error) {
-        return response()->json([
-            'success' => false,
-            'error' => $error,
-        ], 400);
-    }
-
-    $responseData = json_decode($response, true);
-
-    // Check for charges and retrieve receipt URL
-    if (isset($responseData['charges']['data']) && count($responseData['charges']['data']) > 0) {
-        $receiptUrl = $responseData['charges']['data'][0]['receipt_url'] ?? null;
-
-        if ($receiptUrl) {
-            // Format the receipt URL
-            $formattedUrl = stripslashes($receiptUrl);
-
-            return response()->json([
-                'success' => true,
-                'receipt_url' => $formattedUrl,
-            ]);
-        }
-    }
-
-    return response()->json([
-        'success' => false,
-        'error' => 'No charges found or no receipt URL available.',
-    ], 404);
-}
-
-
 
     public function handleWebhook(Request $request)
     {
