@@ -151,8 +151,6 @@ Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
 Route::get('/stripe', [StripeController::class, 'getPaymentIntent']);
 
-Route::get('/stripe/receipt', [StripeController::class, 'getReceiptUrl']);
-
 Route::resource('action-logs', ActionLogController::class);
 
 Route::get('boooking-email',[TourController::class,'emailBConfirmation']);
