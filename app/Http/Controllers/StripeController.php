@@ -42,17 +42,6 @@ class StripeController extends Controller
                 $responseData['payment_method_details'] = $paymentMethodDetails;
             }
 
-            // Check if the payment intent includes a balance transaction
-            $balance_transactionId = $paymentIntent->charge_details['balance_transaction'] ?? null;
-
-            if ($balance_transactionId) {
-                // Use Stripe client to retrieve payment method details
-                $balanceTransactionDetails = $stripe->balanceTransactions->retrieve($balance_transactionId);
-
-                // Append payment method details to the response
-                $responseData['balance_transaction'] = $$balanceTransactionDetails;
-            }
-
             // Check if the payment intent includes a latest charge ID
             $latestChargeId = $paymentIntent->latest_charge ?? null;
 
@@ -62,8 +51,19 @@ class StripeController extends Controller
 
                 // Append the charge details to the response
                 $responseData['charge_details'] = $charge;
-            }
+				
+				// Check if the payment intent includes a balance transaction
+				$balance_transactionId = $charge->balance_transaction ?? null;
 
+				if ($balance_transactionId) {
+					// Use Stripe client to retrieve payment method details
+					$balanceTransactionDetails = $stripe->balanceTransactions->retrieve($balance_transactionId);
+
+					// Append payment method details to the response
+					$responseData['balance_transaction'] = $balanceTransactionDetails;
+				}
+            }
+            
             // Return the response
             return ApiResponse::success($responseData, 'Payment intent, charge, and method details retrieved successfully');
         } catch (\Exception $e) {
