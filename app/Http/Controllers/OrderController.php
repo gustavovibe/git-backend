@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Helpers\ApiResponse;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -65,6 +66,7 @@ class OrderController extends Controller
 
     public function adminReports(Request $request)
     {
+        try{
 
         $orders = Order::filter($request->all())->get();
 
@@ -162,6 +164,10 @@ class OrderController extends Controller
             'chart_data' => $chartData,
         ],
     ]);
+
+        }catch(Exception $e){
+            return response()->json(['sucesss'=>false,'data'=>$e]);
+        }
     }
 
     public function store(Request $request)
