@@ -102,6 +102,7 @@ Route::get('/users-history', [UserController::class, 'UserHistory']);
 Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 Route::post('/users-pass', [UserController::class, 'changePassword']);
 Route::post('/push_notifications_register', [PushNotificationsController::class, 'registerGravitecSub']);
+Route::post('/send_push_notification', [PushNotificationsController::class, 'sendPushNotification']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
