@@ -74,6 +74,7 @@ Route::get('confirm-payment-zooz', [ProxyKiwiController::class, 'confirmPaymentZ
 Route::resource('tour_cities', TourCitiesController::class);
 Route::resource('tours', TourController::class);
 Route::get('show-tours', [TourController::class, 'show']);
+Route::get('carrier-list', [TourController::class, 'carrierList']);
 Route::get('tours-text', [TourController::class, 'getText']);
 Route::get('show-type', [TourController::class, 'show_type']);
 Route::resource('tour_countries', TourCountriesController::class);
@@ -112,6 +113,7 @@ Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
+Route::get('/orders-csv', [OrderController::class, 'ordersCsv']);
 Route::get('/order/{id}', [OrderController::class, 'getOrder']);
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
 

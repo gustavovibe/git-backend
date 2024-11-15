@@ -14,6 +14,7 @@ class CreateActionLogsTable extends Migration
             $table->string('action');
             $table->string('item');
             $table->string('type');
+            $table->string('booking_id')->nullable();
             $table->timestamps();
         });
     }

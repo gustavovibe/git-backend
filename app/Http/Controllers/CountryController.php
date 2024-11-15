@@ -29,23 +29,27 @@ class CountryController extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
-    public function index(Request $request)
+    public function index(Request $r)
     {
         $perPage = 10;
 
-        $q = $request->input('q');
+        $q = $r->q;
 
-        if ($q) {
-            $paginatedData = Country::where('name', 'like', $q . '%')->paginate($perPage);
-        } else {
-            $paginatedData = Country::paginate($perPage);
-        }
+        $paginatedData = Country::query();
+
+        !$q?:$paginatedData->where('name', 'like', $q . '%');
+
+        $paginatedData = !$r->list? $paginatedData->paginate($perPage): $paginatedData->get();
+
         $responseData = $paginatedData->toArray();
 
-        $responseData['data'] = CountryResource::collection($paginatedData->items());
+        if(!$r->list){
+            $responseData['data'] = CountryResource::collection($paginatedData->items());
+        }
 
-        return ApiResponse::success($responseData);
+        return ApiResponse::success( $r->list? $paginatedData :$responseData);
     }
+
 
     public function getAllCountries(Request $request)
     {
