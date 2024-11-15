@@ -95,39 +95,87 @@ class Order extends Model
 
     public function scopeFilter(Builder $query, array $filters)
     {
-        if (!empty($filters['fechaInicio'])) {
-            $fechaInicio = Carbon::parse($filters['fechaInicio'])->startOfDay();
-            $fechaFin = Carbon::parse($filters['fechaFin'])->endOfDay();
-            $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+        $list_days = (new ToursFilters)->getListDays();
+        $list_whole_trip = (new ToursFilters)->getListWholeTrips();
+        $list_age_group = (new ToursFilters)->getListAges();
+        $list_hours = (new ToursFilters)->getListHours();
+
+
+        $query->where(function ($query) use ($filters, $list_days){
+
+            if($filters['booking']){
+                in_array($filters['booking'],[1,2])?$query->orWhere('created_at',Carbon::parse($list_days[$filters['booking']])):
+                $query->orWhereBetween('created_at',[Carbon::parse($list_days[$filters['booking']]['start']),Carbon::parse($list_days[$filters['booking']]['ends'])]);
+            }
+
+            if($filters['travel']){
+                in_array($filters['travel'],[1,2])?$query->orWhere('start',Carbon::parse($list_days[$filters['travel']])):
+                $query->orWhereBetween('start',[Carbon::parse($list_days[$filters['travel']]['start']),Carbon::parse($list_days[$r->travel]['ends'])]);
+            }
+        });
+
+            //category (travel_style=type)
+        !$filters['operator']?:$query->wherein('operator',explode(',', $filters['operator']));
+        if ($filters['travel_style']) {
+            $query->whereHas('tour.type', function ($query) use ($filters) {
+                $query->wherein('tour_type_id', explode(',',$filters['travel_style']));
+            });
         }
 
-        if (!empty($filters['destinations'])) {
-            $query->whereIn('end_city', $filters['destinations']);
+        if( $filters['destination_city']){
+            $query->whereHas('tour.cities',function($query) use ($filters){
+                $query->whereIn('t_city_id',explode(',',$filters['destination_city']));
+            });
         }
 
-        if (!empty($filters['operator'])) {
-            $query->where('operator', $filters['operator']);
+        if( $filters['destination_country']){
+            $query->whereHas('tour.countries',function($query) use ($filters){
+                $query->whereIn('t_country_id',explode(',',$filters['destination_country']));
+            });
         }
 
-        if (!empty($filters['adventure'])) {
-            $query->where('tour_name', $filters['adventure']);
+         //adventure
+         !$filters['adventure']?:$query->wherein('tour_id',explode(',', $filters['adventure']));
+         !$filters['status']?:$query->wherein('tourradar_status',explode(',', $filters['status']));
+         if($filters['whole_trip']){
+             $value=$list_whole_trip[$filters['whole_trip']];
+             $filters['whole_trip']!=7?$query->WhereBetween('whole_trip',[$value[0],$value[1]]) :$query->where('whole_trip','>=',$value[0]);
+         }
+
+         if ($filters['duration']) {
+             $val_d= $list_whole_trip[$filters['duration']];
+             $query->whereHas('tour', function ($query) use ($val_d, $filters) {
+              $filters['duration']==7?$query->where('tour_length_days','>=',31):$query->whereBetween('tour_length_days',[$val_d[0],$val_d[1]]);
+
+             });
+         }
+
+         !$filters['carrier']?:$query->wherein('carrier',explode(',', $filters['carrier']));
+
+           //traveler
+        if($filters['age_group']){
+            $val_age= $list_age_group[$filters['age_group']];
+            $filters['age_group']==6?$query->where('age_group','>=',$val_age[0]):$query->whereBetween('age_group',[$val_age[0],$val_age[1]]);
         }
 
-        if (!empty($filters['status'])) {
-            $query->where('booking_status', $filters['status']);
+        if($filters['group_size']){
+             $filters['group_size']<11?$query->wherein('group_size',explode(',', $filters['group_size'])):$query->where('group_size','>=',11);
         }
 
-        if (!empty($filters['duration_adventure'])) {
-            $query->where('tour_length', $filters['duration_adventure']);
-        }
+        !$filters['gender']?:$query->wherein('gender',explode(',', $filters['gender']));
+        !$filters['country']?:$query->wherein('country',explode(',', $filters['country']));
 
-        if (!empty($filters['duration_whole_trip'])) {
-            $query->where('whole_trip', $filters['duration_whole_trip']);
-        }
+          //booking
+          !$filters['channel']?:$query->wherein('channel',explode(',', $filters['channel']));
+          !$filters['payment_method']?:$query->wherein('payment_method',explode(',', $filters['payment_method']));
+          !$filters['medium']?:$query->wherein('medium',explode(',', $filters['medium']));
+          !$filters['day']?:$query->wherein(DB::raw('DAYOFWEEK(start)'),explode(',',$filters['day']));
 
-        if (!empty($filters['carrier'])) {
-            $query->where('carrier', $filters['carrier']);
-        }
+          if ($filters['hour']) {
+              $hours = $list_hours[$filters['hour']];
+              $query->whereBetween(DB::raw('HOUR(created_at)'), $hours);
+          }
+
         return $query;
     }
 

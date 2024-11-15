@@ -13,26 +13,48 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $r)
     {
-        $orders= (new ToursFilters)->OrdersAll($request);
+        $orders= (new ToursFilters)->OrdersAll($r,0);
 
         return $orders;
+    }
 
-        $perPage = 10;
 
-        $date = $request->input('date');
+    public function ordersCsv(Request $r){
+        $orders= (new ToursFilters)->OrdersAll($r,1);
+      /*   return $orders; */
+        $filename = 'orders_' . now()->format('Ymd_His') . '.csv';
+        $columns = ['Booking Date', 'Order#', 'Tour Operator', 'Booking status', 'Travelers name', 'Travelers country','Paid by traveler','Source','Paid by us','Refund','Gross profit ratio (%)'];
 
-        if ($date) {
-            $paginatedData = Order::with(['flightTour', 'travelers', 'user', 'tour'])->where('name', 'like', $date . '%')->paginate($perPage);
-        } else {
-            $paginatedData = Order::with(['flightTour', 'travelers', 'user', 'tour'])->paginate($perPage);
-        }
-        $responseData = $paginatedData->toArray();
+        $callback = function () use ($orders, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
 
-        $responseData['data'] = OrderResource::collection($paginatedData->items());
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->start,
+                    $order->booking_id,
+                    $order->operator,
+                    $order->booking_status,
+                    $order->user->name,
+                    $order->country,
+                    $order->paid,
+                    $order->country,
+                    $order->channel,
+                    $order->paid,
+                    $order->refund,
+                    $order->grossProfitRatio,
+                ]);
+            }
+            fclose($file);
+        };
 
-        return ApiResponse::success($responseData);
+        return response()->stream($callback, 200, [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+        ]);
+        return $orders;
     }
 
     public function getOrder($id)
@@ -43,14 +65,8 @@ class OrderController extends Controller
 
     public function adminReports(Request $request)
     {
-        $filters = $request->only([
-            'fechaInicio', 'fechaFin', 'destinations',
-            'operator', 'adventure', 'status',
-            'duration_adventure', 'duration_whole_trip',
-            'carrier'
-        ]);
 
-        $orders = Order::filter($filters)->get();
+        $orders = Order::filter($request->all())->get();
 
         $totalOrders = Order::count();
         $totalSales = 0;
@@ -61,6 +77,8 @@ class OrderController extends Controller
         $totalRefunded = 0;
         $totalDiscount = 0;
         $totalGrossProfit = 0;
+
+        $monthlySalesData = [];
 
         foreach ($orders as $order) {
             $totalSales += $order->paid;
@@ -78,25 +96,72 @@ class OrderController extends Controller
 
             $grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
             $totalGrossProfit += $grossProfit;
+            $month = $order->created_at->format('Y-m');
+            $channel = $order->channel;
+
+            if (!isset($monthlySalesData[$month])) {
+                $monthlySalesData[$month] = [
+                    'Direct' => 0,
+                    'web' => 0,
+                    'Affiliates' => 0,
+                    'Referrals' => 0,
+                ];
+            }
+
+            $monthlySalesData[$month][$channel] += $order->paid;
+
         }
-        $averageSalesPerPerson = $totalSales / $numberOfPeople;
+        $averageSalesPerPerson = ($numberOfPeople > 0) ?$totalSales / $numberOfPeople:0;
 
-        $averagePricePerPersonPerDay = $totalPrice / $totalDays;
+        $averagePricePerPersonPerDay = ($totalDays > 0) ?$totalPrice / $totalDays:0;
 
-        $grossProfitRatio = ($totalGrossProfit / $totalSales) * 100;
+        $grossProfitRatio =($totalSales > 0) ? ($totalGrossProfit / $totalSales) * 100:0;
+
+
+        $chartData = [
+            'labels' => array_keys($monthlySalesData),
+            'datasets' => [
+                [
+                    'type' => 'bar',
+                    'label' => 'Direct',
+                    'backgroundColor' => '#FFA726',
+                    'data' => array_column($monthlySalesData, 'Direct'),
+                ],
+                [
+                    'type' => 'bar',
+                    'label' => 'Web',
+                    'backgroundColor' => 'blue',
+                    'data' => array_column($monthlySalesData, 'web'),
+                ],
+                [
+                    'type' => 'bar',
+                    'label' => 'Affiliates',
+                    'backgroundColor' => '#66BB6A',
+                    'data' => array_column($monthlySalesData, 'Affiliates'),
+                ],
+                [
+                    'type' => 'bar',
+                    'label' => 'Referrals',
+                    'backgroundColor' => '#FFEB3B',
+                    'data' => array_column($monthlySalesData, 'Referrals'),
+                ]
+            ]
+        ];
 
         return ApiResponse::success([[
-            'total_sales' => $totalSales,
+            'total_sales' =>'$'.number_format( $totalSales,2),
             'orders' => $totalOrders,
             'travelers' => $numberOfPeople,
-            'average_sales' => $averageSalesPerPerson,
-            'average_price' => $averagePricePerPersonPerDay,
-            'suppliers_paid' => $totalPaidToSuppliers,
-            'refunded' => $totalRefunded,
-            'discount' => $totalDiscount,
-            'gross_profit' => $totalGrossProfit,
-            'profit_ratio' => $grossProfitRatio,
-        ]]);
+            'average_sales' => '$'.number_format($averageSalesPerPerson,2),
+            'average_price' => '$'.number_format($averagePricePerPersonPerDay,2),
+            'suppliers_paid' => '$'.number_format($totalPaidToSuppliers,2),
+            'refunded' => '$'.number_format($totalRefunded,2),
+            'discount' => '$'.number_format($totalDiscount,2),
+            'gross_profit' => '$'.number_format($totalGrossProfit,2),
+            'profit_ratio' => $grossProfitRatio.'%',
+            'chart_data' => $chartData,
+        ],
+    ]);
     }
 
     public function store(Request $request)

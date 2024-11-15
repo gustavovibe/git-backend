@@ -215,4 +215,13 @@ class TourController extends Controller
         $pdf = Pdf::loadView('emails.send_summary',['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included'] ])->set_option('isRemoteEnabled', true);
         return $pdf->stream('booking_summary_tour.pdf');
     }
+
+    public function carrierList(){
+        try{
+            $carriers= Order::select('carrier')->distinct()->get();
+            return response()->json(['success' => true, 'data' => $carriers]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
 }

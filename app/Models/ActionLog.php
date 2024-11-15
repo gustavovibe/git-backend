@@ -16,6 +16,7 @@ class ActionLog extends Model
         'action',
         'item',
         'type',
+        'booking_id'
     ];
 
     public function user()

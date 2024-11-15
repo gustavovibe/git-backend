@@ -18,6 +18,7 @@ class ToursFilters
     protected $list_whole_trip;
     protected $list_age_group;
     protected $list_hours;
+    protected $orderby;
     public function __construct()
     {
         $this->list_days=[
@@ -60,7 +61,37 @@ class ToursFilters
             5=>[17,20],
             6=>[21,24],
         ];
+
+        $this->orderby=[
+            1=>'created_at',
+            2=>'created_at',
+            3=>'start',
+            4=>'start',
+            5=>'paid',
+            6=>'paid',
+            7=>'tour_length_days',
+            8=>'tour_length_days',
+        ];
     }
+
+    public function getListDays()
+    {
+        return $this->list_days;
+    }
+
+    public function getListWholeTrips()
+    {
+       return $this->list_whole_trip;
+    }
+
+    public function getListAges(){
+        return $this->list_age_group;
+    }
+
+    public function getListHours(){
+        return $this->list_hours;
+    }
+
 
     public function ToursP(Request $r){
     $tour_type = $r->tour_type ?: 0;
@@ -406,7 +437,7 @@ class ToursFilters
         return $orders;
     }
 
-    public function OrdersAll(Request $r){
+    public function OrdersAll(Request $r,$csv){
 
         $orders = Order::query();
         $orders->with(['flightTour', 'travelers', 'user','natural_destination']);
@@ -436,9 +467,16 @@ class ToursFilters
                 $query->wherein('tour_type_id', explode(',',$r->travel_style));
             });
         }
-        if( $r->destination){
-            $orders->whereHas('natural_destination',function($query) use ($r){
-                $query->whereIn('t_natural_id',explode(',',$r->destination));
+
+        if( $r->destination_city){
+            $orders->whereHas('tour.cities',function($query) use ($r){
+                $query->whereIn('t_city_id',explode(',',$r->destination));
+            });
+        }
+
+        if( $r->destination_country){
+            $orders->whereHas('tour.countries',function($query) use ($r){
+                $query->whereIn('t_country_id',explode(',',$r->destination));
             });
         }
 
@@ -457,6 +495,8 @@ class ToursFilters
 
             });
         }
+
+        !$r->carrier?:$orders->wherein('carrier',explode(',', $r->carrier));
 
         //traveler
         if($r->age_group){
@@ -482,6 +522,54 @@ class ToursFilters
             $orders->whereBetween(DB::raw('HOUR(created_at)'), $hours);
         }
 
-        return $orders->paginate();
+        if ( $r->sort_by && (int)$r->sort_by<=6) {
+            $direction = ($r->sort_by %2==0) ? 'DESC':'ASC';
+            $orders->orderBy($this->orderby[$r->sort_by], $direction);
+        }
+
+        $orders= $orders->get()->map(function ($order) use($r) {
+
+            $order->grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
+            $order->grossProfitRatio = ($order->paid > 0) ? ($order->grossProfit / $order->paid) * 100 : 0;
+
+            $startDate = Carbon::parse($order->start);
+            $endDate = Carbon::parse($order->end);
+            $days = $startDate->diffInDays($endDate) + 1;
+            $order->averagePricePerPersonPerDay = ($days * $order->travelers_number > 0) ? $order->p_tour / ($days * $order->travelers_number) : 0;
+
+            $order->grossProfit =  number_format($order->grossProfit,2) ;
+            $order->averagePricePerPersonPerDay = number_format($order->averagePricePerPersonPerDay,2) ;
+            return $order;
+        })->all();
+
+        if (in_array($r->sort_by, [7, 8, 9, 10])) {
+            $sortField = ($r->sort_by == 7 || $r->sort_by == 8) ? 'averagePricePerPersonPerDay' : 'grossProfitRatio';
+            $direction = ($r->sort_by % 2 == 0) ? 'desc' : 'asc';
+
+            usort($orders, function ($a, $b) use ($sortField, $direction) {
+                if ($direction === 'asc') {
+                    return $a->$sortField <=> $b->$sortField;
+                } else {
+                    return $b->$sortField <=> $a->$sortField;
+                }
+            });
+        }
+        if($csv){
+            return $orders;
+        }
+        $orders = collect($orders);
+        $perPage = $r->limit?$r->limit:15;
+        $page = $r->page?$r->page:1;
+        $paginatedOrders = new \Illuminate\Pagination\LengthAwarePaginator(
+            $orders->forPage($page, $perPage),
+            $orders->count(),
+            $perPage,
+            $page,
+            ['path' => $r->url()]
+        );
+
+        return $paginatedOrders;
     }
+
+
 }
