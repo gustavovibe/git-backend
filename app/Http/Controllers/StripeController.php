@@ -43,7 +43,7 @@ class StripeController extends Controller
             }
 
             // Check if the payment intent includes a balance transaction
-            $balance_transactionId = $paymentIntent->balance_transaction ?? null;
+            $balance_transactionId = $paymentIntent->charge_details['balance_transaction'] ?? null;
 
             if ($balance_transactionId) {
                 // Use Stripe client to retrieve payment method details
