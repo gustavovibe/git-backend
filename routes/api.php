@@ -209,4 +209,4 @@ Route::get('/login', function () {
 })->name('login');
 //Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

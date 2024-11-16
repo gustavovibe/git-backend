@@ -23,30 +23,47 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        try{
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'profile_id' => $request->profile_id,
-            'phone' => $request->phone,
-            'country' => $request->country,
-            'role' => $request->role,
-            'active' => $request->active,
-            'suscribed' => $request->suscribed,
-            'hear' => $request->hear,
-        ]);
+            if(User::where('email',$request->email)->first()){
+                return response()->json(['status'=>false,'message'=>'Email already register']);
+            }
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'profile_id' =>2,
+                'phone' => $request->phone,
+              /*   'country' => $request->country, */
+                'role' => $request->role,
+                'active' => $request->active,
+                'suscribed' => $request->suscribed,
+                'hear' => $request->hear,
+            ]);
 
-        ActionLog::create([
-            'user_id' => $user->id,
-            'type' => 'Created',
-            'action' =>'User created successfully',
-            'item' => 'User',
-        ]);
-        return response()->json([
-            'status' => true,
-            'message' => 'Registro exitoso'
-        ], 200);
+             $user->tokens()->delete();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            ActionLog::create([
+                'user_id' => $user->id,
+                'type' => 'Created',
+                'action' =>'User created successfully',
+                'item' => 'User',
+            ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'profile_id' => $user->profile_id,
+                ],
+            ]);
+        }catch(Exception $e){
+            return response()->json(['status'=>false,'message'=>$e->getMessage()]);
+        }
+
     }
 
     public function login(Request $request)
@@ -64,7 +81,7 @@ class AuthController extends Controller
         $user->save();
 
         $traveler= Traveler::where('user_id',$user->id)->first();
-        $user->traveler_id=$traveler->traveler_id;
+        $user->traveler_id= $user->traveler_id?$traveler->traveler_id:0;
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -75,22 +92,29 @@ class AuthController extends Controller
             'item' => 'User',
         ]);
 
-        return ApiResponse::success([
+        return response()->json([
+            'status' => true,
+            'message' => 'Login successful',
             'access_token' => $token,
-            'user' => $user,
-        ], 'Successful login');
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'profile_id' => $user->profile_id,
+            ],
+        ], 200);
 
     }
 
-    public function logout()
+    public function logout(Request $r)
     {
         if (Auth::check()) {
             $user = Auth::user();
-            Log::info("Logging out user ID: " . $user->id);
+           /*  Log::info("Logging out user ID: " . $r->user_id); */
 
             $user->tokens()->delete(); // Delete tokens for authenticated user
             ActionLog::create([
-                'user_id' => $user->id,
+                'user_id' => $r->user_id,
                 'type' => 'Logout',
                 'action' => 'User Logout successfully',
                 'item' => 'User',
@@ -136,7 +160,8 @@ class AuthController extends Controller
             if ($payload) {
                 // Proceed with user retrieval/creation logic
                 $user = User::where('email', $payload['email'])->first();
-
+                $user->tokens()->delete();
+                $token = $user->createToken('auth_token')->plainTextToken;
                 if (!$user) {
                     \Log::info('Creating new user for email: ' . $payload['email']);
                     $user = new User([
@@ -167,11 +192,15 @@ class AuthController extends Controller
                 ]);
 
                 return response()->json([
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'imageUrl' => $payload['picture'] ?? null,
-                    'profile_id' => $user->profile_id,
+                    'status' => true,
+                    'message' => 'Login successful',
+                    'access_token' => $token,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'profile_id' => $user->profile_id,
+                    ],
                 ]);
             } else {
                 \Log::warning('Invalid Google token');
