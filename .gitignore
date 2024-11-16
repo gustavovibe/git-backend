@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/storage/logs/laravel.log
 .env.backup
 .phpunit.result.cache
 Homestead.json
