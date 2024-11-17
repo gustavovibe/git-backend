@@ -124,7 +124,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         //\Log::info('Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
-            return [1, 'Tour radar:'.$tourResponse['message']] ;
+            $status == 1;
         } 
         if($tourResponse['status']=="confirmed") {
         $flightBody = $flight;
@@ -133,7 +133,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         //\Log::info('Flight response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            return [2, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+            $status == 2;
         }
         
         if($flightResponse['data']['booking_reference']) {
@@ -397,12 +397,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
             \Log::error('Error creating flight tour: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
+        $status == 0;
         }
         } else{
             $flightResponse = "not_requested";
             $order = "not_created";
         }
-        return [0, $tourResponse, $flightResponse, $order];
+        return [$status, $tourResponse, $flightResponse, $order];
     }
 
     public function createBaggageCheckoutSession(Request $r){
