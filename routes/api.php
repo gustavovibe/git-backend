@@ -26,7 +26,6 @@ use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TravelersController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WishlistController;
@@ -110,6 +109,7 @@ Route::get('/show-contact', [UserController::class, 'showContac']);
 
 Route::get('/wishlists', [WishlistController::class, 'index']);
 Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
+Route::post('wishlists-add', [WishlistController::class, 'store']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
