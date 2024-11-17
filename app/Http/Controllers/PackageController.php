@@ -124,7 +124,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         //\Log::info('Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
-            $status == 1;
+            $status = 1;
         } 
         if($tourResponse['status']=="confirmed") {
         $flightBody = $flight;
@@ -133,7 +133,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         //\Log::info('Flight response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            $status == 2;
+            $status = 2;
         }
         
         if($flightResponse['data']['booking_reference']) {
@@ -397,7 +397,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             \Log::error('Error creating flight tour: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        $status == 0;
+        $status = 0;
         }
         } else{
             $flightResponse = "not_requested";
@@ -613,7 +613,7 @@ public function checkoutWebhook(Request $request)
                     // Log both tour and flight responses
                     //\Log::info('status ' . $attemptId . ': ' . $status);
                     
-                    if (intval($status) === 0) {
+                    if (intval($status) == 0) {
                         // Booking successful, update the attempt record
                         \Log::info('status0' . $attemptId . ': ' . $status);
 
@@ -658,7 +658,7 @@ public function checkoutWebhook(Request $request)
                         }
                     }
 
-                    if (intval($status) === 1 || intval($status) === 2) {
+                    if (intval($status) == 1 || intval($status) == 2) {
                         \Log::info('status1-2' . $attemptId . ': ' . $status);
                         // Booking failed, update the attempt record
                         // \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
