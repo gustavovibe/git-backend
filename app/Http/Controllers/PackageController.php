@@ -121,7 +121,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
-        \Log::info('Tour response: ' . json_encode($tourResponse));
+        //\Log::info('Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             return [1, 'Tour radar:'.$tourResponse['message']] ;
@@ -130,10 +130,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        \Log::info('Flight response: ' . json_encode($flightResponse));
+        //\Log::info('Flight response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            return [1, 'Flight:'. $flightResponse['errors'][0]['message']] ;
+            return [2, 'Flight:'. $flightResponse['errors'][0]['message']] ;
         }
         
         if($flightResponse['data']['booking_reference']) {
@@ -610,23 +610,12 @@ public function checkoutWebhook(Request $request)
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
                     // Log both tour and flight responses
-                    \Log::info('status ' . $attemptId . ': ' . $status);
-
-
-                    if ($status == 1) {
-                        // Booking failed, update the attempt record
-                        \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
-
-                        DB::table('attempts')
-                            ->where('id', $attemptId)
-                            ->update([
-                                'status' => 'failed',
-                                'tourradar_res' => json_encode($tourResponse),
-                                'duffel_res' => json_encode($flightResponse),
-                                'updated_at' => now(),
-                            ]);
-                    } else {
+                    //\Log::info('status ' . $attemptId . ': ' . $status);
+                    
+                    if (intval($status) === 0) {
                         // Booking successful, update the attempt record
+                        \Log::info('status0' . $attemptId . ': ' . $status);
+
                         DB::table('attempts')
                             ->where('id', $attemptId)
                             ->update([
@@ -667,6 +656,21 @@ public function checkoutWebhook(Request $request)
                             \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
                         }
                     }
+
+                    if (intval($status) === 1 || intval($status) === 2) {
+                        \Log::info('status1-2' . $attemptId . ': ' . $status);
+                        // Booking failed, update the attempt record
+                        // \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
+
+                        DB::table('attempts')
+                            ->where('id', $attemptId)
+                            ->update([
+                                'status' => 'failed',
+                                'tourradar_res' => json_encode($tourResponse),
+                                'duffel_res' => json_encode($flightResponse),
+                                'updated_at' => now(),
+                            ]);
+                    } 
                 } else {
                     // Attempt record not found
                     \Log::error('Attempt not found for ID: ' . $attemptId);
