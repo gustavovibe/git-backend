@@ -400,6 +400,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $status = 0;
         }
         } else{
+            $status = 1;
             $flightResponse = "not_requested";
             $order = "not_created";
         }
