@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\ActionLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DestinationController;
@@ -33,7 +32,7 @@ use App\Http\Controllers\SystemUserController;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\AirportController;
 use App\Http\Controllers\PushNotificationsController;
-
+use App\Http\Controllers\ValidatorController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
@@ -210,3 +209,5 @@ Route::get('/login', function () {
 //Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::get('/validator', [ValidatorController::class, 'validatePhone']);
