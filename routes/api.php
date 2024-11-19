@@ -210,7 +210,3 @@ Route::get('/login', function () {
 //Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
-use App\Http\Controllers\ValidatorController;
-
-Route::get('/validator', [ValidatorController::class, 'validatePhone']);
