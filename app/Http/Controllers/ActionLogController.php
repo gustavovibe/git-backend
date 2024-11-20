@@ -12,6 +12,8 @@ class ActionLogController extends Controller
 {
     public function index(Request $request)
     {
+        $booking_id = $request->input('booking_id');
+        
         $action= (new UsersFilters)->ActionLogs($request);
         return ApiResponse::success($action);
         $perPage = 10;
@@ -41,6 +43,10 @@ class ActionLogController extends Controller
                 $query->where('type', $type);
             }
         }
+        
+        $query->when(!empty($booking_id), function ($query) use ($booking_id) {
+            $query->where('booking_id', $booking_id);
+        });
 
         // Paginar los resultados
         $paginatedData = $query->paginate($perPage);
