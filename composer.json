@@ -13,7 +13,7 @@
         "doctrine/dbal": "^3.8",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
-        "giggsey/libphonenumber-for-php": "^2.0",
+        "giggsey/libphonenumber-for-php": "^8.13",
         "google/apiclient": "^2.16",
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.7",
