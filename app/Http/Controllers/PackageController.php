@@ -430,7 +430,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $flightResponse = "not_requested";
             $order = "not_created-missing-tbooking-id";
         }
-        return [$status, $tourResponse, $flightResponse, $order];
+        return [$status, $statusResponse, $flightResponse, $order];
     }
 
     public function createBaggageCheckoutSession(Request $r){
