@@ -127,9 +127,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         if (isset($tourBody['tour_name'])) {
             unset($tourBody['tour_name']);
         }
-        if (isset($tourBody['user_country'])) {
-            unset($tourBody['user_country']);
-        }
+
         // Proceed with the API call
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
