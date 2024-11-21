@@ -6,6 +6,7 @@ use App\Models\Wishlist;
 use App\Models\User; 
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
+use App\Models\Tour;
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -17,10 +18,18 @@ class WishlistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $user_id = $request->has('userId') ? $request->post('userId') : 0;
+        if(!empty($user_id)){
+            $traveler = Traveler::where('user_id', $user_id)->first();
+            if($traveler->traveler_id){
+                $wishlist = Wishlist::where('traveler_id', $traveler->traveler_id)->first();
+                ApiResponse::success($wishlist, 'User Wishlist');
+            }
+        }
         $wishlists = Wishlist::all();
-        return response()->json($wishlists);
+        return ApiResponse::success($wishlist, 'User Wishlist');
     }
 
     /**
@@ -37,8 +46,8 @@ class WishlistController extends Controller
 
     public function store(Request $request){
 
-        $tour_id = $request->has('tourID') ? $request->post('tourID') : 0;
-        $user_id =$request->has('userID') ? $request->post('userID') : 0;
+        $tour_id = $request->has('tour_id') ? $request->post('tour_id') : 0;
+        $user_id = $request->has('user_id') ? $request->post('user_id') : 0;
 
         if(empty($tour_id)){
             return ApiResponse::error('Tour ID is missing');
