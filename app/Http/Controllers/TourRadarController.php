@@ -430,10 +430,29 @@ public static function getDeparturesByTour($params)
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
+            
         ];
 
         try {
-            $response = Http::withHeaders($headers)->post($url, $body);
+            $response = Http::withHeaders($headers)->retry(1, 100)->post($url, $body); // Allow only 1 attempt
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public static function checkBooking($id)
+    {
+        $scope = "com.tourradar.bookings/read";
+        $accessToken = self::getAccessToken($scope);
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings/{$id}";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->get($url); // Perform a GET request
             return $response->json();
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

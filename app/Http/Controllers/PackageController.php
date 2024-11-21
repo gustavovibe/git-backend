@@ -118,15 +118,39 @@ private function createCheckoutSessionInternal($productName, $productDescription
     {
 
         $tourBody = $tour;
+        if (isset($tourBody['description'])) {
+            unset($tourBody['description']);
+        }
+        if (isset($tourBody['tour_id'])) {
+            unset($tourBody['tour_id']);
+        }
+        if (isset($tourBody['tour_name'])) {
+            unset($tourBody['tour_name']);
+        }
+
+        // Proceed with the API call
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
-        //\Log::info('Tour response: ' . json_encode($tourResponse));
+        // Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
         } 
-        if($tourResponse['status']=="confirmed") {
+
+        if (isset($tourResponse['id'])) {
+
+        $tBookingId = $tourResponse['id'];
+
+        Log::info('tourradar booking id: ' . json_encode($tBookingId));   
+
+        sleep(10);
+        $statusResponse = TourRadarController::checkBooking($tBookingId);    
+
+        Log::info('status Response: ' . json_encode($statusResponse));     
+
+        if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
+
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
@@ -399,12 +423,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }
         $status = 0;
         }
-        } else{
+        }else{
             $status = 1;
             $flightResponse = "not_requested";
-            $order = "not_created";
+            $order = "not_created-tbooking status pending";
         }
-        return [$status, $tourResponse, $flightResponse, $order];
+        } else{
+            $status = 3;
+            $flightResponse = "not_requested";
+            $order = "not_created-missing-tbooking-id";
+        }
+        return [$status, $statusResponse, $flightResponse, $order];
     }
 
     public function createBaggageCheckoutSession(Request $r){
@@ -659,7 +688,7 @@ public function checkoutWebhook(Request $request)
                         }
                     }
 
-                    if (intval($status) == 1 || intval($status) == 2) {
+                    if (intval($status) > 0) {
                         \Log::info('status1-2' . $attemptId . ': ' . $status);
                         // Booking failed, update the attempt record
                         // \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
