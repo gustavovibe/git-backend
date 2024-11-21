@@ -132,7 +132,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
-        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        // Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
@@ -144,7 +144,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         Log::info('tourradar booking id: ' . json_encode($tBookingId));   
 
+        sleep(10);
         $statusResponse = TourRadarController::checkBooking($tBookingId);    
+
+        Log::info('status Response: ' . json_encode($statusResponse));     
 
         if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
 
