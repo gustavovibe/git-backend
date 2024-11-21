@@ -138,8 +138,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $status = 1;
         } 
 
-        if (isset($tourResponse['id'])) {
-
         $tBookingId = $tourResponse['id'];
 
         Log::info('tourradar booking id: ' . json_encode($tBookingId));   
@@ -427,11 +425,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $status = 1;
             $flightResponse = "not_requested";
             $order = "not_created-tbooking status pending";
-        }
-        } else{
-            $status = 3;
-            $flightResponse = "not_requested";
-            $order = "not_created-missing-tbooking-id";
         }
         return [$status, $statusResponse, $flightResponse, $order];
     }
