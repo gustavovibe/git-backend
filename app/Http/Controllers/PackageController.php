@@ -118,6 +118,19 @@ private function createCheckoutSessionInternal($productName, $productDescription
     {
 
         $tourBody = $tour;
+        if (isset($tourBody['description'])) {
+            unset($tourBody['description']);
+        }
+        if (isset($tourBody['tour_id'])) {
+            unset($tourBody['tour_id']);
+        }
+        if (isset($tourBody['tour_name'])) {
+            unset($tourBody['tour_name']);
+        }
+        if (isset($tourBody['user_country'])) {
+            unset($tourBody['user_country']);
+        }
+        // Proceed with the API call
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
