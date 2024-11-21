@@ -121,12 +121,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log both tour and flight responses
-        //\Log::info('Tour response: ' . json_encode($tourResponse));
+        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
         } 
-        if($tourResponse['status']=="confirmed") {
+
+        if (isset($tourResponse['status']) && $tourResponse['status'] == "confirmed") {
+
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
