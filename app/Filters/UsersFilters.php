@@ -140,6 +140,7 @@ class UsersFilters
     public function ActionLogs(Request $r){
         $action= ActionLog::query();
         $name=$r->name;
+        $booking_id = $r->input('booking_id');
         $users_id=$r->users_id?explode(',',$r->users_id):[];
         if($name){
             $action->wherehas('user',function($a) use($name) {
@@ -153,6 +154,10 @@ class UsersFilters
         !count($users_id)>0?:$action->wherein('user_id',$users_id);
         !$r->type?:$action->where('type',$r->type);
         !$r->user_id?:$action->where('user_id',$r->user_id);
+        
+        $action->when(!empty($booking_id), function ($query) use ($booking_id) {
+            $query->where('booking_id', $booking_id);
+        });
         $action = $action->get()->map(function ($actions) {
             $actions->action_date =Carbon::parse($actions->created_at)->format('d M Y, g:i a');
             $actions->email=$actions->user->email;
