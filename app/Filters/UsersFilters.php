@@ -4,6 +4,7 @@ namespace App\Filters;
 
 use App\Models\ActionLog;
 use App\Models\ContactEmail;
+use App\Models\Traveler;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -15,6 +16,7 @@ class UsersFilters
     protected $permission_text;
     protected $list_days;
     protected $type_list;
+    protected $user_order;
     public function __construct(){
 
         $this->permissions=[
@@ -63,6 +65,21 @@ class UsersFilters
             3=>'Destination',
             4=>'Travel style',
             5=>'Users',
+        ];
+
+        $this->user_order=[
+            1=>'last_booking_date',
+            2=>'last_booking_date',
+            3=>'first_booking_date',
+            4=>'first_booking_date',
+            5=>'total_paid',
+            6=>'total_paid',
+            7=>'average_duration',
+            8=>'average_duration',
+            9=>'gross_profit',
+            10=>'gross_profit',
+            11=>'name',
+            12=>'name',
         ];
     }
 
@@ -177,5 +194,324 @@ class UsersFilters
         );
 
         return $action;
+    }
+
+
+    public function UserWithOrders(Request $r){
+        $query = User::query();
+
+
+        if($r->search){
+            $query->where(function($q) use ($r){
+                $q->where('name','like',"%$r->search%")
+                ->orwhere('email','like',"%$r->search%")
+                ->orwhere('phone','like',"%$r->search%");
+            });
+        }
+
+        if ($r->has('created_at')) {
+            $dateRange = explode(',', $r->input('created_at'));
+            $startDate = Carbon::createFromFormat('Y-m-d', $dateRange[0])->startOfDay();
+            $endDate = Carbon::createFromFormat('Y-m-d', $dateRange[1])->endOfDay();
+            $query->whereHas('orders', function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('created_at', [$startDate, $endDate]);
+            });
+        }
+
+        if ($r->has('departure')) {
+            $dates = explode(',', $r->input('departure'));
+            $startDate = Carbon::createFromFormat('Y-m-d', $dates[0])->startOfDay();
+            $endDate = Carbon::createFromFormat('Y-m-d', $dates[1])->endOfDay();
+            $query->whereHas('orders', function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('departure', [$startDate, $endDate]);
+            });
+        }
+
+        if ($r->has('cities')) {
+            $cities = explode(',', $r->input('cities'));
+            $query->whereHas('orders.tour.cities', function ($q) use ($cities) {
+                $q->whereIn('t_city_id', $cities);
+            });
+        }
+
+        if ($r->has('countries')) {
+            $countries = explode(',', $r->input('countries'));
+            $query->whereHas('orders.tour.countries', function ($q) use ($countries) {
+                $q->whereIn('t_country_id', $countries);
+            });
+        }
+
+        if ($r->has('natural_destinations')) {
+            $naturalDestinations = explode(',', $r->input('natural_destinations'));
+            $query->whereHas('orders.tour.natural_destination', function ($q) use ($naturalDestinations) {
+                $q->whereIn('t_natural_id', $naturalDestinations);
+            });
+        }
+
+        if ($r->has('types')) {
+            $types = explode(',', $r->input('types'));
+            $query->whereHas('orders.tour.type', function ($q) use ($types) {
+                $q->whereIn('tour_type_id', $types);
+            });
+        }
+
+        if ($r->has('operators')) {
+            $operators = explode(',', $r->input('operators'));
+            $query->whereHas('orders', function ($q) use ($operators) {
+                $q->whereIn('operator', $operators);
+            });
+        }
+
+        if ($r->has('duration')) {
+            $durations = explode('-', $r->input('duration'));
+            $query->whereHas('orders', function ($q) use ($durations) {
+                $q->whereBetween('duration', [trim($durations[0]), trim($durations[1])]);
+            });
+        }
+
+        if ($r->has('average_duration')) {
+            $averageDurations = explode('-', $r->input('average_duration'));
+            $query->whereHas('orders', function ($q) use ($averageDurations) {
+                $q->select('user_id', DB::raw('AVG(duration) as avg_duration'))
+                    ->groupBy('user_id')
+                    ->havingBetween('avg_duration', [trim($averageDurations[0]), trim($averageDurations[1])]);
+            });
+        }
+
+        if ($r->has('stops')) {
+            $stops = explode('-', $r->input('stops'));
+            $query->whereHas('orders', function ($q) use ($stops) {
+                $q->whereBetween('total_stops', [trim($stops[0]), trim($stops[1])]);
+            });
+        }
+
+        if ($r->has('f_duration')) {
+            $fDurations = explode('-', $r->input('f_duration'));
+            $query->whereHas('orders', function ($q) use ($fDurations) {
+                $q->whereBetween('f_duration', [trim($fDurations[0]), trim($fDurations[1])]);
+            });
+        }
+
+        if ($r->has('total_orders')) {
+            $totalOrders = explode('-', $r->input('total_orders'));
+            $query->whereHas('orders', function ($q) use ($totalOrders) {
+                $q->select('user_id', DB::raw('COUNT(*) as total_orders'))
+                    ->groupBy('user_id')
+                    ->havingBetween('total_orders', [trim($totalOrders[0]), trim($totalOrders[1])]);
+            });
+        }
+
+        if ($r->has('total_paid')) {
+            $totalPaid = explode('-', $r->input('total_paid'));
+            $query->whereHas('orders', function ($q) use ($totalPaid) {
+                $q->select('user_id', DB::raw('SUM(paid) as total_paid'))
+                    ->groupBy('user_id')
+                    ->havingBetween('total_paid', [trim($totalPaid[0]), trim($totalPaid[1])]);
+            });
+        }
+
+        if ($r->has('frequency')) {
+            $frequencies = explode('-', $r->input('frequency'));
+            $minFrequency = trim($frequencies[0]);
+            $maxFrequency = trim($frequencies[1]);
+
+            $query->whereHas('orders', function ($q) use ($minFrequency, $maxFrequency) {
+                $q->select('user_id', DB::raw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) as frequency'))
+                    ->groupBy('user_id')
+                    ->havingRaw('frequency BETWEEN ? AND ?', [$minFrequency, $maxFrequency]);
+            });
+        }
+
+        // Filter by age range
+        if ($r->has('age')) {
+            $ageRange = explode('-', $r->input('age'));
+            $minAge = $ageRange[0];
+            $maxAge = $ageRange[1];
+
+            $query->whereHas('orders', function ($q) use ($minAge, $maxAge) {
+                $q->whereHas('user', function ($q) use ($minAge, $maxAge) {
+                    $q->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
+                        $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+                    });
+                });
+            });
+        }
+
+        // Filter by gender
+        if ($r->has('gender')) {
+            $gender = $r->input('gender');
+
+            $query->whereHas('orders', function ($q) use ($gender) {
+                $q->whereHas('user', function ($q) use ($gender) {
+                    $q->whereHas('traveler', function ($q) use ($gender) {
+                        $q->wherein('gender', explode(',' ,$gender));
+                    });
+                });
+            });
+        }
+
+        // Filter by country
+        if ($r->has('country')) {
+            $country = $r->input('country');
+            $query->whereHas('user', function ($q) use ($country) {
+                $q->where('country', $country);
+            });
+        }
+
+            // Filter by tour IDs
+        if ($r->has('tours')) {
+            $tourIds = explode(',', $r->input('tours'));
+            $query->whereHas('orders.tour', function ($q) use ($tourIds) {
+                $q->whereIn('tour_id', $tourIds);
+            });
+        }
+
+        $users = $query->get();
+
+        $result = [];
+
+        foreach ($users as $user) {
+            $traveler = Traveler::where('user_id', $user->id)->first();
+
+            if (!$traveler) {
+                continue;
+            }
+
+            $orders = $user->orders()->with(['tour.cities.city', 'tour.natural_destination.natural_destination', 'tour.type.type', 'tour.countries.country'])->get();
+
+            if (!$orders) {
+                continue;
+            }
+
+            $totalPaid = 0;
+            $totalCommission = 0;
+            $totalDuration = 0;
+            $totalOrders = $orders->count();
+            $totalGroupSize = 0;
+            $lastBookingDate = null;
+            $firstBookingDate = null;
+            $lastBookingStartCity = null;
+            $ordersData = [];
+
+            foreach ($orders as $order) {
+
+                if (!$lastBookingDate || $order->start > $lastBookingDate) {
+                    $lastBookingDate = $order->start;
+                    $lastBookingStartCity = $order->start_city;
+                }
+
+                if (!$firstBookingDate || $order->created_at < $firstBookingDate) {
+                    $firstBookingDate = $order->created_at;
+                }
+
+                $orderData = [
+                    'booking_id' => $order->booking_id,
+                    'start' => $order->start,
+                    'created_at' => $order->created_at,
+                    'departure' => $order->departure,
+                    'duration' => $order->duration,
+                    'tour_length' => $order->tour_length,
+                    'start_city' => $order->start_city,
+                    'tour_id' => $order->tour_id,
+                    'tour_name' => $order->tour_name,
+                    'operator' => $order->operator,
+                    'f_duration' => $order->f_duration,
+                    'total_stops' => $order->total_stops,
+                    'checked_bags' => $order->checked_bags,
+                    'paid' => $order->paid,
+                    'commission' => $order->commission,
+                    'channel' => $order->channel,
+                ];
+
+                if ($order->tour) {
+                    $orderData['group_size'] = $order->tour->max_group_size;
+                    $orderData['cities'] = $order->tour->cities;
+                    $orderData['natural_destination'] = $order->tour->natural_destination;
+                    $orderData['type'] = $order->tour->type;
+                    $orderData['countries'] = $order->tour->countries;
+                }
+
+                $totalGroupSize += $orderData['group_size'];
+
+                $totalPaid += $order->paid;
+                $totalCommission += $order->commission;
+                $totalDuration += $order->duration;
+
+                $ordersData[] = $orderData;
+
+            }
+
+            $groupSizeAverage = $totalOrders > 0 ? $totalGroupSize / $totalOrders : 0;
+            $averageCommission = $totalOrders > 0 ? $totalCommission / $totalOrders : 0;
+            $grossProfit = $totalOrders > 0 ? $totalPaid * ($totalCommission / $totalOrders) : 0;
+            $frequency = $totalOrders > 0 ? $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1) : 0;
+
+            $result[] = [
+                'user_id' => $user->id,
+                'traveler_id' => $traveler->traveler_id,
+                'name' => $traveler->name,
+                'country' => $traveler->country,
+                'birth' => $traveler->birth,
+                'gender' => $traveler->gender,
+                'age' => Carbon::parse($traveler->birth)->age,
+                'last_booking_start_city' => $lastBookingStartCity,
+                'group_size_average' =>round($groupSizeAverage),
+                'last_booking_date' => $lastBookingDate,
+                'first_booking_date' => $firstBookingDate,
+                'total_paid' =>number_format($totalPaid,2),
+                'total_orders' => $totalOrders,
+                'total_duration' => $totalDuration,
+                'average_duration' => $totalOrders > 0 ? $totalDuration / $totalOrders : 0,
+                'average_commission' => $averageCommission,
+                'gross_profit' => number_format($grossProfit,2),
+                'frequency' => $frequency,
+                'orders' => $ordersData,
+            ];
+        }
+
+        if($r->order_by){
+            usort($result, function ($a, $b) use ($r) {
+                $column = $this->user_order[$r->order_by];
+                if(in_array($r->order_by,[1,2,3,4])){
+                    if ($r->order_by % 2 == 0) {
+                        return strtotime($a[$column]) <=> strtotime($b[$column]);}
+                        else {
+                            return strtotime($b[$column]) <=> strtotime($a[$column]);
+                        }
+                    }
+                elseif(in_array($r->order_by,[5,6,7,8,9,10])){
+                    if ($r->order_by % 2 == 0) {
+                        return floatval(str_replace(',', '', $a[$column])) <=> floatval(str_replace(',', '', $b[$column]));
+                    } else {
+                        return floatval(str_replace(',', '', $b[$column])) <=> floatval(str_replace(',', '', $a[$column]));
+                    }
+                    }else{
+                        if ($r->order_by % 2 == 0) {
+                            return $a[$column] <=> $b[$column];
+                        }else {
+                                return $b[$column] <=> $a[$column];
+                            }
+                    }
+
+                });
+            }
+
+
+        $users= collect($result);
+        if(!$r->csv){
+            $currentPage =$r->page?$r->page:1;
+            $perPage = $r->per_page? $r->per_page:10;
+
+            $users = new LengthAwarePaginator(
+                $users->forPage($currentPage, $perPage),
+                $users->count(),
+                $perPage,
+                $currentPage,
+                ['path' => $r->url(), 'query' => $r->query()]
+            );
+        }
+
+
+        return $users;
     }
 }

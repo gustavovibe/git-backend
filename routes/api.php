@@ -114,6 +114,7 @@ Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
 Route::get('/orders-csv', [OrderController::class, 'ordersCsv']);
+Route::get('users-orders-csv', [UserController::class, 'getUsersOrdersCsv']);
 Route::get('/order/{id}', [OrderController::class, 'getOrder']);
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
 
