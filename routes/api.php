@@ -100,6 +100,7 @@ Route::get('/users', [UserController::class, 'getUserById']);
 Route::get('/users-history', [UserController::class, 'UserHistory']);
 Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 Route::post('/users-pass', [UserController::class, 'changePassword']);
+Route::get('/users-wishlist', [UserController::class, 'getWishlist']);
 Route::post('/push_notifications_register', [PushNotificationsController::class, 'registerGravitecSub']);
 Route::post('/send_push_notification', [PushNotificationsController::class, 'sendPushNotification']);
 
@@ -108,7 +109,7 @@ Route::get('/show-contact', [UserController::class, 'showContac']);
 
 Route::get('/wishlists', [WishlistController::class, 'index']);
 Route::get('/wishlists/{id}', [WishlistController::class, 'show']);
-Route::post('wishlists-add', [WishlistController::class, 'store']);
+Route::post('/wishlists-add', [WishlistController::class, 'store']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
