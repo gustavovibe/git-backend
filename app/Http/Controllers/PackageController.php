@@ -142,7 +142,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         Log::info('tourradar booking id: ' . json_encode($tBookingId));   
 
-        sleep(10);
+        sleep(15);
+        
         $statusResponse = TourRadarController::checkBooking($tBookingId);    
 
         Log::info('status Response: ' . json_encode($statusResponse));     
