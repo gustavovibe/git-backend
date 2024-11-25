@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 class UsersFilters
 {
     protected $notifications;
@@ -171,7 +172,7 @@ class UsersFilters
         !count($users_id)>0?:$action->wherein('user_id',$users_id);
         !$r->type?:$action->where('type',$r->type);
         !$r->user_id?:$action->where('user_id',$r->user_id);
-        
+
         $action->when(!empty($booking_id), function ($query) use ($booking_id) {
             $query->where('booking_id', $booking_id);
         });
@@ -199,7 +200,7 @@ class UsersFilters
 
     public function UserWithOrders(Request $r){
         $query = User::query();
-
+        $gross_limit=explode(',',$r->profitSlider);
 
         if($r->search){
             $query->where(function($q) use ($r){
@@ -269,12 +270,24 @@ class UsersFilters
             });
         }
 
-        if ($r->has('average_duration')) {
-            $averageDurations = explode('-', $r->input('average_duration'));
+        if ($r->durationavgParam) {
+            $averageDurations = explode(',', $r->durationavgParam);
             $query->whereHas('orders', function ($q) use ($averageDurations) {
                 $q->select('user_id', DB::raw('AVG(duration) as avg_duration'))
                     ->groupBy('user_id')
                     ->havingBetween('avg_duration', [trim($averageDurations[0]), trim($averageDurations[1])]);
+            });
+        }
+
+        if ($r->stopsavgParam) {
+            $stopRange = explode(',', $r->stopsavgParam);
+            $minStops = trim($stopRange[0]);
+            $maxStops = trim($stopRange[1]);
+
+            $query->whereHas('orders', function ($q) use ($minStops, $maxStops) {
+                $q->select('user_id',DB::raw( 'AVG(total_stops) as avg_stops'))
+                  ->groupBy('user_id')
+                  ->havingBetween('avg_stops',[$minStops, $maxStops]);
             });
         }
 
@@ -292,8 +305,8 @@ class UsersFilters
             });
         }
 
-        if ($r->has('total_orders')) {
-            $totalOrders = explode('-', $r->input('total_orders'));
+        if ($r->tripsParam) {
+            $totalOrders = explode(',', $r->tripsParam);
             $query->whereHas('orders', function ($q) use ($totalOrders) {
                 $q->select('user_id', DB::raw('COUNT(*) as total_orders'))
                     ->groupBy('user_id')
@@ -301,8 +314,8 @@ class UsersFilters
             });
         }
 
-        if ($r->has('total_paid')) {
-            $totalPaid = explode('-', $r->input('total_paid'));
+        if ($r->paidParam) {
+            $totalPaid = explode(',', $r->paidParam);
             $query->whereHas('orders', function ($q) use ($totalPaid) {
                 $q->select('user_id', DB::raw('SUM(paid) as total_paid'))
                     ->groupBy('user_id')
@@ -310,10 +323,10 @@ class UsersFilters
             });
         }
 
-        if ($r->has('frequency')) {
-            $frequencies = explode('-', $r->input('frequency'));
-            $minFrequency = trim($frequencies[0]);
-            $maxFrequency = trim($frequencies[1]);
+        if ($r->frequencySlider) {
+            $frequencies = explode(',', $r->frequencySlider);
+            $minFrequency = $frequencies[0];
+            $maxFrequency = $frequencies[1];
 
             $query->whereHas('orders', function ($q) use ($minFrequency, $maxFrequency) {
                 $q->select('user_id', DB::raw('COUNT(*) / DATEDIFF(MAX(start), MIN(created_at)) as frequency'))
@@ -323,19 +336,20 @@ class UsersFilters
         }
 
         // Filter by age range
-        if ($r->has('age')) {
-            $ageRange = explode('-', $r->input('age'));
+        if ($r->ageSlider) {
+            $ageRange = explode(',', $r->ageSlider);
             $minAge = $ageRange[0];
             $maxAge = $ageRange[1];
-
-            $query->whereHas('orders', function ($q) use ($minAge, $maxAge) {
-                $q->whereHas('user', function ($q) use ($minAge, $maxAge) {
-                    $q->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
-                        $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+                $query->whereHas('orders', function ($q) use ($minAge, $maxAge) {
+                    $q->whereHas('user', function ($q) use ($minAge, $maxAge) {
+                        $q->whereHas('traveler', function ($q) use ($minAge, $maxAge) {
+                            $q->whereBetween(DB::raw('TIMESTAMPDIFF(YEAR, birth, CURDATE())'), [(int)$minAge, (int)$maxAge]);
+                        });
                     });
                 });
-            });
+
         }
+
 
         // Filter by gender
         if ($r->has('gender')) {
@@ -445,6 +459,12 @@ class UsersFilters
             $averageCommission = $totalOrders > 0 ? $totalCommission / $totalOrders : 0;
             $grossProfit = $totalOrders > 0 ? $totalPaid * ($totalCommission / $totalOrders) : 0;
             $frequency = $totalOrders > 0 ? $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1) : 0;
+
+
+            if (!((float)$grossProfit >= (float)$gross_limit[0] && (float)$grossProfit <= (float)$gross_limit[1])) {
+                continue;
+            }
+
 
             $result[] = [
                 'user_id' => $user->id,
