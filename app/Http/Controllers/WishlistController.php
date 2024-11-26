@@ -61,7 +61,7 @@ class WishlistController extends Controller
             return ApiResponse::error('Traveler not found');
         }
 
-        $user = User::where('id', $id)->first();
+        $user = User::where('id', $user_id)->first();
         if (!$user) {
             return ApiResponse::error('User not found');
         }
@@ -70,7 +70,7 @@ class WishlistController extends Controller
 
             $insert_data = [
                 'traveler_id' => $traveler->traveler_id,
-                'user_id' => $user->id,
+                'user_id' => $user_id,
                 'wish_id' => 0,
                 'tour_id' => $tour_id,
                 'notes' => 'new tour wishlist'
