@@ -20,6 +20,7 @@ use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Http\Controllers\TourController;
+use App\Mail\BookingMail;
 use App\Models\ActionLog;
 
 class PackageController extends Controller
@@ -136,17 +137,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
-        } 
+        }
 
         $tBookingId = $tourResponse['id'];
 
-        Log::info('tourradar booking id: ' . json_encode($tBookingId));   
+        Log::info('tourradar booking id: ' . json_encode($tBookingId));
 
         sleep(15);
 
-        $statusResponse = TourRadarController::checkBooking($tBookingId);    
+        $statusResponse = TourRadarController::checkBooking($tBookingId);
 
-        Log::info('status Response: ' . json_encode($statusResponse));     
+        Log::info('status Response: ' . json_encode($statusResponse));
 
         if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
 
@@ -158,7 +159,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             $status = 2;
         }
-        
+
         if (isset($flightResponse['data']) && isset($flightResponse['data']['booking_reference'])) {
 
         $passengers = $tourResponse['passengers'];
@@ -407,6 +408,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
         ];
 
         $order = Order::create($orderData);
+        $mail = new BookingMail($order);
+        Mail::to($order->user->email)->send($mail);
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
@@ -639,7 +642,7 @@ public function checkoutWebhook(Request $request)
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
                     // Log both tour and flight responses
                     //\Log::info('status ' . $attemptId . ': ' . $status);
-                    
+
                     if (intval($status) == 0) {
                         // Booking successful, update the attempt record
                         \Log::info('status0' . $attemptId . ': ' . $status);
@@ -698,7 +701,7 @@ public function checkoutWebhook(Request $request)
                                 'duffel_res' => json_encode($flightResponse),
                                 'updated_at' => now(),
                             ]);
-                    } 
+                    }
                 } else {
                     // Attempt record not found
                     \Log::error('Attempt not found for ID: ' . $attemptId);
