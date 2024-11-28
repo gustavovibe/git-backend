@@ -10,6 +10,7 @@ use App\Http\Controllers\TourRadarController;
 use App\Mail\BookingMail;
 use App\Mail\SendSummary;
 use App\Mail\TourDetails;
+use App\Mail\AbandonedCartMail;
 use App\Models\BookingSummary;
 use App\Models\Order;
 use App\Models\Type;
@@ -223,5 +224,38 @@ class TourController extends Controller
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
+    }
+
+    public function abandonedCartNotification(Request $request){
+
+        $user_id = $request->has('userId') ? $request->userId : 0;
+        $tour_id = $request->has('tourId') ? $request->tourId : 0;
+
+        if (!$user_id) {
+            ApiResponse::error('User Id query parameter is required.');
+        }
+        if (!$tour_id) {
+            ApiResponse::error('Tour Id query parameter is required.');
+        }
+
+        $user = User::where('id', $id)->first();
+        $tour = Tour::where('tour_id', $tour_id)->first();
+
+        if(!$tour){
+            ApiResponse::error('Tour not found.');
+        }
+
+        $tour_link = 'https://hopeful-nobel.74-208-189-166.plesk.page/tour?tourId='.$tour_id.'&departure_range=2-0&departure_fly_from=NYC&departure_fly_to=4458&adultsCount=1&childrenCount=0&infantsCount=0&dateSelected=2025/01/01-2025/01/31&totalTravelers=1';
+        $emailData = [
+            'userName' => $user->name,
+            'userEmail' => $user->email,
+            'name' => $tour->tour_name,
+            'link' => $user->country,
+        ];
+
+        Mail::to($user->email)->send(new AbandonedCartMail($emailData));
+
+        return ApiResponse::success([], 'Email notification sent');
+
     }
 }
