@@ -137,18 +137,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
+        }else {
+            $tBookingId = $tourResponse['id'];
+            Log::info('tourradar booking id: ' . json_encode($tBookingId));
+            $order = createOrder($flight, $tourResponse);
+            $status = 0;
         }
 
-        $tBookingId = $tourResponse['id'];
+        return [$status, $tourResponse, $order];
+    }
 
-        Log::info('tourradar booking id: ' . json_encode($tBookingId));
-
-        $statusResponse = TourRadarController::checkBooking($tBookingId);
-
-        Log::info('status Response: ' . json_encode($statusResponse));
-
-        if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
-
+    public function bookFlight($flight){
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
@@ -157,22 +156,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             $status = 2;
         }
-
-        if (isset($flightResponse['data']) && isset($flightResponse['data']['booking_reference'])) {
-            createPassengers($tourResponse);
-            createOrder($flightResponse, $tourResponse);
-        }
-
-        $status = 0;
-        } else {
-            Log::info('Booking reference or data key is missing in flightResponse');
-        }
-        }else{
-            $status = 1;
-            $flightResponse = "not_requested";
-            $order = "not_created-tbooking status pending";
-        }
-        return [$status, $statusResponse, $flightResponse, $order];
+        return $flightResponse;
     }
 
     public function createOrder($flightResponse, $tourResponse){
@@ -268,6 +252,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             \Log::error('Error creating flight tour: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
+        return $order;
     }
 
     public function calculateAdventureDuration(int $tourLength): string {
@@ -608,69 +593,24 @@ public function checkoutWebhook(Request $request)
                     // Process the stored data from the attempt
                     $RequestTour = json_decode($attempt->tour, true);
                     $RequestFlight = json_decode($attempt->flight, true);
-
+                    $offerId = $RequestFlight['data']['selected_offers'][0];
+                    \Log::info('Duffel offer Id: ' . $offerId);
+                    $flightOffer = DuffelApiController::getOffer($offerId);
                     // Log the start of the booking process
                     \Log::info('Starting booking process for attempt ID: ' . $attemptId);
 
                     // Execute the booking process
-                    $response = $this->bookPackage($RequestTour, $RequestFlight);
+                    $response = $this->bookPackage($RequestTour, $flightOffer);
                     // Log the start of the booking process
                     \Log::info('Response (general): ' . json_encode($response));
                     // Extract the responses
                     $status = $response[0];
                     $tourResponse = $response[1] ?? null;
-                    $flightResponse = $response[2] ?? null;
-                    $order = $response[3] ?? null;
+                    $order = $response[2] ?? null;
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
-                    \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
                     // Log both tour and flight responses
                     //\Log::info('status ' . $attemptId . ': ' . $status);
-
-                    if (intval($status) == 0) {
-                        // Booking successful, update the attempt record
-                        \Log::info('status0' . $attemptId . ': ' . $status);
-
-                        DB::table('attempts')
-                            ->where('id', $attemptId)
-                            ->update([
-                                'booking_id' => $order->booking_id,
-                                'tourradar_res' => json_encode($tourResponse),
-                                'duffel_res' => json_encode($flightResponse),
-                                'status' => 'completed',
-                                'updated_at' => now(),
-                            ]);
-
-                        try {
-                            // Attempt to capture the payment
-                            $stripe = new \Stripe\StripeClient($stripeSecret);
-                            $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
-
-                            // Log the payment capture response
-                            \Log::info(sprintf(
-                                'Stripe payment capture response for payment intent ID %s (Attempt ID: %s): %s',
-                                $session->payment_intent,
-                                $attemptId,
-                                json_encode($captureResponse)
-                            ));
-                            // Booking successful, update the attempt record
-                            DB::table('orders')
-                            ->where('booking_id', $order->booking_id)
-                            ->update([
-                                'payment_id' => $session->payment_intent,
-                                'updated_at' => now(),
-                            ]);
-                            // Send the booking confirmation email
-                            $emailResponse = TourController::emailBConfirmation($order->booking_id);
-
-                            // Log the email response
-                            \Log::info('emailBConfirmation response for booking ID ' . $order->booking_id . ': ' . json_encode($emailResponse));
-
-                        } catch (\Exception $e) {
-                            // Handle errors during payment capture or email sending
-                            \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
-                        }
-                    }
 
                     if (intval($status) > 0) {
                         \Log::info('status1-2' . $attemptId . ': ' . $status);
@@ -708,17 +648,100 @@ public function checkoutWebhook(Request $request)
 
 
 
-public function checkBookingStatus(Request $request)
-{
-    $attemptId = $request->attempt_id;
+    public function checkBookingStatus(Request $request)
+    {
+        $attemptId = $request->attempt_id;
 
-    $attempt = DB::table('attempts')->where('id', $attemptId)->first();
+        $attempt = DB::table('attempts')->where('id', $attemptId)->first();
 
-    if ($attempt && $attempt->booking_id) {
-        return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
+        if ($attempt && $attempt->booking_id) {
+            return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
+        }
+
+        return response()->json(['status' => 'pending']);
     }
 
-    return response()->json(['status' => 'pending']);
-}
+    public function processPendingAttempts() {
+        $pendingAttempts = DB::table('attempts')
+            ->where('status', 'pending')
+            ->where('expiration', '>=', now())
+            ->get();
+    
+        foreach ($pendingAttempts as $attempt) {
+            $ResponseTour = json_decode($attempt->tourradar_res, true);
+            $tBookingId = $ResponseTour['id'];
+            Log::info('Processing booking ID: ' . $tBookingId);
+    
+            $statusResponse = TourRadarController::checkBooking($tBookingId);
+            Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
+    
+            if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
+                // Update the attempt status to confirmed
+                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
+                Log::info('Booking ID ' . $tBookingId . ' confirmed.');
+            }
+        }
+    }    
 
+    public function checkTourradarStatus($attemptId){
+        $attempt = DB::table('attempts')->where('id', $attemptId)->first();
+
+        if ($attempt) {
+            // Process the stored data from the attempt
+            $ResponseTour = json_decode($attempt->tourradar_res, true);
+            $tBookingId = $ResponseTour['id'];
+            Log::info(' $tBookingId: ' . json_encode($tBookingId));
+            $RequestFlight = json_decode($attempt->flight, true);
+
+        $statusResponse = TourRadarController::checkBooking($tBookingId);
+        Log::info('status Response: ' . json_encode($statusResponse));
+
+        if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
+
+        $flightResponse = bookFlight($RequestFlight);
+
+            DB::table('attempts')
+                ->where('id', $attemptId)
+                ->update([
+                //  'booking_id' => $order->booking_id,
+                    'tourradar_res' => json_encode($statusResponse),
+                    'duffel_res' => json_encode($flightResponse),
+                    'status' => 'completed',
+                    'updated_at' => now(),
+                ]);
+
+            try {
+                // Attempt to capture the payment
+                $stripe = new \Stripe\StripeClient($stripeSecret);
+                $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
+
+                // Log the payment capture response
+                \Log::info(sprintf(
+                    'Stripe payment capture response for payment intent ID %s (Attempt ID: %s): %s',
+                    $session->payment_intent,
+                    $attemptId,
+                    json_encode($captureResponse)
+                ));
+                // Booking successful, update the attempt record
+                DB::table('orders')
+                ->where('booking_id', $order->booking_id)
+                ->update([
+                    'payment_id' => $session->payment_intent,
+                    'updated_at' => now(),
+                ]);
+                // Send the booking confirmation email
+                $emailResponse = TourController::emailBConfirmation($order->booking_id);
+
+                // Log the email response
+                \Log::info('emailBConfirmation response for booking ID ' . $order->booking_id . ': ' . json_encode($emailResponse));
+
+            } catch (\Exception $e) {
+                // Handle errors during payment capture or email sending
+                \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
+            }
+        } else {
+            Log::info('Booking reference or data key is missing in flightResponse');
+        }
+    }
+    }
 }

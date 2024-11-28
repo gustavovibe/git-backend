@@ -134,6 +134,34 @@ class DuffelApiController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
+
+        try {
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
+            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
+
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getOfferById(Request $request)
+    {
+        // Validations
+        $validator = $this->validateParamsWhenOfferById($request);
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        
         try {
             // Getting Headers
             $headers = self::getHeaders();

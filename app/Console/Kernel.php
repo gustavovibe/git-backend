@@ -10,14 +10,14 @@ class Kernel extends ConsoleKernel
 {
 
     protected $commands = [
-
+        Commands\ProcessPendingAttempts::class,
     ];
-
-
+    
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('backup:database-s3')->dailyAt('05:30');
         $schedule->command('backup:database-s3')->weekly();
+        $schedule->command('attempts:process')->everyThirtyMinutes();
     }
 
     protected function commands()
@@ -26,4 +26,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    
 }
