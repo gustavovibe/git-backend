@@ -16,6 +16,9 @@ class UpdateAttemptsTable extends Migration
          Schema::table('attempts', function (Blueprint $table) {
             $table->json('duffel_res')->nullable();
             $table->json('tourradar_res')->nullable();
+            $table->text('offer_id'); 
+            $table->text('payment_id'); 
+            $table->text('expiration'); 
         });
     }
 

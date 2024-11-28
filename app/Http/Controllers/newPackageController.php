@@ -34,6 +34,8 @@ class PackageController extends Controller
 
         $RequestFlight = $request->input('flight');
         $RequestTour = $request->input('tour');
+        $offerId = $request->input('offerId');
+        $expiration = $request->input('expiration');
 
         $tour_id = (int)$RequestTour['tour_id'];
         $tour_name = $RequestTour['tour_name'];
@@ -51,11 +53,11 @@ class PackageController extends Controller
         if($tour){
             \Log::info('tour found: ' . $tour->tour_name);
             // Call the function and get the response
-            $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+            $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration);
 
         }else{
             \Log::info('tour not found on db, id: ' . $tour_id);
-            $response = $this->createCheckoutSessionInternal($tour_name, $tour_desc, $amount, $newUrl, $url, $RequestTour, $RequestFlight);
+            $response = $this->createCheckoutSessionInternal($tour_name, $tour_desc, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration);
         }
         // Check if an error occurred
         if (isset($response['error'])) {
@@ -66,7 +68,7 @@ class PackageController extends Controller
         return response()->json(['url' => $response['url'], 'attempt_id' => $response['attempt_id']]);
     }
 
-private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight)
+private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration)
 {
     try {
 
@@ -78,6 +80,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'url' => $url,
             'created_at' => now(),
             'updated_at' => now(),
+            'offer_id' => $offerId, 
+            'expiration' => $expiration,
         ]);
         $attemptUrl = $newUrl . '&attempt_id=' . $attemptId;
         // Create the Stripe session
@@ -623,6 +627,7 @@ public function checkoutWebhook(Request $request)
                                 'status' => 'failed',
                                 'tourradar_res' => json_encode($tourResponse),
                                 'duffel_res' => json_encode($flightResponse),
+                                'payment_id' => $session->payment_intent,
                                 'updated_at' => now(),
                             ]);
                     }
@@ -684,6 +689,7 @@ public function checkoutWebhook(Request $request)
     }    
 
     public function checkTourradarStatus($attemptId){
+
         $attempt = DB::table('attempts')->where('id', $attemptId)->first();
 
         if ($attempt) {
