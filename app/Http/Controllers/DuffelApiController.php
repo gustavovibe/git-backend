@@ -551,14 +551,14 @@ class DuffelApiController extends Controller
         foreach ($offer['payment_requirements'] as $payment) {
             // only direct flights
             if ($request->get('payment') === "false") {
-                if ($payment['requires_instant_payment'] === 'true') {
+                if ($payment['requires_instant_payment'] === true) {
                     return false;
                 }
             }
 
             // direct or one stop
             if ($request->get('payment') === "true") {
-                if ($payment['requires_instant_payment'] === 'false') {
+                if ($payment['requires_instant_payment'] === false) {
                     return false;
                 }
             }
