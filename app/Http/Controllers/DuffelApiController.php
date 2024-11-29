@@ -153,7 +153,7 @@ class DuffelApiController extends Controller
         }
     }
 
-    public function getOfferById(Request $request)
+    public function getOffer(Request $request)
     {
         // Validations
         $validator = $this->validateParamsWhenOfferById($request);
