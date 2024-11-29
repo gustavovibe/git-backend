@@ -17,6 +17,7 @@ class DuffelApiController extends Controller
 {
     // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
+
     {
         // Validating params
         $validator = $this->validateParamsWhenDuffelRequest($request);
@@ -429,6 +430,11 @@ class DuffelApiController extends Controller
                 }
             }
 
+            $isValidOffer = $this->validatePayment($offer, $request);
+            if (!$isValidOffer) {
+                continue;
+            }
+
             $validatedOffers[] = $offer; // Add the offer if it has baggage
             $count++; // Increment the count of baggage offers
         }
@@ -535,7 +541,32 @@ class DuffelApiController extends Controller
         // All 'checked' baggages meet the minimum quantity requirement
         return true;
     }
+    
+    private function validatePayment($offer, $request)
+    {
+        if ($request->get('payment') === 'any') {
+            return true;
+        }
 
+        foreach ($offer['payment_requirements'] as $payment) {
+            // only direct flights
+            if ($request->get('payment') === "false") {
+                if ($payment[requires_instant_payment]) === 'true') {
+                    return false;
+                }
+            }
+
+            // direct or one stop
+            if ($request->get('payment') === "true") {
+                if ($payment[requires_instant_payment]) === 'false') {
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+    }
     private function validateStops($offer, $request)
     {
         if ($request->get('stops') === 'any') {
@@ -705,3 +736,4 @@ class DuffelApiController extends Controller
         }
     }
 }
+
