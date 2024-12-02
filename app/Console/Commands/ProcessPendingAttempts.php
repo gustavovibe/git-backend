@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -7,57 +8,71 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
 
-private function processPendingAttempts()
+class ProcessPendingAttempts extends Command
 {
-    $pendingAttempts = DB::table('attempts')
-        ->where('status', 'pending')
-        ->where('expiration', '>=', now())
-        ->get();
+    protected $signature = 'process:pending-attempts';
+    protected $description = 'Process pending attempts and confirm bookings.';
 
-    foreach ($pendingAttempts as $attempt) {
-        $ResponseTour = json_decode($attempt->tourradar_res, true);
-        $tBookingId = $ResponseTour['id'];
-        Log::info('Processing booking ID: ' . $tBookingId);
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
-        $statusResponse = TourRadarController::checkBooking($tBookingId);
-        Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
+    public function handle()
+    {
+        $this->processPendingAttempts();
+    }
 
-        if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
-            // Retrieve flight data from the current attempt
-            $flight = json_decode($attempt->flight, true);
+    public function processPendingAttempts()
+    {
+        $pendingAttempts = DB::table('attempts')
+            ->where('status', 'pending')
+            ->where('expiration', '>=', now())
+            ->get();
 
-            if (isset($flight['data']['payments'], $flight['data']['passengers'])) {
-                $payments = $flight['data']['payments'][0] ?? null;
-                $orderId = $tBookingId; // Using TourRadar's ID as order_id
-                $flightBody = [
-                    'data' => [
-                        'order_id' => $orderId,
-                        'payment' => [
-                            'type' => $payments['type'],
-                            'amount' => $payments['amount'],
-                            'currency' => $payments['currency'] ?? 'USD',
+        foreach ($pendingAttempts as $attempt) {
+            $ResponseTour = json_decode($attempt->tourradar_res, true);
+            $tBookingId = $ResponseTour['id'];
+            Log::info('Processing booking ID: ' . $tBookingId);
+
+            $statusResponse = TourRadarController::checkBooking($tBookingId);
+            Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
+
+            if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
+                // Retrieve flight data from the current attempt
+                $flight = json_decode($attempt->flight, true);
+
+                if (isset($flight['data']['payments'], $flight['data']['passengers'])) {
+                    $payments = $flight['data']['payments'][0] ?? null;
+                    $orderId = $tBookingId; // Using TourRadar's ID as order_id
+                    $flightBody = [
+                        'data' => [
+                            'order_id' => $orderId,
+                            'payment' => [
+                                'type' => $payments['type'],
+                                'amount' => $payments['amount'],
+                                'currency' => $payments['currency'] ?? 'USD',
+                            ],
                         ],
-                    ],
-                ];
+                    ];
 
-                // Call the confirmFlight function
-                $flightResponse = (new newPackageController())->confirmFlight($flightBody);
-                Log::info("Duffel response for booking ID {$tBookingId}: " . json_encode($flightResponse));
+                    // Call the confirmFlight function
+                    $flightResponse = (new newPackageController())->confirmFlight($flightBody);
+                    Log::info("Duffel response for booking ID {$tBookingId}: " . json_encode($flightResponse));
 
-                Log::info('Duffel response for booking ID ' . $tBookingId . ': ' . json_encode($flightResponse));
-
-                if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-                    Log::error('Duffel booking failed for booking ID ' . $tBookingId);
+                    if (isset($flightResponse['errors']) && $flightResponse['errors']) {
+                        Log::error('Duffel booking failed for booking ID ' . $tBookingId);
+                    } else {
+                        Log::info('Duffel booking successful for booking ID ' . $tBookingId);
+                    }
                 } else {
-                    Log::info('Duffel booking successful for booking ID ' . $tBookingId);
+                    Log::warning('Flight data is incomplete for booking ID ' . $tBookingId);
                 }
-            } else {
-                Log::warning('Flight data is incomplete for booking ID ' . $tBookingId);
-            }
 
-            // Update the attempt status to confirmed
-            DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-            Log::info('Booking ID ' . $tBookingId . ' confirmed.');
+                // Update the attempt status to confirmed
+                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
+                Log::info('Booking ID ' . $tBookingId . ' confirmed.');
+            }
         }
     }
 }
