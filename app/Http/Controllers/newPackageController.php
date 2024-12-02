@@ -34,7 +34,6 @@ class PackageController extends Controller
 
         $RequestFlight = $request->input('flight');
         $RequestTour = $request->input('tour');
-        $offerId = $request->input('offerId');
         $expiration = $request->input('expiration');
 
         $tour_id = (int)$RequestTour['tour_id'];
@@ -57,7 +56,7 @@ class PackageController extends Controller
 
         }else{
             \Log::info('tour not found on db, id: ' . $tour_id);
-            $response = $this->createCheckoutSessionInternal($tour_name, $tour_desc, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration);
+            $response = $this->createCheckoutSessionInternal($tour_name, $tour_desc, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $expiration);
         }
         // Check if an error occurred
         if (isset($response['error'])) {
@@ -68,7 +67,7 @@ class PackageController extends Controller
         return response()->json(['url' => $response['url'], 'attempt_id' => $response['attempt_id']]);
     }
 
-private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration)
+private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $expiration)
 {
     try {
 
@@ -80,7 +79,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'url' => $url,
             'created_at' => now(),
             'updated_at' => now(),
-            'offer_id' => $offerId, 
             'expiration' => $expiration,
         ]);
         $attemptUrl = $newUrl . '&attempt_id=' . $attemptId;
@@ -635,6 +633,7 @@ public function checkoutWebhook(Request $request)
                     $tourResponse = $response[1] ?? null;
                     $flightResponse = $response[2] ?? null;
                     $order = $response[3] ?? null;
+                    $offerId = $flightResponse['data']['id'];
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
@@ -652,6 +651,7 @@ public function checkoutWebhook(Request $request)
                                 'status' => 'failed',
                                 'tourradar_res' => json_encode($tourResponse),
                                 'duffel_res' => json_encode($flightResponse),
+                                'offer_id' => $offerId,
                                 'payment_id' => $session->payment_intent,
                                 'updated_at' => now(),
                             ]);

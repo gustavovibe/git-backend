@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
 
-public function processPendingAttempts()
+private function processPendingAttempts()
 {
     $pendingAttempts = DB::table('attempts')
         ->where('status', 'pending')
@@ -33,15 +33,16 @@ public function processPendingAttempts()
                     'data' => [
                         'order_id' => $orderId,
                         'payment' => [
-                            'type' => $payments['type'] ?? 'balance',
-                            'amount' => $payments['amount'] ?? '0.00',
+                            'type' => $payments['type'],
+                            'amount' => $payments['amount'],
                             'currency' => $payments['currency'] ?? 'USD',
                         ],
                     ],
                 ];
 
                 // Call the confirmFlight function
-                $flightResponse = newPackageController::confirmFlight($flightBody);
+                $flightResponse = (new newPackageController())->confirmFlight($flightBody);
+                Log::info("Duffel response for booking ID {$tBookingId}: " . json_encode($flightResponse));
 
                 Log::info('Duffel response for booking ID ' . $tBookingId . ': ' . json_encode($flightResponse));
 
