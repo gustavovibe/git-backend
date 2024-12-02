@@ -223,6 +223,17 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    public static function payBooking($body)
+    {
+        $headers = self::getHeaders();
+
+        $url = 'https://api.duffel.com/air/payments';
+        // Make the request to the Duffel API
+        $response = Http::withHeaders($headers)->post($url, $body);
+
+        return $response->json();
+    }
+
     public function addSeats(Request $request)
     {
         $offerId = $request->query('offerId');

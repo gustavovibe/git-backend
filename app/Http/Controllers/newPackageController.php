@@ -144,16 +144,39 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }else {
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
-            $order = createOrder($flight, $tourResponse);
-            $status = 0;
+            $flightBody = $flight;
+            $flightResponse = DuffelApiController::createNewBooking($flightBody);
+    
+            Log::info('duffel response: ' . json_encode($flightResponse));
+    
+            if(isset($flightResponse['errors']) && $flightResponse['errors']){
+                $status = 2;
+            }
+    
+            if (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
+                $order = createOrder($flight, $tourResponse);
+                $status = 0;
+            }
         }
 
-        return [$status, $tourResponse, $order];
+        return [$status, $statusResponse, $flightResponse, $order];
     }
 
     public function bookFlight($flight){
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
+
+        Log::info('duffel response: ' . json_encode($flightResponse));
+
+        if(isset($flightResponse['errors']) && $flightResponse['errors']){
+            $status = 2;
+        }
+        return $flightResponse;
+    }
+
+    public function confirmFlight($flight){
+        $flightBody = $flight;
+        $flightResponse = DuffelApiController::payBooking($flightBody);
 
         Log::info('duffel response: ' . json_encode($flightResponse));
 
@@ -610,9 +633,11 @@ public function checkoutWebhook(Request $request)
                     // Extract the responses
                     $status = $response[0];
                     $tourResponse = $response[1] ?? null;
-                    $order = $response[2] ?? null;
+                    $flightResponse = $response[2] ?? null;
+                    $order = $response[3] ?? null;
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
+                    \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
                     // Log both tour and flight responses
                     //\Log::info('status ' . $attemptId . ': ' . $status);
 
@@ -650,8 +675,6 @@ public function checkoutWebhook(Request $request)
     // Return a 200 response for handled events
     return response()->json(['status' => 'success'], 200);
 }
-
-
 
     public function checkBookingStatus(Request $request)
     {
