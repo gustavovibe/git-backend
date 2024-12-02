@@ -23,6 +23,7 @@ use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\NewPackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TravelersController;
@@ -86,7 +87,7 @@ Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offer
 
 
 Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
-Route::post('/book-package-v2', [newPackageController::class, 'createCheckoutSession']);
+Route::post('/book-package-v2', [NewPackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
 

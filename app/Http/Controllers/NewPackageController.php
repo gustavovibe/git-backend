@@ -23,7 +23,7 @@ use App\Http\Controllers\TourController;
 use App\Mail\BookingMail;
 use App\Models\ActionLog;
 
-class newPackageController extends Controller
+class NewPackageController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
