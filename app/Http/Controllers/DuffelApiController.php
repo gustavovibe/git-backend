@@ -553,31 +553,34 @@ class DuffelApiController extends Controller
         return true;
     }
     
-    private function validatePayment($offer, $request)
+    private function validatePayment($offer, $request) 
     {
+        // If payment requirement is "any," automatically pass validation
         if ($request->get('payment') === 'any') {
             return true;
         }
-
-        foreach ($offer['payment_requirements'] as $payment) {
-            // only direct flights
-            if ($request->get('payment') === "false") {
-                if ($payment['requires_instant_payment'] === true) {
-                    return false;
-                }
+    
+        // Extract payment requirements from the offer
+        $paymentRequirements = $offer['payment_requirements'];
+    
+        // Handle case where instant payment is not allowed
+        if ($request->get('payment') === 'false') {
+            if ($paymentRequirements['requires_instant_payment'] === true) {
+                return false;
             }
-
-            // direct or one stop
-            if ($request->get('payment') === "true") {
-                if ($payment['requires_instant_payment'] === false) {
-                    return false;
-                }
-            }
-
         }
-
+    
+        // Handle case where instant payment is required
+        if ($request->get('payment') === 'true') {
+            if ($paymentRequirements['requires_instant_payment'] === false) {
+                return false;
+            }
+        }
+    
+        // Default to valid if no conditions are violated
         return true;
     }
+
     private function validateStops($offer, $request)
     {
         if ($request->get('stops') === 'any') {
