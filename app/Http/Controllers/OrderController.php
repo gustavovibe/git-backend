@@ -64,6 +64,12 @@ class OrderController extends Controller
     {
         $order = Order::with(['flightTour', 'travelers', 'user'])->find($id);
         return ApiResponse::success(new OrderResource($order));
+        
+        return response()->json([
+            'success' => true,
+            'data' => $order,
+            'message' => "Ok",
+        ], 200);
     }
 
     public function adminReports(Request $request)
