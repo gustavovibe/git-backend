@@ -93,7 +93,7 @@ class ToursFilters
     }
 
 
-    public function ToursP(Request $r){
+    public static function ToursP(Request $r){
     $tour_type = $r->tour_type ?: 0;
     $city = $r->city ? explode(',', $r->city) : [];
     $country = $r->country;

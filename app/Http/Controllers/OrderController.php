@@ -58,10 +58,21 @@ class OrderController extends Controller
         return $orders;
     }
 
+    /**
+     * Get Order by ID.
+     * 
+     * This endpoint will return the order with the given ID.
+     *
+     */
     public function getOrder($id)
     {
         $order = Order::with(['flightTour', 'travelers', 'user'])->find($id);
-        return ApiResponse::success(new OrderResource($order));
+        
+        return response()->json([
+            'success' => true,
+            'data' => $order,
+            'message' => "Ok",
+        ], 200);
     }
 
     public function adminReports(Request $request)
