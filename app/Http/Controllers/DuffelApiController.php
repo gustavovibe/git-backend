@@ -17,6 +17,7 @@ class DuffelApiController extends Controller
 {
     // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
+
     {
         // Validating params
         $validator = $this->validateParamsWhenDuffelRequest($request);
@@ -134,6 +135,34 @@ class DuffelApiController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
+
+        try {
+            // Getting Headers
+            $headers = self::getHeaders();
+
+            // Building url
+            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
+
+            // Make the request to the Duffel API
+            $response = Http::withHeaders($headers)->get($url);
+
+            // Return the response from the Duffel API
+            return $response->json();
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getOffer(Request $request)
+    {
+        // Validations
+        $validator = $this->validateParamsWhenOfferById($request);
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        
         try {
             // Getting Headers
             $headers = self::getHeaders();
@@ -188,6 +217,17 @@ class DuffelApiController extends Controller
         $headers = self::getHeaders();
 
         $url = 'https://api.duffel.com/air/orders';
+        // Make the request to the Duffel API
+        $response = Http::withHeaders($headers)->post($url, $body);
+
+        return $response->json();
+    }
+
+    public static function payBooking($body)
+    {
+        $headers = self::getHeaders();
+
+        $url = 'https://api.duffel.com/air/payments';
         // Make the request to the Duffel API
         $response = Http::withHeaders($headers)->post($url, $body);
 
@@ -401,6 +441,11 @@ class DuffelApiController extends Controller
                 }
             }
 
+            $isValidOffer = $this->validatePayment($offer, $request);
+            if (!$isValidOffer) {
+                continue;
+            }
+
             $validatedOffers[] = $offer; // Add the offer if it has baggage
             $count++; // Increment the count of baggage offers
         }
@@ -505,6 +550,34 @@ class DuffelApiController extends Controller
         }
 
         // All 'checked' baggages meet the minimum quantity requirement
+        return true;
+    }
+    
+    private function validatePayment($offer, $request) 
+    {
+        // If payment requirement is "any," automatically pass validation
+        if ($request->get('payment') === 'any') {
+            return true;
+        }
+    
+        // Extract payment requirements from the offer
+        $paymentRequirements = $offer['payment_requirements'];
+    
+        // Handle case where instant payment is not allowed
+        if ($request->get('payment') === 'false') {
+            if ($paymentRequirements['requires_instant_payment'] === true) {
+                return false;
+            }
+        }
+    
+        // Handle case where instant payment is required
+        if ($request->get('payment') === 'true') {
+            if ($paymentRequirements['requires_instant_payment'] === false) {
+                return false;
+            }
+        }
+    
+        // Default to valid if no conditions are violated
         return true;
     }
 
@@ -677,3 +750,4 @@ class DuffelApiController extends Controller
         }
     }
 }
+

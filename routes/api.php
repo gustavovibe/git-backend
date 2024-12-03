@@ -23,6 +23,7 @@ use App\Http\Controllers\GustavoDuffelController;
 use App\Http\Controllers\JobsController;
 use App\Http\Controllers\OperatorsController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\NewPackageController;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TravelersController;
@@ -86,6 +87,7 @@ Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offer
 
 
 Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
+Route::post('/book-package-v2', [NewPackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
 
@@ -103,6 +105,7 @@ Route::post('/users-pass', [UserController::class, 'changePassword']);
 Route::get('/users-wishlist', [UserController::class, 'getWishlist']);
 Route::post('/push_notifications_register', [PushNotificationsController::class, 'registerGravitecSub']);
 Route::post('/send_push_notification', [PushNotificationsController::class, 'sendPushNotification']);
+Route::post('/send_ac_notification', [TourController::class, 'abandonedCartNotification']);
 
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
@@ -114,6 +117,7 @@ Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);
 
 Route::get('/orders-all', [OrderController::class, 'index']);
 Route::get('/orders-csv', [OrderController::class, 'ordersCsv']);
+Route::get('users-orders-csv', [UserController::class, 'getUsersOrdersCsv']);
 Route::get('/order/{id}', [OrderController::class, 'getOrder']);
 Route::get('/admin-reports', [OrderController::class, 'adminReports']);
 

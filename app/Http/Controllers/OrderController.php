@@ -8,6 +8,8 @@ use App\Http\Resources\OrderResource;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Helpers\ApiResponse;
+use App\Mail\BookingMail;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -241,6 +243,8 @@ class OrderController extends Controller
             $order->travelers()->attach($request->input('traveler_ids'));
         }
 
+        $mail = new BookingMail($order);
+        Mail::to($order->user->email)->send($mail);
         return response()->json($order, 201);
     }
 
