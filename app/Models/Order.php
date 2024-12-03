@@ -192,7 +192,7 @@ class Order extends Model
 
     public function operator()
     {
-        return $this->hasOne(Operators::class, 'operator_id', 'operator');
+        return $this->hasOne(Operator::class, 'operator_id', 'operator');
     }
 
     public function natural_destination()
