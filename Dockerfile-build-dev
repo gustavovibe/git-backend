@@ -19,8 +19,6 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer update
-
 RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 
 RUN php artisan key:generate && \
