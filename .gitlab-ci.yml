@@ -37,6 +37,13 @@ Builder:
   only:
     - develop
 
+cleanup-docker:
+  stage: cleanup
+  image: docker:20.10.16
+  script:
+    - docker system prune -af
+  rules:
+    - when: always
 
 Deployment:
   stage: deploy
