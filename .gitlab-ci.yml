@@ -36,7 +36,7 @@ Builder:
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
     - develop
-    
+
 
 Deployment:
   stage: deploy
@@ -50,7 +50,7 @@ Deployment:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
-    - docker system prune -af
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker system prune -af"
     - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
     - eval $(ssh-agent -s)
     - mkdir -p ~/.ssh
