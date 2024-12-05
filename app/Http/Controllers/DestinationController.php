@@ -160,6 +160,14 @@ class DestinationController extends Controller
 
     }
 
+
+    /**
+     * Get Destination Guide for: tours/?search=true&type=country&t_id=84
+     * Provides Info, Quick Facts, Galley
+     * Gets:
+     *  Category (string) natural destinattion, country or city
+     *  Id (number)
+     */
     public function getDestinationGuide(Request $request){
 
       $category = $request->input('category');
@@ -323,6 +331,13 @@ class DestinationController extends Controller
 
     }// end
 
+    /**
+     * Provides Image Galleries for Tours destination pages: https://unsplash.com/es
+     * Gets:
+     * Id (number) tour id to search if has already a gallery
+     * If its empty make a request to Unsplash API: https://unsplash.com/documentation
+     * 
+     */
     function getUnsplashGallery(Request $request){
 
       $gallery = null;

@@ -14,13 +14,15 @@ use Illuminate\Support\Facades\Http;
 class WishlistController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Get User's Wishlist by User Id.
+     * 
+     * Gets:
+     * User id (number)
      *
-     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $user_id = $request->has('userId') ? $request->post('userId') : 0;
+        $user_id = $request->has('user_id') ? $request->post('user_id') : 0;
         if(!empty($user_id)){
             $traveler = Traveler::where('user_id', $user_id)->first();
             if($traveler->traveler_id){
@@ -29,7 +31,7 @@ class WishlistController extends Controller
             }
         }
         $wishlists = Wishlist::all();
-        return ApiResponse::success($wishlist, 'User Wishlist');
+        return ApiResponse::success($wishlists, 'User Wishlist');
     }
 
     /**
@@ -44,6 +46,17 @@ class WishlistController extends Controller
         return response()->json($wishlist);
     }
 
+
+    /**
+     * 
+     * 
+     * Adding tour to user's wishlist
+     * 
+     * Gets:
+     * User id (number)
+     * Tour id (number)
+     *
+     */
     public function store(Request $request){
 
         $tour_id = $request->has('tour_id') ? $request->post('tour_id') : 0;
@@ -77,7 +90,7 @@ class WishlistController extends Controller
             ];
 
             $new_wishlist = Wishlist::create($insert_data);
-            return ApiResponse::success($newDestination, 'Destination created successfully');
+            return ApiResponse::success($new_wishlist, 'Destination created successfully');
 
         }catch (\Exception $e) {
             return ApiResponse::error($e->getMessage());

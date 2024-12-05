@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Log;
 
 class PushNotificationsController extends Controller
 {
+
+  /**
+   * 
+   * Register Device on Gravitec Platform: https://scandalous-ferry-f93.notion.site/9-Server-API-574e5b75ae9f4e1baaee67a2fbe441dd
+   * 
+   * Gets:
+   * User Id (number)
+   * Gravitec Data (array)
+   *  - RegID (number) this is the device id gravitec provides from subscription
+   */
   public function registerGravitecSub(Request $request){
 
     $user_id = $request->post('user_id');
@@ -47,9 +57,21 @@ class PushNotificationsController extends Controller
 
   }
 
+  /**
+   * 
+   * Send Push Notification (Gravitec Platform)
+   * Gets:
+   * Push Type (string) define the place where is sent from
+   *  - Wishlist
+   *      Data (array) Wishlist item with info to send into notification
+   *  - AbandonedCart
+   *      Attempt Id (number) Attempt id from cart to get info and send it to notification
+   * User Id (number)
+   * 
+   */
   public function sendPushNotification(Request $request){
 
-    $push_type = $request->has('notificationType') && !empty($request->notificationType) ? $request->thumbnail: '';
+    $push_type = $request->has('notification_type') && !empty($request->notification_type) ? $request->notification_type: '';
     if(empty($push_type)){
       return ApiResponse::error('Push notification type is missing');
     }
@@ -59,14 +81,14 @@ class PushNotificationsController extends Controller
 
       case 'wishlist_update':
         //get wishlist update from ¿?
-        $user_id = $request->has('userId') ? $request->userId : 0;
+        $user_id = $request->has('user_id') ? $request->user_id : 0;
         if(empty($user_id)){
           return ApiResponse::error('User Id is missing');
         }
 
         $wishlist_items = $request->has('data') ? $request->data : [];
         if(empty($wishlist_items)){
-          return ApiResponse::error('User Id is missing');
+          return ApiResponse::error('Data is missing');
         }
 
         $suscriber = GravitecSubscriber::where('user_id', $user_id)->get();
@@ -119,18 +141,18 @@ class PushNotificationsController extends Controller
 
       case 'abandoned_cart':
 
-        $user_id = $request->has('userId') ? $request->userId : 0;
+        $user_id = $request->has('user_id') ? $request->user_id : 0;
         if(empty($user_id)){
           return ApiResponse::error('User Id is missing');
         }
 
-        $attempt_id = $request->has('attemptId') ? $request->attemptId : 0;
+        $attempt_id = $request->has('attempt_id') ? $request->attempt_id : 0;
         if(empty($attempt_id)){
           return ApiResponse::error('Cart Id is missing');
         }
 
         $push_message = 'Click here to complete your reservation!';
-        $attempt = DB::table('attempts')->where('id', $attemptId)->first();
+        $attempt = DB::table('attempts')->where('id', $attempt_id)->first();
         
         if ($attempt) {
           // Process the stored data from the attempt
