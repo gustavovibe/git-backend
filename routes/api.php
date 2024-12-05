@@ -216,3 +216,6 @@ Route::get('/login', function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/validator', [ValidatorController::class, 'validatePhone']);
+
+Route::post('/add-contact', [UserController::class, 'addContact']);
+Route::post('/get-contact', [UserController::class, 'getContact']);

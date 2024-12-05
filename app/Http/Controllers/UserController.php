@@ -13,12 +13,14 @@ use App\Mail\ContactMail;
 use App\Mail\SendPass;
 use App\Models\ActionLog;
 use App\Models\ContactEmail;
+use App\Models\ContacUs;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -201,5 +203,50 @@ class UserController extends Controller
 
     public function sendEmailPass(Request $r){
         $this->EmailPass($r->id,$r->password);
+    }
+
+    public function addContact(Request $r){
+        try{
+            $validated = $r->validate([
+                'name' => 'required|string|max:255',
+                'last' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'topic' => 'required',
+                'message' => 'required|string',
+                'booking' => 'nullable|string|max:255',  // opcional
+                'link' => 'nullable|url|max:255',        // opcional
+            ], [
+                'name.required' => 'The name field is required.',
+                'last.required' => 'The last name field is required.',
+                'email.required' => 'The email field is required.',
+                'email.email' => 'Please provide a valid email address.',
+                'topic.required' => 'The topic field is required.',
+                'message.required' => 'The message field cannot be empty.',
+                'booking.required' => 'The booking field is required if provided.',
+                'link.required' => 'The link field is required if provided.',
+            ]);
+            $contact= new ContacUs;
+            $contact->fill($validated);
+            $contact->save();
+
+            return response()->json(['success'=>true,'data'=>$contact]);
+        } catch (ValidationException $e) {
+            $errors = $e->errors();
+            $errorMessages = collect($errors)->flatten()->toArray();
+            return response()->json(['success'=>false,'data'=>$errorMessages]);
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+
+    }
+
+    public function getContact(Request $r){
+        try{
+
+            $contact = ContacUs::where('email',$r->email)->first();
+            return ApiResponse::success($contact);
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
     }
 }
