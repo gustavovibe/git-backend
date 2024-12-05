@@ -1,5 +1,36 @@
-FROM registry.gitlab.com/antoniovibeadventures/api:1.0.0
+FROM php:8.3
 
-RUN php artisan optimize
+# Install required dependencies and PHP extensions
+RUN apt-get update && \
+    apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    mariadb-client \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql zip
 
+# Install PHP-FPM explicitly
+RUN apt-get install -y php-fpm
+
+WORKDIR /var/www/html
+
+# Copy app code into the container
+COPY . .
+
+# Copy composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install PHP dependencies
+RUN composer update
+RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+
+# Set proper file permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Start PHP-FPM
 CMD ["php-fpm"]
