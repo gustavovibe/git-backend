@@ -21,7 +21,7 @@ class FormatDepartures
         return $response;
     }
 
-    public function formatDeparturePrices($prices)
+    public static function formatDeparturePrices($prices)
     {
         $response = [];
         $response['based_on'] = $prices['based_on'];
@@ -31,7 +31,7 @@ class FormatDepartures
         return $response;
     }
 
-    public function getGuideLanguagesForDeparture($departure)
+    public static function getGuideLanguagesForDeparture($departure)
     {
         $response = [];
         $taxonomy_languages = TourRadarController::getTaxonomyLanguages();
