@@ -13,15 +13,15 @@ class UpdateAttemptsTable extends Migration
      */
     public function up()
     {
-         Schema::table('attempts', function (Blueprint $table) {
-            $table->json('duffel_res')->nullable();
-            $table->json('tourradar_res')->nullable();
-            $table->text('offer_id'); 
-            $table->text('payment_id'); 
-            $table->text('expiration'); 
+        Schema::table('attempts', function (Blueprint $table) {
+            $table->json('duffel_res')->nullable(); // JSON column for Duffel responses, nullable
+            $table->json('tourradar_res')->nullable(); // JSON column for TourRadar responses, nullable
+            $table->string('offer_id')->nullable(); // Short text field, nullable
+            $table->string('payment_id')->nullable(); // Short text field, nullable
+            $table->timestamp('expiration')->nullable(); // Nullable timestamp
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
@@ -32,6 +32,9 @@ class UpdateAttemptsTable extends Migration
         Schema::table('attempts', function (Blueprint $table) {
             $table->json('duffel_res');
             $table->json('tourradar_res');
+            $table->string('offer_id');
+            $table->string('payment_id');
+            $table->timestamp('expiration');
         });
     }
 }
