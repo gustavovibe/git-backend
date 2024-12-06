@@ -52,7 +52,7 @@ class NewPackageController extends Controller
         if($tour){
             \Log::info('tour found: ' . $tour->tour_name);
             // Call the function and get the response
-            $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $offerId, $expiration);
+            $response = $this->createCheckoutSessionInternal($tour->tour_name, $tour->description, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $expiration);
 
         }else{
             \Log::info('tour not found on db, id: ' . $tour_id);
