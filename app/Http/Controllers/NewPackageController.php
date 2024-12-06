@@ -151,13 +151,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $status = 2;
             }
     
-            if (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
+            elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
                 $order = createOrder($flight, $tourResponse);
                 $status = 0;
             }
         }
 
-        return [$status, $statusResponse, $flightResponse, $order];
+        return [$status, $tourResponse, $flightResponse, $order];
     }
 
     public function bookFlight($flight){
@@ -641,7 +641,7 @@ public function checkoutWebhook(Request $request)
                     //\Log::info('status ' . $attemptId . ': ' . $status);
 
                     if (intval($status) > 0) {
-                        \Log::info('status1-2' . $attemptId . ': ' . $status);
+                        \Log::info('status 1-2 for attempt: ' . $attemptId . ': ' . $status);
                         // Booking failed, update the attempt record
                         // \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
 

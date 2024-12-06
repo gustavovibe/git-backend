@@ -86,7 +86,7 @@ Route::get('duffel/get-request-by-id', [DuffelApiController::class, 'getRequestB
 Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offerRequests']);
 
 
-Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
+// Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
 Route::post('/book-package-v2', [NewPackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
@@ -177,7 +177,7 @@ Route::post('google-register', [AuthController::class, 'googleRegister']);
 Route::get('duffel-cancel-check',[DuffelApiController::class, 'flightCancel']);
 Route::post('duffel-cancel-confirm',[DuffelApiController::class, 'confirmCancel']);
 
-Route::post('/checkout', [PackageController::class, 'checkoutWebhook']);
+Route::post('/checkout', [NewPackageController::class, 'checkoutWebhook']);
 
 Route::get('/logs', function () {
     // Path to the Laravel log file
@@ -200,7 +200,7 @@ Route::get('/logs', function () {
 
 Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
 
-Route::get('status',[PackageController::class, 'checkBookingStatus']);
+Route::get('status',[NewPackageController::class, 'checkBookingStatus']);
 
 Route::get('/airports', [AirportController::class, 'getAirports']);
 
