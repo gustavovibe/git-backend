@@ -65,178 +65,158 @@ class FormatTour
         return $formatedTour;
     }
 
-    private function getInsuranceDesc($formatedTour)
-    {
-        return $formatedTour['services']['excluded']['insurance'][0]['description'] ?? null;
-    }
+	private static function getInsuranceDesc($formatedTour)
+	{
+		return $formatedTour['services']['excluded']['insurance'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getOptionalDesc($formatedTour)
-    {
-        return $formatedTour['services']['excluded']['optional'][0]['description'] ?? null;
-    }
+	private static function getOptionalDesc($formatedTour)
+	{
+		return $formatedTour['services']['excluded']['optional'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getFlightsDesc($formatedTour)
-    {
-        return $formatedTour['services']['excluded']['flights'][0]['description'] ?? null;
-    }
+	private static function getFlightsDesc($formatedTour)
+	{
+		return $formatedTour['services']['excluded']['flights'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getEthersDesc($formatedTour)
-    {
-        return $formatedTour['services']['excluded']['others'][0]['description'] ?? null;
-    }
+	private static function getEthersDesc($formatedTour)
+	{
+		return $formatedTour['services']['excluded']['others'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getGuideDesc($formatedTour)
-    {
-        return $formatedTour['services']['included']['guide'][0]['description'] ?? null;
-    }
+	private static function getGuideDesc($formatedTour)
+	{
+		return $formatedTour['services']['included']['guide'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getMealsDesc($formatedTour)
-    {
-        return $formatedTour['services']['included']['meals'][0]['description'] ?? null;
-    }
+	private static function getMealsDesc($formatedTour)
+	{
+		return $formatedTour['services']['included']['meals'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getOthersDesc($formatedTour)
-    {
-        return $formatedTour['services']['included']['others'][0]['description'] ?? null;
-    }
+	private static function getOthersDesc($formatedTour)
+	{
+		return $formatedTour['services']['included']['others'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getTransportDesc($formatedTour)
-    {
-        return $formatedTour['services']['included']['transport'][0]['description'] ?? null;
-    }
+	private static function getTransportDesc($formatedTour)
+	{
+		return $formatedTour['services']['included']['transport'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getAccommodationDesc($formatedTour)
-    {
-        return $formatedTour['services']['included']['accommodation'][0]['description'] ?? null;
-    }
+	private static function getAccommodationDesc($formatedTour)
+	{
+		return $formatedTour['services']['included']['accommodation'][0]['description'] ?? 'Not provided';
+	}
 
-    private function getGroupType($tour)
-    {
-        $response = "Group";
-        if ($tour['max_group_size'] <= 20) {
-            return "Small Group";
-        }
-        return $response;
-    }
+	private static function getGroupType($tour)
+	{
+		if ($tour['max_group_size'] <= 20) {
+			return 'Small Group';
+		}
+		return 'Group';
+	}
 
-    private function getRatings($tour)
-    {
-        if (isset($tour['ratings']['overall'])) {
-            return $tour['ratings']['overall'];
-        } else {
-            return $tour['ratings']['operator'];
-        }
-    }
+	public static function getRatings($tour)
+	{
+		return $tour['ratings']['overall'] ?? $tour['ratings']['operator'] ?? 'No ratings available';
+	}
 
-    private function getFormattedImages($tour)
-    {
-        $images = [];
-        foreach ($tour['images'] as $image) {
-            if ($image['type'] === "image") {
-                array_push($images, $image['url']);
-            }
-        }
-        return $images;
-    }
+	private static function getFormattedImages($tour)
+	{
+		$images = [];
+		foreach ($tour['images'] as $image) {
+			if ($image['type'] === "image") {
+				array_push($images, $image['url']);
+			}
+		}
+		return $images;
+	}
 
-    private function getMapImage($tour)
-    {
-        foreach ($tour['images'] as $image) {
-            if ($image['type'] === "map") {
-                return $image['url'];
-            }
-        }
-        return null;
-    }
+	private static function getMapImage($tour)
+	{
+		foreach ($tour['images'] as $image) {
+			if ($image['type'] === "map") {
+				return $image['url'];
+			}
+		}
+		return null;
+	}
 
-    private function getGuidingMethod($tour)
-    {
-        $formatted = [];
-        foreach ($tour['tour_types'] as $tourType) {
-            if ($tourType['group_id'] === 2) {
-                array_push($formatted, $tourType);
-            }
-        }
-        return $formatted;
-    }
+	private static function getGuidingMethod($tour)
+	{
+		$filtered = array_filter($tour['tour_types'], function ($tourType) {
+			return $tourType['group_id'] === 2;
+		});
 
-    private function getGuidingMethodName($tour)
-    {
-        foreach ($tour['tour_types'] as $tourType) {
-            if ($tourType['group_id'] === 2) {
-                return $tourType['type_name'];
-            }
-        }
-        return "-";
-    }
+		// Return the first matching guiding method or null if none found
+		return !empty($filtered) ? reset($filtered) : null;
+	}
 
-    private function getTourType($tour)
-    {
-        $formatted = [];
-        foreach ($tour['tour_types'] as $tourType) {
-            if ($tourType['group_id'] === 1) {
-                array_push($formatted, $tourType);
-            }
-        }
-        return $formatted;
-    }
+	private static function getGuidingMethodName($tour)
+	{
+		$method = array_filter($tour['tour_types'], function ($tourType) {
+			return $tourType['group_id'] === 2;
+		});
+		return $method ? reset($method)['type_name'] : '-';
+	}
 
-    private function getAgeRange($tour)
-    {
-        $min = $tour['age_range']['strict']['min_age'];
-        $max = $tour['age_range']['strict']['max_age'];
-        return "{$min}-{$max}";
-    }
+	private static function getTourType($tour)
+	{
+		return array_filter($tour['tour_types'], function ($tourType) {
+			return $tourType['group_id'] === 1;
+		});
+	}
 
-    private function getGuideLanguagesForTour($tour)
-    {
-        $response = [];
-        $taxonomy_languages = TourRadarController::getTaxonomyLanguages();
-        if (!is_array($tour['guide_languages'])) {
-            return $response;
-        }
-        foreach ($tour['guide_languages'] as $languageId) {
-            foreach ($taxonomy_languages as $language) {
-                if ($language['id'] === $languageId) {
-                    array_push($response, $language);
-                    break;
-                }
-            }
-        }
-        return $response;
-    }
+	private static function getAgeRange($tour)
+	{
+		$min = $tour['age_range']['strict']['min_age'] ?? 'N/A';
+		$max = $tour['age_range']['strict']['max_age'] ?? 'N/A';
+		return "{$min}-{$max}";
+	}
 
-    private function getFormattedPrice($tour)
-    {
-        $response = [];
-        $response['based_on'] = $tour['prices']['based_on'] ?? null;
-        $response['price_total'] = $tour['prices']['price_total'] ?? null;
-        $response['mandatory_addons'] = $tour['prices']['mandatory_addons'] ?? [];
-        return $response;
-    }
+	private static function getGuideLanguagesForTour($tour)
+	{
+		$response = [];
+		$taxonomy_languages = TourRadarController::getTaxonomyLanguages();
+		if (!is_array($tour['guide_languages'])) {
+			return $response;
+		}
+		foreach ($tour['guide_languages'] as $languageId) {
+			$language = array_filter($taxonomy_languages, fn($lang) => $lang['id'] === $languageId);
+			if (!empty($language)) {
+				$response[] = reset($language);
+			}
+		}
+		return $response;
+	}
 
+	private static function getFormattedPrice($tour)
+	{
+		return [
+			'based_on' => $tour['prices']['based_on'] ?? 'N/A',
+			'price_total' => $tour['prices']['price_total'] ?? 'N/A',
+			'mandatory_addons' => $tour['prices']['mandatory_addons'] ?? [],
+		];
+	}
 
-    private function getServices($tour)
-    {
-        $included = [];
-        $excluded = [];
-        foreach ($tour['services'] as $serviceName => $serviceDetails) {
-            if (count($serviceDetails) === 0) {
-                continue;
-            }
-            foreach ($serviceDetails as $service) {
-                if ($service['is_included']) {
-                    $included[$serviceName] = [];
-                    array_push($included[$serviceName], $service);
-                } else {
-                    $excluded[$serviceName] = [];
-                    array_push($excluded[$serviceName], $service);
-                }
-            }
-        }
-        $response = [];
-        $response['included'] = $included;
-        $response['excluded'] = $excluded;
-        return $response;
-    }
+	private static function getServices($tour)
+	{
+		$included = [];
+		$excluded = [];
+		foreach ($tour['services'] as $serviceName => $serviceDetails) {
+			foreach ($serviceDetails as $service) {
+				if ($service['is_included']) {
+					$included[$serviceName][] = $service;
+				} else {
+					$excluded[$serviceName][] = $service;
+				}
+			}
+		}
+		return [
+			'included' => $included,
+			'excluded' => $excluded,
+		];
+	}
 }
