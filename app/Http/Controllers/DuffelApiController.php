@@ -154,21 +154,19 @@ class DuffelApiController extends Controller
         }
     }
 
-    public static function getOffer(Request $request)
+    public static function getOffer(string $offerId)
     {
-        // Validations
-        $validator = $this->validateParamsWhenOfferById($request);
-        if ($validator->fails()) {
-            return ApiResponse::error($validator->errors());
+        // Validations (if applicable)
+        if (empty($offerId)) {
+            return response()->json(['error' => 'Offer ID is required'], 400);
         }
 
-        
         try {
             // Getting Headers
             $headers = self::getHeaders();
 
-            // Building url
-            $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
+            // Building the URL
+            $url = 'https://api.duffel.com/air/offers/' . $offerId;
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -180,6 +178,7 @@ class DuffelApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     public function getSeats(Request $request)
     {

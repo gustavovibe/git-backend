@@ -655,6 +655,18 @@ public function checkoutWebhook(Request $request)
                                 'payment_id' => $session->payment_intent,
                                 'updated_at' => now(),
                             ]);
+                    }else{
+                        \Log::info('status 0 for attempt: ' . $attemptId . ': ' . $status);
+                        DB::table('attempts')
+                            ->where('id', $attemptId)
+                            ->update([
+                                'status' => 'pending',
+                                'tourradar_res' => json_encode($tourResponse),
+                                'duffel_res' => json_encode($flightResponse),
+                                'offer_id' => $offerId,
+                                'payment_id' => $session->payment_intent,
+                                'updated_at' => now(),
+                            ]);
                     }
                 } else {
                     // Attempt record not found
@@ -726,6 +738,7 @@ public function checkoutWebhook(Request $request)
         Log::info('status Response: ' . json_encode($statusResponse));
 
         if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
+
 
         $flightResponse = bookFlight($RequestFlight);
 
