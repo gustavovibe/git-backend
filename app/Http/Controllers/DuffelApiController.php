@@ -154,7 +154,7 @@ class DuffelApiController extends Controller
         }
     }
 
-    public function getOffer(Request $request)
+    public static function getOffer(Request $request)
     {
         // Validations
         $validator = $this->validateParamsWhenOfferById($request);
