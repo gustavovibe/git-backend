@@ -154,6 +154,7 @@ class DuffelApiController extends Controller
         }
     }
 
+    
     public static function getOffer(string $offerId)
     {
         // Validations (if applicable)

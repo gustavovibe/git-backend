@@ -119,6 +119,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     public function bookPackage($tour, $flight)
     {
+        $order = null;
 
         $tourBody = $tour;
         if (isset($tourBody['description'])) {
@@ -142,7 +143,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }else {
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
-            $flightBody = $flight;
+
+            $flightBody = [
+                'data' => $flight
+            ];
             $flightResponse = DuffelApiController::createNewBooking($flightBody);
     
             Log::info('duffel response: ' . json_encode($flightResponse));
@@ -261,8 +265,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
     
         $order = Order::create($orderData);
 
-        $mail = new BookingMail($order);
-        Mail::to($order->user->email)->send($mail);
+        //$mail = new BookingMail($order);
+        //Mail::to($order->user->email)->send($mail);
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
