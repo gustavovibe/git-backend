@@ -80,7 +80,7 @@ class GustavoDuffelController extends Controller
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'Duffel-Version' => 'v1',
-                'Authorization' => 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho',
+                'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
             ])->post('https://api.duffel.com/air/offer_requests?supplier_timeout=5000&limit=5&sort=total_amount&max_connections=1', $requestBody);
 
             if ($response->status() >= 400) {

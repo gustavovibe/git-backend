@@ -146,7 +146,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
             $flightResponse = DuffelApiController::createNewBooking($flight);
     
-            Log::info('duffel response: ' . json_encode($flightResponse));
+            Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
     
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
@@ -166,7 +166,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        Log::info('duffel response: ' . json_encode($flightResponse));
+        Log::info('bookFlight duffel response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             $status = 2;
@@ -178,7 +178,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightBody = $flight;
         $flightResponse = DuffelApiController::payBooking($flightBody);
 
-        Log::info('duffel response: ' . json_encode($flightResponse));
+        Log::info('confirmFlight duffel response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             $status = 2;
@@ -635,7 +635,11 @@ public function checkoutWebhook(Request $request)
                     $tourResponse = $response[1] ?? null;
                     $flightResponse = $response[2] ?? null;
                     $order = $response[3] ?? null;
-                    $offerId = $flightResponse['data']['id'];
+                    $offerId = null;
+                    if($flightResponse['data']['id']){
+                        $offerId = $flightResponse['data']['id'];
+                    }
+                    
                     \Log::info('Duffel order Id: ' . $offerId);
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
