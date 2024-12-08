@@ -201,13 +201,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $total_days = $total_hours / 24;
     
         $totalDaysWithTour = $total_days + $tourResponse['tour']['tour_length_days'];
-        $tripDuration = calculateTripDuration($totalDaysWithTour);
+        $tripDuration = $this->calculateTripDuration($totalDaysWithTour);
     
         $tourLength = $tourResponse['tour']['tour_length_days'];
-        $adventureDuration = calculateAdventureDuration($tourLength);
+        $adventureDuration = $this->calculateAdventureDuration($tourLength);
     
         $mainPassengerAge = $tourResponse['main_passenger']['age'];
-        $ageGroup = determineAgeGroup($mainPassengerAge);
+        $ageGroup = $this->determineAgeGroup($mainPassengerAge);
     
         $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
     
@@ -216,7 +216,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'start' => $tourResponse['departure_date'],
             'arrival' => $arrival1->format('Y-m-d'),
             'end' => $tourResponse['return_date'],
-            'duration' => convertDurationToMinutes($flightResponse['data']['slices'][0]['duration']),
+            'duration' => $this->convertDurationToMinutes($flightResponse['data']['slices'][0]['duration']),
             'tour_length' => $adventureDuration,
             'tour_name' => $tourResponse['tour']['tour_name'],
             'tour_id' => $tourResponse['tour']['tour_id'],
@@ -233,7 +233,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'origin' => $flightResponse['data']['slices'][0]['origin']['iata_code'],
             'f_destination' => $flightResponse['data']['slices'][0]['destination']['iata_code'],
             'f_return' => $flightResponse['data']['slices'][1]['destination']['iata_code'],
-            'f_duration' => convertDurationToMinutes($flightResponse['data']['slices'][0]['duration']),
+            'f_duration' => $this->convertDurationToMinutes($flightResponse['data']['slices'][0]['duration']),
             'destination_stops' => count($flightResponse['data']['slices'][0]['segments']),
             'return_stops' => count($flightResponse['data']['slices'][1]['segments']),
             'total_stops' => count($flightResponse['data']['slices'][0]['segments']) + count($flightResponse['data']['slices'][1]['segments']),
@@ -272,6 +272,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
                 ]);
+                $this->createPassengers($tourResponse);
             } else {
                 throw new \Exception('Order could not be created.');
             }
@@ -636,10 +637,12 @@ public function checkoutWebhook(Request $request)
                     $flightResponse = $response[2] ?? null;
                     $order = $response[3] ?? null;
                     $offerId = null;
-                    if($flightResponse['data']['id']){
-                        $offerId = $flightResponse['data']['id'];
+                    if (isset($flightResponse['data'])) {
+                        $offerId = $flightResponse['data']['id'] ?? null;
+                    } else {
+                        \Log::error('Missing key "data" in $flightResponse:', $flightResponse);
                     }
-                    
+                                        
                     \Log::info('Duffel order Id: ' . $offerId);
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
