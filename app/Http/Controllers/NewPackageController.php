@@ -144,10 +144,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
 
-            $flightBody = [
-                'data' => $flight
-            ];
-            $flightResponse = DuffelApiController::createNewBooking($flightBody);
+            $flightResponse = DuffelApiController::createNewBooking($flight);
     
             Log::info('duffel response: ' . json_encode($flightResponse));
     
@@ -623,13 +620,13 @@ public function checkoutWebhook(Request $request)
                     $RequestTour = json_decode($attempt->tour, true);
                     $RequestFlight = json_decode($attempt->flight, true);
                     $offerId = $RequestFlight['data']['selected_offers'][0];
-                    \Log::info('Duffel offer Id: ' . $offerId);
+                    
                     $flightOffer = DuffelApiController::getOffer($offerId);
                     // Log the start of the booking process
                     \Log::info('Starting booking process for attempt ID: ' . $attemptId);
 
                     // Execute the booking process
-                    $response = $this->bookPackage($RequestTour, $flightOffer);
+                    $response = $this->bookPackage($RequestTour, $RequestFlight);
                     // Log the start of the booking process
                     \Log::info('Response (general): ' . json_encode($response));
                     // Extract the responses
@@ -638,6 +635,7 @@ public function checkoutWebhook(Request $request)
                     $flightResponse = $response[2] ?? null;
                     $order = $response[3] ?? null;
                     $offerId = $flightResponse['data']['id'];
+                    \Log::info('Duffel order Id: ' . $offerId);
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
