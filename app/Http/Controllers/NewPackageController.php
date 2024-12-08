@@ -153,7 +153,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = createOrder($flight, $tourResponse);
+                $order = $this->createOrder($flightResponse, $tourResponse);
+                Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
         }
