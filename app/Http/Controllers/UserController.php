@@ -242,7 +242,6 @@ class UserController extends Controller
 
     public function getContact(Request $r){
         try{
-
             $contact = ContacUs::where('email',$r->email)->first();
             return ApiResponse::success($contact);
         }catch(Exception $e){
