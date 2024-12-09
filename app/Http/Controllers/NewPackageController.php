@@ -144,6 +144,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
 
+            Log::info('bookPackage duffel request: ' . json_encode($flight));
             $flightResponse = DuffelApiController::createNewBooking($flight);
     
             Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
@@ -153,7 +154,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = $this->createOrder($flightResponse, $tourResponse);
+                $order = $this->createOrder($flightResponse, $tourBody, $tourResponse);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
@@ -162,31 +163,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         return [$status, $tourResponse, $flightResponse, $order];
     }
 
-    public function bookFlight($flight){
-        $flightBody = $flight;
-        $flightResponse = DuffelApiController::createNewBooking($flightBody);
-
-        Log::info('bookFlight duffel response: ' . json_encode($flightResponse));
-
-        if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            $status = 2;
-        }
-        return $flightResponse;
-    }
-
-    public function confirmFlight($flight){
-        $flightBody = $flight;
-        $flightResponse = DuffelApiController::payBooking($flightBody);
-
-        Log::info('confirmFlight duffel response: ' . json_encode($flightResponse));
-
-        if(isset($flightResponse['errors']) && $flightResponse['errors']){
-            $status = 2;
-        }
-        return $flightResponse;
-    }
-
-    public function createOrder($flightResponse, $tourResponse){
+    public function createOrder($flightResponse, $tourBody, $tourResponse){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
@@ -200,16 +177,16 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $remaining_minutes = $total_duration_in_minutes % 60;
         $total_days = $total_hours / 24;
     
-        $totalDaysWithTour = $total_days + $tourResponse['tour']['tour_length_days'];
+        $totalDaysWithTour = $total_days + $tourBody['tour']['tour_length_days'];
         $tripDuration = $this->calculateTripDuration($totalDaysWithTour);
     
-        $tourLength = $tourResponse['tour']['tour_length_days'];
+        $tourLength = $tourBody['tour']['tour_length_days'];
         $adventureDuration = $this->calculateAdventureDuration($tourLength);
     
-        $mainPassengerAge = $tourResponse['main_passenger']['age'];
+        $mainPassengerAge = $tourBody['main_passenger']['age'];
         $ageGroup = $this->determineAgeGroup($mainPassengerAge);
     
-        $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
+        $tour = Tour::where('tour_id', $tourBody['tour']['tour_id'])->select('tour_id', 'commission')->first();
     
         $orderData = [
             'departure' => $departure1->format('Y-m-d'),
@@ -270,9 +247,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
             if ($order && $order->booking_id) {
                 $order->flightTour()->create([
                     'flight' => $flightResponse,
-                    'tour' => $tourResponse,
+                    'tour' => $tourBody,
                 ]);
-                $this->createPassengers($tourResponse);
+                $this->createPassengers($tourBody);
             } else {
                 throw new \Exception('Order could not be created.');
             }
@@ -342,45 +319,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 return '0';
         }
     }
-    
-    
 
-    public function createBaggageCheckoutSession(Request $r){
-        try{
-            $stripeSecret = config('services.stripe.secret');
-            $urlAppFront = config('services.stripe.urlAppFront');
-
-            Stripe::setApiKey($stripeSecret);
-            $baggageType = $r->baggage_type;
-            $baggageQuantity = $r->input('quantity', 1);
-            $amount = $r->price * 100;
-             $newUrl = $urlAppFront . "/my-trips/order?stripe_pay=true";
-              $response = $this->createCheckoutSessionInternal(
-                ucfirst($baggageType) . ' Baggage',
-                ucfirst($baggageType) . ' baggage purchase',
-                $amount * $baggageQuantity,
-                $newUrl,
-                [
-                   'metadata' => [
-                    'order_id' => $r->order_id,
-                    'passenger_id' => $r->passenger_id,
-                    'checked' => $r->checked,
-                    ]
-                ]
-            );
-
-            if (isset($response['error'])) {
-                return response()->json(['status'=>false,'position'=>'stripe','response' => $response['error']]);
-            }
-            return response()->json(['status'=>true, 'url' => $response['url']]);
-
-        }catch(Exception $e){
-            return response()->json(['status' => false,'response'=>$e->getMessage()]);
-        }
-}
-
-public function createPassengers($tourResponse) {
-    $passengers = $tourResponse['passengers'];
+public function createPassengers($tourBody) {
+    $passengers = $tourBody['passengers'];
 
     $firstIteration = true;
 
@@ -467,114 +408,6 @@ public function convertDurationToMinutes($duration)
         return 0;
     }
 }
-private function getDuffelHeaders(){
-    return [
-        'Authorization' => 'Bearer ' . config('services.duffel.secret'),
-        'Duffel-Version' => 'v1',
-        'Content-Type' => 'application/json'
-        ];
-    }
-
-public function getOrderDetails($order_id){
-$url = 'https://api.duffel.com/air/orders/'.$order_id;
-$response = Http::withHeaders($this->getDuffelHeaders())->get($url);
-return $response->json();
-}
-
-public function getOfferIds($order_id){
-    $url = "https://api.duffel.com/air/orders/{$order_id}/available_services";
-    $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
-    $response=$response->json();
-    $list=[];
-    foreach( $response['data'] as $service){
-        if($service['type']=='baggage'){
-            $list[]=['baggage'=>$service['id'],'total_amount'=>$service['total_amount']];
-        }
-    }
-    return $list;
-}
-
-public function OrderServices(Request $r){
-    try{
-        $url = "https://api.duffel.com/air/orders/{$r->order_id}/available_services";
-        $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
-        $response=$response->json();
-        $response=json_decode($this->order_e,true);
-        $list=[];
-        foreach( $response['data'] as $service){
-            if($service['type']=='baggage'){
-                $list[]=['baggage_id'=>$service['id'],'total_amount'=>$service['total_amount']];
-            }
-        }
-        return  response()->json(['status'=>count($list)?true:false,'response'=>$list]);
-    }catch(Exception $e){
-        return  response()->json(['status'=>false,'response'=>$e->getMessage()]);
-    }
-}
-public function validBaggage($value){
-    try{
-        $offerId = $value;
-        $url = "https://api.duffel.com/air/offers/{$offerId}?return_available_services=true";
-
-        $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
-        return $response->json();
-        /* $offer['data']['owner']['iata_code']; */
-
-        return response()->json(['status'=>true,'response'=>true]);
-    }catch(Exception $e){
-        return response()->json(['status'=>false,'response'=>$e->getMessage()]);
-    }
-}
-
-
-public function updateDuffelOrder(Request $r)
-{
-    $event = $r->input('type');
-    $session = $r->input('data.object');
-    if ($event === 'checkout.session.completed' && isset($session['metadata']['payment_type']) && $session['metadata']['payment_type'] === 'baggage') {
-        $order = $this->getOrderDetails($r->order_id);
-        $ids= $this->getOfferIds($order['data']['offer_id']);
-        $addServices=[];
-        if ($r->checked > 0) {
-            $addServices[] = [
-                'quantity' => $r->checked,
-                'id' => $ids[0]['baggage'],
-            ];
-        }
-
-        $body = [
-            'data' => [
-                'payment' => [
-                    'type' => 'balance',
-                    'currency' => 'USD',
-                    'amount' =>((double) $ids[0]['total_amount']*$r->checked).'',
-                ],
-                'add_services' => $addServices,
-            ]
-        ];
-        /* return $body; */
-
-            ActionLog::create([
-                'user_id' => $r->user_id,
-                'type' => 'Update',
-                'action' => 'Order updated successfully',
-                'item' => 'Order',
-            ]);
-
-
-        $url = "https://api.duffel.com/air/orders/{$r->order_id}";
-        $response = Http::withHeaders($this->getDuffelHeaders())->post($url, $body);
-
-        if ($response->failed()) {
-            return response()->json(['status'=>false,'error' => $response->json()]);
-        }
-
-        return  response()->json(['status'=>true,'response'=>$response->json()]);
-    }
-
-
-}
-
 
 public function checkoutWebhook(Request $request)
 {
@@ -698,102 +531,4 @@ public function checkoutWebhook(Request $request)
     return response()->json(['status' => 'success'], 200);
 }
 
-    public function checkBookingStatus(Request $request)
-    {
-        $attemptId = $request->attempt_id;
-
-        $attempt = DB::table('attempts')->where('id', $attemptId)->first();
-
-        if ($attempt && $attempt->booking_id) {
-            return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
-        }
-
-        return response()->json(['status' => 'pending']);
-    }
-
-    public function processPendingAttempts() {
-        $pendingAttempts = DB::table('attempts')
-            ->where('status', 'pending')
-            ->where('expiration', '>=', now())
-            ->get();
-    
-        foreach ($pendingAttempts as $attempt) {
-            $ResponseTour = json_decode($attempt->tourradar_res, true);
-            $tBookingId = $ResponseTour['id'];
-            Log::info('Processing booking ID: ' . $tBookingId);
-    
-            $statusResponse = TourRadarController::checkBooking($tBookingId);
-            Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
-    
-            if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
-                // Update the attempt status to confirmed
-                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-                Log::info('Booking ID ' . $tBookingId . ' confirmed.');
-            }
-        }
-    }    
-
-    public function checkTourradarStatus($attemptId){
-
-        $attempt = DB::table('attempts')->where('id', $attemptId)->first();
-
-        if ($attempt) {
-            // Process the stored data from the attempt
-            $ResponseTour = json_decode($attempt->tourradar_res, true);
-            $tBookingId = $ResponseTour['id'];
-            Log::info(' $tBookingId: ' . json_encode($tBookingId));
-            $RequestFlight = json_decode($attempt->flight, true);
-
-        $statusResponse = TourRadarController::checkBooking($tBookingId);
-        Log::info('status Response: ' . json_encode($statusResponse));
-
-        if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
-
-
-        $flightResponse = bookFlight($RequestFlight);
-
-            DB::table('attempts')
-                ->where('id', $attemptId)
-                ->update([
-                //  'booking_id' => $order->booking_id,
-                    'tourradar_res' => json_encode($statusResponse),
-                    'duffel_res' => json_encode($flightResponse),
-                    'status' => 'completed',
-                    'updated_at' => now(),
-                ]);
-
-            try {
-                // Attempt to capture the payment
-                $stripe = new \Stripe\StripeClient($stripeSecret);
-                $captureResponse = $stripe->paymentIntents->capture($session->payment_intent);
-
-                // Log the payment capture response
-                \Log::info(sprintf(
-                    'Stripe payment capture response for payment intent ID %s (Attempt ID: %s): %s',
-                    $session->payment_intent,
-                    $attemptId,
-                    json_encode($captureResponse)
-                ));
-                // Booking successful, update the attempt record
-                DB::table('orders')
-                ->where('booking_id', $order->booking_id)
-                ->update([
-                    'payment_id' => $session->payment_intent,
-                    'updated_at' => now(),
-                ]);
-                // Send the booking confirmation email
-                $emailResponse = TourController::emailBConfirmation($order->booking_id);
-
-                // Log the email response
-                \Log::info('emailBConfirmation response for booking ID ' . $order->booking_id . ': ' . json_encode($emailResponse));
-
-            } catch (\Exception $e) {
-                // Handle errors during payment capture or email sending
-                \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
-            }
-        } else {
-            Log::info('Booking reference or data key is missing in flightResponse');
-        }
-    }
-    }
 }

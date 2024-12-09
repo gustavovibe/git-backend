@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
+use App\Http\Controllers\DuffelApiController;
 
 class ProcessPendingAttempts extends Command
 {
@@ -57,7 +58,7 @@ class ProcessPendingAttempts extends Command
                     ];
 
                     // Call the confirmFlight function
-                    $flightResponse = (new newPackageController())->confirmFlight($flightBody);
+                    $flightResponse = DuffelApiController::payBooking($flightBody);
                     Log::info("Duffel response for booking ID {$tBookingId}: " . json_encode($flightResponse));
 
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
