@@ -219,3 +219,4 @@ Route::get('/validator', [ValidatorController::class, 'validatePhone']);
 
 Route::post('/add-contact', [UserController::class, 'addContact']);
 Route::get('/get-contact', [UserController::class, 'getContact']);
+Route::get('/check-contact',[UserController::class, 'checkContact']);

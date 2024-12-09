@@ -225,7 +225,8 @@ class UserController extends Controller
                 'booking.required' => 'The booking field is required if provided.',
                 'link.required' => 'The link field is required if provided.',
             ]);
-            $contact= new ContacUs;
+            $c=ContacUs::where('email',$r->email)->first();
+            $contact= $c? $c:new ContacUs;
             $contact->fill($validated);
             $contact->save();
 
@@ -238,6 +239,17 @@ class UserController extends Controller
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
 
+    }
+
+
+    public function checkContact(Request $r){
+        try{
+            $contact = ContacUs::where('email',$r->email)->first();
+
+            return $contact?ApiResponse::success($contact):ApiResponse::error('Not found');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
     }
 
     public function getContact(Request $r){
