@@ -661,7 +661,7 @@ class DuffelApiController extends Controller
         return [
             'Accept-Encoding' => 'gzip, deflate, br',
             'Accept' => 'application/json',
-            'Duffel-Version' => 'v1',
+            'Duffel-Version' => 'v2',
             'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
         ];
     }

@@ -530,5 +530,16 @@ public function checkoutWebhook(Request $request)
     // Return a 200 response for handled events
     return response()->json(['status' => 'success'], 200);
 }
+public function checkBookingStatus(Request $request)
+{
+    $attemptId = $request->attempt_id;
 
+    $attempt = DB::table('attempts')->where('id', $attemptId)->first();
+
+    if ($attempt && $attempt->booking_id) {
+        return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
+    }
+
+    return response()->json(['status' => 'pending']);
+}
 }

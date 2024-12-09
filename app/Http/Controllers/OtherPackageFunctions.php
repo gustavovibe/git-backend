@@ -215,18 +215,7 @@ public function getOfferIds($order_id){
     }
     return $list;
 }
-public function checkBookingStatus(Request $request)
-{
-    $attemptId = $request->attempt_id;
 
-    $attempt = DB::table('attempts')->where('id', $attemptId)->first();
-
-    if ($attempt && $attempt->booking_id) {
-        return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
-    }
-
-    return response()->json(['status' => 'pending']);
-}
 
 public function createBaggageCheckoutSession(Request $r){
     try{
