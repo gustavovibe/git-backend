@@ -218,5 +218,5 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/validator', [ValidatorController::class, 'validatePhone']);
 
 Route::post('/add-contact', [UserController::class, 'addContact']);
-Route::get('/get-contact', [UserController::class, 'getContact']);
-Route::get('/check-contact',[UserController::class, 'checkContact']);
+Route::post('/get-contact', [UserController::class, 'getContact']);
+Route::post('/check-contact',[UserController::class, 'checkContact']);
