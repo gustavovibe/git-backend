@@ -108,6 +108,15 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'setup_future_usage' => 'off_session',
                 ],
             ],
+            'payment_method_types' => [
+                'bancontact',
+                'card',
+                'eps',
+                'giropay',
+                'ideal',
+                'p24',
+                'sepa_debit',
+              ],
         ]);
 
         // Return the session URL and attempt ID
