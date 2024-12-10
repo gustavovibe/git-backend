@@ -7,6 +7,7 @@ use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PushNotificationsController extends Controller
@@ -91,15 +92,16 @@ class PushNotificationsController extends Controller
           return ApiResponse::error('Data is missing');
         }
 
-        $suscriber = GravitecSubscriber::where('user_id', $user_id)->get();
+        $suscriber = GravitecSubscriber::where('user_id', $user_id)->first();
         $gravitec_token = $suscriber->reg_id;
 
         foreach($wishlist_items as $tour){
 
-          $push_icon =  !empty($tour['thumbnail']) ? $tour['thumbnail']: "https://push.gravitec.net/img/gravitecBig.jpg";
+          $tour = $tour['tour']['data'];
+          $push_icon =  !empty($tour['lastImage']) ? $tour['lastImage']: "https://push.gravitec.net/img/gravitecBig.jpg";
           $push_title = 'Good News on your Wishlist';
-          $push_message = 'New prices for "'.$tour['tour_name']. '" tour';
-          $redirect_url = "https://hopeful-nobel.74-208-189-166.plesk.page/tour?tourId=".$tour['tour_id'];
+          $push_message = 'New prices for "'.$tour['tourName']. '" tour';
+          $redirect_url = "https://hopeful-nobel.74-208-189-166.plesk.page/tour?tourId=".$tour['tourId'];
           $push_data = [
             "send_date" => "",
             "ttl" => "",
@@ -147,14 +149,22 @@ class PushNotificationsController extends Controller
         }
 
         $attempt_id = $request->has('attempt_id') ? $request->attempt_id : 0;
-        if(empty($attempt_id)){
+        $tour_id = $request->has('tour_id') ? $request->tour_id : 0;
+        if(empty($attempt_id) && empty($tour_id)){
           return ApiResponse::error('Cart Id is missing');
         }
-
-        $push_message = 'Click here to complete your reservation!';
-        $attempt = DB::table('attempts')->where('id', $attempt_id)->first();
         
-        if ($attempt) {
+        $tour = [];
+        $attempt = [];
+        if(!empty($tour_id)){
+          $tour = DB::table('tours')->where('tour_id', $tour_id)->first();
+        }
+        if(!empty($attempt_id)){
+          $attempt = DB::table('attempts')->where('id', $attempt_id)->first();
+        }
+        $push_message = 'Click here to complete your reservation!';
+        
+        if(!empty($attempt)){
           // Process the stored data from the attempt
           $RequestTour = json_decode($attempt->tour, true);
           $passanger = 'Adventurer';
@@ -165,11 +175,17 @@ class PushNotificationsController extends Controller
           $push_message = !empty($passanger) ? 'Dear '.$passanger.' you forgot to complete your purchase for: '. $tour_name : 'Click here to complete your reservation!';
           $redirect_url = $attempt->new_url ? $attempt->new_url : "https://hopeful-nobel.74-208-189-166.plesk.page/tour?tourId=".$RequestTour['tour_id'];
 
+        }elseif(!empty($tour)){
+          
+          $tour_name = $tour->tour_name;
+          $push_message = 'Dear Traveler you forgot to complete your purchase for: '. $tour_name .'. Click here to complete your reservation!';
+          $redirect_url =  "https://hopeful-nobel.74-208-189-166.plesk.page/tour?tourId=".$tour_id;
+          
         }else{
-          return ApiResponse::error('Attempt not found');
+          return ApiResponse::error('Tour data not found');
         }
 
-        $suscriber = GravitecSubscriber::where('user_id', $user_id)->get();
+        $suscriber = GravitecSubscriber::where('user_id', $user_id)->first();
         $gravitec_token = $suscriber->reg_id;
         $push_icon =  !empty($RequestTour['thumbnail']) ? $RequestTour['thumbnail']: "https://push.gravitec.net/img/gravitecBig.jpg";
         $push_title = '¡Oops! Looks like you forgot to complete your reservation';
