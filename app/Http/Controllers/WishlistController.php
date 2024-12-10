@@ -81,19 +81,19 @@ class WishlistController extends Controller
 
         try{
 
-            $insert_data = [
-                'traveler_id' => $traveler->traveler_id,
-                'user_id' => $user_id,
-                'wish_id' => 0,
-                'tour_id' => $tour_id,
-                'notes' => 'new tour wishlist'
-            ];
+          $insert_data = [
+              'traveler_id' => $traveler->traveler_id,
+              'user_id' => $user_id,
+              'wish_id' => 0,
+              'tour_id' => $tour_id,
+              'notes' => 'new tour wishlist'
+          ];
 
-            $new_wishlist = Wishlist::create($insert_data);
-            return ApiResponse::success($new_wishlist, 'Destination created successfully');
+          $new_wishlist = Wishlist::create($insert_data);
+          return ApiResponse::success($new_wishlist, 'Wishlist item added successfully');
 
         }catch (\Exception $e) {
-            return ApiResponse::error($e->getMessage());
+          return ApiResponse::error($e->getMessage());
         }
 
     }// end public function store(Request $request){
