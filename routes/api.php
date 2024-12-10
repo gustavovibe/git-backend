@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\File;
 use App\Http\Controllers\AirportController;
 use App\Http\Controllers\PushNotificationsController;
 use App\Http\Controllers\ValidatorController;
+use Dedoc\Scramble\Scramble;
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
@@ -220,3 +222,5 @@ Route::get('/validator', [ValidatorController::class, 'validatePhone']);
 Route::post('/add-contact', [UserController::class, 'addContact']);
 Route::post('/get-contact', [UserController::class, 'getContact']);
 Route::post('/check-contact',[UserController::class, 'checkContact']);
+
+Scramble::registerUiRoute(path: '/documentation')->name('api.scramble.docs.ui');

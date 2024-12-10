@@ -63,7 +63,11 @@ class OrderController extends Controller
     /**
      * Get Order by ID.
      * 
-     * This endpoint will return the order with the given ID.
+     * This endpoint will return the order with the given ID. 
+     * 
+     * Updated at 09/12/2024 (user)
+     * 
+     * @param int $id id for the order
      *
      */
     public function getOrder($id)
