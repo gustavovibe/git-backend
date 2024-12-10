@@ -168,7 +168,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $status = 0;
             }
         }
-
         return [$status, $tourResponse, $flightResponse, $order];
     }
 
@@ -463,9 +462,8 @@ public function checkoutWebhook(Request $request)
                     // Process the stored data from the attempt
                     $RequestTour = json_decode($attempt->tour, true);
                     $RequestFlight = json_decode($attempt->flight, true);
-                    $offerId = $RequestFlight['data']['selected_offers'][0];
-                    
-                    $flightOffer = DuffelApiController::getOffer($offerId);
+                    //$offerId = $RequestFlight['data']['selected_offers'][0];
+                    //$flightOffer = DuffelApiController::getOffer($offerId);
                     // Log the start of the booking process
                     \Log::info('Starting booking process for attempt ID: ' . $attemptId);
 
@@ -478,14 +476,14 @@ public function checkoutWebhook(Request $request)
                     $tourResponse = $response[1] ?? null;
                     $flightResponse = $response[2] ?? null;
                     $order = $response[3] ?? null;
-                    $offerId = null;
+                    $orderId = null;
                     if (isset($flightResponse['data'])) {
-                        $offerId = $flightResponse['data']['id'] ?? null;
+                        $orderId = $flightResponse['data']['id'] ?? null;
                     } else {
                         \Log::error('Missing key "data" in $flightResponse:', $flightResponse);
                     }
                                         
-                    \Log::info('Duffel order Id: ' . $offerId);
+                    \Log::info('Duffel order Id: ' . $orderId);
                     // Log both tour and flight responses
                     \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
                     \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
@@ -503,7 +501,7 @@ public function checkoutWebhook(Request $request)
                                 'status' => 'failed',
                                 'tourradar_res' => json_encode($tourResponse),
                                 'duffel_res' => json_encode($flightResponse),
-                                'offer_id' => $offerId,
+                                'order_id' => $orderId,
                                 'payment_id' => $session->payment_intent,
                                 'updated_at' => now(),
                             ]);
@@ -515,7 +513,7 @@ public function checkoutWebhook(Request $request)
                                 'status' => 'pending',
                                 'tourradar_res' => json_encode($tourResponse),
                                 'duffel_res' => json_encode($flightResponse),
-                                'offer_id' => $offerId,
+                                'order_id' => $orderId,
                                 'payment_id' => $session->payment_intent,
                                 'updated_at' => now(),
                             ]);
