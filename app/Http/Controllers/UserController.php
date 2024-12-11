@@ -24,6 +24,15 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+
+    /**
+     * Get user by id.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */ 
     public function getUserById(Request $request)
     {
         $id = $request->query('id');
@@ -62,6 +71,14 @@ class UserController extends Controller
         ], 200);
     }
 
+    /**
+     * Contact.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function Contac(Request $r){
         DB::beginTransaction();
             try{
@@ -84,6 +101,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Show contact.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function showContac(Request $r){
         try{
             $contact =(new ContactFilters)->ContactE($r);
@@ -93,6 +118,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Get users with orders.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function getUsersWithOrders(Request $r)
     {
         try{
@@ -103,6 +136,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Get users orders csv.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function getUsersOrdersCsv(Request $r){
         $users= (new UsersFilters)->UserWithOrders($r);
       /*   return $users; */
@@ -137,7 +178,14 @@ class UserController extends Controller
           return $users;
     }
 
-
+    /**
+     * Edit traveler.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function editTraveler(Request $r){
         try{
             $user= User::find($r->id);
@@ -152,6 +200,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * User history.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function UserHistory(Request $r){
         try{
             $user= ActionLog::query();
@@ -167,6 +223,14 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Change password.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function changePassword(Request $r){
         try{
             $user=$r->id?User::find($r->id):User::where('email',$r->email)->first();
@@ -184,6 +248,15 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Email pass.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $id ID
+     * @param string $password Password
+     * @return array     
+     */
     public function EmailPass($id,$password){
         try{
             $user= User::find($id);
@@ -201,10 +274,26 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Send email pass.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function sendEmailPass(Request $r){
         $this->EmailPass($r->id,$r->password);
     }
 
+    /**
+     * Add contact.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function addContact(Request $r){
         try{
             $validated = $r->validate([

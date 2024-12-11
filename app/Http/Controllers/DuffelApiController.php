@@ -154,7 +154,14 @@ class DuffelApiController extends Controller
         }
     }
 
-    
+    /**
+     * Get offer by ID.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $offerId Offer ID
+     * @return array     
+     */
     public static function getOffer(string $offerId)
     {
         // Validations (if applicable)
@@ -180,7 +187,14 @@ class DuffelApiController extends Controller
         }
     }
 
-
+    /**
+     * Get seats.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function getSeats(Request $request)
     {
         // Validations
@@ -211,7 +225,14 @@ class DuffelApiController extends Controller
         }
     }
 
-
+    /**
+     * Create new booking.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $body Body
+     * @return array     
+     */
     public static function createNewBooking($body)
     {
         $headers = self::getHeaders();
@@ -223,6 +244,14 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    /**
+     * Pay booking.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $body Body
+     * @return array     
+     */
     public static function payBooking($body)
     {
         $headers = self::getHeaders();
@@ -234,6 +263,14 @@ class DuffelApiController extends Controller
         return $response->json();
     }
 
+    /**
+     * Add seats.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function addSeats(Request $request)
     {
         $offerId = $request->query('offerId');
@@ -265,6 +302,14 @@ class DuffelApiController extends Controller
         }
     }
 
+    /**
+     * Get order by ID.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function getOrderById(Request $request)
     {
         // Validations
@@ -691,6 +736,14 @@ class DuffelApiController extends Controller
         return Validator::make($request->all(), $rules, $messages);
     }
 
+    /**
+     * Flight cancel.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function flightCancel(Request $r){
         try{
 
@@ -721,6 +774,14 @@ class DuffelApiController extends Controller
         }
     }
 
+    /**
+     * Confirm cancel.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array     
+     */
     public function confirmCancel(Request $r){
         try{
             $confirm_url = "https://api.duffel.com/air/order_cancellations/{$r->cancel_id}/actions/confirm";

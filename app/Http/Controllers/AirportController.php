@@ -6,6 +6,15 @@ use GuzzleHttp\Client;
 
 class AirportController extends Controller
 {
+
+    /**
+     * Get airports.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array
+     * 
+     */
     public function getAirports()
     {
         $client = new Client();

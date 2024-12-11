@@ -9,6 +9,14 @@ use App\Models\TourCity;
 
 class TourCitiesController extends Controller
 {
+    /**
+     * Display a listing of Tour Cities.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         $perPage = 10;

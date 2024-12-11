@@ -25,6 +25,15 @@ use App\Models\ActionLog;
 
 class NewPackageController extends Controller
 {
+
+    /**
+     * Create checkout session.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function createCheckoutSession(Request $request)
     {
         $stripeSecret = config('services.stripe.secret');
@@ -67,6 +76,21 @@ class NewPackageController extends Controller
         return response()->json(['url' => $response['url'], 'attempt_id' => $response['attempt_id']]);
     }
 
+    /**
+     * Create checkout session internal.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $productName Product name
+     * @param string $productDescription Product description
+     * @param float $amount Amount
+     * @param string $newUrl New URL
+     * @param string $url URL
+     * @param array $RequestTour Request tour
+     * @param array $RequestFlight Request flight
+     * @param string $expiration Expiration
+     * @return array
+     */
 private function createCheckoutSessionInternal($productName, $productDescription, $amount, $newUrl, $url, $RequestTour, $RequestFlight, $expiration)
 {
     try {
@@ -126,6 +150,15 @@ private function createCheckoutSessionInternal($productName, $productDescription
     }
 }
 
+    /**
+     * Book package.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $tour Tour
+     * @param array $flight Flight
+     * @return array
+     */ 
     public function bookPackage($tour, $flight)
     {
         $order = null;
@@ -171,6 +204,16 @@ private function createCheckoutSessionInternal($productName, $productDescription
         return [$status, $tourResponse, $flightResponse, $order];
     }
 
+    /**
+     * Create order.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $flightResponse Flight response
+     * @param array $tourBody Tour body
+     * @param array $tourResponse Tour response
+     * @return array
+     */ 
     public function createOrder($flightResponse, $tourBody, $tourResponse){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
@@ -268,6 +311,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
         return $order;
     }
 
+    /**
+     * Calculate adventure duration.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $tourLength Tour length
+     * @return string
+     */
     public function calculateAdventureDuration(int $tourLength): string {
         switch (true) {
             case ($tourLength >= 1 && $tourLength <= 2):
@@ -287,6 +338,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }
     }
 
+    /**
+     * Calculate trip duration.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param float $totalDaysWithTour Total days with tour
+     * @return string
+     */
     public function calculateTripDuration(float $totalDaysWithTour): string {
         switch (true) {
             case ($totalDaysWithTour >= 1 && $totalDaysWithTour <= 3):
@@ -309,6 +368,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
     }
         
 
+    /**
+     * Determine age group.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $mainPassengerAge Main passenger age
+     * @return string     
+     */
     public function determineAgeGroup(int $mainPassengerAge): string {
         switch (true) {
             case ($mainPassengerAge >= 18 && $mainPassengerAge <= 24):
@@ -328,6 +395,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }
     }
 
+    /**
+     * Create passengers.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $tourBody Tour body
+     * @return array
+     */
 public function createPassengers($tourBody) {
     $passengers = $tourBody['passengers'];
 
@@ -406,6 +481,14 @@ public function createPassengers($tourBody) {
     }
 }
 
+    /**
+     * Convert duration to minutes.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $duration Duration
+     * @return int
+     */ 
 public function convertDurationToMinutes($duration)
 {
     try {
@@ -417,6 +500,14 @@ public function convertDurationToMinutes($duration)
     }
 }
 
+    /**
+     * Checkout webhook.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
 public function checkoutWebhook(Request $request)
 {
     // Set Stripe secret key
@@ -537,6 +628,15 @@ public function checkoutWebhook(Request $request)
     // Return a 200 response for handled events
     return response()->json(['status' => 'success'], 200);
 }
+
+    /**
+     * Check booking status.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
 public function checkBookingStatus(Request $request)
 {
     $attemptId = $request->attempt_id;

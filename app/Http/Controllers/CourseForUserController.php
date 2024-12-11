@@ -12,12 +12,34 @@ use Illuminate\Support\Facades\Mail;
 
 class CourseForUserController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response     
+     */
     public function index()
     {
         $coursesForUsers = CourseForUser::all();
         return response()->json(['coursesForUsers' => $coursesForUsers], 200);
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return response()->json(['message' => 'Crear nuevo curso.'], 200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $id_user = $request->input('id_user');
@@ -50,7 +72,12 @@ class CourseForUserController extends Controller
         return response()->json(['message' => 'Inscripcion  exitosa.'], 200);
     }
 
-
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */ 
     public function show($id)
     {
         // Obtén el id del usuario para el que quieres obtener los cursos
@@ -67,6 +94,25 @@ class CourseForUserController extends Controller
         return response()->json($coursesForUser, 200);
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $courseForUser = CourseForUser::findOrFail($id);
+        return response()->json(['courseForUser' => $courseForUser], 200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
         $courseForUser = CourseForUser::findOrFail($id);
@@ -74,6 +120,12 @@ class CourseForUserController extends Controller
         return response()->json(['message' => 'CourseForUser updated successfully'], 200);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
         $courseForUser = CourseForUser::findOrFail($id);

@@ -28,6 +28,14 @@ class SystemUserController extends Controller
         ];
     }
 
+    /**
+     * createUser.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function createUser(Request $r){
         /* return response()->json(['status'=>200,'response'=>$r->all()]); */
         DB::beginTransaction();
@@ -80,6 +88,13 @@ class SystemUserController extends Controller
     }
 
 
+    /**
+     * Get Users by filters
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function getUsers(Request $r){
         try {
            $u = (new UsersFilters)->UsersF($r);
@@ -90,6 +105,14 @@ class SystemUserController extends Controller
         }
     }
 
+    /**
+     * Delete Users
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function deleteUsers(Request $r){
         DB::beginTransaction();
         try{
@@ -111,6 +134,14 @@ class SystemUserController extends Controller
         }
     }
 
+    /**
+     * Validate email.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function validateEmail(Request $request) {
         // Definir las reglas de validación
         $rules = [

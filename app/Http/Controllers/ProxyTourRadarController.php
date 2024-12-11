@@ -11,6 +11,15 @@ use App\Helpers\FormatDepartures;
 
 class ProxyTourRadarController extends Controller
 {
+
+    /**
+     * Show.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $id ID
+     * @return array     
+     */
     public function show($id)
     {
         $tour = TourRadarController::getTour($id);
@@ -27,6 +36,14 @@ class ProxyTourRadarController extends Controller
         return ApiResponse::success($tour);
     }
 
+    /**
+     * Departures.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function departures(Request $request)
     {
         $rules = [
@@ -54,6 +71,14 @@ class ProxyTourRadarController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Departure.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function departure(Request $request)
     {
         $rules = [
@@ -70,6 +95,14 @@ class ProxyTourRadarController extends Controller
         return $response;
     }
 
+    /**
+     * Prices.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function prices(Request $request)
     {
         $rules = [
@@ -85,6 +118,14 @@ class ProxyTourRadarController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Booking fields.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */ 
     public function bookingFields(Request $request)
     {
         $rules = [
@@ -99,12 +140,27 @@ class ProxyTourRadarController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Bookings list.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array     
+     */
     public function bookingsList()
     {
         $response = TourRadarController::getBookingsList();
         return ApiResponse::success($response);
     }
 
+    /**
+     * Bookings store.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function bookingsStore(Request $request)
     {
         $rules = [
@@ -127,6 +183,14 @@ class ProxyTourRadarController extends Controller
         return $response;
     }
 
+    /**
+     * Destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */ 
     public function destinations(Request $request)
     {
         $rules = [

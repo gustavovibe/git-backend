@@ -12,6 +12,15 @@ use Exception;
 
 class TourNaturalDestinationController extends Controller
 {
+
+    /**
+     * Display a listing of Tour Natural Destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function index(Request $r)
     {
         try{
@@ -27,6 +36,14 @@ class TourNaturalDestinationController extends Controller
 
     }
 
+    /**
+     * Type.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function Type(Request $r){
         try{
             $type = Type::query();

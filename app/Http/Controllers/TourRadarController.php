@@ -9,6 +9,14 @@ use App\Helpers\ApiResponse;
 class TourRadarController extends Controller
 {
 
+    /**
+     * Get access token.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $scope Scope
+     * @return array     
+     */
     public static function getAccessToken()
     {
 
@@ -39,6 +47,14 @@ class TourRadarController extends Controller
         }
     }
 
+    /**
+     * Get departures by tour.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $params Params
+     * @return array     
+     */
 public static function getDeparturesByTour($params)
     {
         $accessToken = self::getAccessToken();
@@ -70,6 +86,14 @@ public static function getDeparturesByTour($params)
         }
     }
 
+    /**
+     * Get multiple departures by tours.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function getMultipleDeparturesByTours(Request $request)
     {
        try{
@@ -208,6 +232,7 @@ public static function getDeparturesByTour($params)
         }
     }
 
+    
     public static function getDeparture($params)
 {
     $accessToken = self::getAccessToken();

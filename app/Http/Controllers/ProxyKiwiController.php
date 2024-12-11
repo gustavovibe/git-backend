@@ -9,6 +9,15 @@ use App\Helpers\FormatKiwiFlights;
 
 class ProxyKiwiController extends Controller
 {
+
+    /**
+     * Search flights.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function searchFlights(Request $request)
     {
         $rules = [
@@ -32,6 +41,14 @@ class ProxyKiwiController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Check flights.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */ 
     public function checkFlights(Request $request)
     {
         $rules = [
@@ -52,6 +69,14 @@ class ProxyKiwiController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Save booking.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function saveBooking(Request $request)
     {
         $rules = [
@@ -82,6 +107,14 @@ class ProxyKiwiController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Confirm payment.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function confirmPayment(Request $request)
     {
         $rules = [
@@ -100,6 +133,14 @@ class ProxyKiwiController extends Controller
         return ApiResponse::success($response);
     }
 
+    /**
+     * Confirm payment zooz.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function confirmPaymentZooz(Request $request)
     {
         $rules = [

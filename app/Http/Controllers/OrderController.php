@@ -16,6 +16,15 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+
+    /**
+     * Get all orders.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function index(Request $r)
     {
         $orders= (new ToursFilters)->OrdersAll($r,0);
@@ -23,7 +32,14 @@ class OrderController extends Controller
         return $orders;
     }
 
-
+    /**
+     * Get all orders in CSV format.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function ordersCsv(Request $r){
         $orders= (new ToursFilters)->OrdersAll($r,1);
       /*   return $orders; */
@@ -81,6 +97,15 @@ class OrderController extends Controller
         ], 200);
     }
 
+    /**
+     * Get admin reports.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     * 
+     */
     public function adminReports(Request $request)
     {
         try{
@@ -187,6 +212,14 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * Store a new order.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -252,7 +285,14 @@ class OrderController extends Controller
         return response()->json($order, 201);
     }
 
-
+    /**
+     * Get admin orders.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function adminOrders(Request $request)
 {
     $query = Order::query();
@@ -391,7 +431,14 @@ class OrderController extends Controller
     return ApiResponse::success($paginatedData);
 }
 
-
+    /**
+     * Get orders.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */ 
     public function getOrders(Request $request)
     {
         $today = date('Y-m-d');
@@ -439,7 +486,15 @@ class OrderController extends Controller
         ]);
     }
 
-
+    /**
+     * Get order with travelers.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @param int $booking_id Booking ID
+     * @return array
+     */
     public function getOrderWithTravelers(Request $request, $booking_id)
     {
         $includeTravelers = $request->query('travelers') == 'true';

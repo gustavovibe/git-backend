@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Mail;
 
 class VerificationController extends Controller
 {
+
+    /**
+     * Store a newly created resource in storage.
+     * 
+     * Updated at 10/12/2024 (user)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $user = Verification::where('email', $request->email)->first();
@@ -29,6 +38,14 @@ class VerificationController extends Controller
         ], 200);
     }
 
+    /**
+     * Verified.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function verified(Request $request)
     {
         $user = Verification::where('email', $request->email)->first();

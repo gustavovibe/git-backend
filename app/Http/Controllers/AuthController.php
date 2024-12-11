@@ -21,6 +21,15 @@ use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
+
+    /**
+     * Register a new user.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function register(Request $request)
     {
         try{
@@ -66,6 +75,14 @@ class AuthController extends Controller
 
     }
 
+    /**
+     * Login a user.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */ 
     public function login(Request $request)
     {
 
@@ -106,6 +123,14 @@ class AuthController extends Controller
 
     }
 
+    /**
+     * Logout a user.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function logout(Request $r)
     {
         if (Auth::check()) {
@@ -142,6 +167,14 @@ class AuthController extends Controller
         return "demo";
     }
 
+    /**
+     * Google register.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function googleRegister(Request $r)
     {
         try {
@@ -212,6 +245,16 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Recover password.
+     * 
+     * Endpoint to recover password.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function recoverPass(Request $r){
         try{
             $user= User::where('email',$r->email)->first();
@@ -238,6 +281,16 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Check token.
+     * 
+     * Endpoint to check token.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function checkToken(Request $r){
         try{
             $reset_pass= PasswordResets::where('token',$r->token)->first();

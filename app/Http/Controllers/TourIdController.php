@@ -9,6 +9,15 @@ use Exception;
 
 class TourIdController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         try{

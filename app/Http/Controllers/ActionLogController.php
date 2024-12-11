@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class ActionLogController extends Controller
 {
+
+    /**
+     * Get all action logs.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         $action= (new UsersFilters)->ActionLogs($request);
