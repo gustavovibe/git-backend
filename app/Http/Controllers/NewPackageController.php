@@ -144,8 +144,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'kriya',
                 'mondu',
                 'sequra',
-                'amazon_pay',
-                'cashapp',
                 'mobilepay',
                 'paypal',
                 'revolut_pay',
