@@ -136,12 +136,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'link',
                 'card',
                 'affirm',
-                'alma',
                 'klarna',
                 'paypal',
-                'revolut_pay',
-                'mobilepay',
-            ],            
+            ], 
         ]);
 
         // Return the session URL and attempt ID
