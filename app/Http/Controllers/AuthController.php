@@ -241,7 +241,7 @@ class AuthController extends Controller
             }
         } catch (\Exception $e) {
             \Log::error('Google Register Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
