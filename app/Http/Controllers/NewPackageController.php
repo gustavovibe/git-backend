@@ -136,7 +136,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'link',
                 'card',
                 'affirm',
-                'afterpay_clearpay',
                 'alma',
                 'klarna',
                 'paypal',
