@@ -25,6 +25,15 @@ use Exception;
 
 class TourController extends Controller
 {
+
+    /**
+     * Display a listing of tours.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         $query = Tour::query();
@@ -94,6 +103,14 @@ class TourController extends Controller
         return ApiResponse::success($results);
     }
 
+    /**
+     * Extract array from query param.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $param Param
+     * @return array
+     */
     protected function extractArrayFromQueryParam($param)
     {
         $param = trim($param, '[]');
@@ -101,6 +118,14 @@ class TourController extends Controller
         return array_map('trim', $values);
     }
 
+    /**
+     * Get text.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public static function getText(Request $r)
     {
         $scope = "com.tourradar.bookings/read";
@@ -118,6 +143,14 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Show.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function show(Request $r){
         try{
             $tour=ToursFilters::ToursP($r);
@@ -127,6 +160,14 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Show type.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function show_type(Request $r){
         try{
             $travel=ToursFilters::travel_styles($r);
@@ -137,12 +178,27 @@ class TourController extends Controller
         }
     }
 
-
+    /**
+     * Email t details.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function emailTDetails(Request $r){
         Mail::to($r->email)->send(new TourDetails());
         return 'mail template';
     }
 
+    /**
+     * Email b confirmation.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $booking_id Booking ID
+     * @return array
+     */
     public function emailBConfirmation($booking_id){
         $b=[
             'tour_id'=>$booking_id
@@ -156,6 +212,14 @@ class TourController extends Controller
         return 'booking confirmation';
     }
 
+    /**
+     * Pdf order.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function pdfOrder(Request $r){
         try{
             $orders=ToursFilters::OrdersPrint($r);
@@ -176,6 +240,14 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Booking summary send.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function bookingSummarySend(Request $r){
         try{
             Mail::to($r->email)->send(new SendSummary(['tour_id'=>$r->tour_id]));
@@ -190,6 +262,14 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Booking summary pdf.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function bookingSummaryPdf(Request $r){
         $tourResponse = ProxyTourRadarController::show($r->tour_id);
         $tourData = $tourResponse->getData(true);
@@ -217,6 +297,13 @@ class TourController extends Controller
         return $pdf->stream('booking_summary_tour.pdf');
     }
 
+    /**
+     * Carrier list.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array
+     */
     public function carrierList(){
         try{
             $carriers= Order::select('carrier')->distinct()->get();
@@ -226,6 +313,14 @@ class TourController extends Controller
         }
     }
 
+    /**
+     * Abandoned cart notification.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function abandonedCartNotification(Request $request){
 
         $user_id = $request->has('userId') ? $request->userId : 0;

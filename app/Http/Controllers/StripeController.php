@@ -8,6 +8,15 @@ use Stripe\StripeClient;
 
 class StripeController extends Controller
 {
+
+    /**
+     * Get payment intent.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function getPaymentIntent(Request $request)
     {
         try {

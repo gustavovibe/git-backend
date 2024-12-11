@@ -25,6 +25,15 @@ use App\Models\ActionLog;
 
 class PackageController extends Controller
 {
+
+    /**
+     * Create checkout session.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function createCheckoutSession(Request $request)
     {
         $stripeSecret = config('services.stripe.secret');
@@ -115,6 +124,15 @@ private function createCheckoutSessionInternal($productName, $productDescription
     }
 }
 
+    /**
+     * Book package.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $tour Tour
+     * @param array $flight Flight
+     * @return array
+     */
     public function bookPackage($tour, $flight)
     {
 
@@ -436,6 +454,14 @@ private function createCheckoutSessionInternal($productName, $productDescription
         return [$status, $statusResponse, $flightResponse, $order];
     }
 
+    /**
+     * Create baggage checkout session.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function createBaggageCheckoutSession(Request $r){
         try{
             $stripeSecret = config('services.stripe.secret');
@@ -478,12 +504,28 @@ private function getDuffelHeaders(){
         ];
     }
 
+    /**
+     * Get order details.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $order_id Order ID
+     * @return array         
+     */
 public function getOrderDetails($order_id){
 $url = 'https://api.duffel.com/air/orders/'.$order_id;
 $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
 return $response->json();
 }
 
+    /**
+     * Get offer ids.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $order_id Order ID
+     * @return array         
+     */
 public function getOfferIds($order_id){
     $url = "https://api.duffel.com/air/orders/{$order_id}/available_services";
     $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
@@ -497,6 +539,14 @@ public function getOfferIds($order_id){
     return $list;
 }
 
+    /**
+     * Order services.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
 public function OrderServices(Request $r){
     try{
         $url = "https://api.duffel.com/air/orders/{$r->order_id}/available_services";
@@ -514,6 +564,15 @@ public function OrderServices(Request $r){
         return  response()->json(['status'=>false,'response'=>$e->getMessage()]);
     }
 }
+
+    /**
+     * Valid baggage.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $value Value
+     * @return array
+     */
 public function validBaggage($value){
     try{
         $offerId = $value;
@@ -529,7 +588,14 @@ public function validBaggage($value){
     }
 }
 
-
+    /**
+     * Update duffel order.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
 public function updateDuffelOrder(Request $r)
 {
     $event = $r->input('type');
@@ -578,7 +644,14 @@ public function updateDuffelOrder(Request $r)
 
 }
 
-
+    /**
+     * Checkout webhook.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
 public function checkoutWebhook(Request $request)
 {
     // Set Stripe secret key
@@ -723,7 +796,14 @@ public function checkoutWebhook(Request $request)
 }
 
 
-
+    /**
+     * Check booking status.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
 public function checkBookingStatus(Request $request)
 {
     $attemptId = $request->attempt_id;

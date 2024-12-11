@@ -11,6 +11,15 @@ use App\Models\Country;
 
 class CountryController extends Controller
 {
+
+    /**
+     * Import countries.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -29,6 +38,14 @@ class CountryController extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
+    /**
+     * Get all countries.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function index(Request $r)
     {
         $perPage = 10;
@@ -50,7 +67,14 @@ class CountryController extends Controller
         return ApiResponse::success( $r->list? $paginatedData :$responseData);
     }
 
-
+    /**
+     * Get countries.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function getAllCountries(Request $request)
     {
         $countries = Country::all();
@@ -58,6 +82,14 @@ class CountryController extends Controller
         return ApiResponse::success(CountryResource::collection($countries));
     }
 
+    /**
+     * Get countries with params.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function getCountries(Request $r)
     {
         $countries = Country::query();

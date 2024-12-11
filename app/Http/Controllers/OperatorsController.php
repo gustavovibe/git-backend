@@ -12,6 +12,15 @@ use Exception;
 
 class OperatorsController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function index(Request $r)
     {
         try{
@@ -22,6 +31,14 @@ class OperatorsController extends Controller
         }
     }
 
+    /**
+     * Get operators.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function operatorsList(Request $r){
         try{
             $operator = Operators::query();
@@ -69,6 +86,13 @@ class OperatorsController extends Controller
         //
     }
 
+    /**
+     * Import operators.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array
+     */
     public function import(){
         $scope = 'com.tourradar.operators/read';
         $accessToken =TourRadarController::getAccessToken($scope) ;
@@ -97,6 +121,14 @@ class OperatorsController extends Controller
     }
 
 
+    /**
+     * Get text.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function text(Request $r){
         try{
             $scope = 'com.tourradar.operators/read';

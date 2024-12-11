@@ -8,6 +8,14 @@ class KiwiController extends Controller
 {
     protected static $API_KEY = "QGWd943iYcYa581oo0nm_m8Kl-BOL0an";
 
+    /**
+     * search Api.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $params Params
+     * @return array
+     */
     public static function searchApi($params)
     {
         $url = 'https://api.tequila.kiwi.com/v2/search';
@@ -23,6 +31,14 @@ class KiwiController extends Controller
         return $response->json();
     }
 
+    /**
+     * checkFlights Api.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $params Params
+     * @return array
+     */
     public static function checkFlightsApi($params)
     {
         $url = 'https://api.tequila.kiwi.com/v2/booking/check_flights';
@@ -38,6 +54,15 @@ class KiwiController extends Controller
         return $response->json();
     }
 
+    /**
+     * saveBooking Api.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $params Params
+     * @param array $body Body
+     * @return array
+     */
     public static function saveBookingApi($params = null, $body)
     {
         $url = 'https://api.tequila.kiwi.com/v2/booking/save_booking';
@@ -55,6 +80,14 @@ class KiwiController extends Controller
         return $response->json();
     }
 
+    /**
+     * confirmPayment Api.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $body Body
+     * @return array
+     */
     public static function confirmPaymentApi($body)
     {
         $url = 'https://api.tequila.kiwi.com/v2/booking/confirm_payment';
@@ -69,6 +102,14 @@ class KiwiController extends Controller
         return $response->json();
     }
 
+    /**
+     * confirmPaymentZooz Api.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $body Body
+     * @return array
+     */
     public static function confirmPaymentZoozApi($body)
     {
         $url = 'https://api.tequila.kiwi.com/v2/booking/confirm_payment_zooz';

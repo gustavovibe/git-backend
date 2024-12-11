@@ -41,6 +41,14 @@ class Citycontroller extends Controller
         ];
     }
 
+    /**
+     * Import cities.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */ 
     public function import(Request $request)
     {
         $request->validate([
@@ -59,6 +67,14 @@ class Citycontroller extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
+    /**
+     * Get all cities.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         $perPage = 10;
@@ -78,7 +94,14 @@ class Citycontroller extends Controller
         return ApiResponse::success($responseData);
     }
 
-
+    /**
+     * Get all cities, countries, and natural destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function DestinatioCityCountryNaturalDestination(Request $request)
     {
 
@@ -113,6 +136,14 @@ class Citycontroller extends Controller
         return ApiResponse::success($responseData);
     }
 
+    /**
+     * Get codes.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function codes(Request $request)
 {
     $q = $request->input('q');
@@ -142,6 +173,14 @@ class Citycontroller extends Controller
 }
 
 
+    /**
+     * Get destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function destinations(Request $r)
     {
         try {
@@ -152,7 +191,14 @@ class Citycontroller extends Controller
         }
     }
 
-
+    /**
+     * Get destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function destinationsV2(Request $request)
     {
         $categoryFilter = $request->input('categoryFilter', '');
@@ -285,6 +331,14 @@ class Citycontroller extends Controller
     }
 
 
+    /**
+     * Get selection table.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */ 
     public function selectiontable(Request $r)
     {
         try {
@@ -298,6 +352,14 @@ class Citycontroller extends Controller
         }
     }
 
+    /**
+     * Get cities.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function cities(Request $r)
     {
         try {

@@ -8,6 +8,15 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 
 class ValidatorController extends Controller
 {
+
+    /**
+     * Validate phone number.            
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function validatePhone(Request $request)
     {
         // Validate input
@@ -50,7 +59,13 @@ class ValidatorController extends Controller
     }
 
     /**
-     * Format phone number using Propaganistas\LaravelPhone\PhoneNumber.
+     * Format phone number.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $phone Phone number
+     * @param string $country Country code
+     * @return string|null     
      */
     private function formatPhoneNumber(string $phone, string $country): ?string
     {

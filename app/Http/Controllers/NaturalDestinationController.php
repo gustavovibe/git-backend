@@ -12,6 +12,15 @@ use App\Models\NaturalDestination;
 
 class NaturalDestinationController extends Controller
 {
+
+    /**
+     * Import natural destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -30,6 +39,14 @@ class NaturalDestinationController extends Controller
         return ApiResponse::success([], 'Successful import');
     }
 
+    /**
+     * Get all natural destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function index(Request $request)
     {
         $perPage = 10;
@@ -48,6 +65,14 @@ class NaturalDestinationController extends Controller
         return ApiResponse::success($responseData);
     }
 
+    /**
+     * get Natural destinations.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $id Natural destination ID
+     * @return array
+     */
     public function show($id)
     {
 

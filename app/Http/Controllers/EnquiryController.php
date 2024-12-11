@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Mail;
 
 class EnquiryController extends Controller
 {
+
+    /**
+     * create.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function create(Request $r){
         try{
             $enquiry=Enquiries::create([
@@ -33,6 +42,14 @@ class EnquiryController extends Controller
         }
     }
 
+    /**
+     * emailNotification.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Enquiries $enquiry Enquiries object
+     * @return array
+     */
     public function emailNotification($enquiry){
         try{
             $user= User::whereHas('permission',function($query){

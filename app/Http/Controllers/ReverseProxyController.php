@@ -8,6 +8,15 @@ use App\Helpers\ApiResponse;
 
 class ReverseProxyController extends Controller
 {
+
+    /**
+     * Proxy location.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array     
+     */
     public function proxyLocation(Request $request)
     {
 

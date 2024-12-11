@@ -32,6 +32,14 @@ class DestinationController extends Controller
       ]);
     }
 
+    /**
+     * Store a new destination.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -117,6 +125,15 @@ class DestinationController extends Controller
         }
     }
 
+    /**
+     * Get destination.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @param int $id Destination ID
+     * @return array
+     */
     public function show(Request $request, $id)
     {
         $category = $request->query('category');

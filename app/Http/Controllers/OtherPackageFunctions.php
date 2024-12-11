@@ -25,6 +25,15 @@ use App\Models\ActionLog;
 
 class OtherPackageFunctions extends Controller
 {
+
+    /**
+     * Check tourradar status.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param int $attemptId Attempt ID
+     * @return array
+     */
 public function checkTourradarStatus($attemptId){
 
 $attempt = DB::table('attempts')->where('id', $attemptId)->first();
@@ -89,6 +98,13 @@ $flightResponse = bookFlight($RequestFlight);
 }
 }
 
+    /**
+     * Process pending attempts.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array
+     */ 
 public function processPendingAttempts() {
     $pendingAttempts = DB::table('attempts')
         ->where('status', 'pending')
@@ -110,6 +126,15 @@ public function processPendingAttempts() {
         }
     }
 }  
+
+    /**
+     * Update duffel order.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
 public function updateDuffelOrder(Request $r)
 {
     $event = $r->input('type');
@@ -158,6 +183,14 @@ public function updateDuffelOrder(Request $r)
 
 }
 
+    /**
+     * Order services.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
 public function OrderServices(Request $r){
     try{
         $url = "https://api.duffel.com/air/orders/{$r->order_id}/available_services";
@@ -175,6 +208,15 @@ public function OrderServices(Request $r){
         return  response()->json(['status'=>false,'response'=>$e->getMessage()]);
     }
 }
+
+    /**
+     * Valid baggage.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $value Value
+     * @return array
+     */
 public function validBaggage($value){
     try{
         $offerId = $value;
@@ -189,6 +231,14 @@ public function validBaggage($value){
         return response()->json(['status'=>false,'response'=>$e->getMessage()]);
     }
 }
+
+    /**
+     * Get duffel headers.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @return array
+     */
 private function getDuffelHeaders(){
     return [
         'Authorization' => 'Bearer ' . config('services.duffel.secret'),
@@ -197,12 +247,28 @@ private function getDuffelHeaders(){
         ];
     }
 
+    /**
+     * Get order details.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $order_id Order ID
+     * @return array         
+     */
 public function getOrderDetails($order_id){
 $url = 'https://api.duffel.com/air/orders/'.$order_id;
 $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
 return $response->json();
 }
 
+    /**
+     * Get offer ids.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param string $order_id Order ID
+     * @return array         
+     */
 public function getOfferIds($order_id){
     $url = "https://api.duffel.com/air/orders/{$order_id}/available_services";
     $response = Http::withHeaders($this->getDuffelHeaders())->get($url);
@@ -217,6 +283,14 @@ public function getOfferIds($order_id){
 }
 
 
+    /**
+     * Create baggage checkout session.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
 public function createBaggageCheckoutSession(Request $r){
     try{
         $stripeSecret = config('services.stripe.secret');
@@ -250,6 +324,15 @@ public function createBaggageCheckoutSession(Request $r){
         return response()->json(['status' => false,'response'=>$e->getMessage()]);
     }
 }
+
+    /**
+     * Book flight.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $flight Flight
+     * @return array
+     */
 public function bookFlight($flight){
     $flightBody = $flight;
     $flightResponse = DuffelApiController::createNewBooking($flightBody);
@@ -261,6 +344,15 @@ public function bookFlight($flight){
     }
     return $flightResponse;
 }
+
+    /**
+     * Confirm flight.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param array $flight Flight
+     * @return array
+     */
 public function confirmFlight($flight){
     $flightBody = $flight;
     $flightResponse = DuffelApiController::payBooking($flightBody);

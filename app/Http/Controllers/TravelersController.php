@@ -13,7 +13,14 @@ use Exception;
 class TravelersController extends Controller
 {
 
-    // Method to get travelers
+    /**
+     * Get travelers.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function getTravelers(Request $request)
     {
         try{
@@ -39,7 +46,14 @@ class TravelersController extends Controller
     }
 
 
-    // Method to write travelers
+    /**
+     * Write travelers.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function writeTravelers(Request $r)
     {
 
@@ -105,6 +119,14 @@ class TravelersController extends Controller
 
     }
 
+    /**
+     * Get traveler data.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $request Request object
+     * @return array
+     */
     public function getTravelerData(Request $request)
     {
         try{
@@ -188,6 +210,15 @@ class TravelersController extends Controller
         }
     }
 
+    /**
+     * Update.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @param int $id ID
+     * @return array
+     */
     public function update(Request $r, $id)
     {
         try{
@@ -214,6 +245,15 @@ class TravelersController extends Controller
 
     }
 
+    /**
+     * Destroy.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @param int $id ID
+     * @return array
+     */
     public function destroy(Request $r,$id)
     {
         try{
@@ -235,6 +275,14 @@ class TravelersController extends Controller
         }
     }
 
+    /**
+     * Traveler id.
+     * 
+     * Updated at 10/12/2024 (user)
+     * 
+     * @param Request $r Request object
+     * @return array
+     */
     public function traveler_id(Request $r){
         try{
             $traveler = Traveler::where('user_id',$r->user_id)->first();
