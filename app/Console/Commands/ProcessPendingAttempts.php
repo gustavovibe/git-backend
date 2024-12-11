@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
 use App\Http\Controllers\DuffelApiController;
+use App\Http\Controllers\StripeController;
 
 class ProcessPendingAttempts extends Command
 {
@@ -36,8 +37,12 @@ class ProcessPendingAttempts extends Command
             $tBookingId = $ResponseTour['id'];
             Log::info('Processing booking ID: ' . $tBookingId);
 
-            $statusResponse = TourRadarController::checkBooking($tBookingId);
-            Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
+            try {
+                $statusResponse = TourRadarController::checkBooking($tBookingId);
+            } catch (\Exception $e) {
+                Log::error('Error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                continue;
+            }            
 
             if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
                 // Retrieve flight data from the current attempt
@@ -64,7 +69,10 @@ class ProcessPendingAttempts extends Command
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
                         Log::error('Duffel booking failed for booking ID ' . $tBookingId);
                     } else {
+                        $paymentIntent = $attempt->payment_id;
                         Log::info('Duffel booking successful for booking ID ' . $tBookingId);
+                        $stripeResponse = StripeController::capturePayment($paymentIntent);
+                        Log::info('Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                     }
                 } else {
                     Log::warning('Flight data is incomplete for booking ID ' . $tBookingId);
@@ -75,5 +83,15 @@ class ProcessPendingAttempts extends Command
                 Log::info('Booking ID ' . $tBookingId . ' confirmed.');
             }
         }
+
+        $expiredAttempts = DB::table('attempts')
+            ->where('status', 'pending')
+            ->where('expiration', '<=', now())
+            ->get();
+        foreach ($expiredAttempts as $attempt) {
+            $paymentIntent = $attempt->payment_id;
+            $stripeResponse = StripeController::cancellPayment($paymentIntent);
+            Log::info('Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+        }    
     }
 }
