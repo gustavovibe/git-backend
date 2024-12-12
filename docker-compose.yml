@@ -73,3 +73,18 @@ services:
 networks:
   app-network:
     driver: bridge
+
+#La version indica la version por default de docker
+#El buil indica el docker file que se usara para construir este contenedor (Dockerfile-app)
+#La seccion networks conecta el contenedor con una red llamada app-network apra que se pueda comunicar con otros servicios como ngnix
+#las variables enviroment se declaran para que en el jost se carguen desde un archivo .env para mantener la configuracion separada del codigo. El formato ${} indica que seran asignadas en otro sitio (en este caso desde servidor gitlab)
+
+#Dentro de nginx:
+#image determina que busca la version mas reciente de nginx
+# build indica que quiere usar el archivo Dockerfile-serve personalizado para configurar NGINX
+#Los ports 80:80 para la que se pueda acceder a la aplicacion por localhost
+# La seccion depends_on indica que , hasta que no este construida la seccion app (en la parte superior) no proceda a construir el nginx
+# Usa una red bridge para que los servicios app y nginx puedan comunicarse
+
+#docker-compose define los servicios de proyecto php (Dockerfile-app)y servidor ngnix (Dockerfile-serve)
+#

@@ -10,3 +10,10 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 
+# Este archivo esta diseñado para confidgurar NGINX
+# FROM usa la ultima version de nginx
+# Workdir define el directorio de trabajo
+# Copy copia un archivo personalizado para configurar nginx
+# Run ejecuta los permisos requeridos en las carpetas requeridas.
+
+#Construye la imagen para el servidor nginx

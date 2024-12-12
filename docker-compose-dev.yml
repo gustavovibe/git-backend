@@ -32,3 +32,14 @@ volumes:
   my-db-vibe:
 
 
+#Establece la version de mysql en image
+#En la seccion environment se establecen las variables de conexion de bd
+#La seccion ports se indica los puestos internos de la bd de contenedor
+#La seccion expose muestra los puertos externos de la bd
+#Dentro de la seccion app usa un archivo personalizado (El dockerfile-buil-dev)
+#En la seccion de volumenes la primera linea permite que los cambios locales se reflejen instantaneamente en el contenedor
+#La segunda linea hace referencia a las dependencias    para que se mantengan dentro del contenedor
+#El commando se usa para copiar las dependencias de un directorio temporal (/var/www/vendor_temp) si el directorio vendor no existe  (al parecer esta opcion es opcional) / inicia el servidor con php artisan serve
+#volumenes asegura la persistencia para las dependencias de laravel y guardar los datos de mysql
+
+#construye el entorno para mysql pero la estructura de mysql se encuentra en Dockerfile-build-dev
