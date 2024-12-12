@@ -576,6 +576,7 @@ public function convertDurationToMinutes($duration)
                 $status = $response[0] ?? null;
                 $tourResponse = $response[1] ?? null;
                 $flightResponse = $response[2] ?? null;
+                $order = $response[3] ?? null;
                 $orderId = $flightResponse['data']['id'] ?? null;
     
                 // Log responses
