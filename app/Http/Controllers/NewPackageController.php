@@ -171,11 +171,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
             unset($tourBody['tour_name']);
         }
 
+        Log::info('bookPackage Tour request: ' . json_encode($tourBody));
+
         // Proceed with the API call
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log tour response
-        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        // Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
@@ -186,7 +188,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             Log::info('bookPackage duffel request: ' . json_encode($flight));
             $flightResponse = DuffelApiController::createNewBooking($flight);
     
-            Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
+            //Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
     
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
@@ -301,7 +303,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
     
         $order = Order::create($orderData);
 
-        $traveler_id = this->createTravelers($passengers,$userId);
+        $traveler_id = $this->createTravelers($passengers, $userId);
 
         //$mail = new BookingMail($order);
         //Mail::to($order->user->email)->send($mail);
@@ -518,126 +520,102 @@ public function convertDurationToMinutes($duration)
      * @param Request $request Request object
      * @return array     
      */
-public function checkoutWebhook(Request $request)
-{
-    // Set Stripe secret key
-    $stripeSecret = config('services.stripe.secret');
-    Stripe::setApiKey($stripeSecret);
-
-    // Webhook secret
-    $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
-
-    // Retrieve the payload and signature header
-    $payload = $request->getContent();
-    $sigHeader = $request->header('Stripe-Signature');
-    $event = null;
-
-    try {
-        // Construct the event from the payload and header
-        $event = \Stripe\Webhook::constructEvent(
-            $payload, $sigHeader, $endpointSecret
-        );
-    } catch (\UnexpectedValueException $e) {
-        // Invalid payload
-        \Log::error('Error parsing payload: ' . $e->getMessage());
-        return response()->json(['error' => 'Invalid payload'], 400);
-    } catch (\Stripe\Exception\SignatureVerificationException $e) {
-        // Invalid signature
-        \Log::error('Error verifying webhook signature: ' . $e->getMessage());
-        return response()->json(['error' => 'Invalid signature'], 400);
-    }
-
-    // Handle the event
-    switch ($event->type) {
-        case 'checkout.session.completed':
-            $session = $event->data->object;
-
-            // Get the attempt ID from the session metadata
-            $attemptId = $session->metadata->attempt_id ?? null;
-
-            if ($attemptId) {
+    public function checkoutWebhook(Request $request)
+    {
+        // Set Stripe secret key
+        Stripe::setApiKey(config('services.stripe.secret'));
+    
+        // Webhook secret
+        $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
+    
+        // Retrieve the payload and signature header
+        $payload = $request->getContent();
+        $sigHeader = $request->header('Stripe-Signature');
+        $event = null;
+    
+        try {
+            // Construct the event from the payload and header
+            $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
+        } catch (\UnexpectedValueException $e) {
+            \Log::error('Invalid payload: ' . $e->getMessage());
+            return response()->json(['status' => 'success'], 200); // Always return success
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            \Log::error('Invalid signature: ' . $e->getMessage());
+            return response()->json(['status' => 'success'], 200); // Always return success
+        }
+    
+        // Handle the event type
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $session = $event->data->object;
+    
+                // Extract metadata
+                $attemptId = $session->metadata->attempt_id ?? null;
+    
+                if (!$attemptId) {
+                    \Log::error('No attempt ID found in session metadata.');
+                    break;
+                }
+    
                 // Retrieve the attempt record from the database
                 $attempt = DB::table('attempts')->where('id', $attemptId)->first();
-
-                if ($attempt) {
-                    // Process the stored data from the attempt
-                    $RequestTour = json_decode($attempt->tour, true);
-                    $RequestFlight = json_decode($attempt->flight, true);
-                    //$offerId = $RequestFlight['data']['selected_offers'][0];
-                    //$flightOffer = DuffelApiController::getOffer($offerId);
-                    // Log the start of the booking process
-                    \Log::info('Starting booking process for attempt ID: ' . $attemptId);
-
-                    // Execute the booking process
-                    $response = $this->bookPackage($RequestTour, $RequestFlight);
-                    // Log the start of the booking process
-                    \Log::info('Response (general): ' . json_encode($response));
-                    // Extract the responses
-                    $status = $response[0];
-                    $tourResponse = $response[1] ?? null;
-                    $flightResponse = $response[2] ?? null;
-                    $order = $response[3] ?? null;
-                    $orderId = null;
-                    if (isset($flightResponse['data'])) {
-                        $orderId = $flightResponse['data']['id'] ?? null;
-                    } else {
-                        \Log::error('Missing key "data" in $flightResponse:', $flightResponse);
-                    }
-                                        
-                    \Log::info('Duffel order Id: ' . $orderId);
-                    // Log both tour and flight responses
-                    \Log::info('Tour response for attempt ID ' . $attemptId . ': ' . json_encode($tourResponse));
-                    \Log::info('Flight response for attempt ID ' . $attemptId . ': ' . json_encode($flightResponse));
-                    // Log both tour and flight responses
-                    //\Log::info('status ' . $attemptId . ': ' . $status);
-
-                    if (intval($status) > 0) {
-                        \Log::info('status 1-2 for attempt: ' . $attemptId . ': ' . $status);
-                        // Booking failed, update the attempt record
-                        // \Log::error('Booking package failed for attempt ID ' . $attemptId . ': ' . json_encode([$tourResponse, $flightResponse]));
-
-                        DB::table('attempts')
-                            ->where('id', $attemptId)
-                            ->update([
-                                'status' => 'failed',
-                                'tourradar_res' => json_encode($tourResponse),
-                                'duffel_res' => json_encode($flightResponse),
-                                'order_id' => $orderId,
-                                'payment_id' => $session->payment_intent,
-                                'updated_at' => now(),
-                            ]);
-                    }else{
-                        \Log::info('status 0 for attempt: ' . $attemptId . ': ' . $status);
-                        DB::table('attempts')
-                            ->where('id', $attemptId)
-                            ->update([
-                                'status' => 'pending',
-                                'tourradar_res' => json_encode($tourResponse),
-                                'duffel_res' => json_encode($flightResponse),
-                                'order_id' => $orderId,
-                                'payment_id' => $session->payment_intent,
-                                'updated_at' => now(),
-                            ]);
-                    }
-                } else {
-                    // Attempt record not found
+                if (!$attempt) {
                     \Log::error('Attempt not found for ID: ' . $attemptId);
+                    break;
                 }
-            } else {
-                // No attempt ID found in the session metadata
-                \Log::error('No attempt ID found in session metadata.');
-            }
-
-            break;
-        default:
-            // Log unknown event type
-            \Log::warning('Received unknown event type: ' . $event->type);
-            return response()->json(['error' => 'Unhandled event type'], 400);
+    
+                \Log::info('Processing booking for attempt ID: ' . $attemptId);
+    
+                $RequestTour = json_decode($attempt->tour, true);
+                $RequestFlight = json_decode($attempt->flight, true);
+    
+                // Execute booking process
+                $response = $this->bookPackage($RequestTour, $RequestFlight);
+    
+                // Extract responses
+                $status = $response[0] ?? null;
+                $tourResponse = $response[1] ?? null;
+                $flightResponse = $response[2] ?? null;
+                $orderId = $flightResponse['data']['id'] ?? null;
+    
+                // Log responses
+                \Log::info('stripe webhook Tour response: ' . json_encode($tourResponse));
+                \Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
+    
+                // Update database record
+                DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        'tourradar_res' => json_encode($tourResponse),
+                        'duffel_res' => json_encode($flightResponse),
+                        'order_id' => $orderId,
+                        'payment_id' => $session->payment_intent,
+                        'updated_at' => now(),
+                    ]);
+    
+                \Log::info('Booking process completed for attempt ID: ' . $attemptId);
+                break;
+    
+            case 'checkout.session.async_payment_succeeded':
+                // Future implementation for async success
+                \Log::info('Async payment succeeded event received.');
+                break;
+    
+            case 'checkout.session.async_payment_failed':
+                // Future implementation for async failure
+                \Log::info('Async payment failed event received.');
+                break;
+    
+            default:
+                \Log::warning('Unhandled event type: ' . $event->type);
+                break;
+        }
+    
+        // Always return success
+        return response()->json(['status' => 'success'], 200);
     }
-
-    // Return a 200 response for handled events
-    return response()->json(['status' => 'success'], 200);
-}
+    
 
     /**
      * Check booking status.
