@@ -634,7 +634,7 @@ public function checkBookingStatus(Request $request)
     $attempt = DB::table('attempts')->where('id', $attemptId)->first();
 
     if ($attempt && $attempt->booking_id) {
-        return response()->json(['status' => 'completed', 'booking_id' => $attempt->booking_id]);
+        return response()->json(['status' => $attempt->booking_id, 'booking_id' => $attempt->booking_id, 'expiration'=>$attempt->expiration]);
     }
 
     return response()->json(['status' => 'pending']);
