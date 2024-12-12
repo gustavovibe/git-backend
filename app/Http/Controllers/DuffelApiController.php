@@ -486,9 +486,18 @@ class DuffelApiController extends Controller
                 }
             }
 
+            if ($request->has('payment')) {
             $isValidOffer = $this->validatePayment($offer, $request);
-            if (!$isValidOffer) {
-                continue;
+                if (!$isValidOffer) {
+                    continue;
+                }
+            }
+
+            if ($request->has('airlines')) {
+            $isValidOffer = $this->validateAirlines($offer, $request);
+                if (!$isValidOffer) {
+                    continue;
+                }
             }
 
             $validatedOffers[] = $offer; // Add the offer if it has baggage
@@ -625,6 +634,29 @@ class DuffelApiController extends Controller
         // Default to valid if no conditions are violated
         return true;
     }
+
+    private function validateAirlines($offer, $request)
+    {
+        // Extract the airlines parameter from the request and split it into an array
+        $requestedAirlines = explode(',', $request->get('airlines', ''));
+    
+        // If "any" is included in the requested airlines, automatically pass validation
+        if (in_array('any', $requestedAirlines, true)) {
+            return true;
+        }
+    
+        // Extract the IATA code of the offer
+        $airlineCode = $offer['owner']['iata_code'] ?? null; // Safely extract IATA code
+    
+        // Check if the airline's IATA code matches any in the requested list
+        if (in_array($airlineCode, $requestedAirlines, true)) {
+            return true; // Valid if a match is found
+        }
+    
+        // Default to false if no match is found
+        return false;
+    }
+    
 
     private function validateStops($offer, $request)
     {
