@@ -137,7 +137,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'card',
                 'affirm',
                 'klarna',
-                'paypal',
             ], 
         ]);
 
