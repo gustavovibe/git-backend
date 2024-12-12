@@ -156,7 +156,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $flight Flight
      * @return array
      */ 
-    public function bookPackage($tour, $flight)
+    public function bookPackage($tour, $flight, $paymentId)
     {
         $order = null;
 
@@ -195,7 +195,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = $this->createOrder($flightResponse, $tourResponse, $tourResponse);
+                $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
@@ -212,7 +212,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $tourResponse Tour response
      * @return array
      */ 
-    public function createOrder($flightResponse, $tourResponse){
+    public function createOrder($flightResponse, $tourResponse, $paymentId){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
@@ -298,7 +298,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'age_group' => $ageGroup,
             'group_size' => $groupSize,
             'country' => $mainPassengerCountry,
-            'carrier' => $flightResponse['data']['owner']['name']
+            'carrier' => $flightResponse['data']['owner']['name'],
+            'payment_id' => $paymentId
         ];
     
         $order = Order::create($orderData);
@@ -565,9 +566,11 @@ public function convertDurationToMinutes($duration)
     
                 $RequestTour = json_decode($attempt->tour, true);
                 $RequestFlight = json_decode($attempt->flight, true);
-    
+                
+                $paymentId = $session->payment_intent; 
+                \Log::info('Payment Id: ' . $paymentId);
                 // Execute booking process
-                $response = $this->bookPackage($RequestTour, $RequestFlight);
+                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId);
     
                 // Extract responses
                 $status = $response[0] ?? null;
@@ -583,11 +586,12 @@ public function convertDurationToMinutes($duration)
                 DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
+                        'booking_id' => $order->booking_id,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
-                        'payment_id' => $session->payment_intent,
+                        'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
     
