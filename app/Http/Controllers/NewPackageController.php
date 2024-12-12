@@ -441,7 +441,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             ]);
             $user->save();
     
-            Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
+            Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random, 'id'=>$user->id]));
             
         }
     
