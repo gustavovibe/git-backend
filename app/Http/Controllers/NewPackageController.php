@@ -305,8 +305,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $traveler_id = $this->createTravelers($passengers, $userId);
 
-        $mail = new BookingMail($order);
-        Mail::to($order->user->email)->send($mail);
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
@@ -314,6 +312,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
                 ]);
+                $mail = new BookingMail($order);
+                Mail::to($order->user->email)->send($mail);    
             } else {
                 throw new \Exception('Order could not be created.');
             }
