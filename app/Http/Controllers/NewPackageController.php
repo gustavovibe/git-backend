@@ -193,7 +193,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = $this->createOrder($flightResponse, $tourBody, $tourResponse);
+                $order = $this->createOrder($flightResponse, $tourResponse, $tourResponse);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
@@ -207,11 +207,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * Updated at 10/12/2024 (user)
      * 
      * @param array $flightResponse Flight response
-     * @param array $tourBody Tour body
      * @param array $tourResponse Tour response
      * @return array
      */ 
-    public function createOrder($flightResponse, $tourBody, $tourResponse){
+    public function createOrder($flightResponse, $tourResponse){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
@@ -225,16 +224,16 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $remaining_minutes = $total_duration_in_minutes % 60;
         $total_days = $total_hours / 24;
     
-        $totalDaysWithTour = $total_days + $tourBody['tour']['tour_length_days'];
+        $totalDaysWithTour = $total_days + $tourResponse['tour']['tour_length_days'];
         $tripDuration = $this->calculateTripDuration($totalDaysWithTour);
     
-        $tourLength = $tourBody['tour']['tour_length_days'];
+        $tourLength = $tourResponse['tour']['tour_length_days'];
         $adventureDuration = $this->calculateAdventureDuration($tourLength);
     
-        $mainPassengerAge = $tourBody['main_passenger']['age'];
+        $mainPassengerAge = $tourResponse['main_passenger']['age'];
         $ageGroup = $this->determineAgeGroup($mainPassengerAge);
     
-        $tour = Tour::where('tour_id', $tourBody['tour']['tour_id'])->select('tour_id', 'commission')->first();
+        $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
     
         $orderData = [
             'departure' => $departure1->format('Y-m-d'),
@@ -295,9 +294,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
             if ($order && $order->booking_id) {
                 $order->flightTour()->create([
                     'flight' => $flightResponse,
-                    'tour' => $tourBody,
+                    'tour' => $tourResponse,
                 ]);
-                $this->createPassengers($tourBody);
+                $this->createPassengers($tourResponse);
             } else {
                 throw new \Exception('Order could not be created.');
             }
