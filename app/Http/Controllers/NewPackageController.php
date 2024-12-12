@@ -175,7 +175,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log tour response
-        // Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
@@ -229,8 +229,12 @@ private function createCheckoutSessionInternal($productName, $productDescription
     
         $tourLength = $tourResponse['tour']['tour_length_days'];
         $adventureDuration = $this->calculateAdventureDuration($tourLength);
-    
-        $mainPassengerAge = $tourResponse['main_passenger']['age'];
+        
+        $passenger = $tourResponse['passengers'][0];
+        $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
+        $today = Carbon::now();
+        $mainPassengerAge = $dob->diffInYears($today);
+
         $ageGroup = $this->determineAgeGroup($mainPassengerAge);
     
         $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
