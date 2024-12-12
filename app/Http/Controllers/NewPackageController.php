@@ -234,11 +234,21 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
         $today = Carbon::now();
         $mainPassengerAge = $dob->diffInYears($today);
+        $mainPassenger = $passenger['fields']['title']=='Mr.'?'male':'female';
+        $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
         $ageGroup = $this->determineAgeGroup($mainPassengerAge);
     
         $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
-    
+        
+        $passengers = $tourResponse['passengers'];
+
+        $user = $this->createUser($passenger);
+
+        $userId = $user->id;
+
+        $groupSize = count($tourResponse['passengers']);
+
         $orderData = [
             'departure' => $departure1->format('Y-m-d'),
             'start' => $tourResponse['departure_date'],
@@ -277,7 +287,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'commission_value_tour' => $tourResponse['partner_info']['commission_value'],
             'discounted' => $tourResponse['promotions'][0]['prices'][0]['price_per_pax'] ?? null,
             'promo' => $tourResponse['promotions'][0]['id'] ?? null,
-            'user_id' => $user->id,
+            'user_id' => $userId,
             'whole_trip' => $tripDuration,
             'channel' => 'web',
             'payment_method' => 'card_and_wallet',
@@ -291,6 +301,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
     
         $order = Order::create($orderData);
 
+        $traveler_id = this->createTravelers($passengers,$userId);
+
         //$mail = new BookingMail($order);
         //Mail::to($order->user->email)->send($mail);
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
@@ -300,7 +312,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
                 ]);
-                $this->createPassengers($tourResponse);
             } else {
                 throw new \Exception('Order could not be created.');
             }
@@ -403,82 +414,81 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $tourBody Tour body
      * @return array
      */
-public function createPassengers($tourBody) {
-    $passengers = $tourBody['passengers'];
-
-    $firstIteration = true;
-
-    $mainPassenger = "";
-
-    $mainPassengerCountry = "";
-
-    $mainPassengerAge = 0;
-
-    $groupSize = count($tourBody['passengers']);
-    $traveler_id=0;
-
-    $firstIteration = true;
-    foreach ($passengers as $passenger) {
-
-            $mainPassenger = $passenger['fields']['title']=='Mr.'?'male':'female';
-
-            $mainPassengerCountry = $passenger['fields']['place_of_issue'];
-
-            $random= Str::random(12);
-            $u= User::where('email',$passenger['fields']['email'])->first();
-            $user=$u?$u: new User;
-            if(!$u){
-                $user->fill([
-                    'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
-                    'password' => Hash::make($random),
-                    'profile_id' => 2,
-                    'phone' => $passenger['fields']['phone_number'],
-                    'country' => $passenger['fields']['place_of_issue'],
-                    'role' => 'role',
-                    'active' => 1,
-                    'suscribed' => 1,
-                    'hear' => "without comment",
-                    ]);
-
-                    Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
-            }
-
-            $traveler=Traveler::updateOrCreate(
-                ['mail'=>$passenger['fields']['email']],
-                [
-                    'title'=>$passenger['fields']['title'],
-                    'gender'=> $passenger['fields']['title']=='Mr.'?'male':'female',
-                    'name'=>$passenger['fields']['first_name'],
-                    'last'=>$passenger['fields']['last_name'],
-                    'birth'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['date_of_birth']),
-                    'passport'=>$passenger['fields']['passport_number'],
-                    'country'=>$passenger['fields']['place_of_issue'],
-                    'place'=>$passenger['fields']['place_of_issue'],
-                    'issue'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['issue_date']),
-                    'expire'=>Carbon::createFromFormat('d/m/Y',$passenger['fields']['expiration_date']),
-                    'phone'=>$passenger['fields']['phone_number'],
-                    'address'=>isset($passengers[0]['fields']['address'])? $passengers[0]['fields']['address']:'n/a',
-                    'user_id'=>$user->id,
-                    'status'=>1,
-                ]);
-
-            $traveler_id=$traveler->traveler_id;
-            $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
-
-            $today = Carbon::now();
-
-            $mainPassengerAge = $dob->diffInYears($today);
-
-            if ($firstIteration) {
-                ActionLog::create([
-                    'user_id' => $u->id,
-                    'type' => 'Create',
-                    'action' => 'Order created successfully',
-                    'item' => 'Order',
-                ]);
-                $firstIteration = false;
-            }
+    public function createUser($passenger)
+    {
+        $random = Str::random(12);
+    
+        // Check if the user exists
+        $user = User::where('email', $passenger['fields']['email'])->first();
+    
+        // If the user doesn't exist, create a new one
+        if (!$user) {
+            $user = new User();
+            $user->fill([
+                'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
+                'email' => $passenger['fields']['email'],
+                'password' => Hash::make($random),
+                'profile_id' => 2,
+                'phone' => $passenger['fields']['phone_number'],
+                'country' => $passenger['fields']['place_of_issue'],
+                'role' => 'role',
+                'active' => 1,
+                'suscribed' => 1,
+                'hear' => "without comment",
+            ]);
+            $user->save();
+    
+            // Send the password email to the new user
+            Mail::to($user->email)->send(new SendPass([
+                'name' => $passenger['fields']['first_name'],
+                'password' => $random,
+            ]));
+        }
+    
+        // Log the action if the user was found or created
+        ActionLog::create([
+            'user_id' => $user->id,
+            'type' => 'Create',
+            'action' => 'Order created successfully',
+            'item' => 'Order',
+        ]);
+    
+        return $user;
     }
+    
+
+public function createTravelers($passengers,$userId)
+{
+    $firstTravelerId = null; // Initialize the first traveler ID
+
+    foreach ($passengers as $index => $passenger) {
+        $traveler = Traveler::updateOrCreate(
+            ['mail' => $passenger['fields']['email']],
+            [
+                'title' => $passenger['fields']['title'],
+                'gender' => $passenger['fields']['title'] == 'Mr.' ? 'male' : 'female',
+                'name' => $passenger['fields']['first_name'],
+                'last' => $passenger['fields']['last_name'],
+                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']),
+                'passport' => $passenger['fields']['passport_number'],
+                'country' => $passenger['fields']['place_of_issue'],
+                'place' => $passenger['fields']['place_of_issue'],
+                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
+                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
+                'phone' => $passenger['fields']['phone_number'],
+                'address' => isset($passenger['fields']['address']) ? $passenger['fields']['address'] : 'n/a',
+                'user_id' => $userId, 
+                'status' => 1,
+            ]
+        );
+
+        // Capture the first traveler's ID
+        if ($index === 0) {
+            $firstTravelerId = $traveler->traveler_id;
+        }
+    }
+
+    return $firstTravelerId; // Return the first traveler ID
 }
 
     /**
