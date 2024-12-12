@@ -305,8 +305,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $traveler_id = $this->createTravelers($passengers, $userId);
 
-        //$mail = new BookingMail($order);
-        //Mail::to($order->user->email)->send($mail);
+        $mail = new BookingMail($order);
+        Mail::to($order->user->email)->send($mail);
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
@@ -440,11 +440,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             ]);
             $user->save();
     
-            // Send the password email to the new user
-            Mail::to($user->email)->send(new SendPass([
-                'name' => $passenger['fields']['first_name'],
-                'password' => $random,
-            ]));
+            Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
+            
         }
     
         // Log the action if the user was found or created
