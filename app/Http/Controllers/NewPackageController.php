@@ -156,7 +156,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $flight Flight
      * @return array
      */ 
-    public function bookPackage($tour, $flight, $paymentId)
+    public function bookPackage($tour, $flight, $paymentId, $attemptId)
     {
         $order = null;
 
@@ -181,6 +181,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
+            DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        'tourradar_res' => json_encode($tourResponse),
+                        'payment_id' => $paymentId,
+                        'updated_at' => now(),
+                    ]);
+    
+            Log::info('Tourradar error: ' . $attemptId, ['error' => $tourResponse['error']]);
+
         }else {
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
@@ -192,6 +203,16 @@ private function createCheckoutSessionInternal($productName, $productDescription
     
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
+                DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        'duffel_res' => json_encode($flightResponse),
+                        'payment_id' => $paymentId,
+                        'updated_at' => now(),
+                    ]);
+    
+                Log::info('Duffel error: ' . $attemptId, ['error' => $flightResponse['error']]);
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
@@ -309,10 +330,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
-                $order->flightTour()->create([
-                    'flight' => $flightResponse,
-                    'tour' => $tourResponse,
-                ]);
                 $mail = new BookingMail($order);
                 Mail::to($order->user->email)->send($mail);    
             } else {
@@ -570,8 +587,8 @@ public function convertDurationToMinutes($duration)
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
                 // Execute booking process
-                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId);
-    
+                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId));
+                
                 // Extract responses
                 $status = $response[0] ?? null;
                 $tourResponse = $response[1] ?? null;
