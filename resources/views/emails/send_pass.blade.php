@@ -485,8 +485,8 @@
         <div style="text-align: center; margin: 20px;">
             <label
                 style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
-                Temporary Password for Your Account
-                <b>#:{{ $data['password'] }}.</b>
+                Temporary Password for Your Account:
+                <b>{{' '.$data['password'] }}</b>
             </label>
         </div>
         <p>Please use this password to log in and make sure to update it immediately after logging in for security reasons.</p>
@@ -500,7 +500,7 @@
         </p>
     </div>
         <div style="text-align: center;">
-            <h3 style="color: orange;text-decoration: underline;"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/account/account?user_id={{$data['id']}}">Download itinerary</a>   </h3>
+            <h3 style="color: orange;text-decoration: underline;"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/">Change my password</a>   </h3>
         </div>
 
     <br>
