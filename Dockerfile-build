@@ -26,3 +26,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
     chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 CMD ["php-fpm"]
+
+
+# Al parecer este archivo es una variacion de Dockerfile-app, por lo que puede eliminarse al ser redundante

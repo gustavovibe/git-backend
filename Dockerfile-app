@@ -31,3 +31,14 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Start PHP-FPM (this is handled by the base image, so no need for `php-fpm` here)
 CMD ["php-fpm"]
+
+# La seccion From usa una imagen php pero con soporte FPM.
+# La seccion Run se encarga de instalar las dependencias y extensiones php
+# El workdir indica el directorio principal de trabajao para la aplicacion
+# La seccion Copy copia el codigo duente al contenedor, usando composer
+# desde una imagen base para gestionar dependencias
+# El primer Run sirve para instalar las dependencias de composer
+# La segunda seccion de RUn habilita los permisos de lectura y escritura
+# la seccion CMD define php-fpm como el proceso principal del contenedor.
+
+#Construye la imagen sel servicio app que ejecuta php ára la logica de la aplicacion laravel.
