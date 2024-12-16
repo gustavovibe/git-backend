@@ -24,9 +24,9 @@ class AuthController extends Controller
 
     /**
      * Register a new user.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -45,9 +45,9 @@ class AuthController extends Controller
                 'phone' => $request->phone,
               /*   'country' => $request->country, */
                 'role' => $request->role,
-                'active' => $request->active,
+               /*  'active' => $request->active,
                 'suscribed' => $request->suscribed,
-                'hear' => $request->hear,
+                'hear' => $request->hear, */
             ]);
 
              $user->tokens()->delete();
@@ -77,12 +77,12 @@ class AuthController extends Controller
 
     /**
      * Login a user.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
-     */ 
+     */
     public function login(Request $request)
     {
 
@@ -125,9 +125,9 @@ class AuthController extends Controller
 
     /**
      * Logout a user.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -169,9 +169,9 @@ class AuthController extends Controller
 
     /**
      * Google register.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -247,11 +247,11 @@ class AuthController extends Controller
 
     /**
      * Recover password.
-     * 
+     *
      * Endpoint to recover password.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -283,11 +283,11 @@ class AuthController extends Controller
 
     /**
      * Check token.
-     * 
+     *
      * Endpoint to check token.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
