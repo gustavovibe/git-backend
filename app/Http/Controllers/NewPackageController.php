@@ -587,7 +587,7 @@ public function convertDurationToMinutes($duration)
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
                 // Execute booking process
-                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId));
+                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId);
                 
                 // Extract responses
                 $status = $response[0] ?? null;
