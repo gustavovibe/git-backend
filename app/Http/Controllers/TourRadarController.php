@@ -110,12 +110,12 @@ public static function getDeparturesByTour($params)
         $start = ($page - 1) * $itemsPerPage;
         $end = $start + $itemsPerPage;
 
-        Log::info('Starting to fetch departures', [
-            'tourIds' => $tourIds,
-            'params' => $params,
-            'start' => $start,
-            'end' => $end,
-        ]);
+        // Log::info('Starting to fetch departures', [
+        //     'tourIds' => $tourIds,
+        //     'params' => $params,
+        //     'start' => $start,
+        //     'end' => $end,
+        // ]);
 
         $tourIds = array_slice($tourIds, $start, $itemsPerPage);
 
@@ -125,7 +125,7 @@ public static function getDeparturesByTour($params)
             $response = $this->getDeparturesByTourParams($params);
 
             if (isset($response['items'])) {
-                Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
+               // Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
 
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
@@ -141,13 +141,13 @@ public static function getDeparturesByTour($params)
                     $departures[] = $cheapestDeparture;
                 }
             } else {
-                Log::info('No departures found for tour', ['tourId' => $tourId]);
+               // Log::info('No departures found for tour', ['tourId' => $tourId]);
             }
 
             sleep(0.1); // delay between API calls
         }
 
-        Log::info('Returning departures', ['departures' => $departures]);
+       // Log::info('Returning departures', ['departures' => $departures]);
 
         return response()->json(['items' => $departures]);
        }catch(Exception $e){
@@ -204,7 +204,7 @@ public static function getDeparturesByTour($params)
             $response = Http::withHeaders($headers)->get($url, $queryParams);
             $responseBody = $response->json();
 
-            Log::info('API Response for Tour ' . $params['tourId'] . ':', $responseBody);
+           // Log::info('API Response for Tour ' . $params['tourId'] . ':', $responseBody);
 
             if (!isset($responseBody['items'])) {
                 return ['error' => 'Unexpected response structure', 'response' => $responseBody];
@@ -227,7 +227,7 @@ public static function getDeparturesByTour($params)
 
             return ['items' => array_values($filteredDepartures)];
         } catch (\Exception $e) {
-            Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
+           // Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
             return ['error' => $e->getMessage()];
         }
     }

@@ -211,8 +211,8 @@ class DuffelApiController extends Controller
             $url = 'https://api.duffel.com/air/seat_maps?offer_id=' . $request->offerId;
 
             // Log the request URL and headers for debugging
-            Log::info('Request URL: ' . $url);
-            Log::info('Request Headers: ', $headers);
+            // Log::info('Request URL: ' . $url);
+            // Log::info('Request Headers: ', $headers);
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
