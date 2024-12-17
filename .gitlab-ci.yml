@@ -29,19 +29,14 @@ Builder:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
-    # Login to Docker Registry (with redundancy)
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY" || echo "Failed to login to Docker Registry"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
-    # Print credentials for debugging (Remove this in production)
     - echo "$CI_REGISTRY_PASSWORD $CI_REGISTRY"
     - echo "$DB_CONNECTION $DB_HOST $DB_PORT $DB_DATABASE $DB_USERNAME $DB_PASSWORD"
-
-    # Build and push Docker image
     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
     - develop
+
 
 Deployment:
   stage: deploy
