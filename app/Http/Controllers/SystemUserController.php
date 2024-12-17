@@ -100,7 +100,7 @@ class SystemUserController extends Controller
            $u = (new UsersFilters)->UsersF($r);
            return response()->json(['status' => 200,'count'=>count($u),'response' => $u]);
         }catch (Error $e) {
-            Log::error('Exception: ' . $e->getMessage());
+            // Log::error('Exception: ' . $e->getMessage());
             return response()->json(['status' => 500, 'response' => $e->getMessage()]);
         }
     }

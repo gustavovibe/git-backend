@@ -150,7 +150,7 @@ class AuthController extends Controller
                 'message' => 'Logout successful'
             ], 200);
         } else {
-            Log::warning("Unauthorized logout attempt");
+            // Log::warning("Unauthorized logout attempt");
             return response()->json([
                 'status' => false,
                 'message' => 'No autorizado. Debes iniciar sesión para acceder a esta información.'

@@ -42,7 +42,7 @@ if ($attempt) {
     // Process the stored data from the attempt
     $ResponseTour = json_decode($attempt->tourradar_res, true);
     $tBookingId = $ResponseTour['id'];
-    Log::info(' $tBookingId: ' . json_encode($tBookingId));
+   // Log::info(' $tBookingId: ' . json_encode($tBookingId));
     $RequestFlight = json_decode($attempt->flight, true);
 
 $statusResponse = TourRadarController::checkBooking($tBookingId);
@@ -93,7 +93,7 @@ $flightResponse = bookFlight($RequestFlight);
         \Log::error('Error during payment capture or email confirmation for attempt ID ' . $attemptId . ': ' . $e->getMessage());
     }
 } else {
-    Log::info('Booking reference or data key is missing in flightResponse');
+   // Log::info('Booking reference or data key is missing in flightResponse');
 }
 }
 }
@@ -114,15 +114,15 @@ public function processPendingAttempts() {
     foreach ($pendingAttempts as $attempt) {
         $ResponseTour = json_decode($attempt->tourradar_res, true);
         $tBookingId = $ResponseTour['id'];
-        Log::info('Processing booking ID: ' . $tBookingId);
+       // Log::info('Processing booking ID: ' . $tBookingId);
 
         $statusResponse = TourRadarController::checkBooking($tBookingId);
-        Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
+       // Log::info('Status response for booking ID ' . $tBookingId . ': ' . json_encode($statusResponse));
 
         if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
             // Update the attempt status to confirmed
             DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-            Log::info('Booking ID ' . $tBookingId . ' confirmed.');
+           // Log::info('Booking ID ' . $tBookingId . ' confirmed.');
         }
     }
 }  
@@ -337,7 +337,7 @@ public function bookFlight($flight){
     $flightBody = $flight;
     $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-    Log::info('bookFlight duffel response: ' . json_encode($flightResponse));
+   // Log::info('bookFlight duffel response: ' . json_encode($flightResponse));
 
     if(isset($flightResponse['errors']) && $flightResponse['errors']){
         $status = 2;
@@ -357,7 +357,7 @@ public function confirmFlight($flight){
     $flightBody = $flight;
     $flightResponse = DuffelApiController::payBooking($flightBody);
 
-    Log::info('confirmFlight duffel response: ' . json_encode($flightResponse));
+   // Log::info('confirmFlight duffel response: ' . json_encode($flightResponse));
 
     if(isset($flightResponse['errors']) && $flightResponse['errors']){
         $status = 2;

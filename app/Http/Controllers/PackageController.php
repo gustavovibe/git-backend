@@ -159,20 +159,20 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $tBookingId = $tourResponse['id'];
 
-        Log::info('tourradar booking id: ' . json_encode($tBookingId));
+       // Log::info('tourradar booking id: ' . json_encode($tBookingId));
 
         sleep(15);
 
         $statusResponse = TourRadarController::checkBooking($tBookingId);
 
-        Log::info('status Response: ' . json_encode($statusResponse));
+       // Log::info('status Response: ' . json_encode($statusResponse));
 
         if(isset($statusResponse['status']) && $statusResponse['status']=="confirmed") {
 
         $flightBody = $flight;
         $flightResponse = DuffelApiController::createNewBooking($flightBody);
 
-        Log::info('duffel response: ' . json_encode($flightResponse));
+       // Log::info('duffel response: ' . json_encode($flightResponse));
 
         if(isset($flightResponse['errors']) && $flightResponse['errors']){
             $status = 2;
@@ -444,7 +444,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         }
         $status = 0;
         } else {
-            Log::info('Booking reference or data key is missing in flightResponse');
+           // Log::info('Booking reference or data key is missing in flightResponse');
         }
         }else{
             $status = 1;
