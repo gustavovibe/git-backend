@@ -29,14 +29,19 @@ Builder:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
+    # Login to Docker Registry (with redundancy)
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY" || echo "Failed to login to Docker Registry"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+    # Print credentials for debugging (Remove this in production)
     - echo "$CI_REGISTRY_PASSWORD $CI_REGISTRY"
     - echo "$DB_CONNECTION $DB_HOST $DB_PORT $DB_DATABASE $DB_USERNAME $DB_PASSWORD"
+
+    # Build and push Docker image
     - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
     - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
   only:
     - develop
-
 
 Deployment:
   stage: deploy
@@ -58,7 +63,7 @@ Deployment:
     - chmod 600 ~/.ssh/id_rsa
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker system prune -af"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" rm -rf api/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-fMzcQdp8xN4LXWr_TxfB@gitlab.com/antoniovibeadventures/api.git
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-SYyFbhhbvQKhsSKpQrT3@gitlab.com/gustavo_vibe/api.git
     - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose down"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
