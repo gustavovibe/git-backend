@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DateInterval;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
 
 use Exception;
 
@@ -28,9 +30,9 @@ class TourController extends Controller
 
     /**
      * Display a listing of tours.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -105,9 +107,9 @@ class TourController extends Controller
 
     /**
      * Extract array from query param.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $param Param
      * @return array
      */
@@ -120,9 +122,9 @@ class TourController extends Controller
 
     /**
      * Get text.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -145,9 +147,9 @@ class TourController extends Controller
 
     /**
      * Show.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -162,9 +164,9 @@ class TourController extends Controller
 
     /**
      * Show type.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -180,9 +182,9 @@ class TourController extends Controller
 
     /**
      * Email t details.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -193,9 +195,9 @@ class TourController extends Controller
 
     /**
      * Email b confirmation.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param int $booking_id Booking ID
      * @return array
      */
@@ -214,15 +216,24 @@ class TourController extends Controller
 
     /**
      * Pdf order.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
     public function pdfOrder(Request $r){
         try{
-            $orders=ToursFilters::OrdersPrint($r);
+            $orders=(new ToursFilters)->OrdersPrint($r);
+           /*  $orders=ToursFilters::OrdersPrint($r); */
+           if($orders->payment_id){
+               $client = new Client();
+               $url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
+               $response = $client->request('GET', $url);
+               $responseBody =json_decode( $response->getBody()->getContents());
+
+               $url_payment=  $responseBody->data->charge_details->receipt_url;
+           }
 
             $logo=$orders->flightTour->flight['data']['owner']['logo_symbol_url'];
 
@@ -233,18 +244,51 @@ class TourController extends Controller
 
             $logo = asset('storage/'.$logo);
             /* return $logo; */
-            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
+            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo,'url'=>$url_payment]);
             return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
     }
 
+
+    public function bookingTickets(Request $r){
+        try{
+
+            $booking_data= (new DuffelApiController)->getOrderById($r);
+            $class=[];
+            $electronic_tickets=[];
+            foreach ($booking_data['data']['slices'] as &$slice) {
+                foreach ($slice['segments'] as &$segment) {
+                    $duration = $segment['duration'];
+                    $interval = new DateInterval($duration);
+                    $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
+                    $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
+                    $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
+                    $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
+                    $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
+                    foreach ( $segment['passengers'] as $passengers){
+                        if(!in_array($passengers['cabin_class_marketing_name'],$class)){
+                            $class[]=$passengers['cabin_class_marketing_name'];
+                        }
+                    }
+                    $segment['class']=implode(',',$class);
+                }
+            }
+           /*  return $booking_data['data']; */
+            $pdf = Pdf::loadView('emails.tickets_booking',['data'=>$booking_data['data']])->set_option('isRemoteEnabled', true);
+            return $pdf->stream('tickets_booking.pdf');
+
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
     /**
      * Booking summary send.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -262,16 +306,19 @@ class TourController extends Controller
         }
     }
 
+
+
     /**
      * Booking summary pdf.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
     public function bookingSummaryPdf(Request $r){
-        $tourResponse = ProxyTourRadarController::show($r->tour_id);
+        $tourResponse = (new  ProxyTourRadarController)->show($r->tour_id);
+        /* $tourResponse =   ProxyTourRadarController::show($r->tour_id); */
         $tourData = $tourResponse->getData(true);
         $tour=$tourData['data'];
 
@@ -299,9 +346,9 @@ class TourController extends Controller
 
     /**
      * Carrier list.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @return array
      */
     public function carrierList(){
@@ -315,9 +362,9 @@ class TourController extends Controller
 
     /**
      * Abandoned cart notification.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */

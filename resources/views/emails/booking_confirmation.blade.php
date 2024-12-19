@@ -490,8 +490,8 @@
     <br>
     <div class="tGroup mh">
         <h1>Adventure summary</h1>
-        <a href="https://hopeful-nobel.74-208-189-166.plesk.page/tour?search=true&tourId={{ $orders->tour_id }}">
-            <u>Download itinerary</u>
+        <a  style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
+            Download itinerary
         </a>
     </div>
 

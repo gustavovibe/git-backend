@@ -475,28 +475,113 @@
         </div>
     </div>
     <br>
-    <div style="text-align: center; margin: 20px;">
+ {{--    <div style="text-align: center; margin: 20px;">
         <label style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
             Your trip has been booked successfully! Confirmation
             <b>#:{{ $orders->booking_id }}.</b>
         </label>
-    </div>
-    <br>
-    <div class="textG mh" style="text-align: justify;">
-        <h1>Bon voyage, <a class="Tcolor">{{ $orders->user->name }}!</a></h1>
-        <p>Thank you for your booking!</p>
-        <p>Below is a summary of the trip.</p>
-        <p>Your flight <a id="color">tickets</a>, adventure <a id="color">itinerary</a><a style="color:red;">*</a>, and purchase <a id="color">invoice</a> are attached or can be downloaded from the
-            links below.</p>
-        <p>You can also <a id="under">contact us</a> if any help needed, or view and make changes to your booking inside the <a id="under" >Travelers' portal</a>.</p>
-        <p style="font-style: italic;" >
-            <a style="color:red;">*</a>The itinerary is approximate and may be subject to minor changes (without affecting the start/end date or
-            locations) based on <a id="under">booking terms and conditions</a>. Final trip notes from the adventure organizer, including
-            contact details for your tour leader, the exact schedule, and a list of accommodations, will be provided by
-            our support team 2-4 weeks before departure (depending on the specific adventure organizer).</p>
-    </div>
-    <br>
+    </div> --}}
+    <div>
+            @if ($orders->booking_status !='pending')
+            <h1>We've booked everything for your trip!</h1>
 
+            @else
+            <h1>All good so far! We're now confirming your booking with the tour operator.</h1>
+            @endif
+        </div>
+    <br>
+    <div>
+        <table style="width:100%">
+            <tr>
+                <td style="font-weight: bold;color:gray">BOOKING NUMBER</td>
+                <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
+            </tr>
+            <tr>
+                <td><b>{{ $orders->booking_id }}</b> </td>
+                <td>
+                    @if ($orders->booking_status !='pending')
+                    <img style="width: 25%; height: 3%;"
+                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}">
+                    @else
+                    <img style="width: 25%; height: 3%;"
+                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}">
+                    @endif
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="textG mh" style="text-align: justify;">
+       @if ($orders->booking_status!='pending')
+       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
+       <img style="width: 100%; height: 40%;"
+       src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_done.png')))}}">
+       <br>
+       @else
+       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
+       <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
+        booking confirmation and e-ticket as soon as posible.</p>
+        <p>Her's what happens next:</p>
+        <img style="width: 100%; height: 40%;"
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_pending.png')))}}">
+        <br>
+
+
+       @endif
+        <br>
+       <div style="text-align: center">
+        <div>
+            <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
+        </div>
+        <br>
+        <div>
+            <label>If you need help, <a style="color:#82CF45;text-decoration:none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact-us" >contact us</a></label>
+        </div>
+        </div>
+       <br>
+       <div style="text-align: justify; border-style: dotted; padding:2%; border-radius:15px;border-color:#82CF45">
+
+           @if ($orders->booking_status!='pending')
+           <div style="page-break-inside: avoid">
+            <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
+               <p><b>How do i check in for my flight?</b></p>
+               <p>You can check in online through the airline's website or at the airport check-in counter. Make sure to download your e-ticket and complete the process well in advance.</p>
+           </div>
+           <div style="page-break-inside: avoid">
+               <p><b>Where can i find baggage and check-in policies?</b></p>
+               <p>Review the conditions outlined by each airline carrier in your flight summary before your trip. </p>
+           </div>
+           <div style="page-break-inside: avoid">
+               <p><b>Are the accommodations guarented as listed in the tour description or trip notes?</b></p>
+               <p>Accommodations are approximate and subject to change based on availability, group size, and other factors. if changes occour, a similar category accommodation will be provided </p>
+           </div>
+           <div style="page-break-inside: avoid">
+               <p><b>Will need to pay any additional fees for accommodations?</b></p>
+               <p>In some locations, travelers may need to payy a municipal tax directly to hotels upon arrival. </p>
+           </div>
+           <div style="page-break-inside: avoid">
+               <p><b>What happens if the weather impacts my scheduled activities?</b></p>
+               <p>In case of unfavorable weather or other valid reasons, the sequence and duration of activities may be modifued or canceled without prior notice.</p>
+           </div>
+           @else
+           <div style="page-break-inside: avoid;">
+            <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
+               <p><b>When will i get the final booking confirmation?</b></p>
+               <p>You'll receive the final booking confirmation as soon as we get it from the tour operator, as we don't operate the adventures ourselves.</p>
+               <p>Since we gather data from multiple tour operators to offer you the best selections and prices, our booking process is more complex. Most bookings are confirmed inmmediately, but occasionally, it may take uo to 72 hours. Rest assured, we prioritize bookings to ensure everyone can travel as planned.</p>
+           </div>
+           <div style="page-break-inside: avoid;">
+               <p><b>What happens to my money?</b></p>
+               <p>We've held the necessary funds for your booking to secure the flights and adventure, but the money remains with your bank and wont' be charged until the booking is confirmed. If we're unable to confirm your booking within 72 hours, it will be automatically canceled, and your request fully refunded.</p>
+           </div>
+           <div style="page-break-inside: avoid;">
+               <p><b>Do i need a visa for my trip</b></p>
+               <p>Check visa requirements for the country in your adventure itinerary and flight summary. Don't forget to check if you need a transit visa as well. </p>
+           </div>
+           @endif
+       </div>
+    </div>
+    <br>
     <div>
         <table width="100%">
             <tr>
@@ -504,7 +589,11 @@
                     <h2>Adventure summary</h2>
                 </td>
                 <td style="text-align: right;">
-                    <h3 style="color: orange;text-decoration: underline;">Download itinerary</h3>
+                    <h3>
+                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}">
+                            Download itinerary
+                        </a>
+                    </h3>
                 </td>
             </tr>
         </table>
@@ -513,7 +602,7 @@
                 <tr>
                     @if ($orders->image)
                     <td style="width: 50%; vertical-align:middle;padding:2%;" >
-                        <img src="{{ $orders->image }}" style="width: 90%; height: 50%; border-radius:12px;" />
+                        <img src="{{ $orders->image }}" style="width: 90%; height: 150px; border-radius:12px;" />
                     </td>
                     @endif
                     <td style="width: 80%; vertical-align: top;">
@@ -586,7 +675,7 @@
                             <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
                                 <div class="line-container">
                                     <div class="line"></div>
-                                    <img class="svg airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
+                                    <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
                                         alt="Icon">
                                 </div>
                             </td>
@@ -692,7 +781,9 @@
                         <h3>Payment history</h3>
                     </td>
                     <td style="text-align: right;">
-                        <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
+                        <a href="{{ $url }}" style="text-decoration: none">
+                            <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
+                        </a>
                     </td>
                 </tr>
             </table>
