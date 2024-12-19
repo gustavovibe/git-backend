@@ -654,7 +654,11 @@
                         <h2>Flights summary</h2>
                     </td>
                     <td style="text-align: right;">
-                        <h3 style="color: orange;text-decoration: underline;">Download tickets</h3>
+                        <h3 >
+                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}">
+                                Download tickets
+                            </a>
+                        </h3>
                     </td>
                 </tr>
             </table>
