@@ -76,7 +76,8 @@ class Order extends Model
         'payment_id',
         'created_at',
         'updated_at',
-        'commission'
+        'commission',
+        'stripe_fee'
     ];
 
     public function flightTour()

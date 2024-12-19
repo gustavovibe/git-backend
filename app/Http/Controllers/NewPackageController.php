@@ -20,6 +20,7 @@ use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Http\Controllers\TourController;
+use App\Http\Controllers\StripeController;
 use App\Mail\BookingMail;
 use App\Models\ActionLog;
 
@@ -156,7 +157,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $flight Flight
      * @return array
      */ 
-    public function bookPackage($tour, $flight, $paymentId, $attemptId)
+    public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee);
     {
         $order = null;
 
@@ -216,7 +217,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
+                $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $stripeFee);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
@@ -233,7 +234,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $tourResponse Tour response
      * @return array
      */ 
-    public function createOrder($flightResponse, $tourResponse, $paymentId){
+    public function createOrder($flightResponse, $tourResponse, $paymentId, $stripeFee){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
@@ -320,7 +321,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'group_size' => $groupSize,
             'country' => $mainPassengerCountry,
             'carrier' => $flightResponse['data']['owner']['name'],
-            'payment_id' => $paymentId
+            'payment_id' => $paymentId,
+            'stripe_fee' => $stripeFee
         ];
     
         $order = Order::create($orderData);
@@ -586,8 +588,12 @@ public function convertDurationToMinutes($duration)
                 
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
+                // Execute get stripe fee
+                $stripePi = StripeController::getPaymentIntent($paymentId);
+                $stripeFee = $stripePi['balance_transaction']['fee'] ?? null;
+                \Log::info('Stripe Fee: ' . $stripeFee);
                 // Execute booking process
-                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId);
+                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee);
                 
                 // Extract responses
                 $status = $response[0] ?? null;

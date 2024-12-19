@@ -15,6 +15,7 @@ class AddPaymentIdToOrdersTable extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->string('payment_id')->nullable()->after('user_id');
+            $table->integer('stripe_fee');
         });
     }
 
@@ -27,6 +28,7 @@ class AddPaymentIdToOrdersTable extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn('payment_id');
+            $table->dropColumn('stripe_fee');
         });
     }
 }
