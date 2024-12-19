@@ -257,7 +257,7 @@ class TourController extends Controller
 
             $booking_data= (new DuffelApiController)->getOrderById($r);
             $class=[];
-            $electronic_tickets=[];
+
             foreach ($booking_data['data']['slices'] as &$slice) {
                 foreach ($slice['segments'] as &$segment) {
                     $duration = $segment['duration'];
@@ -275,7 +275,17 @@ class TourController extends Controller
                     $segment['class']=implode(',',$class);
                 }
             }
-           /*  return $booking_data['data']; */
+
+           /*  $logo=$booking_data['data']['owner']['logo_symbol_url'];
+
+            $imageContent = Http::get($logo)->body();
+            $logo = 'images/logo_flight.svg'; // Ruta donde guardar la imagen
+
+            Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
+
+            $logo = asset('storage/'.$logo);
+ */
+            /* return $booking_data['data']; */
             $pdf = Pdf::loadView('emails.tickets_booking',['data'=>$booking_data['data']])->set_option('isRemoteEnabled', true);
             return $pdf->stream('tickets_booking.pdf');
 

@@ -9,8 +9,10 @@
             <td style="width: 60%">
             </td>
             <td style="width: 40%">
-                <h2>Booking Reference</h2>
-
+                <div style="text-align: right">
+                    <h2>Booking Reference</h2>
+                    <h3>{{ $data['booking_reference'] }}</h3>
+                </div>
             </td>
         </tr>
       </table>
@@ -20,11 +22,14 @@
         <h2>Flight details</h2>
         @foreach ( $data['slices'] as $slices )
             @foreach (  $slices['segments'] as $segments)
-            <div style="border-style: groove; padding:2%">
+            <div style="border-style: groove; padding:2%; border-radius:8px; border-color:gray;">
                 <table style="width: 100%">
                     <tr>
                         <td>
-                            <p>Iberia</p>
+                            <p><img
+                                src="{{ $data['owner']['logo_symbol_url'] }}"
+                                {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
+                                    style="width: 50%; height: 10%; border-radius: 12px;"></p>
                         </td>
                         <td>
                             <p><b>{{$segments['formatted_departing_hour'].' - '.$segments['formatted_arriving_hour']   }}</b></p>
@@ -71,7 +76,7 @@
                         </td>
                     </tr>
                 </table>
-                <table style="width: 100%">
+                <table style="width: 100%; color:gray;">
                     <tr>
                         <td><p>{{ $segments['class'] }}</p></td>
                         <td><p>{{ $segments['operating_carrier']['name'] }}</p></td>
@@ -87,7 +92,7 @@
     <br>
     <div style="page-break-before: always;">
         <h2>Passengers</h2>
-        <div style="border-style: groove; padding:2%">
+        <div style="border-style: groove; padding:2%; border-radius:8px; border-color:gray;">
             @foreach ( $data['passengers'] as $passengers )
             <p><b>Type:</b>{{ ' '.$passengers['type'] }} </p>
             <table style="width: 100%">
@@ -98,7 +103,7 @@
                 </tr>
                 <tr>
                    <td><p><b>{{ $passengers['given_name'].' '.$passengers['family_name'] }}</b></p></td>
-                   <td>{{ $passengers['born_on'] }}</td>
+                   <td><p><b>{{ \Carbon\Carbon::parse($passengers['born_on'])->format('d/m/Y') }}</b></p></td>
                    <td><b>{{ $passengers['gender'] =='m'? 'Male':'Female'  }}</b> </td>
                 </tr>
             </table>
@@ -109,7 +114,7 @@
 
             @foreach ( $data['slices'] as $slices )
             @foreach (  $slices['segments'] as $segments)
-            <div style="border-style: groove; padding:2%; ">
+            <div style="border-style: groove; padding:2%; border-radius:8px; border-color:gray; ">
                 <table>
                     <tr >
                        <td  colspan="2" ><p>{{ $segments['origin']['iata_code'] }} to {{ $segments['destination']['iata_code'] }}  on <b> {{ $segments['formatted_departing_at'] }}</b></p>
@@ -148,8 +153,8 @@
 
     </div>
     <br>
-    <h3>Ticket numbers</h3>
+ {{--    <h3>Ticket numbers</h3>
     <div style="border-style: groove; padding:2%">
         <p> Gustavo Menchaca: 1</p>
-    </div>
+    </div> --}}
 </div>
