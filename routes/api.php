@@ -32,6 +32,7 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SystemUserController;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\AirportController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\PushNotificationsController;
 use App\Http\Controllers\ValidatorController;
 use Dedoc\Scramble\Scramble;
@@ -56,6 +57,7 @@ Route::get('get_destination_guide', [DestinationController::class, 'getDestinati
 Route::get('get_unsplash_gallery', [DestinationController::class, 'getUnsplashGallery']);
 Route::resource('natural_destinations', NaturalDestinationController::class);
 Route::post('register', [AuthController::class, 'register']);
+Route::post('test', [Controller::class, 'Test']);
 Route::get('location-proxy', [ReverseProxyController::class, 'proxyLocation']);
 Route::get('tour/{id}', [ProxyTourRadarController::class, 'show']);
 Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNaturalDestination']);
@@ -223,4 +225,7 @@ Route::post('/add-contact', [UserController::class, 'addContact']);
 Route::post('/get-contact', [UserController::class, 'getContact']);
 Route::post('/check-contact',[UserController::class, 'checkContact']);
 
+Route::get('/get-tickets',[TourController::class, 'bookingTickets']);
+
 Scramble::registerUiRoute(path: '/documentation')->name('api.scramble.docs.ui');
+
