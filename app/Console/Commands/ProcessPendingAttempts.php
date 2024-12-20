@@ -92,6 +92,8 @@ class ProcessPendingAttempts extends Command
             $paymentIntent = $attempt->payment_id;
             $stripeResponse = StripeController::cancellPayment($paymentIntent);
             Log::info('Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+            DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
+            Log::info('attempt failed (expired): ' . $attempt->id );
         }    
     }
 }
