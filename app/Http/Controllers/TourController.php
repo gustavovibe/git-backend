@@ -255,7 +255,14 @@ class TourController extends Controller
     public function bookingTickets(Request $r){
         try{
 
-            $booking_data= (new DuffelApiController)->getOrderById($r);
+            $booking_data = (new DuffelApiController)->getOrderById($r);
+
+            if (!isset($booking_data['data'])) {
+                throw new Exception('Invalid booking data structure');
+            }
+            
+            logger()->info('Booking data:', $booking_data);
+            
             $class=[];
 
             foreach ($booking_data['data']['slices'] as &$slice) {

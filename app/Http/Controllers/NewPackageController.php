@@ -157,7 +157,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $flight Flight
      * @return array
      */ 
-    public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee);
+    public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee)
     {
         $order = null;
 
