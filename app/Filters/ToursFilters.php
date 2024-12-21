@@ -62,16 +62,19 @@ class ToursFilters
             6=>[21,24],
         ];
 
-        $this->orderby=[
-            1=>'created_at',
-            2=>'created_at',
-            3=>'start',
-            4=>'start',
-            5=>'paid',
-            6=>'paid',
-            7=>'tour_length_days',
-            8=>'tour_length_days',
+        $this->orderby = [
+            1 => 'created_at',
+            2 => 'created_at',
+            3 => 'start',
+            4 => 'start',
+            5 => 'paid',
+            6 => 'paid',
+            7 => 'average_price_per_person_per_day', // Campo calculado
+            8 => 'average_price_per_person_per_day', // Campo calculado
+            9 => 'gross_profit_ratio',              // Campo calculado
+            10 => 'gross_profit_ratio',             // Campo calculado
         ];
+
     }
 
     public function getListDays()
@@ -441,7 +444,6 @@ class ToursFilters
 
         $orders = Order::query();
         $orders->with(['flightTour', 'travelers', 'user','natural_destination']);
-
         !$r->booking_id?:$orders->where('booking_id',$r->booking_id);
 
         //dates (booking=created_at)
@@ -483,6 +485,7 @@ class ToursFilters
         //adventure
         !$r->adventure?:$orders->wherein('tour_id',explode(',', $r->adventure));
         !$r->status?:$orders->wherein('tourradar_status',explode(',', $r->status));
+
         if($r->whole_trip){
             $value=$this->list_whole_trip[$r->whole_trip];
             $r->whole_trip!=7?$orders->WhereBetween('whole_trip',[$value[0],$value[1]]) :$orders->where('whole_trip','>=',$value[0]);
@@ -522,38 +525,33 @@ class ToursFilters
             $orders->whereBetween(DB::raw('HOUR(created_at)'), $hours);
         }
 
-        if ( $r->sort_by && (int)$r->sort_by<=6) {
-            $direction = ($r->sort_by %2==0) ? 'DESC':'ASC';
-            $orders->orderBy($this->orderby[$r->sort_by], $direction);
+
+        if ($r->sort_by && (int)$r->sort_by <= 10) {
+            $direction = ($r->sort_by % 2 == 0) ? 'desc' : 'asc';
+
+            if (in_array($r->sort_by, [1, 2, 3, 4, 5, 6])) {
+                $orders->orderBy($this->orderby[$r->sort_by], $direction);
+            }
         }
 
-        $orders= $orders->get()->map(function ($order) use($r) {
+        $orders = $orders->get();
 
-            $order->grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
-            $order->grossProfitRatio = ($order->paid > 0) ? ($order->grossProfit / $order->paid) * 100 : 0;
+        //calculados
+        if (in_array($r->sort_by, [7, 8, 9, 10])) {
+            $sortField = $this->orderby[$r->sort_by];
 
-            $startDate = Carbon::parse($order->start);
-            $endDate = Carbon::parse($order->end);
-            $days = $startDate->diffInDays($endDate) + 1;
-            $order->averagePricePerPersonPerDay = ($days * $order->travelers_number > 0) ? $order->p_tour / ($days * $order->travelers_number) : 0;
+            $orders = $orders->sortBy(function ($order) use ($sortField) {
+                return $order->$sortField;
+            }, SORT_REGULAR, $direction === 'desc')->values();
+        }
 
+
+        $orders= $orders->map(function ($order) {
             $order->grossProfit =  number_format($order->grossProfit,2) ;
-            $order->averagePricePerPersonPerDay = number_format($order->averagePricePerPersonPerDay,2) ;
+            $order->averagePricePerPersonPerDay = number_format($order->average_price_per_person_per_day,2) ;
             return $order;
         })->all();
 
-        if (in_array($r->sort_by, [7, 8, 9, 10])) {
-            $sortField = ($r->sort_by == 7 || $r->sort_by == 8) ? 'averagePricePerPersonPerDay' : 'grossProfitRatio';
-            $direction = ($r->sort_by % 2 == 0) ? 'desc' : 'asc';
-
-            usort($orders, function ($a, $b) use ($sortField, $direction) {
-                if ($direction === 'asc') {
-                    return $a->$sortField <=> $b->$sortField;
-                } else {
-                    return $b->$sortField <=> $a->$sortField;
-                }
-            });
-        }
         if($csv){
             return $orders;
         }

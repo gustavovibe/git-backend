@@ -80,6 +80,31 @@ class Order extends Model
         'stripe_fee'
     ];
 
+    protected $appends = [
+        'gross_profit',
+        'gross_profit_ratio',
+        'average_price_per_person_per_day',
+    ];
+
+    public function getGrossProfitAttribute()
+    {
+        return  $this->paid - $this->paid_to_suppliers - $this->refunded;
+    }
+
+    public function getGrossProfitRatioAttribute()
+    {
+        return ($this->paid > 0) ? ($this->grossProfit / $this->paid) * 100 : 0;
+    }
+
+    public function getAveragePricePerPersonPerDayAttribute()
+    {
+        $startDate = Carbon::parse($this->start);
+        $endDate = Carbon::parse($this->end);
+        $days = $startDate->diffInDays($endDate) + 1;
+
+        return ($days * $this->travelers_number > 0) ? $this->p_tour / ($days * $this->travelers_number) : 0;
+    }
+
     public function flightTour()
     {
         return $this->hasOne(FlightTour::class, 'id_order', 'booking_id');
