@@ -650,16 +650,36 @@ public function convertDurationToMinutes($duration)
      * @param Request $request Request object
      * @return array     
      */
-public function checkBookingStatus(Request $request)
-{
-    $attemptId = $request->attempt_id;
-
-    $attempt = DB::table('attempts')->where('id', $attemptId)->first();
-
-    if ($attempt && $attempt->booking_id) {
-        return response()->json(['status' => $attempt->status, 'booking_id' => $attempt->booking_id, 'expiration'=>$attempt->expiration]);
-    }
-
-    return response()->json(['status' => 'pending']);
-}
+    public function checkBookingStatus(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'attempt_id' => 'required|integer|exists:attempts,id',
+        ]);
+    
+        try {
+            // Retrieve the attempt with specific columns
+            $attempt = DB::table('attempts')
+                ->select('status', 'booking_id', 'expiration')
+                ->where('id', $request->attempt_id)
+                ->first();
+    
+            if ($attempt && $attempt->booking_id) {
+                return response()->json([
+                    'status' => $attempt->status,
+                    'booking_id' => $attempt->booking_id,
+                    'expiration' => $attempt->expiration,
+                ]);
+            }
+    
+            // Return pending status if booking_id is not set
+            return response()->json(['status' => 'pending'], 200);
+        } catch (\Exception $e) {
+            // Handle unexpected errors
+            return response()->json([
+                'error' => 'An error occurred while checking booking status (no booking_id)',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }    
 }
