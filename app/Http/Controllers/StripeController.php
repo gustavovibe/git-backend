@@ -17,7 +17,7 @@ class StripeController extends Controller
      * @param Request $request Request object
      * @return array     
      */
-    public function getPaymentIntent(Request $request)
+    public static function getPaymentIntent(Request $request)
     {
         try {
             // Validate query parameter
@@ -81,7 +81,7 @@ class StripeController extends Controller
         }
     }
 
-    public function capturePayment($paymentIntent){
+    public static function capturePayment($paymentIntent){
         $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
         $stripe = new \Stripe\StripeClient($stripeSecret);
         $captureResponse = $stripe->paymentIntents->capture($paymentIntent);
@@ -93,7 +93,7 @@ class StripeController extends Controller
             json_encode($captureResponse)
         ));
     }
-    public function cancellPayment($paymentIntent){
+    public static function cancellPayment($paymentIntent){
         $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
         $stripe = new \Stripe\StripeClient($stripeSecret);
         $cancellResponse = $stripe->paymentIntents->cancel($paymentIntent);
