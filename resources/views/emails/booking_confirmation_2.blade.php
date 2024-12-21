@@ -590,7 +590,7 @@
                 </td>
                 <td style="text-align: right;">
                     <h3>
-                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}">
+                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
                             Download itinerary
                         </a>
                     </h3>
