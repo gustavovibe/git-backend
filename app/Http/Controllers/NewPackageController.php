@@ -589,7 +589,10 @@ public function convertDurationToMinutes($duration)
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
                 // Execute get paymentIntent
-                $stripePi = StripeController::getPaymentIntent($paymentId);
+                $stripePiResponse = StripeController::getPaymentIntent($paymentId);
+
+                // Extract the data from the JsonResponse
+                $stripePi = $stripePiResponse->getData(true); // Convert the JSON response to an associative array
 
                 // Check if the response has 'balance_transaction' details
                 $stripeFee = $stripePi['data']['balance_transaction']['fee'] ?? null;
