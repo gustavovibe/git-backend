@@ -588,10 +588,28 @@ public function convertDurationToMinutes($duration)
                 
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
-                // Execute get stripe fee
+                // Execute get paymentIntent
                 $stripePi = StripeController::getPaymentIntent($paymentId);
-                $stripeFee = $stripePi['balance_transaction']['fee'] ?? null;
-                \Log::info('Stripe Fee: ' . $stripeFee);
+
+                // Check if the response has 'balance_transaction' details
+                $stripeFee = $stripePi['data']['balance_transaction']['fee'] ?? null;
+
+                // Log the Stripe fee (before returning any response)
+                \Log::info('Stripe Fee: ' . ($stripeFee ?? 'Not Found'));
+
+                if ($stripeFee !== null) {
+                    // Process the fee if it exists
+                    return response()->json([
+                        'message' => 'Stripe fee retrieved successfully.',
+                        'stripe_fee' => $stripeFee,
+                    ]);
+                } else {
+                    // Handle cases where the fee is not available
+                    return response()->json([
+                        'message' => 'Stripe fee not found in the response.',
+                    ], 404);
+                }
+
                 // Execute booking process
                 $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee);
                 
