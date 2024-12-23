@@ -157,7 +157,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $flight Flight
      * @return array
      */ 
-    public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee)
+    public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId)
     {
         $order = null;
 
@@ -322,7 +322,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'country' => $mainPassengerCountry,
             'carrier' => $flightResponse['data']['owner']['name'],
             'payment_id' => $paymentId,
-            'stripe_fee' => $stripeFee
+            'stripe_fee' => null
         ];
     
         $order = Order::create($orderData);
@@ -588,33 +588,9 @@ public function convertDurationToMinutes($duration)
                 
                 $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
-                // Execute get paymentIntent
-                $stripePiResponse = StripeController::getPaymentIntent($paymentId);
-
-                // Extract the data from the JsonResponse
-                $stripePi = $stripePiResponse->getData(true); // Convert the JSON response to an associative array
-
-                // Check if the response has 'balance_transaction' details
-                $stripeFee = $stripePi['data']['balance_transaction']['fee'] ?? null;
-
-                // Log the Stripe fee (before returning any response)
-                \Log::info('Stripe Fee: ' . ($stripeFee ?? 'Not Found'));
-
-                if ($stripeFee !== null) {
-                    // Process the fee if it exists
-                    return response()->json([
-                        'message' => 'Stripe fee retrieved successfully.',
-                        'stripe_fee' => $stripeFee,
-                    ]);
-                } else {
-                    // Handle cases where the fee is not available
-                    return response()->json([
-                        'message' => 'Stripe fee not found in the response.',
-                    ], 404);
-                }
 
                 // Execute booking process
-                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId, $stripeFee);
+                $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId);
                 
                 // Extract responses
                 $status = $response[0] ?? null;

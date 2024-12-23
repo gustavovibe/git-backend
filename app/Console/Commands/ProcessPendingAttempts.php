@@ -73,6 +73,31 @@ class ProcessPendingAttempts extends Command
                         Log::info('automatic Duffel booking successful for booking ID ' . $tBookingId);
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                        // Execute get paymentIntent
+                        $stripePiResponse = StripeController::getPaymentIntent($paymentId);
+
+                        // Extract the data from the JsonResponse
+                        $stripePi = $stripePiResponse->getData(true); // Convert the JSON response to an associative array
+
+                        // Check if the response has 'balance_transaction' details
+                        $stripeFee = $stripePi['data']['balance_transaction']['fee'] ?? null;
+
+                        // Log the Stripe fee (before returning any response)
+                        \Log::info('Stripe Fee: ' . ($stripeFee ?? 'Not Found'));
+
+                        if ($stripeFee !== null) {
+                            // Process the fee if it exists
+                            return response()->json([
+                                'message' => 'Stripe fee retrieved successfully.',
+                                'stripe_fee' => $stripeFee,
+                            ]);
+                            DB::table('orders')->where('booking_id', $attempt->booking_id)->update(['stripe_fee' => $stripeFee]);
+                        } else {
+                            // Handle cases where the fee is not available
+                            return response()->json([
+                                'message' => 'Stripe fee not found in the response.',
+                            ], 404);
+                        }
                     }
                 } else {
                     Log::warning('automatic Flight data is incomplete for booking ID ' . $tBookingId);
