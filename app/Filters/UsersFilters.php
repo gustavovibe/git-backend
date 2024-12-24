@@ -385,40 +385,37 @@ class UsersFilters
         $result = [];
 
         foreach ($users as $user) {
-            $traveler = Traveler::where('user_id', $user->id)->first();
-
+            // Obtén el viajero asociado al usuario
+            $traveler = $user->traveler;
             if (!$traveler) {
                 continue;
             }
 
-            $orders = $user->orders()->with(['tour.cities.city', 'tour.natural_destination.natural_destination', 'tour.type.type', 'tour.countries.country'])->get();
 
-            if (!$orders) {
+            $orders = $user->orders()
+                ->with([
+                    'tour.cities.city',
+                    'tour.natural_destination.natural_destination',
+                    'tour.type.type',
+                    'tour.countries.country'
+                ])
+                ->get();
+
+            if ($orders->isEmpty()) {
                 continue;
             }
 
-            $totalPaid = 0;
-            $totalCommission = 0;
-            $totalDuration = 0;
+
+            $totalPaid = $orders->sum('paid');
+            $totalCommission = $orders->sum('commission');
+            $totalDuration = $orders->sum('duration');
             $totalOrders = $orders->count();
-            $totalGroupSize = 0;
-            $lastBookingDate = null;
-            $firstBookingDate = null;
-            $lastBookingStartCity = null;
-            $ordersData = [];
+            $totalGroupSize = $orders->sum(fn($order) => $order->tour->max_group_size ?? 0);
+            $lastBookingDate = $orders->max('start');
+            $firstBookingDate = $orders->min('created_at');
 
-            foreach ($orders as $order) {
-
-                if (!$lastBookingDate || $order->start > $lastBookingDate) {
-                    $lastBookingDate = $order->start;
-                    $lastBookingStartCity = $order->start_city;
-                }
-
-                if (!$firstBookingDate || $order->created_at < $firstBookingDate) {
-                    $firstBookingDate = $order->created_at;
-                }
-
-                $orderData = [
+            $ordersData = $orders->map(function ($order) {
+                return [
                     'booking_id' => $order->booking_id,
                     'start' => $order->start,
                     'created_at' => $order->created_at,
@@ -435,36 +432,24 @@ class UsersFilters
                     'paid' => $order->paid,
                     'commission' => $order->commission,
                     'channel' => $order->channel,
+                    'group_size' => $order->tour->max_group_size ?? 0,
+                    'cities' => $order->tour->cities ?? [],
+                    'natural_destination' => $order->tour->natural_destination ?? [],
+                    'type' => $order->tour->type ?? [],
+                    'countries' => $order->tour->countries ?? [],
                 ];
+            })->toArray();
 
-                if ($order->tour) {
-                    $orderData['group_size'] = $order->tour->max_group_size;
-                    $orderData['cities'] = $order->tour->cities;
-                    $orderData['natural_destination'] = $order->tour->natural_destination;
-                    $orderData['type'] = $order->tour->type;
-                    $orderData['countries'] = $order->tour->countries;
-                }
-
-                $totalGroupSize += $orderData['group_size'];
-
-                $totalPaid += $order->paid;
-                $totalCommission += $order->commission;
-                $totalDuration += $order->duration;
-
-                $ordersData[] = $orderData;
-
-            }
-
+            $grossProfit = $totalPaid * ($totalCommission / max($totalOrders, 1));
             $groupSizeAverage = $totalOrders > 0 ? $totalGroupSize / $totalOrders : 0;
-            $averageCommission = $totalOrders > 0 ? $totalCommission / $totalOrders : 0;
-            $grossProfit = $totalOrders > 0 ? $totalPaid * ($totalCommission / $totalOrders) : 0;
-            $frequency = $totalOrders > 0 ? $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1) : 0;
+            $frequency = $totalOrders > 0
+                ? $totalOrders / max(Carbon::parse($firstBookingDate)->diffInYears($lastBookingDate), 1)
+                : 0;
 
 
             if (!((float)$grossProfit >= (float)$gross_limit[0] && (float)$grossProfit <= (float)$gross_limit[1])) {
                 continue;
             }
-
 
             $result[] = [
                 'user_id' => $user->id,
@@ -474,20 +459,21 @@ class UsersFilters
                 'birth' => $traveler->birth,
                 'gender' => $traveler->gender,
                 'age' => Carbon::parse($traveler->birth)->age,
-                'last_booking_start_city' => $lastBookingStartCity,
-                'group_size_average' =>round($groupSizeAverage),
+                'last_booking_start_city' => $orders->last()?->start_city,
+                'group_size_average' => round($groupSizeAverage),
                 'last_booking_date' => $lastBookingDate,
                 'first_booking_date' => $firstBookingDate,
-                'total_paid' =>number_format($totalPaid,2),
+                'total_paid' => number_format($totalPaid, 2),
                 'total_orders' => $totalOrders,
                 'total_duration' => $totalDuration,
                 'average_duration' => $totalOrders > 0 ? $totalDuration / $totalOrders : 0,
-                'average_commission' => $averageCommission,
-                'gross_profit' => number_format($grossProfit,2),
+                'average_commission' => $totalCommission / max($totalOrders, 1),
+                'gross_profit' => number_format($grossProfit, 2),
                 'frequency' => $frequency,
                 'orders' => $ordersData,
             ];
         }
+
 
         if($r->order_by){
             usort($result, function ($a, $b) use ($r) {
