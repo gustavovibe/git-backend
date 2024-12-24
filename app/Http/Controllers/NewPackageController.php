@@ -160,8 +160,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
     public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId)
     {
         $order = null;
-
-        $tourBody = $tour;
+        $flight = $RequestFlight;
+        $tourBody = $RequestTour;
         if (isset($tourBody['description'])) {
             unset($tourBody['description']);
         }
