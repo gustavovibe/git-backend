@@ -217,7 +217,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
-                $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $stripeFee);
+                $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
@@ -234,7 +234,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
      * @param array $tourResponse Tour response
      * @return array
      */ 
-    public function createOrder($flightResponse, $tourResponse, $paymentId, $stripeFee){
+    public function createOrder($flightResponse, $tourResponse, $paymentId){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
