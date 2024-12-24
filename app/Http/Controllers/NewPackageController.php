@@ -602,12 +602,13 @@ public function convertDurationToMinutes($duration)
                 // Log responses
                 \Log::info('stripe webhook Tour response: ' . json_encode($tourResponse));
                 \Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
-    
+                $bookingId = $order->getData()->booking_id ?? null;
+
                 // Update database record
                 DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
-                        'booking_id' => $order->booking_id,
+                        'booking_id' => $bookingId,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => json_encode($flightResponse),
