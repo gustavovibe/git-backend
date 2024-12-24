@@ -603,12 +603,17 @@ public function convertDurationToMinutes($duration)
                 \Log::info('stripe webhook Tour response: ' . json_encode($tourResponse));
                 \Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
                 \Log::info('stripe webhook Order response: ' . json_encode($order));
-
+                if($order != null){ 
+                    $bookingId = $order['booking_id'];
+                }else{
+                    $bookingId = 'not created';
+                }
+                
                 // Update database record
                 DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
-                        'booking_id' => $order['booking_id'],
+                        'booking_id' => $bookingId,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => json_encode($flightResponse),
