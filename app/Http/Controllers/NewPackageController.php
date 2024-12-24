@@ -213,7 +213,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                         'updated_at' => now(),
                     ]);
     
-                Log::info('Duffel error: ' . $attemptId, ['error' => $flightResponse['error']]);
+                Log::info('Duffel error: ' . $attemptId, ['error' => $flightResponse['errors']]);
             }
     
             elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
