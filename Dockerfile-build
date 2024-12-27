@@ -2,6 +2,7 @@ FROM php:8.3
 
 RUN apt-get update && \
     apt-get install -y \
+    supervisor \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -15,6 +16,8 @@ RUN apt-get update && \
 WORKDIR /var/www/html
 
 COPY . .
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
