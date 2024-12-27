@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('backup:database-s3')->dailyAt('05:30');
         $schedule->command('backup:database-s3')->weekly();
-        $schedule->command('process:pending-attempts')->everyFiveSeconds();
+        $schedule->command('process:pending-attempts')->everyThirtyMinutes();
     }
 
     protected function commands()
