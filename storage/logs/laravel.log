@@ -1,0 +1,26 @@
+[2024-12-27 03:22:50] local.ERROR: No tBookingId found in response  
+[2024-12-27 03:22:50] local.ERROR: No tBookingId found in response  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: automatic Error cancelling payment ID pi_3QVJckL1sFOlxHWW0xLmq2Wn: You cannot perform this action on PaymentIntents created by Checkout. Try expiring the Checkout Session instead. See https://stripe.com/docs/api/checkout/sessions/expire for more details.  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: automatic Error cancelling payment ID pi_3QVLfVL1sFOlxHWW1AAvxTLk: You cannot perform this action on PaymentIntents created by Checkout. Try expiring the Checkout Session instead. See https://stripe.com/docs/api/checkout/sessions/expire for more details.  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
+[2024-12-27 03:22:51] local.ERROR: No payment intent found in attempt  
