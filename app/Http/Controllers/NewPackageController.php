@@ -220,6 +220,19 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
+                try {
+                    if ($order && $order->booking_id) {
+                        $order->flightTour()->create([
+                            'flight' => $flightResponse,
+                            'tour' => $tourResponse,
+                        ]);
+                    } else {
+                        throw new \Exception('Order could not be created.');
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error creating flight tour: ' . $e->getMessage());
+                    return response()->json(['error' => $e->getMessage()], 500);
+                }
             }
         }
         return [$status, $tourResponse, $flightResponse, $order];
