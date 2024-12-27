@@ -542,39 +542,27 @@ class DuffelApiController extends Controller
     }
 
 
-    public function calculateTotalFlightTime($offers)
+    private function calculateTotalFlightTime($offers)
     {
-        $totalDurationMinutes = 0;
-
+        $totalMinutes = 0;
+    
         foreach ($offers as $offer) {
-            if (!isset($offer['slices'])) {
-                continue;
-            }
-
-            foreach ($offer['slices'] as $slice) {
-                foreach ($slice['segments'] as $segment) {
-                    if (!isset($segment['duration'])) {
-                        continue;
+            if (isset($offer['slices']) && is_array($offer['slices'])) {
+                foreach ($offer['slices'] as $slice) {
+                    if (isset($slice['duration'])) {
+                        // Parse ISO 8601 duration format (e.g., PT5H30M)
+                        $interval = CarbonInterval::fromString($slice['duration']);
+                        $totalMinutes += $interval->totalMinutes;
                     }
-
-                    // Parse the ISO 8601 duration
-                    $interval = new CarbonInterval($segment['duration']);
-
-                    // Convert the duration to minutes and add to total
-                    $totalDurationMinutes += $interval->totalMinutes;
                 }
             }
         }
-
-        // Optionally, format the total duration into hours and minutes
-        $hours = intdiv($totalDurationMinutes, 60);
-        $minutes = $totalDurationMinutes % 60;
-        Log::info('Total flight time calculated', ['totalMinutes' => $totalMinutes]);
+    
         return [
-            'totalMinutes' => $totalDurationMinutes,
-            'formatted' => sprintf('%02d:%02d', $hours, $minutes),
+            'totalMinutes' => $totalMinutes,
         ];
     }
+    
 
     private function validateParamsWhenOfferById($request)
     {
