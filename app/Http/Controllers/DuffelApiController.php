@@ -550,8 +550,8 @@ class DuffelApiController extends Controller
         if ($request->has('sortByLeastDuration')) { 
             // Define a comparison function to sort by total flight time
             $compareOffers = function ($a, $b) {
-                $totalTimeA = calculateTotalFlightTime([$a])['totalMinutes'];
-                $totalTimeB = calculateTotalFlightTime([$b])['totalMinutes'];
+                $totalTimeA = $this->calculateTotalFlightTime([$a])['totalMinutes'];
+                $totalTimeB = $this->calculateTotalFlightTime([$b])['totalMinutes'];
         
                 return $totalTimeA <=> $totalTimeB; // Sort in ascending order
             };
