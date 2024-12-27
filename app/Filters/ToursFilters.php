@@ -549,6 +549,7 @@ class ToursFilters
         $orders= $orders->map(function ($order) {
             $order->grossProfit =  number_format($order->grossProfit,2) ;
             $order->averagePricePerPersonPerDay = number_format($order->average_price_per_person_per_day,2) ;
+            $order->gross_profit_ratio = $order->gross_profit_ratio.'%';
             return $order;
         })->all();
 

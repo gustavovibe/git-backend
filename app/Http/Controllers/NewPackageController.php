@@ -220,6 +220,19 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
+                try {
+                    if ($order && $order->booking_id) {
+                        $order->flightTour()->create([
+                            'flight' => $flightResponse,
+                            'tour' => $tourResponse,
+                        ]);
+                    } else {
+                        throw new \Exception('Order could not be created.');
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Error creating flight tour: ' . $e->getMessage());
+                    return response()->json(['error' => $e->getMessage()], 500);
+                }
             }
         }
         return [$status, $tourResponse, $flightResponse, $order];
@@ -565,9 +578,18 @@ public function convertDurationToMinutes($duration)
         switch ($event->type) {
             case 'checkout.session.completed':
                 $session = $event->data->object;
+                $paymentId = $session->payment_intent; 
     
                 // Extract metadata
                 $attemptId = $session->metadata->attempt_id ?? null;
+
+                // Check if payment id already exists in database
+                $checkPaymentIdExists = DB::table('attempts')->where('payment_id', $paymentId)->first();
+
+                if ($checkPaymentIdExists) {
+                    \Log::info('Payment Id already exists in database: ' . $paymentId);
+                    break;
+                }
     
                 if (!$attemptId) {
                     \Log::error('No attempt ID found in session metadata.');
@@ -586,7 +608,6 @@ public function convertDurationToMinutes($duration)
                 $RequestTour = json_decode($attempt->tour, true);
                 $RequestFlight = json_decode($attempt->flight, true);
                 
-                $paymentId = $session->payment_intent; 
                 \Log::info('Payment Id: ' . $paymentId);
 
                 // Execute booking process
