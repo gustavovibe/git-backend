@@ -511,6 +511,28 @@ class DuffelApiController extends Controller
         return $validatedOffers;
     }
 
+
+    private function calculateTotalFlightTime($offers)
+    {
+        $totalMinutes = 0;
+    
+        foreach ($offers as $offer) {
+            if (isset($offer['slices']) && is_array($offer['slices'])) {
+                foreach ($offer['slices'] as $slice) {
+                    if (isset($slice['duration'])) {
+                        // Parse ISO 8601 duration format (e.g., PT5H30M)
+                        $interval = CarbonInterval::fromString($slice['duration']);
+                        $totalMinutes += $interval->totalMinutes;
+                    }
+                }
+            }
+        }
+    
+        return [
+            'totalMinutes' => $totalMinutes,
+        ];
+    }
+
     private function sortOffers($offers, $request)
     {
         $newOffers = $offers; // Initially, the new offers will be a copy of the original array
@@ -541,28 +563,6 @@ class DuffelApiController extends Controller
         return $newOffers;
     }
 
-
-    private function calculateTotalFlightTime($offers)
-    {
-        $totalMinutes = 0;
-    
-        foreach ($offers as $offer) {
-            if (isset($offer['slices']) && is_array($offer['slices'])) {
-                foreach ($offer['slices'] as $slice) {
-                    if (isset($slice['duration'])) {
-                        // Parse ISO 8601 duration format (e.g., PT5H30M)
-                        $interval = CarbonInterval::fromString($slice['duration']);
-                        $totalMinutes += $interval->totalMinutes;
-                    }
-                }
-            }
-        }
-    
-        return [
-            'totalMinutes' => $totalMinutes,
-        ];
-    }
-    
 
     private function validateParamsWhenOfferById($request)
     {
