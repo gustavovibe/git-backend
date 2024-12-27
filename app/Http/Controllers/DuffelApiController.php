@@ -12,6 +12,8 @@ use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
+
 
 class DuffelApiController extends Controller
 {
@@ -395,6 +397,7 @@ class DuffelApiController extends Controller
             'minimumCabinBaggage' => 'sometimes|integer|min:1',
             'stops' => 'required|string|in:any,direct,upToOneStop,upToTwoStops',
             'sortByLeastExpensive' => 'sometimes',
+            'sortByLeastDuration' => 'sometimes',
         ];
 
         $messages = [
@@ -522,7 +525,55 @@ class DuffelApiController extends Controller
             usort($newOffers, $compareOffers);
         }
 
+        if ($request->has('sortByLeastDuration')) { 
+            // Define a comparison function to sort by total flight time
+            $compareOffers = function ($a, $b) {
+                $totalTimeA = calculateTotalFlightTime([$a])['totalMinutes'];
+                $totalTimeB = calculateTotalFlightTime([$b])['totalMinutes'];
+        
+                return $totalTimeA <=> $totalTimeB; // Sort in ascending order
+            };
+        
+            // Sort the offers by total flight time
+            usort($newOffers, $compareOffers);
+        }
+        
         return $newOffers;
+    }
+
+
+    public function calculateTotalFlightTime($offers)
+    {
+        $totalDurationMinutes = 0;
+
+        foreach ($offers as $offer) {
+            if (!isset($offer['slices'])) {
+                continue;
+            }
+
+            foreach ($offer['slices'] as $slice) {
+                foreach ($slice['segments'] as $segment) {
+                    if (!isset($segment['duration'])) {
+                        continue;
+                    }
+
+                    // Parse the ISO 8601 duration
+                    $interval = new CarbonInterval($segment['duration']);
+
+                    // Convert the duration to minutes and add to total
+                    $totalDurationMinutes += $interval->totalMinutes;
+                }
+            }
+        }
+
+        // Optionally, format the total duration into hours and minutes
+        $hours = intdiv($totalDurationMinutes, 60);
+        $minutes = $totalDurationMinutes % 60;
+        Log::info('Total flight time calculated', ['totalMinutes' => $totalMinutes]);
+        return [
+            'totalMinutes' => $totalDurationMinutes,
+            'formatted' => sprintf('%02d:%02d', $hours, $minutes),
+        ];
     }
 
     private function validateParamsWhenOfferById($request)
@@ -760,6 +811,7 @@ class DuffelApiController extends Controller
             'sort' => 'sometimes',
             'maxConnections' => 'sometimes',
             'sortByLeastExpensive' => 'sometimes',
+            'sortByLeastDuration' => 'sometimes',
         ];
         $messages = [
             'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
