@@ -569,14 +569,6 @@ public function convertDurationToMinutes($duration)
     
                 // Extract metadata
                 $attemptId = $session->metadata->attempt_id ?? null;
-
-                // Check if payment id already exists in database
-                $checkPaymentIdExists = DB::table('attempts')->where('payment_id', $paymentId)->first();
-
-                if ($checkPaymentIdExists) {
-                    \Log::info('Payment Id already exists in database: ' . $paymentId);
-                    break;
-                }
     
                 if (!$attemptId) {
                     \Log::error('No attempt ID found in session metadata.');
@@ -598,6 +590,12 @@ public function convertDurationToMinutes($duration)
                 \Log::info('Payment Id: ' . $paymentId);
 
                 // Execute booking process
+                $checkOrder = Order::where('payment_id', $paymentId)->first();
+                if($checkOrder){
+                    \Log::info('Order already exists for payment ID: ' . $paymentId);
+                    break;
+                }
+
                 $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId);
                 
                 // Extract responses
