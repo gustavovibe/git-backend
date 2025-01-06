@@ -226,6 +226,7 @@ class TourController extends Controller
         try{
             $orders=(new ToursFilters)->OrdersPrint($r);
            /*  $orders=ToursFilters::OrdersPrint($r); */
+           $url_payment='';
            if($orders->payment_id){
                $client = new Client();
                $url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
@@ -260,9 +261,9 @@ class TourController extends Controller
             if (!isset($booking_data['data'])) {
                 throw new Exception('Invalid booking data structure');
             }
-            
+
             logger()->info('Booking data:', $booking_data);
-            
+
             $class=[];
 
             foreach ($booking_data['data']['slices'] as &$slice) {
