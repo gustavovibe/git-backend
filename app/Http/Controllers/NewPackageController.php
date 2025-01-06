@@ -225,6 +225,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                         $order->flightTour()->create([
                             'flight' => $flightResponse,
                             'tour' => $tourResponse,
+                            'id_order' => $order->booking_id
                         ]);
                     } else {
                         throw new \Exception('Order could not be created.');
@@ -618,14 +619,14 @@ public function convertDurationToMinutes($duration)
                 // Extract responses
                 $status = $response[0] ?? null;
                 $tourResponse = $response[1] ?? null;
-                $flightResponse = $response[2] ?? null;
-                $order = $response[3] ?? null;
-                $orderId = $flightResponse['data']['id'] ?? null;
-    
-                // Log responses
                 \Log::info('stripe webhook Tour response: ' . json_encode($tourResponse));
+                $flightResponse = $response[2] ?? null;
                 \Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
+                $order = $response[3] ?? null;
                 \Log::info('stripe webhook Order response: ' . json_encode($order));
+                $orderId = $response[2]['data']['id'] ?? null;
+                \Log::info('stripe webhook OrderID response: ' . json_encode($orderId));   
+                
                 if($order != null){ 
                     $bookingId = $order['booking_id'];
                 }else{
