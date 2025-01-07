@@ -245,7 +245,7 @@ class TourController extends Controller
 
             $logo = asset('storage/'.$logo);
             /* return $logo; */
-            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo,'url'=>$url_payment]);
+            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo,'url_payment'=>$url_payment]);
             return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
