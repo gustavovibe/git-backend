@@ -182,6 +182,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
+            
             DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
