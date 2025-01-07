@@ -784,12 +784,6 @@
                     <td>
                         <h3>Payment history</h3>
                     </td>
-                    <td style="text-align: right;">
-                        <a href="{{ $url_payment }}" style="text-decoration: none">
-
-                            <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
-                        </a>
-                    </td>
                 </tr>
             </table>
                 <table style="width: 100%;" >

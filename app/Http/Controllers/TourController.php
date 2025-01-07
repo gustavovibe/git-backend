@@ -221,11 +221,11 @@ class TourController extends Controller
      *
      * @param Request $r Request object
      * @return array
-     */
+    
     public function pdfOrder(Request $r){
         try{
             $orders=(new ToursFilters)->OrdersPrint($r);
-           /*  $orders=ToursFilters::OrdersPrint($r); */
+            $orders=ToursFilters::OrdersPrint($r);
            $url_payment='';
            if($orders->payment_id){
                $client = new Client();
@@ -244,14 +244,14 @@ class TourController extends Controller
             Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
 
             $logo = asset('storage/'.$logo);
-            /* return $logo; */
+            return $logo;
             $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo,'url_payment'=>$url_payment]);
             return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
     }
-
+    */
 
     public function bookingTickets(Request $r){
         try{
