@@ -14,7 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class OperatorsFilters
 {
 
-    public function OperatorsF(Request $r) {
+    public static function OperatorsF(Request $r) {
 
         $minRange = (int) explode(',', $r->range)[0];
         $maxRange = (int) explode(',', $r->range)[1];
