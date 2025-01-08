@@ -466,7 +466,7 @@
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}" alt="">
+                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Manage my booking</label>
@@ -478,11 +478,11 @@
  {{--    <div style="text-align: center; margin: 20px;">
         <label style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
             Your trip has been booked successfully! Confirmation
-            <b>#:{{ optional($orders->booking_id) }}.</b>
+            <b>#:{{ $orders->booking_id }}.</b>
         </label>
     </div> --}}
     <div>
-            @if ({{ optional($orders->booking_status) }} !='pending')
+            @if ($orders->booking_status !='pending')
             <h1>We've booked everything for your trip!</h1>
 
             @else
@@ -497,14 +497,14 @@
                 <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
             </tr>
             <tr>
-                <td><b>{{ optional($orders->booking_id) }}</b> </td>
+                <td><b>{{ $orders->booking_id }}</b> </td>
                 <td>
-                    @if ({{ optional($orders->booking_status) }} !='pending')
+                    @if ($orders->booking_status !='pending')
                     <img style="width: 25%; height: 3%;"
-                    src="{{ base64_encode(file_get_contents(public_path('images/confirmed.png'))) }}">
+                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}">
                     @else
                     <img style="width: 25%; height: 3%;"
-                    src="{{ base64_encode(file_get_contents(public_path('images/processing.png'))) }}">
+                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}">
                     @endif
 
                 </td>
@@ -512,18 +512,18 @@
         </table>
     </div>
     <div class="textG mh" style="text-align: justify;">
-       @if ({{ optional($orders->booking_status) }}!='pending')
-       <p> <b>{{ {{ optional($orders->user) }}->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
+       @if ($orders->booking_status!='pending')
+       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
        <img style="width: 100%; height: 40%;"
-       src="{{ base64_encode(file_get_contents(public_path('images/pay_done.png'))) }}">
+       src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_done.png')))}}">
        <br>
        @else
-       <p> <b>{{ {{ optional($orders->user) }}->name }}</b>, thank you for choosing Vibe Adventures! </p>
+       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
        <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
         booking confirmation and e-ticket as soon as posible.</p>
         <p>Her's what happens next:</p>
         <img style="width: 100%; height: 40%;"
-                                src="{{ base64_encode(file_get_contents(public_path('images/pay_pending.png'))) }}">
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_pending.png')))}}">
         <br>
 
 
@@ -531,7 +531,7 @@
         <br>
        <div style="text-align: center">
         <div>
-            <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ optional($orders->booking_id) }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
+            <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
         </div>
         <br>
         <div>
@@ -541,7 +541,7 @@
        <br>
        <div style="text-align: justify; border-style: dotted; padding:2%; border-radius:15px;border-color:#82CF45">
 
-           @if ({{ optional($orders->booking_status) }}!='pending')
+           @if ($orders->booking_status!='pending')
            <div style="page-break-inside: avoid">
             <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
                <p><b>How do i check in for my flight?</b></p>
@@ -590,7 +590,7 @@
                 </td>
                 <td style="text-align: right;">
                     <h3>
-                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ optional($orders->tour_id) }}">
+                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
                             Download itinerary
                         </a>
                     </h3>
@@ -600,45 +600,45 @@
         <div class="Borderg" style="padding: 1%;">
             <table width="100%">
                 <tr>
-                    @if (optional($orders->image))
+                    @if ($orders->image)
                     <td style="width: 50%; vertical-align:middle;padding:2%;" >
-                        <img src="{{ optional($orders->image) }}" style="width: 90%; height: 150px; border-radius:12px;" />
+                        <img src="{{ $orders->image }}" style="width: 90%; height: 150px; border-radius:12px;" />
                     </td>
                     @endif
                     <td style="width: 80%; vertical-align: top;">
-                        <h3 class="Tcolor">{{ {{ optional($orders->tour) }}->tour_name }}</h3>
+                        <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
                         <p>
                             <img style="width: 16px; height: 16px; vertical-align: middle;"
-                                src="{{ base64_encode(file_get_contents(public_path('images/star.png'))) }}">
-                            <b class="Tcolor">{{ optional($orders->ratings_overall) }}</b> {{ optional($orders->reviews_count) }} reviews
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}">
+                            <b class="Tcolor">{{ $orders->ratings_overall }}</b> {{ $orders->reviews_count }} reviews
                         </p>
                         <table width="100%">
                             <tr>
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="{{ base64_encode(file_get_contents(public_path('images/double-right.png'))) }}"></td>
-                                <td style="padding: 1%;">Starts in: {{ optional($orders->start_city) }} . ',' . {{ optional($orders->origin) }}
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td>
+                                <td style="padding: 1%;">Starts in: {{ $orders->start_city . ',' . $orders->origin }}
                                 </td>
 
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="{{ base64_encode(file_get_contents(public_path('images/double-left.png'))) }}"></td>
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td>
                                 <td style="padding: 1%;">Ends in:
-                                    {{ optional($orders->end_city) }} . ',' . {{ optional($orders->f_destination) }}</td>
+                                    {{ $orders->end_city . ',' . $orders->f_destination }}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="{{ base64_encode(file_get_contents(public_path('images/calendar-event.png'))) }}"></td>
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td>
                                 <td style="padding: 1%;">Starts on:
-                                    {{ \Carbon\Carbon::parse({{ optional($orders->start) }})->format('M d, Y') }}</td>
+                                    {{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</td>
 
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="{{ base64_encode(file_get_contents(public_path('images/calendar-event.png'))) }}"></td>
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td>
                                 <td style="padding: 1%;">Ends on:
-                                    {{ \Carbon\Carbon::parse({{ optional($orders->end) }})->format('M d, Y') }}</td>
+                                    {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="{{ base64_encode(file_get_contents(public_path('images/clock.png'))) }}"></td>
-                                <td style="padding: 1%;">Duration: {{ {{ optional($orders->tour) }}->tour_length_days }} days</td>
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td>
+                                <td style="padding: 1%;">Duration: {{ $orders->tour->tour_length_days }} days</td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -655,7 +655,7 @@
                     </td>
                     <td style="text-align: right;">
                         <h3 >
-                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ optional($orders->duffel_id) }}">
+                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}">
                                 Download tickets
                             </a>
                         </h3>
@@ -663,51 +663,42 @@
                 </tr>
             </table>
             <div class="Borderg" style="padding: 1%;">
-                @foreach ({{ optional($orders->flightTour) }}->flight['data']['slices'] as $or)
+                @foreach ($orders->flightTour->flight['data']['slices'] as $or)
                     <table style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 1%;">
                         <tr>
                             <td style="width: 25%; text-align: center; vertical-align: top;">
-                                <label>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['departing_at'])->format('H:i') }}</label><br>
-@endif
-                                <p>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['departing_at'])->format('D, d/m') }}
-@endif
+                                <label>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</label><br>
+                                <p>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}
                                 </p>
                                 <p class="Tbox">
-                                    {{ \Carbon\CarbonInterval::make(@if(isset($or['duration'])) {{ $or['duration'] }} @endif)->format('%hh %im') }}</p>
-@endif
+                                    {{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</p>
                                 <br>
-                                <label>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['arriving_at'])->format('H:i') }}</label><br>
-@endif
-                                <p>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['arriving_at'])->format('D, d/m') }}</p>
-@endif
+                                <label>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</label><br>
+                                <p>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</p>
                             </td>
                             <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
                                 <div class="line-container">
                                     <div class="line"></div>
-                                    <img class=" airplane-icon" src="{{ base64_encode(file_get_contents(public_path('images/airplane.png'))) }}"
+                                    <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
                                         alt="Icon">
                                 </div>
                             </td>
                             <td style="width: 40%; text-align: left; vertical-align: top;">
-                                <label class="Tcolor">{{ @if(isset($or['origin'])) {{ $or['origin'] }} @endif['city']['name'] }}</label><br>
-@endif
-                                <p>{{ @if(isset($or['origin'])) {{ $or['origin'] }} @endif['name'] }}</p>
-@endif
+                                <label class="Tcolor">{{ $or['origin']['city']['name'] }}</label><br>
+                                <p>{{ $or['origin']['name'] }}</p>
                                 <table style="width: 100%">
                                     <tr>
                                         <td style=" width:20%"><img
-                                            src="{{ {{ optional($orders->flightTour) }}->flight['data']['owner']['logo_symbol_url'] }}"
+                                            src="{{ $orders->flightTour->flight['data']['owner']['logo_symbol_url'] }}"
                                             {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
                                                 style="width: 50%; height: 10%; border-radius: 12px;"></td>
-                                        <td>{{ {{ optional($orders->flightTour) }}->flight['data']['owner']['name'] }}</td>
+                                        <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
                                         <td style="margin-left:50%;"><img
-                                                src="{{ base64_encode(file_get_contents(public_path('images/chevron-down.png'))) }}"></td>
+                                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td>
                                     </tr>
                                 </table>
-                                <label class="Tcolor">{{ @if(isset($or['destination'])) {{ $or['destination'] }} @endif['name'] }}</label><br>
-@endif
-                                <p>{{ @if(isset($or['destination'])) {{ $or['destination'] }} @endif['city_name'] }}</p>
-@endif
+                                <label class="Tcolor">{{ $or['destination']['name'] }}</label><br>
+                                <p>{{ $or['destination']['city_name'] }}</p>
                             </td>
                         </tr>
                         <tr>
@@ -728,32 +719,26 @@
                 </div>
                 <div>
                     <table style="width: 100%;">
-                            @foreach ({{ optional($orders->flightTour) }}->tour['accommodations'] as $accommodation)
-                                @if (@if(isset($accommodation['type'])) {{ $accommodation['type'] }} @endif == 'basePrice')
-@endif
+                            @foreach ($orders->flightTour->tour['accommodations'] as $accommodation)
+                                @if ($accommodation['type'] == 'basePrice')
                                     <tr>
                                         <td>
-                                            <a style="color:#82CF45;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'], 2) }}</a>
-@endif
+                                            <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
                                             USD x
-                                            <a style="color:#82CF45;">{{ count({{ optional($orders->flightTour) }}->tour['passengers']) }}</a> adult(s)
+                                            <a style="color:#82CF45;">{{ count($orders->flightTour->tour['passengers']) }}</a> adult(s)
                                         </td>
-                                        <td style="text-align: right;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'] * count({{ optional($orders->flightTour) }}->tour['passengers']), 2) }}
-@endif
+                                        <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * count($orders->flightTour->tour['passengers']), 2) }}
                                             USD</td>
                                     </tr>
                                     <br>
-                                @elseif (@if(isset($accommodation['type'])) {{ $accommodation['type'] }} @endif == 'accommodation')
-@endif
+                                @elseif ($accommodation['type'] == 'accommodation')
                                     <tr>
                                         <td>
-                                            <a style="color:#82CF45;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'], 2) }}</a>
-@endif
+                                            <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
                                             USD x
-                                            <a style="color:#82CF45;">{{ @if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['pax_count'] }}</a> single
-@endif
+                                            <a style="color:#82CF45;">{{ $accommodation['prices'][0]['pax_count'] }}</a> single
                                         </td>
-                                        <td style="text-align: right;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'] * @if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['pax_count'], 2) }}
+                                        <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * $accommodation['prices'][0]['pax_count'], 2) }}
                                             USD</td>
                                     </tr>
                                 @endif
@@ -768,7 +753,7 @@
                                     <p style="color:gray;font-size:10px;">Total price of the trip including all taxes and fees</p>
                                 </td>
                                 <td style="text-align: right;">
-                                    <h3>${{ number_format({{ optional($orders->flightTour) }}->tour['total_value'], 2) }} USD</h3>
+                                    <h3>${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</h3>
                                 </td>
                             </tr>
                         </table>
@@ -799,20 +784,25 @@
                     <td>
                         <h3>Payment history</h3>
                     </td>
+                    <td style="text-align: right; display:none;">
+                        <a href="{{ $url }}" style="text-decoration: none">
+                            <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
+                        </a>
+                    </td>
                 </tr>
             </table>
                 <table style="width: 100%;" >
                     <tbody>
                         <tr>
-                            <td>{{ optional($orders->payment_method) }}</td>
-                            <td>{{ \Carbon\Carbon::parse({{ optional($orders->departure) }})->format('M d, Y') }}</td>
-                            <td style="text-align:right;">${{ number_format({{ optional($orders->flightTour) }}->tour['total_value'], 2) }} USD</td>
+                            <td>{{ $orders->payment_method }}</td>
+                            <td>{{ \Carbon\Carbon::parse($orders->departure)->format('M d, Y') }}</td>
+                            <td style="text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <td></td>
                         <td style="color:#82CF45;">Total</td>
-                        <td style="color:#82CF45;text-align:right;">${{ number_format({{ optional($orders->flightTour) }}->tour['total_value'], 2) }} USD</td>
+                        <td style="color:#82CF45;text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
                     </tfoot>
                 </table>
             </div>
@@ -824,17 +814,15 @@
             <table style="width: 100%; " class="Borderg">
                 <tr>
                     @php $counter = 1; @endphp
-                    @foreach ({{ optional($orders->flightTour) }}->tour['passengers'] as $passenger)
+                    @foreach ($orders->flightTour->tour['passengers'] as $passenger)
                         <td style="width: 33%; padding: 5px; vertical-align: top;">
                             <h4 style="text-decoration: underline;">Participant {{ $counter }}</h4>
                             <label style="color: #82CF45;font-weight:bold;">First Name:</label>
-                            <p>{{ @if(isset($passenger['fields'])) {{ $passenger['fields'] }} @endif['first_name'] }}</p>
-@endif
+                            <p>{{ $passenger['fields']['first_name'] }}</p>
                             <label style="color: #82CF45;font-weight:bold;">Last Name:</label>
-                            <p>{{ @if(isset($passenger['fields'])) {{ $passenger['fields'] }} @endif['last_name'] }}</p>
-@endif
+                            <p>{{ $passenger['fields']['last_name'] }}</p>
                         </td>
-                        @if ( optional($loop->last) )
+                        @if ($counter % 3 == 0 && !$loop->last)
                 </tr>
                 <tr>
                     @endif
@@ -855,40 +843,40 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ base64_encode(file_get_contents(public_path('images/transfer.png'))) }}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png'))) }}"> </a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ base64_encode(file_get_contents(public_path('images/insurance.png'))) }}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png'))) }}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ base64_encode(file_get_contents(public_path('images/accommodation.png'))) }}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation <img id="iconic"
-                                            src="{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png'))) }}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="{{ base64_encode(file_get_contents(public_path('images/activities.png'))) }}">
+                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities <img id="iconic"
-                                            src="{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png'))) }}"></a>
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
                                 </div>
                             </td>
                         </tr>
@@ -903,11 +891,11 @@
                     <tr>
                         <label style="font-size: 18px;">
                             Excellent
-                            <img src="{{ base64_encode(file_get_contents(public_path('images/ranking.png'))) }}" alt=""
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
                                 style="vertical-align: middle;">
                         </label>
                         <td style="text-align: right;">
-                            <img src="{{ base64_encode(file_get_contents(public_path('images/trust-index.png'))) }}" alt="">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt="">
                         </td>
                     </tr>
                 </table>
@@ -917,11 +905,11 @@
             <div>
                 <table width="100%">
                     <tr>
-                        <img style="width:35%;" src="{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}">
+                        <img style="width:35%;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
                         <td style="text-align: right;">
-                            <img src="{{ base64_encode(file_get_contents(public_path('images/face-icon.png'))) }}">
-                            <img src="{{ base64_encode(file_get_contents(public_path('images/insta-icon.png'))) }}">
-                            <img src="{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png'))) }}">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}">
+                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}">
                         </td>
                     </tr>
                 </table>

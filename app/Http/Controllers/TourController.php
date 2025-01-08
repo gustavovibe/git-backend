@@ -231,9 +231,11 @@ class TourController extends Controller
                $client = new Client();
                $url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
                $response = $client->request('GET', $url);
+               
                $responseBody =json_decode( $response->getBody()->getContents());
-
-               $url_payment=  $responseBody->data->charge_details->receipt_url;
+               if($responseBody->data->charge_details->receipt_url){
+                $url_payment=  $responseBody->data->charge_details->receipt_url;
+               }
            }
 
             $logo=$orders->flightTour->flight['data']['owner']['logo_symbol_url'];
