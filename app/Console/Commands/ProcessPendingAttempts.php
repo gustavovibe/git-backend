@@ -33,7 +33,7 @@ class ProcessPendingAttempts extends Command
             ->get();
 
         foreach ($pendingAttempts as $attempt) {
-            Log::info('automatic Processing attempt ID: ' . $attempt->$id);
+            Log::info('automatic Processing attempt ID: ' . $attempt->id);
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing $ResponseTour: ' . $ResponseTour);
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;

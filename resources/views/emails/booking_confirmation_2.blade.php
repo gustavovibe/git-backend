@@ -600,7 +600,7 @@
         <div class="Borderg" style="padding: 1%;">
             <table width="100%">
                 <tr>
-                    @if ({{ optional($orders->image) }})
+                    @if (optional($orders->image))
                     <td style="width: 50%; vertical-align:middle;padding:2%;" >
                         <img src="{{ {{ optional($orders->image) }} }}" style="width: 90%; height: 150px; border-radius:12px;" />
                     </td>
@@ -668,13 +668,18 @@
                         <tr>
                             <td style="width: 25%; text-align: center; vertical-align: top;">
                                 <label>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['departing_at'])->format('H:i') }}</label><br>
+@endif
                                 <p>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['departing_at'])->format('D, d/m') }}
+@endif
                                 </p>
                                 <p class="Tbox">
                                     {{ \Carbon\CarbonInterval::make(@if(isset($or['duration'])) {{ $or['duration'] }} @endif)->format('%hh %im') }}</p>
+@endif
                                 <br>
                                 <label>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['arriving_at'])->format('H:i') }}</label><br>
+@endif
                                 <p>{{ \Carbon\Carbon::parse(@if(isset($or['segments'])) {{ $or['segments'] }} @endif[0]['arriving_at'])->format('D, d/m') }}</p>
+@endif
                             </td>
                             <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
                                 <div class="line-container">
@@ -685,7 +690,9 @@
                             </td>
                             <td style="width: 40%; text-align: left; vertical-align: top;">
                                 <label class="Tcolor">{{ @if(isset($or['origin'])) {{ $or['origin'] }} @endif['city']['name'] }}</label><br>
+@endif
                                 <p>{{ @if(isset($or['origin'])) {{ $or['origin'] }} @endif['name'] }}</p>
+@endif
                                 <table style="width: 100%">
                                     <tr>
                                         <td style=" width:20%"><img
@@ -698,7 +705,9 @@
                                     </tr>
                                 </table>
                                 <label class="Tcolor">{{ @if(isset($or['destination'])) {{ $or['destination'] }} @endif['name'] }}</label><br>
+@endif
                                 <p>{{ @if(isset($or['destination'])) {{ $or['destination'] }} @endif['city_name'] }}</p>
+@endif
                             </td>
                         </tr>
                         <tr>
@@ -721,22 +730,28 @@
                     <table style="width: 100%;">
                             @foreach ({{ optional($orders->flightTour) }}->tour['accommodations'] as $accommodation)
                                 @if (@if(isset($accommodation['type'])) {{ $accommodation['type'] }} @endif == 'basePrice')
+@endif
                                     <tr>
                                         <td>
                                             <a style="color:#82CF45;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'], 2) }}</a>
+@endif
                                             USD x
                                             <a style="color:#82CF45;">{{ count({{ optional($orders->flightTour) }}->tour['passengers']) }}</a> adult(s)
                                         </td>
                                         <td style="text-align: right;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'] * count({{ optional($orders->flightTour) }}->tour['passengers']), 2) }}
+@endif
                                             USD</td>
                                     </tr>
                                     <br>
                                 @elseif (@if(isset($accommodation['type'])) {{ $accommodation['type'] }} @endif == 'accommodation')
+@endif
                                     <tr>
                                         <td>
                                             <a style="color:#82CF45;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'], 2) }}</a>
+@endif
                                             USD x
                                             <a style="color:#82CF45;">{{ @if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['pax_count'] }}</a> single
+@endif
                                         </td>
                                         <td style="text-align: right;">${{ number_format(@if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['price_per_pax'] * @if(isset($accommodation['prices'])) {{ $accommodation['prices'] }} @endif[0]['pax_count'], 2) }}
                                             USD</td>
@@ -814,8 +829,10 @@
                             <h4 style="text-decoration: underline;">Participant {{ $counter }}</h4>
                             <label style="color: #82CF45;font-weight:bold;">First Name:</label>
                             <p>{{ @if(isset($passenger['fields'])) {{ $passenger['fields'] }} @endif['first_name'] }}</p>
+@endif
                             <label style="color: #82CF45;font-weight:bold;">Last Name:</label>
                             <p>{{ @if(isset($passenger['fields'])) {{ $passenger['fields'] }} @endif['last_name'] }}</p>
+@endif
                         </td>
                         @if ($counter % 3 == 0 && !{{ optional($loop->last) }})
                 </tr>
