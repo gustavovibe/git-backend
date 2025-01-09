@@ -35,7 +35,7 @@ class ProcessPendingAttempts extends Command
         foreach ($pendingAttempts as $attempt) {
             Log::info('automatic Processing attempt ID: ' . $attempt->id);
             $ResponseTour = json_decode($attempt->tourradar_res, true);
-            Log::info('automatic Processing $ResponseTour: ' . $ResponseTour);
+            Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;
             if(!$tBookingId){
                 Log::error('No tBookingId found in response');
