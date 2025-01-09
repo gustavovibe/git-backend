@@ -201,7 +201,7 @@ class AuthController extends Controller
                         'email' => $payload['email'],
                         'name' => $payload['name'],
                         'password' => Hash::make(uniqid()),
-                        'profile_id' => 1,
+                        'profile_id' => 2,
                         'role' => 1,
                         'active' => 1,
                         'suscribed' => 1,
