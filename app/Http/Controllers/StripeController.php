@@ -95,4 +95,16 @@ class StripeController extends Controller
             json_encode($cancellResponse)
         ));
     }
+    public static function expireSession($cs){
+        $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
+        $stripe = new \Stripe\StripeClient($stripeSecret);
+        $expireResponse = $stripe->checkout->sessions->expire($cs);
+
+        // Log the payment capture response
+        \Log::info(sprintf(
+            'Stripe payment cancell response for payment intent ID %s (Attempt ID: %s): %s',
+            $cs,
+            json_encode($rexpireResponse)
+        ));
+    }
 }

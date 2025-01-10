@@ -19,6 +19,7 @@ class UpdateAttemptsTable extends Migration
             $table->string('order_id')->nullable(); // Short text field, nullable
             $table->string('payment_id')->nullable(); // Short text field, nullable
             $table->timestamp('expiration')->nullable(); // Nullable timestamp
+            $table->string('checkout_session')->nullable(); // Short text field, nullable
         });
     }
     
@@ -35,6 +36,7 @@ class UpdateAttemptsTable extends Migration
             $table->string('order_id');
             $table->string('payment_id');
             $table->timestamp('expiration');
+            $table->string('checkout_session')->nullable(); // Short text field, nullable
         });
     }
 }

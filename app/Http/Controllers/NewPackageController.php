@@ -571,7 +571,7 @@ public function convertDurationToMinutes($duration)
             case 'checkout.session.completed':
                 $session = $event->data->object;
                 $paymentId = $session->payment_intent; 
-    
+                $cs = $session->id; 
                 // Extract metadata
                 $attemptId = $session->metadata->attempt_id ?? null;
     
@@ -630,6 +630,7 @@ public function convertDurationToMinutes($duration)
                         'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
                         'payment_id' => $paymentId,
+                        'checkout_session' => $cs, 
                         'updated_at' => now(),
                     ]);
     

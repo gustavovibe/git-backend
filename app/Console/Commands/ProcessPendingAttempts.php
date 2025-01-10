@@ -119,6 +119,7 @@ class ProcessPendingAttempts extends Command
             ->where('status', 'pending')
             ->where('expiration', '<=', now())
             ->get();
+        /*    
         foreach ($expiredAttempts as $attempt) {
             $paymentIntent = $attempt->payment_id;
             if(!$paymentIntent){
@@ -126,13 +127,29 @@ class ProcessPendingAttempts extends Command
                 continue;
             }
             try {
-                $stripeResponse = StripeController::cancellPayment($paymentIntent);
+                //$stripeResponse = StripeController::cancellPayment($paymentIntent);
                 Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                 DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
-        }    
+        } 
+        */   
+        foreach ($expiredAttempts as $attempt) {
+            $cs = $attempt->checkout_session;
+            if(!$cs){
+                Log::error('No payment intent found in attempt');
+                continue;
+            }
+            try {
+                $stripeResponse = StripeController::expireSession($cs);
+                Log::info('automatic Stripe cancell payment for payment ID ' . $cs . ': ' . json_encode($stripeResponse));
+                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
+                Log::info('automatic attempt failed (expired): ' . $attempt->id );
+            } catch (\Exception $e) {
+                Log::error('automatic Error cancelling payment ID ' . $cs . ': ' . $e->getMessage());
+            }
+        }  
     }
 }
