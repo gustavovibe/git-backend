@@ -29,7 +29,7 @@ class ProcessPendingAttempts extends Command
     {
         $pendingAttempts = DB::table('attempts')
             ->where('status', 'pending')
-            ->where('expiration', '>=', now())
+            ->where('expiration', '<=', now())
             ->get();
 
         foreach ($pendingAttempts as $attempt) {
@@ -117,7 +117,7 @@ class ProcessPendingAttempts extends Command
 
         $expiredAttempts = DB::table('attempts')
             ->where('status', 'pending')
-            ->where('expiration', '<=', now())
+            ->where('expiration', '>=', now())
             ->get();
         /*    
         foreach ($expiredAttempts as $attempt) {
@@ -137,15 +137,15 @@ class ProcessPendingAttempts extends Command
         } 
         */   
         foreach ($expiredAttempts as $attempt) {
+            DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
             $cs = $attempt->checkout_session;
             if(!$cs){
-                Log::error('No payment intent found in attempt');
+                Log::error('No payment intent found in attempt: ' . $attempt->id );
                 continue;
             }
             try {
                 $stripeResponse = StripeController::expireSession($cs);
                 Log::info('automatic Stripe cancell payment for payment ID ' . $cs . ': ' . json_encode($stripeResponse));
-                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $cs . ': ' . $e->getMessage());
