@@ -95,6 +95,7 @@ class StripeController extends Controller
             json_encode($cancellResponse)
         ));
     }
+    
     public static function expireSession($cs){
         $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
         $stripe = new \Stripe\StripeClient($stripeSecret);
