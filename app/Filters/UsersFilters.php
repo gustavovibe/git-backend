@@ -406,7 +406,7 @@ class UsersFilters
             }
 
 
-            $totalPaid = $orders->sum('paid');
+            $totalPaid =floor($orders->sum('paid'));
             $totalCommission = $orders->sum('commission');
             $totalDuration = $orders->sum('duration');
             $totalOrders = $orders->count();
