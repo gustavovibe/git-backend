@@ -27,4 +27,9 @@ class Country extends Model
     {
         return $this->hasOne(Destination::class, 'id', 'destination_id');
     }
+
+    public function cities()
+    {
+        return $this->hasMany(City::class, 'country_code', 't_country_id');
+    }
 }
