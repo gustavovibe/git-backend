@@ -28,4 +28,9 @@ class City extends Model
         return $this->hasOne(Destination::class, 'id', 'destination_id');
     }
 
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 't_country_id', 'country_code');
+    }
+
 }

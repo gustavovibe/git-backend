@@ -116,12 +116,14 @@ class Citycontroller extends Controller
             $responseDataCountry['data'] = CountryResource::collection($country->items());
 
 
-            $city = City::where('city_name', 'like', $q . '%')->paginate($perPage);
+            $city = City::where('city_name', 'like', $q . '%')->with('country')->paginate($perPage);
             $responseDataCity = $city->toArray();
             $responseDataCity['data'] = CityResource::collection($city->items());
 
 
-            $natural = NaturalDestination::where('destination_name', 'like', $q . '%')->paginate($perPage);
+            $cityNames = $city->pluck('city_name')->toArray();
+
+            $natural = NaturalDestination::where('destination_name', 'like', $q . '%')->whereNotIn('destination_name', $cityNames)->paginate($perPage);
             $responseDataNatural = $natural->toArray();
             $responseDataNatural['data'] = NaturalDestinationResource::collection($natural->items());
 
