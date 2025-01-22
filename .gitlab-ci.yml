@@ -58,7 +58,7 @@ Deployment:
     - chmod 600 ~/.ssh/id_rsa
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker system prune -af"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" rm -rf api/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-SYyFbhhbvQKhsSKpQrT3@gitlab.com/gustavo_vibe/api.git
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-Bb5sf_nxRsEWx2xoDwiN@gitlab.com/gustavo_vibe/api.git
     - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose down"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"

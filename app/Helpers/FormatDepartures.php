@@ -25,9 +25,13 @@ class FormatDepartures
     {
         $response = [];
         $response['based_on'] = $prices['based_on'];
+        $response['price_base'] = $prices['price_base'];
+        $response['promotion'] = $prices['promotion'];
         $response['price_total'] = $prices['price_total'];
-        $response['mandatory_addons'] = [];
+        $response['price_addons'] = $prices['price_addons'];
+        $response['price_total_upfront'] = $prices['price_total_upfront'];
         $response['mandatory_addons'] = $prices['mandatory_addons'];
+
         return $response;
     }
 

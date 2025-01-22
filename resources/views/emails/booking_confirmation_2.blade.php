@@ -778,14 +778,13 @@
                     </table>
                 </div>
 
-
   <table width="100%">
                 <tr>
                     <td>
                         <h3>Payment history</h3>
                     </td>
                     <td style="text-align: right; display:none;">
-                        <a href="{{ $url }}" style="text-decoration: none">
+                        <a style="text-decoration: none">
                             <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
                         </a>
                     </td>

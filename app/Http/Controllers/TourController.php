@@ -226,6 +226,7 @@ class TourController extends Controller
         try{
             $orders=(new ToursFilters)->OrdersPrint($r);
             $orders=ToursFilters::OrdersPrint($r);
+            
             $url_payment='';
            if($orders->payment_id){
                $client = new Client();

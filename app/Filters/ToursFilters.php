@@ -428,15 +428,14 @@ class ToursFilters
         return $destination;
     }
 
-    public function OrdersPrint(Request $r){
-        $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->tour_id);
+    public static function OrdersPrint(Request $r){
+       $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->tour_id);
 
        $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
         $orders->image=$orders->tour->main_image;
         $orders->reviews_count=$orders->tour->reviews_count;
         $orders->ratings_overall=$orders->tour->ratings_overall;
         unset($orders->tour);
-
         return $orders;
     }
 
@@ -547,6 +546,7 @@ class ToursFilters
 
 
         $orders= $orders->map(function ($order) {
+            $order->paid = floor($order->paid);
             $order->grossProfit =  number_format($order->grossProfit,2) ;
             $order->averagePricePerPersonPerDay = number_format($order->average_price_per_person_per_day,2) ;
             $order->gross_profit_ratio = $order->gross_profit_ratio.'%';

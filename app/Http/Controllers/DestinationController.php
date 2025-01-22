@@ -375,10 +375,10 @@ class DestinationController extends Controller
           $images = collect($response->getResults())->map(function ($photo) {
               return [
                 'unsplash_id' => $photo['id'],
-                'url' => $photo['urls']['regular']. '&w=500&h=350',
+                'url' => $photo['urls']['regular']. '&w=1920&h=1080',
                 'name' => $photo['alt_description'],
                 'author' => $photo['user']['first_name']. ' ' .$photo['user']['last_name'],
-                'author_url' => $photo['user']['links']['self']
+                'author_url' => $photo['user']['links']['html']
               ];
           });
 
