@@ -144,10 +144,10 @@ private function saveTourToDatabase($tourData)
             }
         }
 
-        if ($departureStatus !== 'guaranteed') {
-            $this->info("Tour {$tourData['tour_id']} does not have any guaranteed departures. Skipping...");
-            return;
-        }
+        //if ($departureStatus !== 'guaranteed') {
+        //    $this->info("Tour {$tourData['tour_id']} does not have any guaranteed departures. Skipping...");
+        //    return;
+        //}
 
         $tour = Tour::updateOrCreate(
             ['tour_id' => $tourData['tour_id']],

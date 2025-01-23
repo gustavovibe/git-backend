@@ -180,28 +180,20 @@ class AuthController extends Controller
         try {
             \Log::info('Google Register: Received token: ' . $r->token);
 
-
             $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
-
             \Log::info('Google Client initialized successfully.');
 
-
             $payload = $client->verifyIdToken($r->token);
-
-
             \Log::info('Token verified. Payload:', $payload);
 
             if ($payload) {
-                // Proceed with user retrieval/creation logic
                 $user = User::where('email', $payload['email'])->first();
                 if (!$user) {
-
-
                     \Log::info('Creating new user for email: ' . $payload['email']);
                     $user = new User([
                         'email' => $payload['email'],
                         'name' => $payload['name'],
-                        'password' => Hash::make(uniqid()),
+                        'password' => Hash::make(Str::random(16)), // Usar una contraseña segura
                         'profile_id' => 2,
                         'role' => 1,
                         'active' => 1,
@@ -212,13 +204,16 @@ class AuthController extends Controller
                     $action = 'Register';
                 } else {
                     \Log::info('Updating last login for existing user: ' . $user->id);
-                    $user->tokens()->delete();
                     $user->last_login = Carbon::now();
                     $user->save();
+                    $user->tokens()->delete();
                     $action = 'Login';
                 }
+
                 $token = $user->createToken('auth_token')->plainTextToken;
+
                 \Log::info('Logging action: ' . $action);
+
                 ActionLog::create([
                     'user_id' => $user->id,
                     'type' => $action,
@@ -243,9 +238,10 @@ class AuthController extends Controller
             }
         } catch (\Exception $e) {
             \Log::error('Google Register Error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred during registration. Please try again later.'], 500);
         }
     }
+
 
     /**
      * Recover password.
