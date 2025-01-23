@@ -188,14 +188,15 @@ class AuthController extends Controller
 
             $payload = $client->verifyIdToken($r->token);
 
+
             \Log::info('Token verified. Payload:', $payload);
 
             if ($payload) {
                 // Proceed with user retrieval/creation logic
                 $user = User::where('email', $payload['email'])->first();
-                $user->tokens()->delete();
-                $token = $user->createToken('auth_token')->plainTextToken;
                 if (!$user) {
+
+
                     \Log::info('Creating new user for email: ' . $payload['email']);
                     $user = new User([
                         'email' => $payload['email'],
@@ -211,11 +212,12 @@ class AuthController extends Controller
                     $action = 'Register';
                 } else {
                     \Log::info('Updating last login for existing user: ' . $user->id);
+                    $user->tokens()->delete();
                     $user->last_login = Carbon::now();
                     $user->save();
                     $action = 'Login';
                 }
-
+                $token = $user->createToken('auth_token')->plainTextToken;
                 \Log::info('Logging action: ' . $action);
                 ActionLog::create([
                     'user_id' => $user->id,
