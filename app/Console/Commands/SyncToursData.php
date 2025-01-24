@@ -11,8 +11,8 @@ use App\Models\Country;
 use App\Models\TourCountry;
 use App\Models\NaturalDestination;
 use App\Models\TourNaturalDestination;
-use App\Models\tourType;
-use App\Models\tour_tourType;
+use App\Models\TourType;
+use App\Models\Type;
 
 class SyncToursData extends Command
 {
