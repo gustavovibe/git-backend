@@ -13,6 +13,8 @@ class Type extends Model
     protected $fillable = [
         'tourtype_id',
         'tourtype_name',
+        'group_id',
+        'group_name',
     ];
 
 

@@ -24,8 +24,8 @@ class SyncToursData extends Command
     {
         $this->token = $this->asyncGetAccessToken();
 
-        $startPage = 101;
-        $endPage = 200;
+        $startPage = 1;
+        $endPage = 2;
 
         for ($currentPage = $startPage; $currentPage <= $endPage; $currentPage++) {
             $tours = $this->fetchDataFromApi($currentPage)['items'] ?? [];
@@ -136,12 +136,12 @@ private function saveTourToDatabase($tourData)
         $departuresData = $this->getDeparturesByTour($tourData['tour_id']);
         $departuresItems = $departuresData['items'] ?? [];
         $departureStatus = 'not_guaranteed';
-
+		
         foreach ($departuresItems as $departure) {
             if ($departure['departure_type'] === 'guaranteed') {
                 $departureStatus = 'guaranteed';
-                break;
             }
+			break;
         }
 
         //if ($departureStatus !== 'guaranteed') {
@@ -185,21 +185,21 @@ private function saveTourToDatabase($tourData)
 
         // Save related cities
         if (isset($tourData['destinations']['cities'])) {
-            $this->saveCitiesToDatabase($tourData['destinations']['cities'], $tour->tour_id);
+            $this->saveCitiesToDatabase($tourData['destinations']['cities'], $tourData['tour_id']);
         }
 		
 		// Save related countries
         if (isset($tourData['destinations']['countries'])) {
-            $this->saveCountriesToDatabase($tourData['destinations']['countries'], $tour->tour_id);
+            $this->saveCountriesToDatabase($tourData['destinations']['countries'], $tourData['tour_id']);
         }
 		// Save related natural destinations
         if (isset($tourData['destinations']['natural_destinations'])) {
-            $this->saveNaturalsToDatabase($tourData['destinations']['natural_destinations'], $tour->tour_id);
+            $this->saveNaturalsToDatabase($tourData['destinations']['natural_destinations'], $tourData['tour_id']);
         }
 		
 		// Save related tour types
         if (isset($tourData['tour_types'])) {
-            $this->saveTypesToDatabase($tourData['tour_types'], $tour->tour_id);
+            $this->saveTypesToDatabase($tourData['tour_types'], $tourData['tour_id']);
         }
 
     } catch (\Exception $e) {
@@ -316,7 +316,7 @@ private function saveTypesToDatabase($types, $tourId)
     foreach ($types as $typeData) {
         try {
             // Check if type exists, if not, create it
-            $type = tourType::updateOrCreate(
+            $type = Type::updateOrCreate(
                 ['tour_type_id' => $typeData['type_id']],
                 [
                     'tourtype_name' => $typeData['type_name'],
@@ -330,7 +330,7 @@ private function saveTypesToDatabase($types, $tourId)
 
             if ($tourId && $type->tour_type_id) {
                 // Attach the type to the tour
-                tour_Tourtype::updateOrCreate(
+                TourType::updateOrCreate(
                     ['tour_id' => $tourId, 'tour_type_id' => $type->tour_type_id],
                 );
 

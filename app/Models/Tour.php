@@ -13,7 +13,7 @@ class Tour extends Model
 
     protected $primaryKey = 'tour_id';
 
-    protected $fillable = [
+ 	protected $fillable = [
         'tour_id',
         'tour_name',
         'locale',
@@ -37,10 +37,29 @@ class Tour extends Model
         'main_thumbnail',
         'map_image',
         'map_thumbnail',
-        'commission',
+		'departures',
+        'operator_id',
+		'operator_name',
+		'commission',
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
+
+    protected $casts = [
+        'tour_id' => 'integer',
+        'tour_name' => 'string',
+        'locale' => 'string',
+        'language' => 'string',
+        'is_active' => 'boolean',
+        'tour_length_days' => 'integer',
+        'start_city' => 'integer',
+        'end_city' => 'integer',
+        'is_instant_confirmable' => 'boolean',
+        'price_total' => 'decimal:2',
+        'price_currency' => 'string',
+        'price_promotion' => 'decimal:2',
+        'departures' => 'string', 
+    ];
 
     public function cities()
     {
