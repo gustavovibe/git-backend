@@ -617,7 +617,7 @@ public function convertDurationToMinutes($duration)
                 $bookingId = null;
 
                 if($order != null){ 
-                    $bookingId = $order['booking_id'];
+                    $bookingId = json_decode($order['booking_id']);
                 }
                 
                 // Update database record
