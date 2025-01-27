@@ -614,10 +614,10 @@ public function convertDurationToMinutes($duration)
                 $orderId = $response[2]['data']['id'] ?? null;
                 \Log::info('stripe webhook OrderID response: ' . json_encode($orderId));   
                 
+                $bookingId = null;
+
                 if($order != null){ 
                     $bookingId = $order['booking_id'];
-                }else{
-                    $bookingId = 'not created';
                 }
                 
                 // Update database record
