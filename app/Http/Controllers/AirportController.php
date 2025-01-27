@@ -19,7 +19,8 @@ class AirportController extends Controller
     {
         $client = new Client();
         $url = 'https://api.duffel.com/air/airports';
-        $authorization = 'Bearer duffel_test_sf_69EQS6KXC3-FmqSn48zmzIg3-qlrX7zQpr00n2Ho';
+        $authorization = 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2';
+
         $headers = [
             'Accept' => 'application/json',
             'Duffel-Version' => 'v1',
