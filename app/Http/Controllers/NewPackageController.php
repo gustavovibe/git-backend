@@ -337,8 +337,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
                 ]);
-                $mail = new BookingMail($order);
-                Mail::to($order->user->email)->send($mail);    
+                    
             } else {
                 throw new \Exception('Order could not be created.');
             }
@@ -633,7 +632,10 @@ public function convertDurationToMinutes($duration)
                         'checkout_session' => $cs, 
                         'updated_at' => now(),
                     ]);
-    
+                
+                $mail = new BookingMail($order);
+                Mail::to($order->user->email)->send($mail);
+
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
     
