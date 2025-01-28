@@ -34,7 +34,8 @@ class ProcessPendingAttempts extends Command
             ->get();
 
         foreach ($pendingAttempts as $attempt) {
-            Log::info('automatic Processing attempt ID: ' . $attempt->id);
+
+            Log::info('automatic Processing attempt ID: ' . $attempt->id. 'expiration: ' . $attempt->expiration );
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;
@@ -152,15 +153,17 @@ class ProcessPendingAttempts extends Command
         } 
         */   
         foreach ($expiredAttempts as $attempt) {
-            DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
+            Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $cs = $attempt->checkout_session;
+            $paymentIntent = $attempt->payment_id;
             if(!$cs){
                 Log::error('No payment intent found in attempt: ' . $attempt->id );
                 continue;
             }
             try {
                 $stripeResponse = StripeController::expireSession($cs);
-                Log::info('automatic Stripe cancell payment for payment ID ' . $cs . ': ' . json_encode($stripeResponse));
+                Log::info('automatic Stripe cancell payment for payment checkout ' . $cs . ' and payment id: ' .$paymentIntent. ' response: ' . json_encode($stripeResponse));
+                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $cs . ': ' . $e->getMessage());
