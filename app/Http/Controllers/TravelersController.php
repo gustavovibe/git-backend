@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Models\ActionLog;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -106,6 +107,13 @@ class TravelersController extends Controller
                 'status'=>1,
             ])->save();
 
+            $user= User::where('email',$traveler->mail)->first();
+            if($user){
+                $user->phone=$r->phone;
+                $user->phone_country=$r->phone_country;
+                $user->country=$r->country;
+                $user->save();
+            }
 
             ActionLog::create([
                 'user_id' => $r->user_log,
