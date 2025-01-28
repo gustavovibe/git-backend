@@ -28,11 +28,11 @@ class PackageController extends Controller
 
     /**
      * Create checkout session.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
-     * @return array     
+     * @return array
      */
     public function createCheckoutSession(Request $request)
     {
@@ -126,9 +126,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Book package.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param array $tour Tour
      * @param array $flight Flight
      * @return array
@@ -426,8 +426,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
         ];
 
         $order = Order::create($orderData);
-        $mail = new BookingMail($order);
-        Mail::to($order->user->email)->send($mail);
+        if($order){
+            $mail = new BookingMail($order);
+            Mail::to($order->user->email)->send($mail);
+        }
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {
             if ($order && $order->booking_id) {
@@ -456,9 +458,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Create baggage checkout session.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -506,11 +508,11 @@ private function getDuffelHeaders(){
 
     /**
      * Get order details.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $order_id Order ID
-     * @return array         
+     * @return array
      */
 public function getOrderDetails($order_id){
 $url = 'https://api.duffel.com/air/orders/'.$order_id;
@@ -520,11 +522,11 @@ return $response->json();
 
     /**
      * Get offer ids.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $order_id Order ID
-     * @return array         
+     * @return array
      */
 public function getOfferIds($order_id){
     $url = "https://api.duffel.com/air/orders/{$order_id}/available_services";
@@ -541,9 +543,9 @@ public function getOfferIds($order_id){
 
     /**
      * Order services.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -567,9 +569,9 @@ public function OrderServices(Request $r){
 
     /**
      * Valid baggage.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $value Value
      * @return array
      */
@@ -590,9 +592,9 @@ public function validBaggage($value){
 
     /**
      * Update duffel order.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -646,11 +648,11 @@ public function updateDuffelOrder(Request $r)
 
     /**
      * Checkout webhook.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
-     * @return array     
+     * @return array
      */
 public function checkoutWebhook(Request $request)
 {
@@ -798,11 +800,11 @@ public function checkoutWebhook(Request $request)
 
     /**
      * Check booking status.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
-     * @return array     
+     * @return array
      */
 public function checkBookingStatus(Request $request)
 {

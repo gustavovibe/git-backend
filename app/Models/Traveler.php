@@ -28,7 +28,8 @@ class Traveler extends Model
         'address',
         'country',
         'user_id',
-        'status'
+        'status',
+        'phone_country'
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
