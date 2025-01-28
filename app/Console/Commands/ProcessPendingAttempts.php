@@ -30,7 +30,7 @@ class ProcessPendingAttempts extends Command
     {
         $pendingAttempts = DB::table('attempts')
             ->where('status', 'pending')
-            ->where('expiration', '<=', now())
+            ->where('expiration', '>=', now())
             ->get();
 
         foreach ($pendingAttempts as $attempt) {
