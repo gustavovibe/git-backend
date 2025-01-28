@@ -9,6 +9,7 @@ use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\StripeController;
+use App\Models\Order;
 
 class ProcessPendingAttempts extends Command
 {
@@ -44,11 +45,25 @@ class ProcessPendingAttempts extends Command
             Log::info('automatic Processing booking ID: ' . $tBookingId);
 
             try {
-                $statusResponse = TourRadarController::checkBooking($tBookingId);
+                // Check if the order exists in the database
+                $order = Order::where('tourradar_id', $tBookingId)->first();
+            
+                if ($order) {
+                    // If the order is found, return the `tourradar_status`
+                    $statusResponse = $order->tourradar_status;
+                    Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
+                    return $statusResponse; // Return the status or handle it as needed
+                } else {
+                    // If the order is not found, make the API call
+                    $statusResponse = TourRadarController::checkBooking($tBookingId);
+                    Log::info("Automatic API call made for booking ID: " . $tBookingId);
+            
+                }
+                return $statusResponse; // Return the API response as needed
             } catch (\Exception $e) {
-                Log::error('automatic Error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
-                continue;
-            }            
+                Log::error('Automatic error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()], 500); // Return an error response
+            }
 
             if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
                 // Retrieve flight data from the current attempt
