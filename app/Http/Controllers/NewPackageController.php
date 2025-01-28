@@ -29,9 +29,9 @@ class NewPackageController extends Controller
 
     /**
      * Create checkout session.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -79,9 +79,9 @@ class NewPackageController extends Controller
 
     /**
      * Create checkout session internal.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $productName Product name
      * @param string $productDescription Product description
      * @param float $amount Amount
@@ -138,7 +138,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'card',
                 'affirm',
                 'klarna',
-            ], 
+            ],
         ]);
 
         // Return the session URL and attempt ID
@@ -150,13 +150,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Book package.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param array $tour Tour
      * @param array $flight Flight
      * @return array
-     */ 
+     */
     public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId)
     {
         $order = null;
@@ -182,7 +182,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
-            
+
             DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
@@ -191,7 +191,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
-    
+
             Log::info('Tourradar error: ' . $attemptId, ['error' => $tourResponse['error']]);
 
         }else {
@@ -200,9 +200,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
             Log::info('bookPackage duffel request: ' . json_encode($flight));
             $flightResponse = DuffelApiController::createNewBooking($flight);
-    
+
             //Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
-    
+
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
                 DB::table('attempts')
@@ -213,11 +213,11 @@ private function createCheckoutSessionInternal($productName, $productDescription
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
-    
+
                 Log::info('Duffel error: ' . $attemptId, ['error' => $flightResponse['errors']]);
             }
-    
-            elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {    
+
+            elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
@@ -228,33 +228,33 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Create order.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param array $flightResponse Flight response
      * @param array $tourResponse Tour response
      * @return array
-     */ 
+     */
     public function createOrder($flightResponse, $tourResponse, $paymentId){
 
         $departure1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['departing_at']);
         $arrival1 = Carbon::parse($flightResponse['data']['slices'][0]['segments'][0]['arriving_at']);
         $departure2 = Carbon::parse($flightResponse['data']['slices'][1]['segments'][0]['departing_at']);
         $arrival2 = Carbon::parse($flightResponse['data']['slices'][1]['segments'][0]['arriving_at']);
-    
+
         $duration1_in_minutes = $arrival1->diffInMinutes($departure1);
         $duration2_in_minutes = $arrival2->diffInMinutes($departure2);
         $total_duration_in_minutes = $duration1_in_minutes + $duration2_in_minutes;
         $total_hours = floor($total_duration_in_minutes / 60);
         $remaining_minutes = $total_duration_in_minutes % 60;
         $total_days = $total_hours / 24;
-    
+
         $totalDaysWithTour = $total_days + $tourResponse['tour']['tour_length_days'];
         $tripDuration = $this->calculateTripDuration($totalDaysWithTour);
-    
+
         $tourLength = $tourResponse['tour']['tour_length_days'];
         $adventureDuration = $this->calculateAdventureDuration($tourLength);
-        
+
         $passenger = $tourResponse['passengers'][0];
         $dob = Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']);
         $today = Carbon::now();
@@ -263,9 +263,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $mainPassengerCountry = $passenger['fields']['place_of_issue'];
 
         $ageGroup = $this->determineAgeGroup($mainPassengerAge);
-    
+
         $tour = Tour::where('tour_id', $tourResponse['tour']['tour_id'])->select('tour_id', 'commission')->first();
-        
+
         $passengers = $tourResponse['passengers'];
 
         $user = $this->createUser($passenger);
@@ -325,7 +325,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'payment_id' => $paymentId,
             'stripe_fee' => null
         ];
-    
+
         $order = Order::create($orderData);
 
         $traveler_id = $this->createTravelers($passengers, $userId);
@@ -337,7 +337,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     'flight' => $flightResponse,
                     'tour' => $tourResponse,
                 ]);
-                    
+
             } else {
                 throw new \Exception('Order could not be created.');
             }
@@ -350,9 +350,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Calculate adventure duration.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param int $tourLength Tour length
      * @return string
      */
@@ -377,9 +377,9 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Calculate trip duration.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param float $totalDaysWithTour Total days with tour
      * @return string
      */
@@ -403,15 +403,15 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 return '0';
         }
     }
-        
+
 
     /**
      * Determine age group.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param int $mainPassengerAge Main passenger age
-     * @return string     
+     * @return string
      */
     public function determineAgeGroup(int $mainPassengerAge): string {
         switch (true) {
@@ -434,19 +434,19 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
     /**
      * Create passengers.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param array $tourBody Tour body
      * @return array
      */
     public function createUser($passenger)
     {
         $random = Str::random(12);
-    
+
         // Check if the user exists
         $user = User::where('email', $passenger['fields']['email'])->first();
-    
+
         // If the user doesn't exist, create a new one
         if (!$user) {
             $user = new User();
@@ -463,11 +463,11 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'hear' => "without comment",
             ]);
             $user->save();
-    
+
             Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random, 'id'=>$user->id]));
-            
+
         }
-    
+
         // Log the action if the user was found or created
         ActionLog::create([
             'user_id' => $user->id,
@@ -475,10 +475,10 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'action' => 'Order created successfully',
             'item' => 'Order',
         ]);
-    
+
         return $user;
     }
-    
+
 
 public function createTravelers($passengers,$userId)
 {
@@ -500,7 +500,7 @@ public function createTravelers($passengers,$userId)
                 'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
                 'phone' => $passenger['fields']['phone_number'],
                 'address' => isset($passenger['fields']['address']) ? $passenger['fields']['address'] : 'n/a',
-                'user_id' => $userId, 
+                'user_id' => $userId,
                 'status' => 1,
             ]
         );
@@ -516,12 +516,12 @@ public function createTravelers($passengers,$userId)
 
     /**
      * Convert duration to minutes.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param string $duration Duration
      * @return int
-     */ 
+     */
 public function convertDurationToMinutes($duration)
 {
     try {
@@ -535,25 +535,25 @@ public function convertDurationToMinutes($duration)
 
     /**
      * Checkout webhook.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
-     * @return array     
+     * @return array
      */
     public function checkoutWebhook(Request $request)
     {
         // Set Stripe secret key
         Stripe::setApiKey(config('services.stripe.secret'));
-    
+
         // Webhook secret
         $endpointSecret = 'whsec_lvpw37kpWipUbi3iQT8N4kMXI3sGxOcx';
-    
+
         // Retrieve the payload and signature header
         $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');
         $event = null;
-    
+
         try {
             // Construct the event from the payload and header
             $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
@@ -564,33 +564,33 @@ public function convertDurationToMinutes($duration)
             \Log::error('Invalid signature: ' . $e->getMessage());
             return response()->json(['status' => 'success'], 200); // Always return success
         }
-    
+
         // Handle the event type
         switch ($event->type) {
             case 'checkout.session.completed':
                 $session = $event->data->object;
-                $paymentId = $session->payment_intent; 
-                $cs = $session->id; 
+                $paymentId = $session->payment_intent;
+                $cs = $session->id;
                 // Extract metadata
                 $attemptId = $session->metadata->attempt_id ?? null;
-    
+
                 if (!$attemptId) {
                     \Log::error('No attempt ID found in session metadata.');
                     break;
                 }
-    
+
                 // Retrieve the attempt record from the database
                 $attempt = DB::table('attempts')->where('id', $attemptId)->first();
                 if (!$attempt) {
                     \Log::error('Attempt not found for ID: ' . $attemptId);
                     break;
                 }
-    
+
                 \Log::info('Processing booking for attempt ID: ' . $attemptId);
-    
+
                 $RequestTour = json_decode($attempt->tour, true);
                 $RequestFlight = json_decode($attempt->flight, true);
-                
+
                 \Log::info('Payment Id: ' . $paymentId);
 
                 // Execute booking process
@@ -601,7 +601,7 @@ public function convertDurationToMinutes($duration)
                 }
 
                 $response = $this->bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId);
-                
+
                 // Extract responses
                 $status = $response[0] ?? null;
                 $tourResponse = $response[1] ?? null;
@@ -611,14 +611,19 @@ public function convertDurationToMinutes($duration)
                 $order = $response[3] ?? null;
                 \Log::info('stripe webhook Order response: ' . json_encode($order));
                 $orderId = $response[2]['data']['id'] ?? null;
-                \Log::info('stripe webhook OrderID response: ' . json_encode($orderId));   
-                
+                \Log::info('stripe webhook OrderID response: ' . json_encode($orderId));
+
                 $bookingId = null;
 
-                if($order != null){ 
+                if($order != null){
+                    \Log::info('email send package controller' );
                     $bookingId = json_decode($order['booking_id']);
+                    $order_n= Order::where('user_id',$order['user_id'])->first();
+                    $mail = new BookingMail($order_n);
+                    Mail::to($order_n->user->email)->send($mail);
+                    \Log::info('email  package controller sent' );
                 }
-                
+
                 // Update database record
                 DB::table('attempts')
                     ->where('id', $attemptId)
@@ -629,43 +634,42 @@ public function convertDurationToMinutes($duration)
                         'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
                         'payment_id' => $paymentId,
-                        'checkout_session' => $cs, 
+                        'checkout_session' => $cs,
                         'updated_at' => now(),
                     ]);
-                
-                $mail = new BookingMail($order);
-                Mail::to($order->user->email)->send($mail);
+
+
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
-    
+
             case 'checkout.session.async_payment_succeeded':
                 // Future implementation for async success
                 \Log::info('Async payment succeeded event received.');
                 break;
-    
+
             case 'checkout.session.async_payment_failed':
                 // Future implementation for async failure
                 \Log::info('Async payment failed event received.');
                 break;
-    
+
             default:
                 \Log::warning('Unhandled event type: ' . $event->type);
                 break;
         }
-    
+
         // Always return success
         return response()->json(['status' => 'success'], 200);
     }
-    
+
 
     /**
      * Check booking status.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
-     * @return array     
+     * @return array
      */
     public function checkBookingStatus(Request $request)
     {
@@ -673,14 +677,14 @@ public function convertDurationToMinutes($duration)
         $request->validate([
             'attempt_id' => 'required|integer|exists:attempts,id',
         ]);
-    
+
         try {
             // Retrieve the attempt with specific columns
             $attempt = DB::table('attempts')
                 ->select('status', 'booking_id', 'expiration')
                 ->where('id', $request->attempt_id)
                 ->first();
-    
+
             if ($attempt && $attempt->booking_id) {
                 return response()->json([
                     'status' => $attempt->status,
@@ -688,7 +692,7 @@ public function convertDurationToMinutes($duration)
                     'expiration' => $attempt->expiration,
                 ]);
             }
-    
+
             // Return pending status if booking_id is not set
             return response()->json(['status' => 'pending'], 200);
         } catch (\Exception $e) {
@@ -698,5 +702,5 @@ public function convertDurationToMinutes($duration)
                 'message' => $e->getMessage(),
             ], 500);
         }
-    }    
+    }
 }

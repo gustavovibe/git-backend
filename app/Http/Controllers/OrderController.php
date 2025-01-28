@@ -19,9 +19,9 @@ class OrderController extends Controller
 
     /**
      * Get all orders.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -34,9 +34,9 @@ class OrderController extends Controller
 
     /**
      * Get all orders in CSV format.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -78,18 +78,18 @@ class OrderController extends Controller
 
     /**
      * Get Order by ID.
-     * 
-     * This endpoint will return the order with the given ID. 
-     * 
+     *
+     * This endpoint will return the order with the given ID.
+     *
      * Updated at 09/12/2024 (user)
-     * 
+     *
      * @param int $id id for the order
      *
      */
     public function getOrder($id)
     {
         $order = Order::with(['flightTour', 'travelers', 'user'])->find($id);
-        
+
         return response()->json([
             'success' => true,
             'data' => $order,
@@ -99,12 +99,12 @@ class OrderController extends Controller
 
     /**
      * Get admin reports.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
-     * 
+     *
      */
     public function adminReports(Request $request)
     {
@@ -214,9 +214,9 @@ class OrderController extends Controller
 
     /**
      * Store a new order.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -279,17 +279,18 @@ class OrderController extends Controller
         if ($request->has('traveler_ids')) {
             $order->travelers()->attach($request->input('traveler_ids'));
         }
-
+        \Log::info('email  package controller  Order controller' );
         $mail = new BookingMail($order);
         Mail::to($order->user->email)->send($mail);
+        \Log::info('email  package controller sent Order controller' );
         return response()->json($order, 201);
     }
 
     /**
      * Get admin orders.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -433,12 +434,12 @@ class OrderController extends Controller
 
     /**
      * Get orders.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
-     */ 
+     */
     public function getOrders(Request $request)
     {
         $today = date('Y-m-d');
@@ -488,9 +489,9 @@ class OrderController extends Controller
 
     /**
      * Get order with travelers.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @param int $booking_id Booking ID
      * @return array

@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Models\ActionLog;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -15,9 +16,9 @@ class TravelersController extends Controller
 
     /**
      * Get travelers.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -48,9 +49,9 @@ class TravelersController extends Controller
 
     /**
      * Write travelers.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -71,6 +72,7 @@ class TravelersController extends Controller
                 'expire' => 'required',
                 'mail' => 'required|string|email|max:255',
                 'phone' => 'required|string|max:255',
+                'phone_country' => 'required|string|max:5',
                 'address' => 'required|string',
                 'country' => 'required|string|max:255',
             ];
@@ -98,12 +100,20 @@ class TravelersController extends Controller
                 'expire' =>Carbon::parse(strtotime($r->expire)),
                 'mail' => $r->mail,
                 'phone' => $r->phone,
+                'phone_country' => $r->phone_country,
                 'address' => $r->address,
                 'country' => $r->country,
                 'user_id'=>$r->user_id,
                 'status'=>1,
             ])->save();
 
+            $user= User::where('email',$traveler->mail)->first();
+            if($user){
+                $user->phone=$r->phone;
+                $user->phone_country=$r->phone_country;
+                $user->country=$r->country;
+                $user->save();
+            }
 
             ActionLog::create([
                 'user_id' => $r->user_log,
@@ -121,9 +131,9 @@ class TravelersController extends Controller
 
     /**
      * Get traveler data.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */
@@ -212,9 +222,9 @@ class TravelersController extends Controller
 
     /**
      * Update.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @param int $id ID
      * @return array
@@ -247,9 +257,9 @@ class TravelersController extends Controller
 
     /**
      * Destroy.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @param int $id ID
      * @return array
@@ -277,9 +287,9 @@ class TravelersController extends Controller
 
     /**
      * Traveler id.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
