@@ -53,20 +53,20 @@ class ProcessPendingAttempts extends Command
                     // If the order is found, return the `tourradar_status`
                     $statusResponse = $order->tourradar_status;
                     Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
-                    return $statusResponse; // Return the status or handle it as needed
+                    continue;
+
                 } else {
                     // If the order is not found, make the API call
                     $statusResponse = TourRadarController::checkBooking($tBookingId);
                     Log::info("Automatic API call made for booking ID: " . $tBookingId);
             
                 }
-                return $statusResponse; // Return the API response as needed
             } catch (\Exception $e) {
                 Log::error('Automatic error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
-                return response()->json(['error' => $e->getMessage()], 500); // Return an error response
+                continue; 
             }
 
-            if (isset($statusResponse['status']) && $statusResponse['status'] == "confirmed") {
+            if ($statusResponse == "confirmed") {
                 // Retrieve flight data from the current attempt
                 $flight = json_decode($attempt->flight, true);
 
@@ -133,7 +133,7 @@ class ProcessPendingAttempts extends Command
 
         $expiredAttempts = DB::table('attempts')
             ->where('status', 'pending')
-            ->where('expiration', '>=', now())
+            ->where('expiration', '<', now())
             ->get();
         /*    
         foreach ($expiredAttempts as $attempt) {
@@ -167,6 +167,7 @@ class ProcessPendingAttempts extends Command
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $cs . ': ' . $e->getMessage());
+                
             }
         }  
     }
