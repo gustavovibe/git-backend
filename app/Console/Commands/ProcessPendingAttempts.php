@@ -39,6 +39,7 @@ class ProcessPendingAttempts extends Command
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;
+            
             if(!$tBookingId){
                 Log::error('No tBookingId found in response');
                 continue;
@@ -58,17 +59,18 @@ class ProcessPendingAttempts extends Command
                 } else {
                     // If the order is not found, make the API call
                     $statusResponse = TourRadarController::checkBooking($tBookingId);
-                    Log::info("Automatic API call made for booking ID: " . $tBookingId);
-            
+                    Log::info("Automatic API call made for booking ID: " . $tBookingId . " - Response: " . json_encode($statusResponse));
+    
                 }
             } catch (\Exception $e) {
-                Log::error('Automatic error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                Log::error('Automatic error checking booking ID ' . $tBookingId . ' : ' . $e->getMessage());
                 continue; 
             }
 
             if ($statusResponse == "confirmed") {
                 // Retrieve flight data from the current attempt
                 $flight = json_decode($attempt->flight, true);
+                Log::info('automatic Flight Data: ' . json_encode($flight));
 
                 if (isset($flight['data']['payments'], $flight['data']['passengers'])) {
                     $payments = $flight['data']['payments'][0] ?? null;
@@ -95,6 +97,7 @@ class ProcessPendingAttempts extends Command
                         Log::info('automatic Duffel booking successful for booking ID ' . $tBookingId);
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                        
                         // Execute get paymentIntent
                         $stripePiResponse = StripeController::getPaymentIntent($paymentId);
 
