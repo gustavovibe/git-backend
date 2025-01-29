@@ -52,7 +52,7 @@ class ProcessPendingAttempts extends Command
             
                 if ($order) {
                     // If the order is found, return the `tourradar_status`
-                    $statusResponse = $order->tourradar_status;
+                    $statusResponse = strval($order->tourradar_status);
                     Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
                     continue;
 
@@ -67,7 +67,7 @@ class ProcessPendingAttempts extends Command
                 continue; 
             }
 
-            if ($statusResponse == "confirmed") {
+            if ($statusResponse === "confirmed") {
                 // Retrieve flight data from the current attempt
                 $flight = json_decode($attempt->flight, true);
                 Log::info('automatic Flight Data: ' . json_encode($flight));
