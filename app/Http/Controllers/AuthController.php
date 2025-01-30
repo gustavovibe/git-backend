@@ -43,11 +43,7 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'profile_id' =>2,
                 'phone' => $request->phone,
-              /*   'country' => $request->country, */
                 'role' => $request->role,
-               /*  'active' => $request->active,
-                'suscribed' => $request->suscribed,
-                'hear' => $request->hear, */
             ]);
 
              $user->tokens()->delete();
