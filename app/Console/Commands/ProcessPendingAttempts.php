@@ -149,7 +149,7 @@ class ProcessPendingAttempts extends Command
                 continue;
             }
             try {
-                //$stripeResponse = StripeController::cancellPayment($paymentIntent);
+                $stripeResponse = StripeController::cancellPayment($paymentIntent);
                 Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                 DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
