@@ -50,7 +50,7 @@ class ProcessPendingAttempts extends Command
                 // Check if the order exists in the database
                 $order = Order::where('tourradar_id', $tBookingId)->first();
             } catch (\Exception $e) {
-                Log::error('Database error checking order for booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                Log::error('Database error checking order for tourradar booking ID ' . $tBookingId . ': ' . $e->getMessage());
                 return; // Stop execution if a database error occurs
             }
             
@@ -61,9 +61,9 @@ class ProcessPendingAttempts extends Command
                 try {
                     // If the order is not found, make the API call
                     $statusResponse = TourRadarController::checkBooking($tBookingId);
-                    Log::info("Automatic API call made for booking ID: " . $tBookingId . " - Response: " . $statusResponse);
+                    Log::info("Automatic API call made for tourradar booking ID: " . $tBookingId . " - Response: " . $statusResponse);
                 } catch (\Exception $e) {
-                    Log::error('API error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                    Log::error('API error checking tourradar booking ID ' . $tBookingId . ': ' . $e->getMessage());
                     return; // Stop execution if API fails
                 }
             }
@@ -72,32 +72,31 @@ class ProcessPendingAttempts extends Command
             // Ensure the status check is executed correctly
             if (trim(strtolower($statusResponse)) === "confirmed") {
                 // Retrieve flight data from the current attempt
-                $flight = json_decode($attempt->flight, true);
+                $flight = json_decode($attempt->duffel_res, true);
                 Log::info('automatic Flight Data: ' . json_encode($flight));
 
-                if (isset($flight['data']['payments'], $flight['data']['passengers'])) {
-                    $payments = $flight['data']['payments'][0] ?? null;
-                    $orderId = $tBookingId; // Using TourRadar's ID as order_id
+                if (isset($flight['data']['payment_status']['awaiting_payment'])) {
+                    $orderId = $attempts->order_id; // Using TourRadar's ID as order_id
                     $flightBody = [
                         'data' => [
                             'order_id' => $orderId,
                             'payment' => [
-                                'type' => $payments['type'],
-                                'amount' => $payments['amount'],
-                                'currency' => $payments['currency'] ?? 'USD',
+                                'type' => 'balance',
+                                'amount' => $flight['data']['total_amount'],
+                                'currency' => 'USD',
                             ],
                         ],
                     ];
 
                     // Call the confirmFlight function
                     $flightResponse = DuffelApiController::payBooking($flightBody);
-                    Log::info("automatic Duffel response for booking ID {$tBookingId}: " . json_encode($flightResponse));
+                    Log::info("automatic Duffel response for booking ID {$orderId}: " . json_encode($flightResponse));
 
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-                        Log::error('automatic Duffel booking failed for booking ID ' . $tBookingId);
+                        Log::error('automatic Duffel booking failed for duffel order ID ' . $orderId;
                     } else {
                         $paymentIntent = $attempt->payment_id;
-                        Log::info('automatic Duffel booking successful for booking ID ' . $tBookingId);
+                        Log::info('automatic Duffel booking successful for duffel order ID ' . $orderId);
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                         
@@ -128,12 +127,12 @@ class ProcessPendingAttempts extends Command
                         }
                     }
                 } else {
-                    Log::warning('automatic Flight data is incomplete for booking ID ' . $tBookingId);
+                    Log::warning('automatic Flight data is incomplete for duffel order ID ' . $orderId);
                 }
 
                 // Update the attempt status to confirmed
                 DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-                Log::info('automatic Booking ID ' . $tBookingId . ' confirmed.');
+                Log::info('automatic duffel order ID ' . $orderId . ' confirmed.');
             }
         }
 
