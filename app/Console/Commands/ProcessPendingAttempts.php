@@ -93,7 +93,7 @@ class ProcessPendingAttempts extends Command
                     Log::info("automatic Duffel response for booking ID {$orderId}: " . json_encode($flightResponse));
 
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-                        Log::error('automatic Duffel booking failed for duffel order ID ' . $orderId;
+                        Log::error('automatic Duffel booking failed for duffel order ID ' . $orderId);
                     } else {
                         $paymentIntent = $attempt->payment_id;
                         Log::info('automatic Duffel booking successful for duffel order ID ' . $orderId);
