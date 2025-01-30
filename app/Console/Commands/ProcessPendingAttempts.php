@@ -49,25 +49,28 @@ class ProcessPendingAttempts extends Command
             try {
                 // Check if the order exists in the database
                 $order = Order::where('tourradar_id', $tBookingId)->first();
+            } catch (\Exception $e) {
+                Log::error('Database error checking order for booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                return; // Stop execution if a database error occurs
+            }
             
-                if ($order) {
-                    // If the order is found, return the `tourradar_status`
-                    $statusResponse = strval($order->tourradar_status);
-                    Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
-                    continue;
-
-                } else {
+            if ($order) {
+                $statusResponse = strval($order->tourradar_status);
+                Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
+            } else {
+                try {
                     // If the order is not found, make the API call
                     $statusResponse = TourRadarController::checkBooking($tBookingId);
-                    Log::info("Automatic API call made for booking ID: " . $tBookingId . " - Response: " . json_encode($statusResponse));
-    
+                    Log::info("Automatic API call made for booking ID: " . $tBookingId . " - Response: " . $statusResponse);
+                } catch (\Exception $e) {
+                    Log::error('API error checking booking ID ' . $tBookingId . ': ' . $e->getMessage());
+                    return; // Stop execution if API fails
                 }
-            } catch (\Exception $e) {
-                Log::error('Automatic error checking booking ID ' . $tBookingId . ' : ' . $e->getMessage());
-                continue; 
             }
+            Log::info("Final statusResponse before checking condition: '" . $statusResponse . "'");
 
-            if ($statusResponse === "confirmed") {
+            // Ensure the status check is executed correctly
+            if (trim(strtolower($statusResponse)) === "confirmed") {
                 // Retrieve flight data from the current attempt
                 $flight = json_decode($attempt->flight, true);
                 Log::info('automatic Flight Data: ' . json_encode($flight));
