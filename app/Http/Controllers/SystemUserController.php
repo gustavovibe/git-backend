@@ -30,9 +30,9 @@ class SystemUserController extends Controller
 
     /**
      * createUser.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -46,10 +46,10 @@ class SystemUserController extends Controller
                 'name'=>$r->name,
                 'email'=>$r->email,
                 'phone'=>$r->phone,
-                'country'=>$r->country,
+                'phone_country'=>$r->country,
                 'job_id'=>$r->job_id,
-                'profile_id'=>$r->id?$u->profile_id:1,
-                'active'=>$r->id?$u->active:1,
+                'profile_id'=>$r->profile_id?$r->profile_id:($u?$u->profile_id:2),
+                'active'=>$r->id?$u->active:($u?$u->active:1),
                 'role'=>$r->id?$u->role:1,
                 'password'=>$r->id?$u->password:Hash::make($random)
             ])->save();
@@ -74,9 +74,9 @@ class SystemUserController extends Controller
                 }
             }
             ActionLog::create([
-                'user_id' => $u->user_log,
-                'type' =>$r->id?'Update':'Created',
-                'action' =>$r->id? 'User update successfully':'User created successfully',
+                'user_id' => $u->id,
+                'type' =>$r->user_id?'Update':'Created',
+                'action' =>$u->id? 'User update successfully':'User created successfully',
                 'item' => 'User',
             ]);
             DB::commit();
@@ -91,7 +91,7 @@ class SystemUserController extends Controller
     /**
      * Get Users by filters
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -107,9 +107,9 @@ class SystemUserController extends Controller
 
     /**
      * Delete Users
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -136,9 +136,9 @@ class SystemUserController extends Controller
 
     /**
      * Validate email.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */

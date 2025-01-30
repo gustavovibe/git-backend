@@ -456,6 +456,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'password' => Hash::make($random),
                 'profile_id' => 2,
                 'phone' => $passenger['fields']['phone_number'],
+                'phone_country' => $passenger['fields']['phone_country'],
                 'country' => $passenger['fields']['place_of_issue'],
                 'role' => 'role',
                 'active' => 1,
