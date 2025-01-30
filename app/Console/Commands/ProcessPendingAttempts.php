@@ -140,8 +140,9 @@ class ProcessPendingAttempts extends Command
             ->where('status', 'pending')
             ->where('expiration', '<', now())
             ->get();
-        /*    
+  
         foreach ($expiredAttempts as $attempt) {
+            Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $paymentIntent = $attempt->payment_id;
             if(!$paymentIntent){
                 Log::error('No payment intent found in attempt');
@@ -155,8 +156,8 @@ class ProcessPendingAttempts extends Command
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
-        } 
-        */   
+        }  
+        /* 
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $cs = $attempt->checkout_session;
@@ -175,5 +176,6 @@ class ProcessPendingAttempts extends Command
                 
             }
         }  
+        */   
     }
 }
