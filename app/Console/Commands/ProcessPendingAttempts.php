@@ -76,7 +76,7 @@ class ProcessPendingAttempts extends Command
                 Log::info('automatic Flight Data: ' . json_encode($flight));
 
                 if (isset($flight['data']['payment_status']['awaiting_payment'])) {
-                    $orderId = $attempts->order_id; // Using TourRadar's ID as order_id
+                    $orderId = $attempt->order_id; // Using TourRadar's ID as order_id
                     $flightBody = [
                         'data' => [
                             'order_id' => $orderId,
