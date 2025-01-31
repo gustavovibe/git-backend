@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wishlist;
-use App\Models\User; 
+use App\Models\User;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Models\Tour;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -15,23 +16,22 @@ class WishlistController extends Controller
 {
     /**
      * Get User's Wishlist by User Id.
-     * 
+     *
      * Gets:
      * User id (number)
      *
      */
-    public function index(Request $request)
+    public function index(Request $r)
     {
-        $user_id = $request->has('user_id') ? $request->post('user_id') : 0;
-        if(!empty($user_id)){
-            $traveler = Traveler::where('user_id', $user_id)->first();
-            if($traveler->traveler_id){
-                $wishlist = Wishlist::where('traveler_id', $traveler->traveler_id)->first();
-                ApiResponse::success($wishlist, 'User Wishlist');
+        try{
+            $traveler= Traveler::where('user_id',$r->id)->first();
+            if($traveler){
+                return ApiResponse::success($traveler->traveler_id, 'User Wishlist');
             }
+            return ApiResponse::error( 'User Wishlist');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
         }
-        $wishlists = Wishlist::all();
-        return ApiResponse::success($wishlists, 'User Wishlist');
     }
 
     /**
@@ -40,18 +40,22 @@ class WishlistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $r)
     {
-        $wishlist = Wishlist::findOrFail($id);
+        $w = Wishlist::query();
+        !$r->id?:$w->where('traveler_id',$r->id);
+
+        $wishlist= $w->with('tour')->get();
+
         return response()->json($wishlist);
     }
 
 
     /**
-     * 
-     * 
+     *
+     *
      * Adding tour to user's wishlist
-     * 
+     *
      * Gets:
      * User id (number)
      * Tour id (number)
