@@ -22,7 +22,8 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\TourController;
 use App\Mail\BookingMail;
 use App\Models\ActionLog;
-
+use Brick\PhoneNumber\PhoneNumber;
+use Brick\PhoneNumber\PhoneNumberFormat;
 class PackageController extends Controller
 {
 
@@ -205,11 +206,22 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $u= User::where('email',$passenger['fields']['email'])->first();
                 $user=$u?$u: new User;
                 if(!$u){
+                    $phone = $passenger['fields']['phone_number'];
+                    $countryCode='';
+                    $localNumber='';
+                    $parsedPhone = PhoneNumber::parse($phone);
+                    if($parsedPhone->format(PhoneNumberFormat::E164)){
+                        $countryCode = $parsedPhone->getCountryCode();
+                        $localNumber = $parsedPhone->getNationalNumber();
+                    }else{
+                        $localNumber= $passenger['fields']['phone_number'];
+                    }
                     $user->fill([
                         'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
                         'password' => Hash::make($random),
                         'profile_id' => 2,
-                        'phone' => $passenger['fields']['phone_number'],
+                        'phone' =>$localNumber,
+                        'phone_country' => $countryCode,
                         'country' => $passenger['fields']['place_of_issue'],
                         'role' => 'role',
                         'active' => 1,

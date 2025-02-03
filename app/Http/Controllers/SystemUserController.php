@@ -30,9 +30,9 @@ class SystemUserController extends Controller
 
     /**
      * createUser.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -46,7 +46,7 @@ class SystemUserController extends Controller
                 'name'=>$r->name,
                 'email'=>$r->email,
                 'phone'=>$r->phone,
-                'country'=>$r->country,
+                'country'=>$r->phone_country,
                 'job_id'=>$r->job_id,
                 'profile_id'=>$r->id?$u->profile_id:1,
                 'active'=>$r->id?$u->active:1,
@@ -91,7 +91,7 @@ class SystemUserController extends Controller
     /**
      * Get Users by filters
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -107,9 +107,9 @@ class SystemUserController extends Controller
 
     /**
      * Delete Users
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $r Request object
      * @return array
      */
@@ -136,9 +136,9 @@ class SystemUserController extends Controller
 
     /**
      * Validate email.
-     * 
+     *
      * Updated at 10/12/2024 (user)
-     * 
+     *
      * @param Request $request Request object
      * @return array
      */

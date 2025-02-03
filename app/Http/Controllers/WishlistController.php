@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wishlist;
-use App\Models\User; 
+use App\Models\User;
 use App\Models\Traveler;
 use App\Helpers\ApiResponse;
 use App\Models\Tour;
@@ -15,7 +15,7 @@ class WishlistController extends Controller
 {
     /**
      * Get User's Wishlist by User Id.
-     * 
+     *
      * Gets:
      * User id (number)
      *
@@ -40,18 +40,36 @@ class WishlistController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $r)
     {
-        $wishlist = Wishlist::findOrFail($id);
-        return response()->json($wishlist);
+        $wishlist = Wishlist::query();
+        !$r->id?:$wishlist->where('traveler_id',$r->id);
+      $wishlist= $wishlist->get();
+
+       return ApiResponse::success($wishlist,'contenido de wishlist');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function travelerID(Request $r)
+    {
+        $traveler = Traveler::where('user_id', $r->id)->first();
+        if($traveler){
+            return ApiResponse::success($traveler->traveler_id,'ok');
+        }
+        return ApiResponse::error('not found');
     }
 
 
     /**
-     * 
-     * 
+     *
+     *
      * Adding tour to user's wishlist
-     * 
+     *
      * Gets:
      * User id (number)
      * Tour id (number)

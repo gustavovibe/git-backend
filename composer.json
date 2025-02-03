@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.3",
         "barryvdh/laravel-dompdf": "^2.2",
+        "brick/phonenumber": "^0.6.0",
         "dedoc/scramble": "^0.11.28",
         "doctrine/dbal": "^3.8",
         "giggsey/libphonenumber-for-php": "^8.13",
