@@ -1,21 +1,21 @@
 stages:
-  - backup
+#  - backup
   - builder
   - deploy
 
-Backup:
-  stage: backup
-  script:
-    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
-    - eval $(ssh-agent -s)
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY_DATABASE" > ~/.ssh/id_rsa
-    - ssh-keyscan "$SSH_HOST_DATABASE" >> ~/.ssh/known_hosts
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u "$DB_USERNAME" --password="${DB_PASSWORD}" "${DB_DATABASE}" > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "aws s3 sync backup s3://backupvibedatabase/backups_every_deploy/"
-  only:
-    - develop
+#Backup:
+#  stage: backup
+#  script:
+#    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+#    - eval $(ssh-agent -s)
+#    - mkdir -p ~/.ssh
+#    - echo "$SSH_PRIVATE_KEY_DATABASE" > ~/.ssh/id_rsa
+#    - ssh-keyscan "$SSH_HOST_DATABASE" >> ~/.ssh/known_hosts
+#    - chmod 600 ~/.ssh/id_rsa
+#    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u "$DB_USERNAME" --password="${DB_PASSWORD}" "${DB_DATABASE}" > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
+#    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "aws s3 sync backup s3://backupvibedatabase/backups_every_deploy/"
+#  only:
+#    - develop
 
 Builder:
   stage: builder

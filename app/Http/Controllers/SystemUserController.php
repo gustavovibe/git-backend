@@ -48,8 +48,8 @@ class SystemUserController extends Controller
                 'phone'=>$r->phone,
                 'country'=>$r->phone_country,
                 'job_id'=>$r->job_id,
-                'profile_id'=>$r->id?$u->profile_id:1,
-                'active'=>$r->id?$u->active:1,
+                'profile_id'=>$r->profile_id?$r->profile_id:($u?$u->profile_id:2),
+                'active'=>$r->id?$u->active:($u?$u->active:1),
                 'role'=>$r->id?$u->role:1,
                 'password'=>$r->id?$u->password:Hash::make($random)
             ])->save();
@@ -74,9 +74,9 @@ class SystemUserController extends Controller
                 }
             }
             ActionLog::create([
-                'user_id' => $u->user_log,
-                'type' =>$r->id?'Update':'Created',
-                'action' =>$r->id? 'User update successfully':'User created successfully',
+                'user_id' => $u->id,
+                'type' =>$r->user_id?'Update':'Created',
+                'action' =>$u->id? 'User update successfully':'User created successfully',
                 'item' => 'User',
             ]);
             DB::commit();

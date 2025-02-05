@@ -16,4 +16,8 @@ class Wishlist extends Model
     public function traveler(){
         return $this->belongsTo(Traveler::class);
     }
+
+    public function tour(){
+        return $this->hasOne(Tour::class,'tour_id','tour_id');
+    }
 }
