@@ -46,7 +46,7 @@ class SystemUserController extends Controller
                 'name'=>$r->name,
                 'email'=>$r->email,
                 'phone'=>$r->phone,
-                'phone_country'=>$r->country,
+                'country'=>$r->phone_country,
                 'job_id'=>$r->job_id,
                 'profile_id'=>$r->profile_id?$r->profile_id:($u?$u->profile_id:2),
                 'active'=>$r->id?$u->active:($u?$u->active:1),

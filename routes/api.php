@@ -114,7 +114,7 @@ Route::post('/send_ac_notification', [TourController::class, 'abandonedCartNotif
 Route::post('/contact', [UserController::class, 'Contac']);
 Route::get('/show-contact', [UserController::class, 'showContac']);
 
-Route::get('/wishlists-check-traveler', [WishlistController::class, 'index']);
+Route::get('/wishlists-check-traveler', [WishlistController::class, 'travelerID']);
 Route::get('/wishlists', [WishlistController::class, 'show']);
 Route::post('/wishlists-add', [WishlistController::class, 'store']);
 Route::get('/get-all-countries', [CountryController::class, 'getAllCountries']);

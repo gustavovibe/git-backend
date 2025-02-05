@@ -42,12 +42,26 @@ class WishlistController extends Controller
      */
     public function show(Request $r)
     {
-        $w = Wishlist::query();
-        !$r->id?:$w->where('traveler_id',$r->id);
+        $wishlist = Wishlist::query();
+        !$r->id?:$wishlist->where('traveler_id',$r->id);
+      $wishlist= $wishlist->get();
 
-        $wishlist= $w->with('tour')->get();
+       return ApiResponse::success($wishlist,'contenido de wishlist');
+    }
 
-        return response()->json($wishlist);
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function travelerID(Request $r)
+    {
+        $traveler = Traveler::where('user_id', $r->id)->first();
+        if($traveler){
+            return ApiResponse::success($traveler->traveler_id,'ok');
+        }
+        return ApiResponse::error('not found');
     }
 
 

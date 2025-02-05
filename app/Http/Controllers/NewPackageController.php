@@ -23,6 +23,8 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\StripeController;
 use App\Mail\BookingMail;
 use App\Models\ActionLog;
+use Brick\PhoneNumber\PhoneNumber;
+use Brick\PhoneNumber\PhoneNumberFormat;
 
 class NewPackageController extends Controller
 {
@@ -450,13 +452,24 @@ private function createCheckoutSessionInternal($productName, $productDescription
         // If the user doesn't exist, create a new one
         if (!$user) {
             $user = new User();
+            $phone = $passenger['fields']['phone_number'];
+            $countryCode='';
+            $localNumber='';
+            $parsedPhone = PhoneNumber::parse($phone);
+            if($parsedPhone->format(PhoneNumberFormat::E164)){
+                $countryCode = $parsedPhone->getCountryCode();
+                $localNumber = $parsedPhone->getNationalNumber();
+            }else{
+                $localNumber= $passenger['fields']['phone_number'];
+            }
+
             $user->fill([
                 'name' => $passenger['fields']['first_name'] . " " . $passenger['fields']['last_name'],
                 'email' => $passenger['fields']['email'],
                 'password' => Hash::make($random),
                 'profile_id' => 2,
-                'phone' => $passenger['fields']['phone_number'],
-                'phone_country' => $passenger['fields']['phone_country'],
+                'phone' => $localNumber,
+                'phone_country' => $countryCode,
                 'country' => $passenger['fields']['place_of_issue'],
                 'role' => 'role',
                 'active' => 1,
