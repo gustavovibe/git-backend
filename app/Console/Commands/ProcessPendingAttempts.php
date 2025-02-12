@@ -149,7 +149,7 @@ class ProcessPendingAttempts extends Command
                 continue;
             }
             try {
-                $stripePayment = $stripe->paymentIntents->retrieve($paymentIntent);
+                $stripePayment = StripeController::getPaymentIntent($paymentIntent);
                 Log::info('automatic Stripe payment retrieved for payment ID ' . $paymentIntent . ': ' . json_encode($stripePayment));
                 if ($stripePayment['data']['canceled_at'] == null) {
                     $stripeResponse = StripeController::cancellPayment($paymentIntent);
