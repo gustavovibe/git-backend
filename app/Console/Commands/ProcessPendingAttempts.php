@@ -149,10 +149,17 @@ class ProcessPendingAttempts extends Command
                 continue;
             }
             try {
-                $stripeResponse = StripeController::cancellPayment($paymentIntent);
-                Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
-                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
-                Log::info('automatic attempt failed (expired): ' . $attempt->id );
+                $stripePayment = $stripe->paymentIntents->retrieve($paymentIntent);
+                Log::info('automatic Stripe payment retrieved for payment ID ' . $paymentIntent . ': ' . json_encode($stripePayment));
+                if ($stripePayment['data']['canceled_at'] == null) {
+                    $stripeResponse = StripeController::cancellPayment($paymentIntent);
+                    Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                    DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
+                    Log::info('automatic attempt failed (expired): ' . $attempt->id );
+                } else {
+                    DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
+                    Log::info('automatic attempt already cancelled in stripe: ' . $attempt->id );
+                }
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
