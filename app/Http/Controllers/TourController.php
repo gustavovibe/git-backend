@@ -11,6 +11,7 @@ use App\Mail\BookingMail;
 use App\Mail\SendSummary;
 use App\Mail\TourDetails;
 use App\Mail\AbandonedCartMail;
+use App\Mail\BookEmail;
 use App\Models\BookingSummary;
 use App\Models\Order;
 use App\Models\Type;
@@ -201,17 +202,73 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public function emailBConfirmation($booking_id){
-        $b=[
-            'tour_id'=>$booking_id
-        ];
+    public function emailBConfirmation(Request $r){
 
-        request()->merge($b);
 
-        $orders=ToursFilters::OrdersPrint(request());
-        $user= User::find($orders->user_id);
-        Mail::to($user->email)->send(new BookingMail($orders));
-        return 'booking confirmation';
+        $orders=ToursFilters::OrdersPrint($r);
+
+        /* return $orders; */
+
+
+        $booking_data = (new DuffelApiController)->getOrderById($r);
+
+        if (!isset($booking_data['data'])) {
+            throw new Exception('Invalid booking data structure');
+        }
+
+       /// adicion de servicio de tour
+
+       $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
+      /*  return $tourResponse; */
+       $tourData = $tourResponse->getData(true);
+       $tour=$tourData['data'];
+
+       foreach($tour['destinations']['countries'] as $co){
+           $countries[]=$co['country_name'];
+       }
+
+       foreach($tour['tour_types'] as $to){
+           $tour_types[]=$to['type_name'];
+       }
+
+       foreach($tour['guide_languages'] as $text){
+           $guide_types[]=$text['name'];
+       }
+       $countries_d=[
+           'countries_text'=>implode(',',$countries),
+           'tour_text'=>implode(',',$tour_types),
+           'guide_text'=>implode(',',$guide_types),
+       ];
+
+       $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
+        /// adicion de servicio de tickets
+        logger()->info('Booking data:', $booking_data);
+
+        $class=[];
+
+        foreach ($booking_data['data']['slices'] as &$slice) {
+            foreach ($slice['segments'] as &$segment) {
+                $duration = $segment['duration'];
+                $interval = new DateInterval($duration);
+                $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
+                $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
+                $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
+                $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
+                $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
+                foreach ( $segment['passengers'] as $passengers){
+                    if(!in_array($passengers['cabin_class_marketing_name'],$class)){
+                        $class[]=$passengers['cabin_class_marketing_name'];
+                    }
+                }
+                $segment['class']=implode(',',$class);
+            }
+        }
+        Mail::to($r->email)->send(new BookEmail($orders, $booking_data, $values));
+       /*  return $booking_data; */
+
+     /*    $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders]);
+        return $pdf->stream('booking_confirmation.pdf'); */
+
     }
 
     /**
@@ -226,13 +283,13 @@ class TourController extends Controller
         try{
             $orders=(new ToursFilters)->OrdersPrint($r);
             $orders=ToursFilters::OrdersPrint($r);
-            
+
             $url_payment='';
            if($orders->payment_id){
                $client = new Client();
                $url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
                $response = $client->request('GET', $url);
-               
+
                $responseBody =json_decode( $response->getBody()->getContents());
                if($responseBody->data->charge_details->receipt_url){
                 $url_payment=  $responseBody->data->charge_details->receipt_url;
@@ -247,14 +304,14 @@ class TourController extends Controller
             Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
 
             $logo = asset('storage/'.$logo);
-            return $logo;
+           /*  return $logo; */
             $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
             return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
     }
-    
+
 
     public function bookingTickets(Request $r){
         try{
@@ -339,7 +396,6 @@ class TourController extends Controller
      */
     public function bookingSummaryPdf(Request $r){
         $tourResponse = (new  ProxyTourRadarController)->show($r->tour_id);
-        /* $tourResponse =   ProxyTourRadarController::show($r->tour_id); */
         $tourData = $tourResponse->getData(true);
         $tour=$tourData['data'];
 

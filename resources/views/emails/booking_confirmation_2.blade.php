@@ -461,12 +461,12 @@
     </style>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif;">
+<body style="font-family: 'Canaro', sans-serif; padding:2%;">
     <br>
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+               {{--  <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt=""> --}}
             </div>
             <div>
                 <label style="margin-top: 20px;">Manage my booking</label>
@@ -475,12 +475,9 @@
         </div>
     </div>
     <br>
- {{--    <div style="text-align: center; margin: 20px;">
-        <label style="display: block; width: 100%; max-width: 100%; border: 2px solid #82CF45; padding: 3%; border-radius: 15px; background-color: rgba(0, 128, 0, 0.1); font-size: 1.2rem; color: #82CF45;">
-            Your trip has been booked successfully! Confirmation
-            <b>#:{{ $orders->booking_id }}.</b>
-        </label>
-    </div> --}}
+    {{-- <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid #82CF45;"></div> --}}
+
+
     <div>
             @if ($orders->booking_status !='pending')
             <h1>We've booked everything for your trip!</h1>
@@ -491,22 +488,30 @@
         </div>
     <br>
     <div>
+
         <table style="width:100%">
             <tr>
                 <td style="font-weight: bold;color:gray">BOOKING NUMBER</td>
                 <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
             </tr>
             <tr>
-                <td><b>{{ $orders->booking_id }}</b> </td>
                 <td>
-                    @if ($orders->booking_status !='pending')
-                    <img style="width: 25%; height: 3%;"
-                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}">
-                    @else
-                    <img style="width: 25%; height: 3%;"
-                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}">
-                    @endif
-
+                    <div style="margin-top: 2%">
+                        <b>{{ chunk_split($orders->booking_id, 3, ' ') }}</b>
+                    </div>
+                </td>
+                <td>
+                    <div style="margin-top: 2%">
+                        @if ($orders->booking_status !='pending')
+                      {{--   <img style="width: 20%; height: 3%;"
+                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}"> --}}
+                        <p style="width: 25%; height: 3%;color: #82CF45;background: rgba(130, 207, 69, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Confirmed</p>
+                        @else
+                        {{-- <img style="width: 20%; height: 3%;"
+                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}"> --}}
+                        <p style="width: 25%; height: 3%;color: orange; background:rgba(255, 165, 0, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Processing</p>
+                        @endif
+                    </div>
                 </td>
             </tr>
         </table>
@@ -514,20 +519,51 @@
     <div class="textG mh" style="text-align: justify;">
        @if ($orders->booking_status!='pending')
        <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
-       <img style="width: 100%; height: 40%;"
-       src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_done.png')))}}">
        <br>
        @else
        <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
        <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
         booking confirmation and e-ticket as soon as posible.</p>
         <p>Her's what happens next:</p>
-        <img style="width: 100%; height: 40%;"
-                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pay_pending.png')))}}">
+        @endif
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                @if ($orders->booking_status!='pending')
+
+                <td style="width: 5%;">
+                    <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}">
+                </td>
+                <td style="width: 60%; padding-left: 10px;">
+                    <div style="margin-top: 5%">
+                        <p><b>Payment</b></p>
+                        <p>Your payment was successfully processed</p>
+                        <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
+                        <p>Both the tour operator and airline carriers have confirmed your trip-you're all set to travel!</p>
+                        <p style="margin-top: 10%"><b>Get ready for the trip</b></p>
+                        <p>Make sure to check in with the airlines and book your pre- and post-tour accommodation (not included in the package). You can do this now or wait until you receive the trip notes from the operator (usually 2-4 weeks before departure) to book at the same hotels where the adventure starts and ends.</p>
+                    </div>
+                </td>
+                @else
+                <td style="width: 5%;">
+                <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-pending.png'))) }}">
+                </td>
+                <td style="width: 60%; padding-left: 10px;">
+                    <div style="margin-top: 5%">
+                        <p><b>Payment</b></p>
+                        <p>We've received your payment, but the funds remain with your bank and won't be charged until the booking is confirmed.</p>
+                        <p style="margin-top: 10%"><b>Booking with the tour operator</b></p>
+                        <p>We're contacting the tour operator to confirm your booking.</p>
+                        <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
+                        <p>You'll receive your final booking confirmation, and you're all set to go!</p>
+                    </div>
+                </td>
+                @endif
+            </tr>
+        </table>
         <br>
 
 
-       @endif
+
         <br>
        <div style="text-align: center">
         <div>
@@ -647,6 +683,7 @@
                 </tr>
             </table>
         </div>
+        @if ($orders->booking_status !='pending')
         <div style="page-break-before: always;">
             <table width="100%">
                 <tr>
@@ -684,7 +721,9 @@
                                 </div>
                             </td>
                             <td style="width: 40%; text-align: left; vertical-align: top;">
+                                @if(isset($or['origin']['city']['name'])  )
                                 <label class="Tcolor">{{ $or['origin']['city']['name'] }}</label><br>
+                                @endif
                                 <p>{{ $or['origin']['name'] }}</p>
                                 <table style="width: 100%">
                                     <tr>
@@ -709,6 +748,7 @@
                 @endforeach
             </div>
         </div>
+        @endif
 
         <div style="page-break-inside: avoid;">
             <h2 class="mh">Payment</h2>
@@ -778,7 +818,7 @@
                     </table>
                 </div>
 
-  <table width="100%">
+                <table width="100%">
                 <tr>
                     <td>
                         <h3>Payment history</h3>
@@ -807,28 +847,99 @@
             </div>
         </div>
 
+        @foreach ($orders->travelers as $travelers)
+        <div style="page-break-inside: avoid; margin-top:5%">
+            <h2 class="mh">Travelers</h2>
+            <div class="Borderg " style="padding: 2%;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td><p>{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}</b></p></td>
+                        <td style="text-align: right">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        @endforeach
 
-        <div style="page-break-before: always;">
-            <h2>Participants</h2>
-            <table style="width: 100%; " class="Borderg">
-                <tr>
-                    @php $counter = 1; @endphp
-                    @foreach ($orders->flightTour->tour['passengers'] as $passenger)
+        <div  style="page-break-before: always;">
+
+            <h2>Travelers</h2>
+            <div class="Borderg" style="padding: 2%;padding-left:4%">
+                @foreach ($orders->flightTour->tour['passengers'] as $passenger)
+                <div>
+                    <table style="width: 100%">
+                        <tr>
+                            <td>
+                               {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/male.png')))}}"> --}}
+                            </td>
+                            <td>
+                                <h2>{{ $passenger['fields']['first_name'].' '.$passenger['fields']['last_name'] }}</h2>
+                            </td>
+                            <td>
+                               {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/vector.png')))}}"> --}}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <h3 style="color: #82CF45;">Personal info </h3>
+                <table style="width: 100%; " >
+                    <tr>
+                            <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                <label style="color: gray;">First Name:</label>
+                                <p style="font-size: 22px;">{{ $passenger['fields']['first_name'] }}</p>
+                            </td>
+                            <td style="width:5%">
+                            <td>
+                                <label style="color: gray;">Last Name:</label>
+                                <p style="font-size: 22px">{{ $passenger['fields']['last_name'] }}</p>
+                            </td>
+                    </tr>
+                    <tr>
                         <td style="width: 33%; padding: 5px; vertical-align: top;">
-                            <h4 style="text-decoration: underline;">Participant {{ $counter }}</h4>
-                            <label style="color: #82CF45;font-weight:bold;">First Name:</label>
-                            <p>{{ $passenger['fields']['first_name'] }}</p>
-                            <label style="color: #82CF45;font-weight:bold;">Last Name:</label>
-                            <p>{{ $passenger['fields']['last_name'] }}</p>
+                            <label style="color: gray;">Date of birth:</label>
+                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->translatedFormat('d F Y') }}</p>
                         </td>
-                        @if ($counter % 3 == 0 && !$loop->last)
-                </tr>
-                <tr>
-                    @endif
-                    @php $counter++; @endphp
-                    @endforeach
-                </tr>
-            </table>
+                        <td style="width:5%">
+                        <td>
+                            <label style="color: gray;">Gender:</label>
+                            <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
+                        </td>
+                    </tr>
+                </table>
+                <h3 style="color: #82CF45;">Passport info</h3>
+
+                <table style="width: 100%; " >
+                    <tr>
+                            <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                <div>
+                                    <label style="color: gray;font-weight:bold;">Place of issue:</label>
+                                    <p style="font-size: 22px">{{ $passenger['fields']['place_of_issue'] }}</p>
+                                </div>
+                            </td>
+                            <td style="width:5%">
+
+                            </td>
+                            <td>
+                                <label style="color: gray;font-weight:bold;">Passport number:</label>
+                                <p style="font-size: 22px">{{ $passenger['fields']['passport_number'] }}</p>
+                            </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 33%; padding: 5px; vertical-align: top;">
+                            <label style="color: gray;font-weight:bold;">Date of issue:</label>
+                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->translatedFormat('d F Y') }}</p>
+                        </td>
+                        <td style="width:5%">
+                        <td>
+                            <label style="color: gray;font-weight:bold;">Date of expiration:</label>
+                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->translatedFormat('d F Y') }}</p>
+                        </td>
+                    </tr>
+                </table>
+                @endforeach
+            </div>
         </div>
         <br>
         <div style="page-break-before: always;" class="Recomend">
@@ -842,40 +953,45 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}"> --}}
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
-                                    <a>Go somewhere <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a>
+                                    <a>Go somewhere
+                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}">  --}}
+                                    </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}"> --}}
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
-                                    <a>Manager Insurance <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
+                                    <a>Manager Insurance
+                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+                                    </a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}"> --}}
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
-                                    <a>Book Accommodation <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
+                                    <a>Book Accommodation
+                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+                                    </a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}"> --}}
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
-                                    <a>Find Activities <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
+                                    <a>Find Activities
+                                        {{-- <img id="iconic"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -888,13 +1004,16 @@
             <div>
                 <table width="100%">
                     <tr>
-                        <label style="font-size: 18px;">
-                            Excellent
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
-                                style="vertical-align: middle;">
-                        </label>
+                        <td>
+                            <label style="font-size: 18px;">
+                                Excellent
+                               {{--  <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
+                                    style="vertical-align: middle;"> --}}
+                            </label>
+                        </td>
                         <td style="text-align: right;">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt="">
+                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt=""> --}}
+                            <h3>Trustindex</h3>
                         </td>
                     </tr>
                 </table>
@@ -904,12 +1023,12 @@
             <div>
                 <table width="100%">
                     <tr>
-                        <img style="width:35%;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
+                     {{--    <img style="width:35%;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
                         <td style="text-align: right;">
                             <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}">
                             <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}">
                             <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}">
-                        </td>
+                        </td> --}}
                     </tr>
                 </table>
                 <br>
