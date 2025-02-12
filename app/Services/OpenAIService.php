@@ -92,4 +92,27 @@ class OpenAIService
       return response()->json(['error' => $e->getMessage()], 500);
     }
   }
+
+  public function getOpenAiChatSimple($messages)
+  {
+    try {
+
+      $openAiKey = env('OPENAI_API_KEY');
+      $headers = [
+          'Accept' => 'application/json',
+          'Authorization' => 'Bearer ' . $openAiKey,
+      ];
+      $url = 'https://api.openai.com/v1/chat/completions';
+
+      $response = Http::withHeaders($headers)->post($url, [
+          'model' => 'gpt-4o-mini',
+          'messages' => $messages
+      ]);
+
+      return $response->json();
+
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], 500);
+    }
+  }
 }
