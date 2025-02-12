@@ -35,6 +35,7 @@ use App\Http\Controllers\AirportController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PushNotificationsController;
 use App\Http\Controllers\ValidatorController;
+use App\Http\Controllers\NezasaController;
 use Dedoc\Scramble\Scramble;
 
 
@@ -226,6 +227,7 @@ Route::post('/get-contact', [UserController::class, 'getContact']);
 Route::post('/check-contact',[UserController::class, 'checkContact']);
 
 Route::get('/get-tickets',[TourController::class, 'bookingTickets']);
+Route::get('/get-nezasa-itinerary',[NezasaController::class, 'getItineraryTour']);
 
 Scramble::registerUiRoute(path: '/documentation')->name('api.scramble.docs.ui');
 
