@@ -634,7 +634,7 @@ public function convertDurationToMinutes($duration)
                     $bookingId = json_decode($order['booking_id']);
                     $order_n= Order::where('user_id',$order['user_id'])->first();
                     $mail = new BookingMail($order_n);
-                    // Mail::to($order_n->user->email)->send($mail);
+                    Mail::to($order_n->user->email)->send($mail);
                     Log::info('email  package controller (not) sent' );
                 }
 
