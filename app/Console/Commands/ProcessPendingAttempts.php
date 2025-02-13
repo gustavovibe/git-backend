@@ -151,7 +151,7 @@ class ProcessPendingAttempts extends Command
             try {
                 $stripePayment = StripeController::getPaymentIntent($paymentIntent);
                 Log::info('automatic Stripe payment retrieved for payment ID ' . $paymentIntent . ': ' . json_encode($stripePayment));
-                if ($stripePayment['data']['canceled_at'] == null) {
+                if ($stripePayment['original']['data']['payment_intent']['canceled_at'] == null) {
                     $stripeResponse = StripeController::cancellPayment($paymentIntent);
                     Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                     DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
