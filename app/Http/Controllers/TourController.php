@@ -259,8 +259,6 @@ class TourController extends Controller
 
            $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
 
-            /* logger()->info('Booking data:', $booking_data); */
-
             $class=[];
            if(!empty($booking_data['data'])){
                foreach ($booking_data['data']['slices'] as &$slice) {
