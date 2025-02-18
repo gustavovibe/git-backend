@@ -11,6 +11,7 @@ use App\Mail\BookingMail;
 use App\Mail\SendSummary;
 use App\Mail\TourDetails;
 use App\Mail\AbandonedCartMail;
+use App\Mail\BookAtach;
 use App\Mail\BookEmail;
 use App\Models\BookingSummary;
 use App\Models\Order;
@@ -163,6 +164,16 @@ class TourController extends Controller
         }
     }
 
+
+
+    public function bookEmail(Request $r){
+      /*   Mail::to('adam.g.e@outlook.com')->send(new  BookAtach());
+        return 'entro'; */
+        Mail::raw('Este es un correo de prueba', function ($message) {
+            $message->to('adam.g.e@outlook.com')->subject('Prueba de correo');
+        });
+    }
+
     /**
      * Show type.
      *
@@ -202,75 +213,88 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public function emailBConfirmation(Request $r){
+    public function emailBConfirmation($tour_id,$orderId){
+        try{
+            $data = [
+                'tour_id' => $tour_id,
+                'orderId' => $orderId,
+            ];
 
+            $r = Request::create('/', 'GET', $data);
 
-        $orders=ToursFilters::OrdersPrint($r);
+            //aqui se usa tour_id
+            $orders=ToursFilters::OrdersPrint($r);
 
-        /* return $orders; */
-
-
-        $booking_data = (new DuffelApiController)->getOrderById($r);
-
-        if (!isset($booking_data['data'])) {
-            throw new Exception('Invalid booking data structure');
-        }
-
-       /// adicion de servicio de tour
-
-       $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
-      /*  return $tourResponse; */
-       $tourData = $tourResponse->getData(true);
-       $tour=$tourData['data'];
-
-       foreach($tour['destinations']['countries'] as $co){
-           $countries[]=$co['country_name'];
-       }
-
-       foreach($tour['tour_types'] as $to){
-           $tour_types[]=$to['type_name'];
-       }
-
-       foreach($tour['guide_languages'] as $text){
-           $guide_types[]=$text['name'];
-       }
-       $countries_d=[
-           'countries_text'=>implode(',',$countries),
-           'tour_text'=>implode(',',$tour_types),
-           'guide_text'=>implode(',',$guide_types),
-       ];
-
-       $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
-        /// adicion de servicio de tickets
-        logger()->info('Booking data:', $booking_data);
-
-        $class=[];
-
-        foreach ($booking_data['data']['slices'] as &$slice) {
-            foreach ($slice['segments'] as &$segment) {
-                $duration = $segment['duration'];
-                $interval = new DateInterval($duration);
-                $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
-                $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
-                $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
-                $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
-                $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
-                foreach ( $segment['passengers'] as $passengers){
-                    if(!in_array($passengers['cabin_class_marketing_name'],$class)){
-                        $class[]=$passengers['cabin_class_marketing_name'];
-                    }
+            //aqui se usa orderId
+            if (empty($orderId)) {
+                $booking_data = [];
+            } else {
+                $booking_data = (new DuffelApiController)->getOrderById($r);
+                if (!isset($booking_data['data'])) {
+                    $booking_data = [];
                 }
-                $segment['class']=implode(',',$class);
             }
-        }
-        Mail::to($r->email)->send(new BookEmail($orders, $booking_data, $values));
-       /*  return $booking_data; */
 
-     /*    $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders]);
-        return $pdf->stream('booking_confirmation.pdf'); */
+
+           $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
+           $tourData = $tourResponse->getData(true);
+           $tour=$tourData['data'];
+
+           foreach($tour['destinations']['countries'] as $co){
+               $countries[]=$co['country_name'];
+           }
+
+           foreach($tour['tour_types'] as $to){
+               $tour_types[]=$to['type_name'];
+           }
+
+           foreach($tour['guide_languages'] as $text){
+               $guide_types[]=$text['name'];
+           }
+           $countries_d=[
+               'countries_text'=>implode(',',$countries),
+               'tour_text'=>implode(',',$tour_types),
+               'guide_text'=>implode(',',$guide_types),
+           ];
+
+           $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
+
+            $class=[];
+           if(!empty($booking_data['data'])){
+               foreach ($booking_data['data']['slices'] as &$slice) {
+                   foreach ($slice['segments'] as &$segment) {
+                       $duration = $segment['duration'];
+                       $interval = new DateInterval($duration);
+                       $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
+                       $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
+                       $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
+                       $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
+                       $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
+                       foreach ( $segment['passengers'] as $passengers){
+                           if(!in_array($passengers['cabin_class_marketing_name'],$class)){
+                               $class[]=$passengers['cabin_class_marketing_name'];
+                           }
+                       }
+                       $segment['class']=implode(',',$class);
+                   }
+               }
+           }
+
+           /* return ['orders'=>$orders,'booking_data'=>$booking_data,'values'=>$values]; */
+            Mail::to($orders->user->email)->send(new BookEmail($orders, $booking_data, $values));
+
+            return ApiResponse::success('todo bien');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
+
 
     }
 
+
+    public function emailBookTest(Request $r){
+        return $this->emailBConfirmation($r->tour_id,$r->email,$r->orderId);
+    }
     /**
      * Pdf order.
      *

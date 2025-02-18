@@ -165,7 +165,8 @@ Route::get('/stripe', [StripeController::class, 'getPaymentIntentFromQuery']);
 
 Route::resource('action-logs', ActionLogController::class);
 
-Route::get('boooking-email',[TourController::class,'emailBConfirmation']);
+Route::get('boooking-email',[TourController::class,'emailBookTest']);
+/* Route::get('boooking-email',[TourController::class,'bookEmail']); */
 
 Route::post('pass-email',[UserController::class,'sendEmailPass']);
 
@@ -176,6 +177,8 @@ Route::post('/add-enquiry', [EnquiryController::class, 'create']);
 Route::match( ['get','post'],'boooking-summary',[TourController::class,'bookingSummarySend']);
 
 Route::get('boooking-summary-pdf',[TourController::class,'bookingSummaryPdf']);
+
+;
 
 Route::post('google-register', [AuthController::class, 'googleRegister']);
 
