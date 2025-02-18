@@ -439,8 +439,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $order = Order::create($orderData);
         if($order){
-            $mail = new BookingMail($order);
-            Mail::to($order->user->email)->send($mail);
+            TourController::emailBConfirmation($order->booking_id,$order->duffer_id);
         }
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
         try {

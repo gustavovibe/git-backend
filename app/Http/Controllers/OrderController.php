@@ -280,8 +280,7 @@ class OrderController extends Controller
             $order->travelers()->attach($request->input('traveler_ids'));
         }
         \Log::info('email  package controller  Order controller' );
-        $mail = new BookingMail($order);
-        Mail::to($order->user->email)->send($mail);
+        TourController::emailBConfirmation($order->booking_id,$order->duffer_id);
         \Log::info('email  package controller sent Order controller' );
         return response()->json($order, 201);
     }
