@@ -55,7 +55,7 @@ Deployment:
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - ssh-keyscan "$SSH_HOST" >> ~/.ssh/known_hosts
-    - chmod 600 ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa 
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker system prune -af"
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" rm -rf api/
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-Bb5sf_nxRsEWx2xoDwiN@gitlab.com/gustavo_vibe/api.git
