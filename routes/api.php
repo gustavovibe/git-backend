@@ -133,7 +133,7 @@ Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
 
 
 Route::resource('jobs', JobsController::class);
-Route::resource('roles', RolesController::class);
+/* Route::resource('roles', RolesController::class); */
 
 Route::get('/traveler-data', [TravelersController::class, 'getTravelerData']);
 
@@ -234,3 +234,14 @@ Route::get('/get-nezasa-itinerary',[NezasaController::class, 'getItineraryTour']
 
 Scramble::registerUiRoute(path: '/documentation')->name('api.scramble.docs.ui');
 
+Route::get('/test-speed', function () {
+    $inicio = microtime(true);
+
+    // Respuesta rápida de prueba
+    $response = response()->json(['message' => 'API rápida']);
+
+    $fin = microtime(true);
+    $tiempo = $fin - $inicio;
+
+    return response()->json(['message' => 'API rápida', 'tiempo' => $tiempo]);
+});

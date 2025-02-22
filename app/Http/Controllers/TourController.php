@@ -213,18 +213,62 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public function emailBConfirmation($tour_id,$orderId){
+    public function emailBConfirmation($tour_id,$orderId,$payment_id){
         try{
+            return 'entro';
             $data = [
                 'tour_id' => $tour_id,
                 'orderId' => $orderId,
+                'q'=>$payment_id,
             ];
 
             $r = Request::create('/', 'GET', $data);
 
+            $stripe= StripeController::getPaymentIntent('pi_3QFhmOL1sFOlxHWW07qB04hu');
+            $stripeData = json_decode($stripe->getContent(), true);
+
+
             //aqui se usa tour_id
             $orders=ToursFilters::OrdersPrint($r);
+            /* return $stripeData; */
 
+
+                $accommodations = $orders->flightTour->tour['accommodations'] ?? [];
+                return $orders->flightTour->tour['accommodations'];
+                // Inicializar precios en 0
+                $adult_price = 0;
+                $child_price = 0;
+                $infant_price = 372; // Definir si aplica un precio distinto
+
+                // Verificar y asignar precios de acuerdo al tipo de acomodación
+                if (!empty($accommodations)) {
+                    foreach ($accommodations as $accommodation) {
+                        if ($accommodation['type'] === 'basePrice') {
+                            $adult_price = $accommodation['prices'][0]['price_per_pax'] ?? 0;
+                        } elseif ($accommodation['type'] === 'accommodation') {
+                            $child_price = $accommodation['prices'][0]['price_per_pax'] ?? 0;
+                        }
+                    }
+                }
+
+                // Obtener cantidades de pasajeros
+                $adults = collect($orders['travelers'] ?? [])->where('age_group', '>=', 18)->count();
+                $children = collect($orders['travelers'] ?? [])->whereBetween('age_group', [2, 17])->count();
+                $infants = collect($orders['travelers'] ?? [])->where('age_group', '<', 2)->count();
+
+                // Calcular totales
+                $total_adults = $adults * $adult_price;
+                $total_children = $children * $child_price;
+                $total_infants = $infants * $infant_price;
+
+                // Calcular subtotal y total
+                $subtotal = $total_adults + $total_children + $total_infants;
+                $tax = 0; // Si no hay VAT
+                $total = $subtotal + $tax;
+
+                $invoice= ['adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants];
+                return $invoice;
+            return view('emails.invoice')->with(['data'=>$stripeData['data'],'orders'=>$orders]);
             //aqui se usa orderId
             if (empty($orderId)) {
                 $booking_data = [];
@@ -234,6 +278,7 @@ class TourController extends Controller
                     $booking_data = [];
                 }
             }
+
 
 
            $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
@@ -293,7 +338,7 @@ class TourController extends Controller
 
 
     public function emailBookTest(Request $r){
-        return $this->emailBConfirmation($r->tour_id,$r->email,$r->orderId);
+        return $this->emailBConfirmation($r->tour_id,$r->email,$r->orderId,);
     }
     /**
      * Pdf order.
