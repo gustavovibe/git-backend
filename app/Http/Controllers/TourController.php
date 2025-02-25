@@ -215,7 +215,7 @@ class TourController extends Controller
      */
     public function emailBConfirmation($tour_id,$orderId,$payment_id){
         try{
-            return 'entro';
+            /* return view('emails.invoice'); */
             $data = [
                 'tour_id' => $tour_id,
                 'orderId' => $orderId,
@@ -234,7 +234,7 @@ class TourController extends Controller
 
 
                 $accommodations = $orders->flightTour->tour['accommodations'] ?? [];
-                return $orders->flightTour->tour['accommodations'];
+               /*  return $orders->flightTour->tour['accommodations']; */
                 // Inicializar precios en 0
                 $adult_price = 0;
                 $child_price = 0;
@@ -251,29 +251,53 @@ class TourController extends Controller
                     }
                 }
 
+                $adults = 0;
+                $children = 0;
+                $infants = 0;
                 // Obtener cantidades de pasajeros
-                $adults = collect($orders['travelers'] ?? [])->where('age_group', '>=', 18)->count();
-                $children = collect($orders['travelers'] ?? [])->whereBetween('age_group', [2, 17])->count();
-                $infants = collect($orders['travelers'] ?? [])->where('age_group', '<', 2)->count();
+                foreach ($orders['travelers'] ?? [] as $traveler) {
+                    if (!empty($traveler['birth'])) {
+                        $birthDate = Carbon::parse($traveler['birth']);
+                        $age = $birthDate->age; // Calcula la edad con base en la fecha actual
 
+                        if ($age >= 18) {
+                            $adults++;
+                        } elseif ($age >= 2 && $age < 18) {
+                            $children++;
+                        } else {
+                            $infants++;
+                        }
+                    }
+                }
                 // Calcular totales
-                $total_adults = $adults * $adult_price;
-                $total_children = $children * $child_price;
-                $total_infants = $infants * $infant_price;
+                $total_adults =  $adult_price;
+                $total_children =  $child_price;
+                $total_infants =  $infant_price;
 
+                $flight_price = $orders->flightTour['flight']['data']['total_amount'] ?? 0;
+
+                // Obtener precio del tour
+                $tour_price = $orders->flightTour['tour']['total_value'] ?? 0;
                 // Calcular subtotal y total
-                $subtotal = $total_adults + $total_children + $total_infants;
+                $subtotal = $total_adults + $total_children + $total_infants + $flight_price + $tour_price;
                 $tax = 0; // Si no hay VAT
                 $total = $subtotal + $tax;
 
-                $invoice= ['adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants];
-                return $invoice;
-            return view('emails.invoice')->with(['data'=>$stripeData['data'],'orders'=>$orders]);
+                $invoice= [  'adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants,'subtotal'=>$subtotal,'tax'=>$tax,'total'=>$total];
+               /*  return $orders;
+            return view('emails.invoice')->with(['data'=>$stripeData['data'],'orders'=>$orders,'values'=>$invoice]); */
             //aqui se usa orderId
             if (empty($orderId)) {
                 $booking_data = [];
             } else {
                 $booking_data = (new DuffelApiController)->getOrderById($r);
+                if ($booking_data instanceof \Illuminate\Http\JsonResponse) {
+                    $booking_data = json_decode($booking_data->getContent(), true);
+                } else {
+                    $booking_data = [];
+                }
+
+                // Ahora puedes acceder a ['data'] sin error
                 if (!isset($booking_data['data'])) {
                     $booking_data = [];
                 }
@@ -326,7 +350,8 @@ class TourController extends Controller
            }
 
            /* return ['orders'=>$orders,'booking_data'=>$booking_data,'values'=>$values]; */
-            Mail::to($orders->user->email)->send(new BookEmail($orders, $booking_data, $values));
+           /* return [$orders, $stripeData['data'], $values, $invoice]; */
+           Mail::to($orders->user->email)->send(new BookEmail($orders, $stripeData['data'], $values,$invoice));
 
             return ApiResponse::success('todo bien');
         }catch(Exception $e){

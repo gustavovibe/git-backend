@@ -17,12 +17,14 @@ class BookEmail extends Mailable
     protected $orders;
     protected $data;
     protected $summaryValues;
+    protected $invoice;
 
-    public function __construct($orders,$data,$summaryValues)
+    public function __construct($orders,$data,$summaryValues,$invoice)
     {
         $this->orders = $orders;
         $this->data = $data;
         $this->summaryValues = $summaryValues;
+        $this->invoice = $invoice;
     }
 
     public function build()
@@ -43,6 +45,10 @@ class BookEmail extends Mailable
             ]);
         }
 
+        if (!empty($this->invoice)) {
+            $pdf3 = Pdf::loadView('emails.invoice', ['orders' => $this->orders,'data'=>$this->data,'values'=>$this->invoice]);
+            $email->attachData($pdf3->output(), 'invoice.pdf', ['mime' => 'application/pdf']);
+        }
         // Adjuntar siempre el segundo PDF (si es requerido en todos los casos)
         $pdf2 = Pdf::loadView('emails.send_summary', [
             'tour' => $this->summaryValues['tour'],

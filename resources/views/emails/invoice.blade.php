@@ -5,8 +5,8 @@
             <tr>
                 <td>
                     <div>
-                        <h2>INVOICE</h2>
-                        <h2>{{ $data['charge_details']['receipt_number'] }}</h2>
+                        <h2 style="color: #7F91A8">INVOICE</h2>
+                        <h2 style="color: #7F91A8">{{ $data['charge_details']['receipt_number'] }}</h2>
                     </div>
                 </td>
                 <td style="text-align: right">
@@ -17,11 +17,11 @@
 
 
         </table>
-        <h2 style="text-align: center">This invoice was already paid.</h2>
+        <h2 style="text-align: center ;background-color: #FAE8E8; padding:1%;" >This invoice was already paid.</h2>
 
         <table style="width: 100%;">
             <tr>
-                <td style="width: 49.5%; border-style:solid;padding:2%;border-color:gray;">
+                <td style="width: 49.5%; border-style:solid;padding:2%;border-color:#F5F7F9;">
                     <div>
                         <p><b>Supplier</b></p>
                         <p>Vibe Adventures, Inc.</p>
@@ -37,8 +37,8 @@
                     </div>
                 </td>
                 <td style="width: 1%;"></td>
-                <td style="background-color:gray; padding:2%">
-                    <div >
+                <td style="background-color:#F5F7F9; padding:1%">
+                    <div style="margin-bottom:20%; text-align:center;">
                         <table>
                             <tr>
                                 <td> <p><b>Booking ID</b></p> </td>
@@ -54,11 +54,12 @@
                             </tr>
                             <tr>
                                 <td> <p><b>Due Date</b></p> </td>
-                                <td> <p>{{ date('Y-m-d',$data['payment_intent']['created'] + (5 * 86400)) }}</p></td>
+                                {{-- <td> <p>{{ date('Y-m-d',$data['payment_intent']['created'] + (5 * 86400)) }}</p></td> --}}
+                                <td> <p>{{ date('Y-m-d',$data['balance_transaction']['created'] + (5 * 86400)) }}</p></td>
                             </tr>
                             <tr>
                                 <td> <p><b>Taxable Date</b></p> </td>
-                                <td> <p>554-5546-4654</p></td>
+                                <td> <p>{{ date('Y-m-d',$data['balance_transaction']['created'] + (5 * 86400)) }}</p></td>
                             </tr>
                             <tr>
                                 <td> <p><b>Currency</b></p> </td>
@@ -70,40 +71,94 @@
             </tr>
         </table>
         <br>
-        {{-- <table style="width: 100%;">
-            <tr>
-                <th> <p>Item</p></th>
-                <th>Description</th>
-                <th>Vat</th>
-                <th>Unit Price</th>
-                <th> Qty</th>
-                <th>Price inc. VAT</th>
+        <table style="width: 100%;border-collapse: collapse; text-align:center">
+            <tr style="background: #F5F7F9;">
+                <th style="width: 10%;padding:1%"> <p>Item</p></th>
+                <th style="width: 30%">Description</th>
+                <th style="width: 10%">Vat</th>
+                <th style="width: 15%">Unit Price</th>
+                <th style="width: 10%"> Qty</th>
+                <th style="width: 15%">Price inc. VAT</th>
             </tr>
             <tr>
                 <td><p>Trip</p></td>
                 <td><p>{{ $orders->tour->description }}</p></td>
-                <td><p>0%</p></td>
-                <td><p>Unit Price</p></td>
-                <td><p>2 adults</p></td>
-                <td><p>price inc.vat</p></td>
+                <td>
+                    <div>
+                        @if($values['adults'] > 0)
+                        <p>{{ $values['tax'] }}</p>
+                        @endif
+                        @if($values['children'] > 0)
+                        <p>{{ $values['tax'] }}</p>
+                        @endif
+                        @if($values['infants'] > 0)
+                        <p>{{ $values['tax'] }}</p>
+                        @endif
+
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        @if($values['adults'] > 0)
+                        <p>US$ {{ $values['total_adults'] }}</p>
+                        @endif
+                        @if($values['children'] > 0)
+                        <p>US$ {{ $values['total_children'] }}</p>
+                        @endif
+                        @if($values['infants'] > 0)
+                        <p>US$ {{ $values['total_infants'] }}</p>
+                        @endif
+
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        @if($values['adults'] > 0)
+                        <p>{{ $values['adults'] }} <b style="color: #82CF45">adult(s)</b></p>
+                        @endif
+                        @if($values['children'] > 0)
+                        <p>{{ $values['children'] }} <b style="color: #82CF45">child(s)</b></p>
+                        @endif
+                        @if($values['infants'] > 0)
+                        <p>{{ $values['infants'] }} <b style="color: #82CF45">infant(s)</b></p>
+                        @endif
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        @if($values['adults'] > 0)
+                        <p>US$ {{ $values['adults'] *  $values['total_adults']  }} <b style="color: #82CF45">adult(s)</b></p>
+                        @endif
+                        @if($values['children'] > 0)
+                        <p>US$ {{ $values['children'] *  $values['total_children']  }} <b style="color: #82CF45">child(s)</b></p>
+                        @endif
+                        @if($values['infants'] > 0)
+                        <p>US$ {{ $values['infants'] *  $values['total_infants']  }} <b style="color: #82CF45">infant(s)</b></p>
+                        @endif
+                    </div>
+                </td>
             </tr>
-        </table> --}}
-
+        </table>
         <br>
-        <div style=" width:100%">
+        <hr  style="border-top: 1px solid #82CF45;">
+        <br>
+        <div>
 
-            <table style="text-align: center;" >
+            <table style="text-align: center; width:100%" >
                 <tr>
+                    <td style="width: 70%"></td>
                     <th>Subtotal</th>
-                    <td>Us$1,989.09</td>
+                    <td>{{ 'US $'.$values['subtotal'] }}</td>
                 </tr>
                 <tr>
+                    <td style="width: 70%"></td>
                     <th>Tax</th>
-                    <td>Us$1,989.09</td>
+                    <td><p>{{ 'US $'.$values['tax'] }}</p></td>
                 </tr>
                 <tr>
+                    <td style="width: 70%"></td>
                     <th>Total</th>
-                    <td>Us$1,989.09</td>
+                    <td><b>{{ 'US $'.$values['total'] }}</b></td>
                 </tr>
             </table>
         </div>
