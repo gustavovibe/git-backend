@@ -39,7 +39,7 @@ Builder:
 
 
 Deployment:
-  stage: deploy
+  stage: deploy 
   image: docker:20.10.16
   services:
     - name: docker:dind
