@@ -19,8 +19,6 @@ class BookingMail extends Mailable
     {
         $this->orders=$orders;
         $this->data= $data;
-
-
     }
 
 
