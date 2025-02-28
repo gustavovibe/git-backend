@@ -213,7 +213,7 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public function emailBConfirmation($tour_id,$orderId,$payment_id){
+    public static function emailBConfirmation($tour_id,$orderId,$payment_id){
         try{
             /* return view('emails.invoice'); */
             $data = [
