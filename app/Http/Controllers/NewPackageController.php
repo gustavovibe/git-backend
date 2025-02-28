@@ -162,6 +162,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
     public function bookPackage($RequestTour, $RequestFlight, $paymentId, $attemptId)
     {
         $order = null;
+        $tourResponse = null;
+        $flightResponse = null;
         $flight = $RequestFlight;
         $tourBody = $RequestTour;
         if (isset($tourBody['description'])) {
