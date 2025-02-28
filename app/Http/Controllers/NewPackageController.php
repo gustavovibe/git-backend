@@ -332,7 +332,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $order = Order::create($orderData);
 
-        TourController::emailBConfirmation($order->booking_id,$order->duffer_id);
+        TourController::emailBConfirmation($order->booking_id,$order->duffer_id,$paymentId);
         
 
         $traveler_id = $this->createTravelers($passengers, $userId);
