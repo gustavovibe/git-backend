@@ -221,7 +221,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 Log::info('Duffel error: ' . $attemptId, ['error' => $flightResponse['errors']]);
             }
 
-            elseif (isset($flightResponse['data']) && isset($flightResponse['data']['payment_status'])) {
+            elseif (isset($flightResponse['data']) && $flightResponse['data']['payment_status']['paid_at'] != null) {
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
@@ -710,6 +710,8 @@ public function convertDurationToMinutes($duration)
                     'status' => $attempt->status,
                     'booking_id' => $attempt->booking_id,
                     'expiration' => $attempt->expiration,
+                    'tourradar_res' => $attempt->tourradar_res,
+                    'duffel_res' => $attempt->duffel_res,
                 ]);
             }
 
