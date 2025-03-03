@@ -634,14 +634,14 @@ public function convertDurationToMinutes($duration)
 
                 $bookingId = null;
 
-                if($order != null){
-                    \Log::info('email send package controller' );
+                /*  if($order != null){
+                    Log::info('email send package controller' );
                     $bookingId = json_decode($order['booking_id']);
                     $order_n= Order::where('user_id',$order['user_id'])->first();
-                    // $mail = new BookingMail($order_n,$order_id);
+                    $mail = new BookingMail($order_n,$order_id);
                     Mail::to($order_n->user->email)->send($mail);
                     Log::info('email  package controller (not) sent' );
-                }
+                } */
 
 
                 // Update database record
