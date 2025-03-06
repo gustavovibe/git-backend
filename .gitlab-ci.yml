@@ -46,7 +46,7 @@ Deployment:
       alias: dind
   variables:
     DOCKER_HOST: tcp://dind:2375/
-    DOCKER_DRIVER: overlay2
+    DOCKER_DRIVER: overlay2 
     DOCKER_TLS_CERTDIR: ""
     DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
