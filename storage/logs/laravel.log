@@ -1,0 +1,8 @@
+[2025-03-06 22:53:31] local.ERROR: Cannot declare class App\Console\Commands\ProcessPendingAttempts, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Console\\Commands\\ProcessPendingAttempts, because the name is already in use at /var/www/html/app/Console/Commands/HoldProcessPendingAttempts.php:14)
+[stacktrace]
+#0 {main}
+"} 
+[2025-03-06 22:55:01] local.ERROR: Cannot declare class App\Console\Commands\ProcessPendingAttempts, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Console\\Commands\\ProcessPendingAttempts, because the name is already in use at /var/www/html/app/Console/Commands/HoldProcessPendingAttempts.php:14)
+[stacktrace]
+#0 {main}
+"} 
