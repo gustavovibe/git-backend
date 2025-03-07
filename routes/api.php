@@ -216,9 +216,9 @@ Route::get('/recover-pass',[AuthController::class, 'recoverPass']);
 
 Route::get('/check-token-pass',[AuthController::class, 'checkToken']);
 
-Route::get('/login', function () {
+/* Route::get('/login', function () {
     return response()->json(['message' => 'Please log in.'], 401);
-})->name('login');
+})->name('login'); */
 //Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
