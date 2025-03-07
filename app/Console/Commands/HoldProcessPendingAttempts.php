@@ -11,7 +11,7 @@ use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\StripeController;
 use App\Models\Order;
 
-class ProcessPendingAttempts extends Command
+class HoldProcessPendingAttempts extends Command
 {
     protected $signature = 'process:pending-attempts';
     protected $description = 'Process pending attempts and confirm bookings.';
@@ -39,7 +39,7 @@ class ProcessPendingAttempts extends Command
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;
-            
+
             if(!$tBookingId){
                 Log::error('No tBookingId found in response');
                 continue;
@@ -53,7 +53,7 @@ class ProcessPendingAttempts extends Command
                 Log::error('Database error checking order for tourradar booking ID ' . $tBookingId . ': ' . $e->getMessage());
                 return; // Stop execution if a database error occurs
             }
-            
+
             if ($order) {
                 $statusResponse = strval($order->tourradar_status);
                 Log::info("Automatic Order found in the database. TourRadar Status: " . $statusResponse);
@@ -99,7 +99,7 @@ class ProcessPendingAttempts extends Command
                         Log::info('automatic Duffel booking successful for duffel order ID ' . $orderId);
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
-                        
+
                         // Execute get paymentIntent
                         $stripePiResponse = StripeController::getPaymentIntent($paymentId);
 
@@ -140,7 +140,7 @@ class ProcessPendingAttempts extends Command
             ->where('status', 'pending')
             ->where('expiration', '<', now())
             ->get();
-  
+
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $paymentIntent = $attempt->payment_id;
@@ -165,8 +165,8 @@ class ProcessPendingAttempts extends Command
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
-        }  
-        /* 
+        }
+        /*
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $cs = $attempt->checkout_session;
@@ -182,9 +182,9 @@ class ProcessPendingAttempts extends Command
                 Log::info('automatic attempt failed (expired): ' . $attempt->id );
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $cs . ': ' . $e->getMessage());
-                
+
             }
-        }  
-        */   
+        }
+        */
     }
 }
