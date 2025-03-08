@@ -39,12 +39,11 @@ return [
             'host' => env('MAIL_HOST', 'smtp.zoho.com'),
             'port' => env('MAIL_PORT', 465),
             'encryption' => env('MAIL_ENCRYPTION', 'ssl'),
-            'username' => env('bookings@vibeadventures.com'),
-            'password' => env('Adventures4ever'),
+            'username' => env('MAIL_USERNAME', 'bookings@vibeadventures.com'),
+            'password' => env('MAIL_PASSWORD', 'Adventures4ever'),
             'timeout' => null,
             'auth_mode' => null,
         ],
-
         'ses' => [
             'transport' => 'ses',
         ],
