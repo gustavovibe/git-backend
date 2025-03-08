@@ -37,9 +37,9 @@ return [
         'smtp' => [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST', 'smtp.zoho.com'),
-            'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME', 'bookings@vibeadventures.com'),
+            'port' => env('MAIL_PORT', 465),
+            'encryption' => env('MAIL_ENCRYPTION', 'ssl'),
+            'username' => env('MAIL_USERNAME', 'bookings@vibeadventures.mx'),
             'password' => env('MAIL_PASSWORD', 'Adventures4ever'),
             'timeout' => null,
             'auth_mode' => null,
@@ -83,7 +83,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'bookings@vibeadventures.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'bookings@vibeadventures.mx'),
         'name' => env('MAIL_FROM_NAME', 'Vibe Adventures'),
     ],
 
