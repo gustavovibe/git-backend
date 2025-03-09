@@ -708,12 +708,12 @@ public function convertDurationToMinutes($duration)
 
             if ($attempt && $attempt->booking_id) {
                 return response()->json([
-                    'status' => $attempt->status,
-                    'booking_id' => $attempt->booking_id,
-                    'expiration' => $attempt->expiration,
-                    'tourradar_res' => $attempt->tourradar_res,
-                    'duffel_res' => $attempt->duffel_res,
-                ]);
+                    'status' => $attempt->status ?? 'pending',
+                    'booking_id' => $attempt->booking_id ?? null,
+                    'expiration' => $attempt->expiration ?? null,
+                    'tourradar_res' => $attempt->tourradar_res ?? null,
+                    'duffel_res' => $attempt->duffel_res ?? null,
+                ]);                
             }
 
             // Return pending status if booking_id is not set
