@@ -332,9 +332,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         $order = Order::create($orderData);
 
-        TourController::emailBConfirmation($order->booking_id,$order->duffer_id,$paymentId);
-        
-
         $traveler_id = $this->createTravelers($passengers, $userId);
 
         OrderTraveler::create(['booking_id'=>$order->booking_id,'traveler_id'=>$traveler_id]);
@@ -634,14 +631,16 @@ public function convertDurationToMinutes($duration)
 
                 $bookingId = null;
 
-                /*  if($order != null){
+
+
+                if($order != null){
                     Log::info('email send package controller' );
                     $bookingId = json_decode($order['booking_id']);
                     $order_n= Order::where('user_id',$order['user_id'])->first();
-                    $mail = new BookingMail($order_n,$order_id);
-                    Mail::to($order_n->user->email)->send($mail);
-                    Log::info('email  package controller (not) sent' );
-                } */
+                    TourController::emailBConfirmation($order->booking_id,$order->duffer_id,$paymentId);
+                    //Mail::to($order_n->user->email)->send($mail);
+                    //Log::info('email  package controller (not) sent' );
+                }
 
 
                 // Update database record
@@ -692,6 +691,7 @@ public function convertDurationToMinutes($duration)
      * @return array
      */
     public function checkBookingStatus(Request $request)
+
     {
         // Validate the request
         $request->validate([
@@ -720,7 +720,7 @@ public function convertDurationToMinutes($duration)
         } catch (\Exception $e) {
             // Handle unexpected errors
             return response()->json([
-                'error' => 'An error occurred while checking booking status (no booking_id)',
+                'error' => 'An error occurred while checking booking status',
                 'message' => $e->getMessage(),
             ], 500);
         }
