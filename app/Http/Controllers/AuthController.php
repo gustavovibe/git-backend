@@ -251,6 +251,7 @@ class AuthController extends Controller
      */
     public function recoverPass(Request $r){
         try{
+
             $user= User::where('email',$r->email)->first();
             if(!$user){
                 return response()->json(['success'=>false,'data'=>'User not found']);
