@@ -701,9 +701,10 @@ public function convertDurationToMinutes($duration)
         try {
             // Retrieve the attempt with specific columns
             $attempt = DB::table('attempts')
-                ->select('status', 'booking_id', 'expiration')
+                ->select('status', 'booking_id', 'expiration', 'tourradar_res', 'duffel_res') // Include missing fields
                 ->where('id', $request->attempt_id)
                 ->first();
+        
 
             if ($attempt && $attempt->booking_id) {
                 return response()->json([
