@@ -40,6 +40,7 @@ class ProcessPendingAttempts extends Command
             Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
             $tBookingId = $ResponseTour ? $ResponseTour['id'] : null;
             $flight = json_decode($attempt->duffel_res, true);
+            $orderId = json_decode($attempt->order_id, true);
             Log::info('automatic Flight Data: ' . json_encode($flight));
             if (isset($flightResponse['errors']) && $flightResponse['errors']) {
                 Log::error('automatic Duffel booking failed for duffel order ID ' . $orderId);
