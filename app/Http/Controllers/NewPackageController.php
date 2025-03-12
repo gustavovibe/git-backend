@@ -190,6 +190,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
+                        'booking_id' => null,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'tourradar_res' => json_encode($tourResponse),
                         'payment_id' => $paymentId,
