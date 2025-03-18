@@ -638,14 +638,13 @@ public function convertDurationToMinutes($duration)
                     Log::info('Email send attempt from package controller');
                 
                     $bookingId = json_decode($order['booking_id']);
-                    $order_n = Order::where('user_id', $order['user_id'])->first();
+                    $duffelId = json_decode($order['duffel_id']);
                 
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
-                    Log::info('Order found:', ['order' => $order_n]);
                 
                     // Capture response from the function
-                    $response = TourController::emailBConfirmation($order->booking_id, $order->duffer_id, $paymentId);
+                    $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId);
                 
                     // Log the response
                     Log::info('Response from emailBConfirmation:', ['response' => $response]);
