@@ -634,14 +634,35 @@ public function convertDurationToMinutes($duration)
 
 
 
-                if($order != null){
-                    Log::info('email send package controller' );
+                if ($order != null) {
+                    Log::info('Email send attempt from package controller');
+                
                     $bookingId = json_decode($order['booking_id']);
-                    $order_n= Order::where('user_id',$order['user_id'])->first();
-                    TourController::emailBConfirmation($order->booking_id,$order->duffer_id,$paymentId);
-                    //Mail::to($order_n->user->email)->send($mail);
-                    //Log::info('email  package controller (not) sent' );
+                    $order_n = Order::where('user_id', $order['user_id'])->first();
+                
+                    // Log input data
+                    Log::info('Booking ID:', ['booking_id' => $bookingId]);
+                    Log::info('Order found:', ['order' => $order_n]);
+                
+                    // Capture response from the function
+                    $response = TourController::emailBConfirmation($order->booking_id, $order->duffer_id, $paymentId);
+                
+                    // Log the response
+                    Log::info('Response from emailBConfirmation:', ['response' => $response]);
+                
+                    // Log manually in case email sending fails inside emailBConfirmation
+                    if ($response instanceof \Illuminate\Http\JsonResponse) {
+                        $responseData = $response->getData(true);
+                        if ($responseData['success'] ?? false) {
+                            Log::info('Email sent successfully.');
+                        } else {
+                            Log::error('Email sending failed.', ['error' => $responseData]);
+                        }
+                    } else {
+                        Log::warning('Unexpected response format from emailBConfirmation.', ['response' => $response]);
+                    }
                 }
+                
 
 
                 // Update database record

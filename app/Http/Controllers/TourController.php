@@ -215,6 +215,7 @@ class TourController extends Controller
      */
     public static function emailBConfirmation($tour_id,$orderId,$payment_id){
         try{
+            Log::info("emailBConfirmation triggered with tour_id: $tour_id, orderId: $orderId, payment_id: $payment_id");
             /* return view('emails.invoice'); */
             $data = [
                 'tour_id' => $tour_id,
@@ -223,15 +224,24 @@ class TourController extends Controller
             ];
 
             $r = Request::create('/', 'GET', $data);
-
+            Log::info("Creating Stripe request...");
             $stripe= StripeController::getPaymentIntent('pi_3QFhmOL1sFOlxHWW07qB04hu');
             $stripeData = json_decode($stripe->getContent(), true);
-
+            Log::info("Stripe data received: ", $stripeData);
 
             //aqui se usa tour_id
             $orders=ToursFilters::OrdersPrint($r);
             /* return $stripeData; */
+            if (!$orders) {
+                Log::error("OrdersPrint returned null");
+                return ApiResponse::error("OrdersPrint returned null");
+            }
+            Log::info("Order found: ", ['order_id' => $orders->id ?? 'N/A']);
 
+            if (!isset($orders->user) || empty($orders->user->email)) {
+                Log::error("User email not found in order data");
+                return ApiResponse::error("User email not found");
+            }
 
                 $accommodations = $orders->flightTour->tour['accommodations'] ?? [];
                /*  return $orders->flightTour->tour['accommodations']; */
@@ -348,17 +358,17 @@ class TourController extends Controller
                    }
                }
            }
-
+           $email = $orders->user->email;
            /* return ['orders'=>$orders,'booking_data'=>$booking_data,'values'=>$values]; */
            /* return [$orders, $stripeData['data'], $values, $invoice]; */
-           Mail::to($orders->user->email)->send(new BookEmail($orders, $stripeData['data'], $values,$invoice));
-
-            return ApiResponse::success('todo bien');
-        }catch(Exception $e){
+           Log::info("Sending email to: " . $email);
+           Mail::to($email)->send(new BookEmail($orders, $stripeData['data'], $values, $invoice));
+           Log::info("Email sent successfully!");
+           return ApiResponse::success('Email sent successfully');
+        } catch (Exception $e) {
+            Log::error("Error in emailBConfirmation: " . $e->getMessage());
             return ApiResponse::error($e->getMessage());
         }
-
-
     }
 
 
