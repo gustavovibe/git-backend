@@ -407,8 +407,8 @@ class TourController extends Controller
     }
 
 
-    public function bookingTickets(Request $r){
-        try{
+    public function bookingTickets(Request $r) {
+        try {
 
             $booking_data = (new DuffelApiController)->getOrderById($r);
 
@@ -418,10 +418,13 @@ class TourController extends Controller
 
             logger()->info('Booking data:', $booking_data);
 
-            $class=[];
+            $passengersData = [];
 
+            // Recorrer las "slices" y "segments" para recopilar los datos
             foreach ($booking_data['data']['slices'] as &$slice) {
                 foreach ($slice['segments'] as &$segment) {
+
+                    // Formateamos la duración y los horarios de salida y llegada
                     $duration = $segment['duration'];
                     $interval = new DateInterval($duration);
                     $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
@@ -429,32 +432,84 @@ class TourController extends Controller
                     $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
                     $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
                     $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
-                    foreach ( $segment['passengers'] as $passengers){
-                        if(!in_array($passengers['cabin_class_marketing_name'],$class)){
-                            $class[]=$passengers['cabin_class_marketing_name'];
+
+                    // Recorrer los pasajeros y agregar la información de equipaje
+                    foreach ($segment['passengers'] as &$passenger) {
+
+                        // Verificar si los datos del pasajero están presentes
+                        if (isset($passenger['title'], $passenger['given_name'], $passenger['family_name'], $passenger['born_on'], $passenger['cabin_class'])) {
+
+                            // Crear un array de equipajes formateados
+                            $baggageDetails = [];
+                            foreach ($passenger['baggages'] as $baggage) {
+                                $baggageDetails[] = $baggage['quantity'] . 'x ' . ucfirst($baggage['type']) . ' bag (' .
+                                                ($baggage['dimensions']['length'] ?? 'N/A') . ' + ' .
+                                                ($baggage['dimensions']['width'] ?? 'N/A') . ' + ' .
+                                                ($baggage['dimensions']['height'] ?? 'N/A') . ' cm, ' .
+                                                ($baggage['weight'] ?? 'N/A') . ' kg)';
+                            }
+
+                            // Asignamos los detalles del equipaje al pasajero
+                            $passenger['baggage_details'] = implode(', ', $baggageDetails);
+
+                            // Recopilamos la información del pasajero y el vuelo
+                            $passengerData = [
+                                'passenger' => [
+                                    'title' => $passenger['title'] ?? 'N/A',
+                                    'given_name' => $passenger['given_name'] ?? 'N/A',
+                                    'family_name' => $passenger['family_name'] ?? 'N/A',
+                                    'born_on' => isset($passenger['born_on']) ? Carbon::parse($passenger['born_on'])->format('d M Y') : 'N/A',
+                                    'cabin_class' => $passenger['cabin_class'] ?? 'N/A',
+                                ],
+                                'baggage_details' => $passenger['baggage_details'] ?? 'N/A',
+                                'flight_info' => [
+                                    'departing_at' => $segment['formatted_departing_at'] ?? 'N/A',
+                                    'arriving_at' => $segment['formatted_arriving_at'] ?? 'N/A',
+                                    'flight_number' => $segment['operating_carrier_flight_number'] ?? 'N/A',
+                                    'carrier' => $segment['operating_carrier']['name'] ?? 'N/A',
+                                ]
+                            ];
+
+                            // Guardamos los datos del pasajero con su equipaje en el arreglo
+                            $passengersData[] = $passengerData;
+                        } else {
+                            // Si faltan los datos del pasajero, agregamos valores por defecto
+                            $passengersData[] = [
+                                'passenger' => [
+                                    'title' => 'N/A',
+                                    'given_name' => 'N/A',
+                                    'family_name' => 'N/A',
+                                    'born_on' => 'N/A',
+                                    'cabin_class' => 'economy',
+                                ],
+                                'baggage_details' => 'N/A',
+                                'flight_info' => [
+                                    'departing_at' => 'N/A',
+                                    'arriving_at' => 'N/A',
+                                    'flight_number' => 'N/A',
+                                    'carrier' => 'N/A',
+                                ]
+                            ];
                         }
                     }
-                    $segment['class']=implode(',',$class);
                 }
             }
 
-           /*  $logo=$booking_data['data']['owner']['logo_symbol_url'];
+            // Ahora pasamos el objeto $pdf y los datos a la vista
+            $pdf = Pdf::loadView('emails.tickets_booking', [
+                'data' => $booking_data['data'],
+                'passengers_data' => $passengersData
+            ])->set_option('isRemoteEnabled', true);
 
-            $imageContent = Http::get($logo)->body();
-            $logo = 'images/logo_flight.svg'; // Ruta donde guardar la imagen
-
-            Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
-
-            $logo = asset('storage/'.$logo);
- */
-            /* return $booking_data['data']; */
-            $pdf = Pdf::loadView('emails.tickets_booking',['data'=>$booking_data['data']])->set_option('isRemoteEnabled', true);
+            /* $pdf->getDomPDF()->getCanvas()->get_font('public/fonts/Roboto-Regular.ttf'); */
             return $pdf->stream('tickets_booking.pdf');
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return ApiResponse::error($e->getMessage());
         }
     }
+
+
 
     /**
      * Booking summary send.
