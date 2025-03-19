@@ -24,6 +24,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DateInterval;
 use Illuminate\Support\Facades\Storage;
 use GuzzleHttp\Client;
+use App\Models\ActionLog;
+use Illuminate\Support\Facades\Log;
 
 use Exception;
 
