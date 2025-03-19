@@ -903,8 +903,12 @@
                         </td>
                         <td style="width:5%">
                         <td>
-                            <label style="color: gray;">Gender:</label>
-                            <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
+                            @if ( isset($passenger['fields']['gender']) )
+                            <div>
+                                <label style="color: gray;">Gender:</label>
+                                <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
+                            </div>
+                            @endif
                         </td>
                     </tr>
                 </table>
