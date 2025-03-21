@@ -728,7 +728,7 @@ public function convertDurationToMinutes($duration)
             
 
             if ($attempt && $attempt->booking_id) {
-                $tourradar_res = json_decode($attempt->tourradar_res, true),;
+                $tourradar_res = json_decode($attempt->tourradar_res, true);
 
                 // Count adults and children
                 $adults = collect($tourradar_res['passengers'])->filter(fn($p) => $p['price_category']['title'] === 'Adult');
@@ -774,8 +774,8 @@ public function convertDurationToMinutes($duration)
                     'status' => $attempt->status ?? 'pending',
                     'booking_id' => $attempt->booking_id ?? null,
                     'expiration' => $attempt->expiration ?? null,
-                    'tourradar_res' => $tourradar_res, // Decode JSON
-                    'duffel_res' => $duffel_res, // Decode JSON
+                    'tourradar_res' => $tourradar_res, 
+                    'duffel_res' => $duffel_res, 
                     
                 ]);                
             }
