@@ -725,15 +725,58 @@ public function convertDurationToMinutes($duration)
                 ->select('status', 'booking_id', 'expiration', 'tourradar_res', 'duffel_res') // Include missing fields
                 ->where('id', $request->attempt_id)
                 ->first();
-        
+            
 
             if ($attempt && $attempt->booking_id) {
+                $tourradar_res = json_decode($attempt->tourradar_res, true),;
+
+                // Count adults and children
+                $adults = collect($tourradar_res['passengers'])->filter(fn($p) => $p['price_category']['title'] === 'Adult');
+                $children = collect($tourradar_res['passengers'])->filter(fn($p) => $p['price_category']['title'] === 'Child');
+            
+                $adultsNumber = $adults->count();
+                $childrenNumber = $children->count();
+            
+                // Get price category IDs for adults and children
+                $adultCategoryIds = $adults->pluck('price_category.id')->all();
+                $childCategoryIds = $children->pluck('price_category.id')->all();
+            
+                // Calculate total price for adults and children
+                $totalPriceAdults = 0;
+                $totalPriceChildren = 0;
+            
+                foreach ($tourradar_res['accommodations'] as $acc) {
+                    foreach ($acc['prices'] as $price) {
+                        if (in_array($price['price_category_id'], $adultCategoryIds)) {
+                            $totalPriceAdults += $price['price_per_pax'];
+                        }
+                        if (in_array($price['price_category_id'], $childCategoryIds)) {
+                            $totalPriceChildren += $price['price_per_pax'];
+                        }
+                    }
+                }
+                $tourradar_res['adultsNumber'] = $adultsNumber;
+                $tourradar_res['childrenNumber'] = $childrenNumber;
+                $tourradar_res['totalPriceAdults'] = $totalPriceAdults;
+                $tourradar_res['totalPriceChildren'] = $totalPriceChildren;
+
+                $duffel_res = json_decode($attempt->duffel_res, true);
+                
+                $duffelPassengers = collect($duffel_res['data']['passengers']);
+
+                $duffelAdultsNumber = $duffelPassengers->filter(fn($p) => isset($p['type']) && $p['type'] === 'adult')->count();
+                $duffelChildrenNumber = $duffelPassengers->filter(fn($p) => isset($p['type']) && $p['type'] === 'child')->count();
+
+                $duffel_res['duffelAdultsNumber'] = $duffelAdultsNumber;
+                $duffel_res['duffelChildrenNumber'] = $duffelChildrenNumber;
+
                 return response()->json([
                     'status' => $attempt->status ?? 'pending',
                     'booking_id' => $attempt->booking_id ?? null,
                     'expiration' => $attempt->expiration ?? null,
-                    'tourradar_res' => $attempt->tourradar_res ?? null,
-                    'duffel_res' => $attempt->duffel_res ?? null,
+                    'tourradar_res' => $tourradar_res, // Decode JSON
+                    'duffel_res' => $duffel_res, // Decode JSON
+                    
                 ]);                
             }
 
