@@ -231,6 +231,8 @@ Route::post('/check-contact',[UserController::class, 'checkContact']);
 
 Route::get('/get-tickets',[TourController::class, 'bookingTickets']);
 Route::get('/get-nezasa-itinerary',[NezasaController::class, 'getItineraryTour']);
+Route::get('/get-nezasa-locations',[NezasaController::class, 'getNezasaLocations']);
+Route::get('/get-db-locations',[NezasaController::class, 'getLocationsFromDatabase']);
 
 Scramble::registerUiRoute(path: '/documentation')->name('api.scramble.docs.ui');
 

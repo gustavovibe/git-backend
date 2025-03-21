@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Models\TourItineraryLocations;
 use App\Services\OpenAIService;
 use App\Helpers\ApiResponse;
 
@@ -119,8 +120,8 @@ class NezasaController extends Controller
     protected function addNezasaItinerary($nesazaData)
     {
       $apiUrl = 'https://api.stg.tripbuilder.app';
-      $apiUsername = env('NEZASA_STG_USER');
-      $apiPassword = env('NEZASA_STG_PWD');
+      $apiUsername = env('NEZASA_PROD_USER');
+      $apiPassword = env('NEZASA_PROD_PWD');
       $authorization = base64_encode("$apiUsername:$apiPassword");
       $headers = [
           'Content-Type' => 'application/json',
@@ -140,6 +141,110 @@ class NezasaController extends Controller
       return response()->json([
         'message' => 'Itinerary successfully sent',
         'response' => $response->json()
+      ]);
+    }
+
+    public function getNezasaLocations()
+    {
+      
+      $countriesList = [
+        "MX"
+      ];
+    
+    
+      $baseUrl = "https://api.tripbuilder.app/location/v1/vibeadventures/areas";
+      $pageSize = 100;
+
+      foreach ($countriesList as $country) {
+
+          $isoCode = $country;
+          $locations = array();
+          $pageNumber = 1;
+          $hasMore = true;
+
+          while ($hasMore) {
+
+              $url = "{$baseUrl}?countryCodes={$isoCode}&page[size]={$pageSize}&page[number]={$pageNumber}";
+
+              try {
+
+                $apiUsername = env('NEZASA_PROD_USER');
+                $apiPassword = env('NEZASA_PROD_PWD');
+                $authorization = base64_encode("$apiUsername:$apiPassword");
+                $headers = [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => "Basic $authorization",
+                ];
+                $response = Http::withHeaders($headers)->get($url);
+                
+                if ($response->failed()) {
+                  Log::error('Failed to send itinerary to Nezasa', [
+                      'response' => $response->body(),
+                      'request' => $nesazaData
+                  ]);
+                  return ApiResponse::error('Failed to send itinerary to Nezasa'. $response->body(), 500);
+                }
+
+                $data = $response->json();
+
+                if (isset($data['areas'])) {
+                  // Store the locations for the current page in the database
+                  TourItineraryLocations::create([
+                    'countryISOCode' => $isoCode,
+                    'locationsList' => $data['areas']
+                  ]);
+                }
+
+                if (isset($data['meta']['page']['hasMore'])) {
+                  $hasMore = $data['meta']['page']['hasMore'];
+                  if ($hasMore) {
+                    $pageNumber++;
+                  }
+                } else {
+                  $hasMore = false;
+                }
+
+              } catch (\Illuminate\Http\Client\RequestException $e) {
+                // Handle the error (log it, display a message, etc.)
+                \Log::error("Error fetching locations for {$isoCode} (Page {$pageNumber}): " . $e->getMessage());
+                $hasMore = false; // Stop trying for this country on error
+              }
+          }
+
+        \Log::info("Successfully fetched and stored " . count($locations) . " locations for {$isoCode}.");
+      }
+
+      return response()->json([
+        'message' => 'Successfully fetched and stored locations for all countries in the list.',
+        'response' => $response->json()
+      ]);
+    }
+
+    public function getLocationsFromDatabase()
+    {
+      $tourData = TourItineraryLocations::where('locationsList', '!=', '[]')
+      ->orderBy('countryISOCode', 'asc')
+      ->get();
+
+      $data = [];
+
+      foreach ($tourData as $item) {
+        $countryCode = $item->countryISOCode;
+        $locations = $item->locationsList; // Decode the JSON string to an associative array
+
+        if (!isset($data[$countryCode])) {
+          $data[$countryCode] = [];
+        }
+
+        if (is_array($locations)) {
+          $data[$countryCode] = array_merge($data[$countryCode], $locations);
+        }
+      }
+
+      return response()->json([
+        'message' => 'Successfully fetched and stored locations for all countries in the list.',
+        'response' => $data
       ]);
     }
 }
