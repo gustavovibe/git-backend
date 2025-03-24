@@ -97,6 +97,7 @@ Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDepartur
 Route::get('/tour-ids', [TourIdController::class, 'index']);
 
 Route::get('/travelers', [TravelersController::class, 'getTravelers']);
+Route::get('/showtravelers', [TravelersController::class, 'show']);
 Route::post('/write-travelers', [TravelersController::class, 'writeTravelers']);
 Route::post('/write-orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'getOrders']);

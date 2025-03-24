@@ -301,4 +301,14 @@ class TravelersController extends Controller
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
     }
+
+    public function show(Request $r){
+        try{
+            $traveler=Traveler::query();
+            !$r->user_id?:$traveler->where('user_id',$r->user_id);
+            return ApiResponse::success($traveler->first());
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
+    }
 }
