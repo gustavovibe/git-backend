@@ -108,6 +108,8 @@ Route::get('/users', [UserController::class, 'getUserById']);
 Route::get('/users-history', [UserController::class, 'UserHistory']);
 Route::post('/users-travelers', [UserController::class, 'editTraveler']);
 Route::post('/users-pass', [UserController::class, 'changePassword']);
+Route::post('/change-password', [UserController::class, 'changePasswordValidation']);
+Route::delete('/user/{user_id}', [UserController::class, 'deleteUser']);
 Route::get('/users-wishlist', [UserController::class, 'getWishlist']);
 Route::post('/push_notifications_register', [PushNotificationsController::class, 'registerGravitecSub']);
 Route::post('/send_push_notification', [PushNotificationsController::class, 'sendPushNotification']);

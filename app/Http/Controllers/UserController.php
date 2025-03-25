@@ -249,6 +249,71 @@ class UserController extends Controller
     }
 
     /**
+     * Change password validation.
+     * 
+     * Endpoint to change password with a validation of the old password.
+     * 
+     * Updated at 22/03/2025 (@AaronRmz)
+     * 
+     * @param Request $request Request object
+     * @return array  response   
+     */
+    public function changePasswordValidation(Request $request){
+        try{
+            $request->validate([
+                'user_id' => 'required|integer',
+                'old_password' => 'required|string|min:8',
+                'password' => 'required|string|min:8',
+                'password_confirmation' => 'required|string|min:8|same:password',
+            ]);
+
+            $user = User::findOrFail($request->user_id);
+            if(!Hash::check($request->old_password, $user->password)){
+                return ApiResponse::error('Old password is incorrect');
+            }
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            return ApiResponse::success('Password changed successfully');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete User.
+     * 
+     * Endpoint to delete user only make active = 0.
+     * 
+     * Updated at 22/03/2025 (@AaronRmz)
+     * 
+     * @param Request $request Request object
+     * @return array  response   
+     */
+    public function deleteUser($user_id){
+        DB::beginTransaction();
+        try{
+
+            $user = User::findOrFail($user_id);
+            $user->active = 0;
+            $user->save();
+
+            ActionLog::create([
+                'user_id' => $user_id,
+                'type' => 'Delete',
+                'action' =>'User deleted successfully',
+                'item' => 'User',
+            ]);
+            DB::commit();
+            return ApiResponse::success('User deleted successfully');
+        }catch(Exception $e){
+            return ApiResponse::error($e->getMessage());
+            DB::rollback();
+        }
+    }
+
+    /**
      * Email pass.
      * 
      * Updated at 10/12/2024 (user)

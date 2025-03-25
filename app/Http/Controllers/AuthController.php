@@ -89,6 +89,13 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Verificar que el usuario esté activo
+        $user = Auth::user();
+        if (!$user->active) {
+            Auth::logout(); // Cierra sesión si estaba autenticado
+            return response()->json(['error' => 'Account is not active.'], 401);
+        }
+
         $user = User::where('email', $request['email'])->with('profile', 'permissions')->firstOrFail();
         $user->last_login = Carbon::now();
         $user->save();
