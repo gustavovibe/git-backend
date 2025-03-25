@@ -226,11 +226,13 @@ class TourController extends Controller
             ];
 
             $r = Request::create('/', 'GET', $data);
-            Log::info("Creating Stripe request...");
-            $stripe= StripeController::getPaymentIntent('pi_3QFhmOL1sFOlxHWW07qB04hu');
-            $stripeData = json_decode($stripe->getContent(), true);
-            Log::info("Stripe data received: ", $stripeData);
 
+            Log::info("Creating Stripe request...");
+
+
+            $stripeData = Self::ticketStructure($r);
+          /*   Log::info("Stripe data received: ", $stripeData); */
+        /*     return $stripeData; */
             //aqui se usa tour_id
             $orders=ToursFilters::OrdersPrint($r);
             /* return $stripeData; */
@@ -296,9 +298,12 @@ class TourController extends Controller
                 $total = $subtotal + $tax;
 
                 $invoice= [  'adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants,'subtotal'=>$subtotal,'tax'=>$tax,'total'=>$total];
-               /*  return $orders;
-            return view('emails.invoice')->with(['data'=>$stripeData['data'],'orders'=>$orders,'values'=>$invoice]); */
-            //aqui se usa orderId
+                /* return $orders->payment_id; */
+              $stripe= StripeController::getPaymentIntent($orders->payment_id);
+              $stripeData_invoice = json_decode($stripe->getContent(), true);
+              $invoice_content=['data'=>$stripeData_invoice['data'],'orders'=>$orders,'values'=>$invoice];
+
+
             if (empty($orderId)) {
                 $booking_data = [];
             } else {
@@ -340,32 +345,14 @@ class TourController extends Controller
 
            $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
 
-            $class=[];
-           if(!empty($booking_data['data'])){
-               foreach ($booking_data['data']['slices'] as &$slice) {
-                   foreach ($slice['segments'] as &$segment) {
-                       $duration = $segment['duration'];
-                       $interval = new DateInterval($duration);
-                       $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
-                       $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
-                       $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
-                       $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
-                       $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
-                       foreach ( $segment['passengers'] as $passengers){
-                           if(!in_array($passengers['cabin_class_marketing_name'],$class)){
-                               $class[]=$passengers['cabin_class_marketing_name'];
-                           }
-                       }
-                       $segment['class']=implode(',',$class);
-                   }
-               }
-           }
            $email = $orders->user->email;
-           /* return ['orders'=>$orders,'booking_data'=>$booking_data,'values'=>$values]; */
-           /* return [$orders, $stripeData['data'], $values, $invoice]; */
-           Log::info("Sending email to: " . $email);
-           Mail::to($email)->send(new BookEmail($orders, $stripeData['data'], $values, $invoice));
-           Log::info("Email sent successfully!");
+           $flag=0;
+           if((isset($stripeData_invoice['data']['charge_details']['balance_transaction']) && $stripeData_invoice['data']['charge_details']['balance_transaction'] !== null) ){
+            $flag=1;
+           }
+
+           Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice,$invoice_content,$flag));
+
            return ApiResponse::success('Email sent successfully');
         } catch (Exception $e) {
             Log::error("Error in emailBConfirmation: " . $e->getMessage());
@@ -375,7 +362,7 @@ class TourController extends Controller
 
 
     public function emailBookTest(Request $r){
-        return $this->emailBConfirmation($r->tour_id,$r->email,$r->orderId,);
+        return $this->emailBConfirmation($r->tour_id,$r->orderId,$r->orderId,);
     }
     /**
      * Pdf order.
@@ -422,7 +409,28 @@ class TourController extends Controller
     public function bookingTickets(Request $r) {
         try {
 
-            $booking_data = (new DuffelApiController)->getOrderById($r);
+           /*  return $r->all(); */
+           $tickets = $this->ticketStructure($r);
+
+            $pdf = Pdf::loadView('emails.tickets_booking', [
+                'data' => $tickets['data'],
+                'passengers_data' => $tickets['passengers_data']
+            ])->set_option('isRemoteEnabled', true);
+
+            /* $pdf->getDomPDF()->getCanvas()->get_font('public/fonts/Roboto-Regular.ttf'); */
+            return $pdf->stream('tickets_booking.pdf');
+
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+
+
+
+    public static  function  ticketStructure(Request $r){
+ /*        return $r->all(); */
+        $booking_data = (new DuffelApiController)->getOrderById($r);
 
             if (!isset($booking_data['data'])) {
                 throw new Exception('Invalid booking data structure');
@@ -507,21 +515,11 @@ class TourController extends Controller
                 }
             }
 
-            // Ahora pasamos el objeto $pdf y los datos a la vista
-            $pdf = Pdf::loadView('emails.tickets_booking', [
+            return  [
                 'data' => $booking_data['data'],
                 'passengers_data' => $passengersData
-            ])->set_option('isRemoteEnabled', true);
-
-            /* $pdf->getDomPDF()->getCanvas()->get_font('public/fonts/Roboto-Regular.ttf'); */
-            return $pdf->stream('tickets_booking.pdf');
-
-        } catch (Exception $e) {
-            return ApiResponse::error($e->getMessage());
-        }
+            ];
     }
-
-
 
     /**
      * Booking summary send.

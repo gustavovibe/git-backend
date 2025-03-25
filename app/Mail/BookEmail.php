@@ -18,13 +18,17 @@ class BookEmail extends Mailable
     protected $data;
     protected $summaryValues;
     protected $invoice;
+    protected $invoice_content;
+    protected $flag;
 
-    public function __construct($orders,$data,$summaryValues,$invoice)
+    public function __construct($orders,$data,$summaryValues,$invoice,$invoice_content,$flag)
     {
         $this->orders = $orders;
         $this->data = $data;
         $this->summaryValues = $summaryValues;
         $this->invoice = $invoice;
+        $this->invoice_content = $invoice_content;
+        $this->flag = $flag;
     }
 
     public function build()
@@ -36,19 +40,21 @@ class BookEmail extends Mailable
                       ]);
 
         // Adjuntar solo si 'data' no está vacío
-        if (!empty($this->data['data'])) {
+        if ($this->data) {
             $pdf1 = Pdf::loadView('emails.tickets_booking', [
                 'data' => $this->data['data'],
+                'passengers_data' => $this->data['passengers_data']
             ]);
             $email->attachData($pdf1->output(), 'tickets_booking.pdf', [
                 'mime' => 'application/pdf',
             ]);
         }
 
-        if (!empty($this->invoice)) {
-            $pdf3 = Pdf::loadView('emails.invoice', ['orders' => $this->orders,'data'=>$this->data,'values'=>$this->invoice]);
+        if ($this->flag) {
+            $pdf3 = Pdf::loadView('emails.invoice', $this->invoice_content);
             $email->attachData($pdf3->output(), 'invoice.pdf', ['mime' => 'application/pdf']);
         }
+
         // Adjuntar siempre el segundo PDF (si es requerido en todos los casos)
         $pdf2 = Pdf::loadView('emails.send_summary', [
             'tour' => $this->summaryValues['tour'],
