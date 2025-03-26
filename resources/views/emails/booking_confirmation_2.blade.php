@@ -966,7 +966,7 @@
             </div>
         </div>
         <br>
-        <div style="page-break-before: always;" class="Recomend">
+        <div  style="page-break-before: always; padding:2%" class="Recomend">
             <div id="container">
                 <h2 style="text-align: center;">Recommended</h2>
                 <p style="color: grey; font-size:12px;">Adding these services to your trip now can save you money to
