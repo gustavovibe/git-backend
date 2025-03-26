@@ -38,7 +38,7 @@
 </head>
 <body style=" font-family: sans-serif;">
     <div class="footer">
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Footer.png'))) }}">
+        <img src="https://vibeadventures.be/images/Footer.png'">
     </div>
     <div style="width: 100%; height: 842.88px; position: relative; background: white">
         <div
@@ -214,7 +214,7 @@
         <div style="margin-top: auto; text-align: center; ">
            {{--   <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
             <img style="width:100%;height:60px;left: 56.68px; top: 94.83px;"
-            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Footer.png')))}}" >
+            src="https://vibeadventures.be/images/Footer.png" >
         </div> --}}
         </div>
     </div>
@@ -250,7 +250,7 @@
         <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
            {{--   <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
             <img style="width:100%;height:60px;left: 56.68px; top: 94.83px;"
-            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Footer.png')))}}" >
+            src="https://vibeadventures.be/images/Footer.png" >
         </div> --}}
         </div>
     </div>
@@ -287,7 +287,7 @@
           <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
            {{--   <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
             <img style="width:100%;height:60px;left: 56.68px; top: 94.83px;"
-            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Footer.png')))}}" >
+            src="https://vibeadventures.be/images/Footer.png" >
         </div> --}}
         </div>
     </div>
@@ -305,7 +305,7 @@
                 <tr style="height: 30%; ">
                     <td style="width: 50%;" >
                         <div style="padding:2%">
-                            <img  style="width: 20%; height: auto;"  src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/verified.png')))}}" alt="">
+                            <img  style="width: 20%; height: auto;"  src="https://vibeadventures.be/images/verified.png" alt="">
                             <h3 style="color: #82CF45;">Top tours</h3>
                             <p style="text-align: justify;color: #4F5E71;">Our thorough screening process ensures you'll choose from the finest adventures and travel packages worlwide</p>
                         </div>
@@ -315,7 +315,7 @@
 
                     <td style="width: 50%;">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/lock.png')))}}"  alt="">
+                            <img style="width: 20%; height: auto;" src="https://vibeadventures.be/images/lock.png"  alt="">
                             <h3 style="color: #82CF45;">Secure payments</h3>
                             <p style="text-align: justify;color: #4F5E71;">Enjoy secure and flexible payment options, including 'Book Now, Pay Later,' allowing you to plan your dream trip with ease and peace of mind.</p>
                         </div>
@@ -328,7 +328,7 @@
                 <tr style="height: 30%">
                     <td  style="width: 50%">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" style="width: 20%; height: auto;"  src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/globe2.svg')))}}"  alt="">
+                            <img style="width: 20%; height: auto;" style="width: 20%; height: auto;"  src="https://vibeadventures.be/images/globe2.svg"  alt="">
                             <h3 style="color: #82CF45;">Wide selection</h3>
                             <p style="text-align: justify;color: #4F5E71;">Choose from over 20,000 adventures and book flights from almost any airport in the world, making it easy to find your ideal trip!</p>
                         </div>
@@ -336,7 +336,7 @@
 
                     <td style="width: 50%">
                         <div style="padding: 2%;">
-                            <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/hand-thumbs-up.svg')))}}"  alt="">
+                            <img style="width: 20%; height: auto;" src="https://vibeadventures.be/images/hand-thumbs-up.svg"  alt="">
                             <h3 style="color: #82CF45;">Easy booking</h3>
                             <p style="text-align: justify;color: #4F5E71;">Book everything you need in one place—flights, accommodations, activities, and more—with just a few clicks.</p>
                         </div>
@@ -350,7 +350,7 @@
             <table style="width: 100%">
                 <tr>
                     <td style="width:30%; text-align:center;">
-                        <img style="width: 20%; height: auto;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/people.svg')))}}"  alt="">
+                        <img style="width: 20%; height: auto;" src="https://vibeadventures.be/images/people.svg"  alt="">
                     </td>
                     <td>
                         <p style="text-align: justify;color: #4F5E71;">Our knowledgeable team of travel experts has explored countless destinations worldwide and is ready to help you book your dream vacation. With a wealth of industry experience and a commitment to exceptional service, we’re here to assist you with every aspect of your journey.</p>
@@ -361,7 +361,7 @@
         <br>
       {{--   <div style="margin-top: auto; text-align: center; page-break-inside: avoid;">
             <img style="width:100%;height:60px;left: 56.68px; top: 94.83px;"
-            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Footer.png')))}}" >
+            src="https://vibeadventures.be/images/Footer.png" >
         </div> --}}
     </div>
 

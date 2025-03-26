@@ -10,7 +10,7 @@
                     </div>
                 </td>
                 <td style="text-align: right">
-                    <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+                    <img style="width: 20%" src="https://vibeadventures.be/images/logo.png" alt="">
                 </td>
             </tr>
 
