@@ -371,7 +371,7 @@
         .card p {
             font-size: 12px;
             text-align: center;
-            height: 7%;
+            height: 3rem;
             color: gray;
         }
 
@@ -462,6 +462,7 @@
 </head>
 
 <body style="font-family: 'Canaro', sans-serif; padding:2%;">
+
     <br>
     <div>
         <div class="lateralD btnT mh">
@@ -531,7 +532,8 @@
                 @if ($orders->booking_status!='pending')
 
                 <td style="width: 5%;">
-                    <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}">
+                    {{-- <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}"> --}}
+                    <img style="width: 80%; height:35%" src="https://vibeadventures.be/images/timeframe-confirm.png">
                 </td>
                 <td style="width: 60%; padding-left: 10px;">
                     <div style="margin-top: 5%">
@@ -644,36 +646,48 @@
                     <td style="width: 80%; vertical-align: top;">
                         <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
                         <p>
+                            {{-- img style="width: 16px; height: 16px; vertical-align: middle;"
+                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}"> --}}
                             <img style="width: 16px; height: 16px; vertical-align: middle;"
-                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}">
+                                src="https://vibeadventures.be/images/star.png">
                             <b class="Tcolor">{{ $orders->ratings_overall }}</b> {{ $orders->reviews_count }} reviews
                         </p>
                         <table width="100%">
                             <tr>
+                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td> --}}
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td>
+                                        src="https://vibeadventures.be/images/double-right.png"></td>
                                 <td style="padding: 1%;">Starts in: {{ $orders->start_city . ',' . $orders->origin }}
                                 </td>
 
+                              {{--   <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td> --}}
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td>
+                                        src="https://vibeadventures.be/images/double-left.png"></td>
                                 <td style="padding: 1%;">Ends in:
                                     {{ $orders->end_city . ',' . $orders->f_destination }}</td>
                             </tr>
                             <tr>
+                               {{--  <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td>
+                                        src="https://vibeadventures.be/images/calendar-event.png"></td>
                                 <td style="padding: 1%;">Starts on:
                                     {{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</td>
 
+                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td>
+                                        src="https://vibeadventures.be/images/calendar-event.png"></td>
                                 <td style="padding: 1%;">Ends on:
                                     {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</td>
                             </tr>
                             <tr>
+                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td> --}}
                                 <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td>
+                                        src="https://vibeadventures.be/images/clock.png"></td>
                                 <td style="padding: 1%;">Duration: {{ $orders->tour->tour_length_days }} days</td>
                                 <td></td>
                                 <td></td>
@@ -716,8 +730,9 @@
                             <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
                                 <div class="line-container">
                                     <div class="line"></div>
-                                    <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
-                                        alt="Icon">
+                                    {{-- <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
+                                        alt="Icon"> --}}
+                                    <img class=" airplane-icon" style="width: 10%;height:10%; margin-top:70%;margin-left:-15%" src="https://vibeadventures.be/images/airplane.png" alt="Icon">
                                 </div>
                             </td>
                             <td style="width: 40%; text-align: left; vertical-align: top;">
@@ -732,8 +747,9 @@
                                             {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
                                                 style="width: 50%; height: 10%; border-radius: 12px;"></td>
                                         <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
-                                        <td style="margin-left:50%;"><img
-                                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td>
+                                        {{-- <td style="margin-left:50%;"><img
+                                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td> --}}
+                                        <td style="margin-left:50%;"><img src="https://vibeadventures.be/images/chevron-down.png"></td>
                                     </tr>
                                 </table>
                                 <label class="Tcolor">{{ $or['destination']['name'] }}</label><br>
@@ -872,6 +888,8 @@
                             <td>
                                {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
                                 src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/male.png')))}}"> --}}
+                                <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                src="https://vibeadventures.be/images/male.png">
                             </td>
                             <td>
                                 <h2>{{ $passenger['fields']['first_name'].' '.$passenger['fields']['last_name'] }}</h2>
@@ -879,6 +897,8 @@
                             <td>
                                {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
                                 src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/vector.png')))}}"> --}}
+                                <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                src="https://vibeadventures.be/images/Vector.png">
                             </td>
                         </tr>
                     </table>
@@ -957,44 +977,48 @@
                         <tr>
                             <td>
                                 <div>
-                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}"> --}}
+                                    <img id="img_" src="https://vibeadventures.be/images/transfer.png">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere
-                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}">  --}}
+                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
                                     </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}"> --}}
+
+                                    <img id="img_" src="https://vibeadventures.be/images/insurance.png">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance
-                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+
+                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
                                     </a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/accommodation.png')))}}"> --}}
+
+                                    <img id="img_" src="https://vibeadventures.be/images/accommodation.png">
                                     <h5>Accommodation</h5>
                                     <p style="width:100%">Need pre- or post-tour accommodation?</p>
                                     <a>Book Accommodation
-                                        {{-- <img id="iconic" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+
+                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
                                     </a>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/activities.png')))}}"> --}}
+
+                                    <img id="img_" src="https://vibeadventures.be/images/activities.png">
                                     <h5>Activities</h5>
                                     <p style="width:100%">Got extra days in the destination before or after
                                         the adventure?</p>
                                     <a>Find Activities
-                                        {{-- <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> --}}
+                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
                                     </a>
                                 </div>
                             </td>
@@ -1002,6 +1026,7 @@
                     </table>
                 </div>
             </div>
+        {{--     @include('emails.recommended_component') --}}
         </div>
         <div class="footer">
             <hr>
@@ -1027,12 +1052,15 @@
             <div>
                 <table width="100%">
                     <tr>
-                     {{--    <img style="width:35%;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}">
+                        <img style="width:35%;" src="https://vibeadventures.be/images/logo.png">
                         <td style="text-align: right;">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}">
-                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}">
-                        </td> --}}
+                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}"> --}}
+                            <img src="https://vibeadventures.be/images/face-icon.png">
+                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}"> --}}
+                            <img src="https://vibeadventures.be/images/insta-icon.png">
+                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}"> --}}
+                            <img src="https://vibeadventures.be/images/youtube-icon.png">
+                        </td>
                     </tr>
                 </table>
                 <br>

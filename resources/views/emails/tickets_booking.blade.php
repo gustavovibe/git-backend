@@ -37,7 +37,7 @@
             <tr>
                 <td style="width: 40%">
                     <img style="width: 100%"
-                         src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png'))) }}"
+                         src="https://vibeadventures.be/images/logo.png"
                          alt="Logo">
                 </td>
                 <td style="width: 40%"></td>
@@ -65,7 +65,7 @@
                     <tr>
                         <td style="width: 10%">
                             <img style="width: 50%"
-                                 src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/user.png'))) }}"
+                                 src="https://vibeadventures.be/images/user.png"
                                  alt="User">
                         </td>
                         <td>
@@ -85,7 +85,7 @@
                                     <tr>
                                         <td style="width: 10%; vertical-align: middle; padding-right: 5px;">
                                             <img style="width: 20px; height: auto;"
-                                                 src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/Bag.png'))) }}"
+                                                 src="https://vibeadventures.be/images/Bag.png"
                                                  alt="Bag">
                                         </td>
                                         <td style="vertical-align: middle;">

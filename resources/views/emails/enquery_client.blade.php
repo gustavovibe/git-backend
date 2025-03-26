@@ -468,7 +468,8 @@
     <div>
         <div class="lateralD btnT mh">
             <div>
-                <img style="width: 50%; height:50%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt="">
+                {{-- <img style="width: 50%; height:50%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt=""> --}}
+                <img style="width: 50%; height:50%" src="https://vibeadventures.be/images/logo.png" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Hi</label>
@@ -509,21 +510,25 @@
                         <tr>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/transfer.png')))}}"> --}}
+                                    <img id="img_" src="https://vibeadventures.be/images/transfer.png">
                                     <h5>Airport transfer</h5>
                                     <p style="width:100%">Airport transfers not included adventure?</p>
                                     <a>Go somewhere <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a>
+                                            {{-- src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"> </a> --}}
+                                            src="https://vibeadventures.be/images/box-arrow-up-right.png"> </a>
 
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}">
+                                    {{-- <img id="img_" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insurance.png')))}}"> --}}
+                                    <img id="img_" src="https://vibeadventures.be/images/insurance.png">
                                     <h5>Insurance</h5>
                                     <p style="width:100%">Available up to 24h before departure</p>
                                     <a>Manager Insurance <img id="iconic"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a>
+                                            {{-- src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/box-arrow-up-right.png')))}}"></a> --}}
+                                            src="https://vibeadventures.be/images/box-arrow-up-right.png"></a>
                                 </div>
                             </td>
                             <td>
