@@ -92,7 +92,7 @@ class UserController extends Controller
 
             $Contact = new ContactEmail();
             $Contact->fill($details)->save();
-            Mail::to('adan_gonzalez@vibeadventures.com')->send(new ContactMail($details));
+            Mail::to('bookings@vibeadventures.mx')->send(new ContactMail($details));
             DB::commit();
             return response()->json(['status'=>200,'response'=>'entro a servicio']);
         }catch(Error $e){
