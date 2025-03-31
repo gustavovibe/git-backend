@@ -225,7 +225,19 @@ public static function getDeparturesByTour($params)
                         $departureType == "guaranteed");
             });
 
-            return ['items' => array_values($filteredDepartures)];
+            // Fetch additional departure details for each item
+            $departuresWithDetails = array_map(function ($departure) use ($params) {
+                $departureDetails = self::getDeparture([
+                    'tourId' => $params['tourId'],
+                    'departureId' => $departure['id']
+                ]);
+
+                $departure['departures'] = $departureDetails;
+                return $departure;
+            }, array_values($filteredDepartures));
+
+            return ['items' => $departuresWithDetails];
+
         } catch (\Exception $e) {
            // Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
             return ['error' => $e->getMessage()];
