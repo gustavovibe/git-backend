@@ -61,7 +61,7 @@ class TravelersController extends Controller
         try{
             $rules=[
               /*   'traveler_id' => 'required|string|max:255', */
-                'title' => 'required|string|max:255',
+                // 'title' => 'required|string|max:255',
                 'gender' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
                 'last' => 'required|string|max:255',
@@ -73,7 +73,7 @@ class TravelersController extends Controller
                 'mail' => 'required|string|email|max:255',
                 'phone' => 'required|string|max:255',
                 'phone_country' => 'required|string|max:5',
-                'address' => 'required|string',
+                // 'address' => 'required|string',
                 'country' => 'required|string|max:255',
             ];
 
@@ -103,7 +103,7 @@ class TravelersController extends Controller
                 'phone_country' => $r->phone_country,
                 'address' => $r->address,
                 'country' => $r->country,
-                'user_id'=>$r->user_id,
+                'user_id'=>$r->user_id ? $r->user_id : $r->user_log,
                 'status'=>1,
             ])->save();
 
