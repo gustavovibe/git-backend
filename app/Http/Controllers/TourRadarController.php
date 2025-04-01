@@ -231,11 +231,40 @@ public static function getDeparturesByTour($params)
                     'tourId' => $params['tourId'],
                     'departureId' => $departure['id']
                 ]);
-
                 $departure['departures'] = $departureDetails;
+    
+                // Process accommodations to select the cheapest valid one based on travelers
+                if (
+                    isset($departureDetails['prices']['accommodations']) &&
+                    is_array($departureDetails['prices']['accommodations'])
+                ) {
+                    $accommodations = $departureDetails['prices']['accommodations'];
+                    $travelers = $params['travelers'];
+    
+                    $validAccommodations = array_filter($accommodations, function ($acc) use ($travelers) {
+                        if ($travelers === 1) {
+                            return $acc['beds_number'] === 1;
+                        }
+                        // For multiple travelers, check if the traveler count divides evenly by the beds number
+                        return $travelers % $acc['beds_number'] === 0;
+                    });
+    
+                    if (!empty($validAccommodations)) {
+                        // Choose the cheapest accommodation (assuming price is in 'value')
+                        $cheapest = array_reduce($validAccommodations, function ($prev, $curr) {
+                            return ($prev === null || $curr['value'] < $prev['value']) ? $curr : $prev;
+                        }, null);
+                        $departure['cheapestAccommodation'] = $cheapest;
+                    } else {
+                        $departure['cheapestAccommodation'] = null;
+                    }
+                } else {
+                    $departure['cheapestAccommodation'] = null;
+                }
+    
                 return $departure;
             }, array_values($filteredDepartures));
-
+    
             return ['items' => $departuresWithDetails];
 
         } catch (\Exception $e) {
