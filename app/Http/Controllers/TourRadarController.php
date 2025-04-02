@@ -116,6 +116,7 @@ public static function getDeparturesByTour($params)
 
         foreach ($tourIds as $tourId) {
             $params['tourId'] = $tourId;
+            
             $params['page'] = 1; // Always fetch first page of departures for each tourId
             $response = $this->getDeparturesByTourParams($params);
             Log::info('API response from getDeparturesByTourParams', ['tourId' => $tourId, 'response' => $response]);
@@ -159,7 +160,7 @@ public static function getDeparturesByTour($params)
             'Authorization' => 'Bearer ' . $accessToken,
         ];
         $queryParams = [];
-
+        $tourId = $params['tourId'];
         if (isset($params['currency'])) {
             $queryParams['currency'] = $params['currency'];
         }
@@ -264,7 +265,7 @@ public static function getDeparturesByTour($params)
 
            $groupedDepartures = [];
             foreach ($departuresWithDetails as $departure) {
-                $tourId = $departure['tour_id'] ?? null;
+                $departure['tour_id'] = $tourId;
                 if ($tourId) {
                     $groupedDepartures[$tourId][] = $departure;
                 }
