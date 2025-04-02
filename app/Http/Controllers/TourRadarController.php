@@ -207,7 +207,7 @@ public static function getDeparturesByTour($params)
             }
 
             $departures = $responseBody['items'];
-
+            Log::info('Departures: ', $departures);
             $filteredDepartures = array_filter($departures, function ($departure) use ($params) {
                 $date = $departure['date'];
                 $availability = $departure['availability'];
@@ -220,7 +220,7 @@ public static function getDeparturesByTour($params)
                         $availability >= $travelers &&
                         $departureType == "guaranteed");
             });
-
+            Log::info('Filtered departures: ', $filteredDepartures);
             // Fetch additional departure details for each item
             $departuresWithDetails = array_map(function ($departure) use ($params) {
                 $departureDetails = self::getDeparture([
@@ -260,6 +260,7 @@ public static function getDeparturesByTour($params)
     
                 return $departure;
             }, array_values($filteredDepartures));
+            Log::info('Filtered departures with details: ', $filteredDepartures);
 
            $groupedDepartures = [];
             foreach ($departuresWithDetails as $departure) {
@@ -268,7 +269,7 @@ public static function getDeparturesByTour($params)
                     $groupedDepartures[$tourId][] = $departure;
                 }
             }
-
+            Log::info('Grouped departures by tour_id', ['groupedDepartures' => $groupedDepartures]);
             // Extract unique tour_ids from the grouped departures
             $tourIds = array_keys($groupedDepartures);
 
