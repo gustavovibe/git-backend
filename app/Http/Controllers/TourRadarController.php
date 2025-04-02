@@ -112,29 +112,25 @@ public static function getDeparturesByTour($params)
         $start = ($page - 1) * $itemsPerPage;
         $end = $start + $itemsPerPage;
 
-        // Log::info('Starting to fetch departures', [
-        //     'tourIds' => $tourIds,
-        //     'params' => $params,
-        //     'start' => $start,
-        //     'end' => $end,
-        // ]);
-
         $tourIds = array_slice($tourIds, $start, $itemsPerPage);
 
         foreach ($tourIds as $tourId) {
             $params['tourId'] = $tourId;
             $params['page'] = 1; // Always fetch first page of departures for each tourId
             $response = $this->getDeparturesByTourParams($params);
+            Log::info('API response from getDeparturesByTourParams', ['tourId' => $tourId, 'response' => $response]);
 
             if (isset($response['items'])) {
-               // Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
-
+                // Ensure every departure gets the correct tour_id key
+                foreach ($response['items'] as &$departure) {
+                    $departure['tour_id'] = $tourId;
+                }
+                
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
                     if (isset($departure['prices']['price_total'])) {
                         $priceTotal = $departure['prices']['price_total'];
                         if ($cheapestDeparture === null || $priceTotal < $cheapestDeparture['prices']['price_total']) {
-                            $departure['tourId'] = $tourId; // Add tourId to departure array
                             $cheapestDeparture = $departure;
                         }
                     }
@@ -142,12 +138,10 @@ public static function getDeparturesByTour($params)
                 if ($cheapestDeparture !== null) {
                     $departures[] = $cheapestDeparture;
                 }
-            } else {
-               // Log::info('No departures found for tour', ['tourId' => $tourId]);
             }
-
             sleep(0.1); // delay between API calls
         }
+        
 
        // Log::info('Returning departures', ['departures' => $departures]);
 
@@ -291,7 +285,7 @@ public static function getDeparturesByTour($params)
                 $tour['departure'] = $groupedDepartures[$tourId] ?? [];
                 return $tour;
             }, $dbTours);
-
+            Log::info('Tours after merging departures', ['toursWithDepartures' => $toursWithDepartures]);
             // Sort the tours by reviews_count (desc) and ratings_overall (desc)
             usort($toursWithDepartures, function ($a, $b) {
                 $reviewsDiff = ($b['reviews_count'] ?? 0) - ($a['reviews_count'] ?? 0);
@@ -300,12 +294,12 @@ public static function getDeparturesByTour($params)
                 }
                 return $reviewsDiff;
             });
-
+            Log::info('Tours after sorting', ['toursWithDepartures' => $toursWithDepartures]);
             // Mark the top 3 tours as best_seller; the rest as false
             foreach ($toursWithDepartures as $index => &$tour) {
                 $tour['best_seller'] = $index < 3;
             }
-
+            Log::info('Final tours with best_seller flag', ['toursWithDepartures' => $toursWithDepartures]);
             return ['items' => $toursWithDepartures];
 
         } catch (\Exception $e) {
