@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
+use App\Filters\ToursFilters;
+use App\Models\Tour;
 
 class TourRadarController extends Controller
 {
@@ -264,14 +266,46 @@ public static function getDeparturesByTour($params)
     
                 return $departure;
             }, array_values($filteredDepartures));
-    
-            return ['items' => $departuresWithDetails];
+            $tourIds = array_unique(array_column($departuresWithDetails, 'tour_id'));
+
+            // Query the local database for tours matching these tour IDs
+            $dbTours = \App\Models\Tour::with(['cities', 'natural_destination', 'type', 'countries'])
+            ->whereIn('tour_id', $tourIds)
+            ->get()
+            ->keyBy('tour_id');
+            
+            // Merge database data into each departure
+            $mergedDepartures = array_map(function ($departure) use ($dbTours) {
+                $tourId = $departure['tour_id'] ?? null;
+                if ($tourId && isset($dbTours[$tourId])) {
+                    // Merge DB fields into the departure array at the same level
+                    $departure = array_merge($departure, $dbTours[$tourId]->toArray());
+                }
+                return $departure;
+            }, $departuresWithDetails);
+            
+            // Sort by reviews_count (desc) and ratings_overall (desc)
+            usort($mergedDepartures, function ($a, $b) {
+                $reviewsDiff = ($b['reviews_count'] ?? 0) - ($a['reviews_count'] ?? 0);
+                if ($reviewsDiff === 0) {
+                    return floatval($b['ratings_overall'] ?? 0) - floatval($a['ratings_overall'] ?? 0);
+                }
+                return $reviewsDiff;
+            });
+
+            // Mark the top 3 items as best_seller
+            foreach ($mergedDepartures as $index => &$departure) {
+                $departure['best_seller'] = $index < 3;
+            }
+
+            return ['items' => $mergedDepartures];
 
         } catch (\Exception $e) {
            // Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
             return ['error' => $e->getMessage()];
         }
     }
+
 
     
     public static function getDeparture($params)
