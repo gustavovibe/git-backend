@@ -142,7 +142,7 @@ public static function getDeparturesByTour($params)
             if (!isset($response['items'])) {
                 Log::error("Missing 'items' key in response", ['tourId' => $tourId, 'response' => $response]);
             }
-            sleep(0.1); // delay between API calls
+            sleep(0.2); // delay between API calls
         }
         
 
