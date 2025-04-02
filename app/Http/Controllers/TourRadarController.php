@@ -122,13 +122,11 @@ public static function getDeparturesByTour($params)
             Log::info('API response from getDeparturesByTourParams', ['tourId' => $tourId, 'response' => $response]);
 
             if (isset($response['items'])) {
-                // Ensure every departure gets the correct tour_id key
-                foreach ($response['items'] as &$departure) {
-                    $departure['tour_id'] = $tourId;
-                }
-                
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
+                    // Ensure every departure gets the correct tour_id key
+                    $departure['tour_id'] = $tourId; // Ensure the tour_id is set
+                    $departures[] = $departure; // Add each departure to the array
                     if (isset($departure['prices']['price_total'])) {
                         $priceTotal = $departure['prices']['price_total'];
                         if ($cheapestDeparture === null || $priceTotal < $cheapestDeparture['prices']['price_total']) {
@@ -140,11 +138,15 @@ public static function getDeparturesByTour($params)
                     $departures[] = $cheapestDeparture;
                 }
             }
+            
+            if (!isset($response['items'])) {
+                Log::error("Missing 'items' key in response", ['tourId' => $tourId, 'response' => $response]);
+            }
             sleep(0.1); // delay between API calls
         }
         
 
-       // Log::info('Returning departures', ['departures' => $departures]);
+       Log::info('Returning departures', ['departures' => $departures]);
 
         return response()->json(['items' => $departures]);
        }catch(Exception $e){
