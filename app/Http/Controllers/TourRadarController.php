@@ -142,7 +142,7 @@ public static function getDeparturesByTour($params)
             if (!isset($response['items'])) {
                 Log::error("Missing 'items' key in response", ['tourId' => $tourId, 'response' => $response]);
             }
-            sleep(0.2); // delay between API calls
+            sleep(0.1); // delay between API calls
         }
         
 
@@ -225,13 +225,17 @@ public static function getDeparturesByTour($params)
             });
             Log::info('Filtered departures: ', $filteredDepartures);
             // Fetch additional departure details for each item
-            $departuresWithDetails = array_map(function ($departure) use ($params) {
-                $departureDetails = self::getDeparture([
-                    'tourId' => $params['tourId'],
-                    'departureId' => $departure['id']
-                ]);
-                $departure['departures'] = $departureDetails;
-    
+                $departuresWithDetails = [];
+                foreach ($filteredDepartures as $departure) {
+                    $departureDetails = self::getDeparture([
+                        'tourId' => $params['tourId'],
+                        'departureId' => $departure['id']
+                    ]);
+                    sleep(0.1); // delay 0.1 seconds between each API call
+                    $departure['departures'] = $departureDetails;
+                    $departuresWithDetails[] = $departure;
+                }
+
                 // Process accommodations to select the cheapest valid one based on travelers
                 if (
                     isset($departureDetails['prices']['accommodations']) &&
