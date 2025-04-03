@@ -1,5 +1,5 @@
 <body>
-    <div style="padding: 3%">
+    <div style="padding: 15%">
 
         <table style="width: 100%">
             <tr>
@@ -21,7 +21,7 @@
 
         <table style="width: 100%;">
             <tr>
-                <td style="width: 49.5%; border-style:solid;padding:2%;border-color:#F5F7F9;">
+                <td style="width: 49.5%; border-style:solid;padding:3%;border-color:#F5F7F9;">
                     <div>
                         <p><b>Supplier</b></p>
                         <p>Vibe Adventures, Inc.</p>
@@ -37,7 +37,7 @@
                     </div>
                 </td>
                 <td style="width: 1%;"></td>
-                <td style="background-color:#F5F7F9; padding:1%">
+                <td style="background-color:#F5F7F9; padding:3%">
                     <div style="margin-bottom:20%; text-align:center;">
                         <table>
                             <tr>
@@ -82,7 +82,7 @@
             </tr>
             <tr>
                 <td><p>Trip</p></td>
-                <td><p>{{ $orders->tour->description }}</p></td>
+                <td><p>{{ $orders->tour_name }}</p></td>
                 <td>
                     <div>
                         @if($values['adults'] > 0)
@@ -100,13 +100,13 @@
                 <td>
                     <div>
                         @if($values['adults'] > 0)
-                        <p>US$ {{ $values['total_adults'] }}</p>
+                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
                         @endif
                         @if($values['children'] > 0)
-                        <p>US$ {{ $values['total_children'] }}</p>
+                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
                         @endif
                         @if($values['infants'] > 0)
-                        <p>US$ {{ $values['total_infants'] }}</p>
+                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
                         @endif
 
                     </div>
@@ -127,13 +127,13 @@
                 <td>
                     <div>
                         @if($values['adults'] > 0)
-                        <p>US$ {{ $values['adults'] *  $values['total_adults']  }} <b style="color: #82CF45">adult(s)</b></p>
+                        <p>US$ {{ $values['adults'] *  ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">adult(s)</b></p>
                         @endif
                         @if($values['children'] > 0)
-                        <p>US$ {{ $values['children'] *  $values['total_children']  }} <b style="color: #82CF45">child(s)</b></p>
+                        <p>US$ {{ $values['children'] *  ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">child(s)</b></p>
                         @endif
                         @if($values['infants'] > 0)
-                        <p>US$ {{ $values['infants'] *  $values['total_infants']  }} <b style="color: #82CF45">infant(s)</b></p>
+                        <p>US$ {{ $values['infants'] *   ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">infant(s)</b></p>
                         @endif
                     </div>
                 </td>
@@ -148,7 +148,7 @@
                 <tr>
                     <td style="width: 70%"></td>
                     <th>Subtotal</th>
-                    <td>{{ 'US $'.$values['subtotal'] }}</td>
+                    <td>{{ 'US $'.$orders->paid }}</td>
                 </tr>
                 <tr>
                     <td style="width: 70%"></td>
@@ -158,7 +158,7 @@
                 <tr>
                     <td style="width: 70%"></td>
                     <th>Total</th>
-                    <td><b>{{ 'US $'.$values['total'] }}</b></td>
+                    <td><b>{{ 'US $'.$orders->paid }}</b></td>
                 </tr>
             </table>
         </div>

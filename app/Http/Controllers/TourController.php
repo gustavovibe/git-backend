@@ -218,7 +218,7 @@ class TourController extends Controller
     public static function emailBConfirmation($tour_id,$orderId,$payment_id){
         try{
             Log::info("emailBConfirmation triggered with tour_id: $tour_id, orderId: $orderId, payment_id: $payment_id");
-            /* return view('emails.invoice'); */
+
             $data = [
                 'tour_id' => $tour_id,
                 'orderId' => $orderId,
@@ -298,6 +298,7 @@ class TourController extends Controller
                 $total = $subtotal + $tax;
 
                 $invoice= [  'adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants,'subtotal'=>$subtotal,'tax'=>$tax,'total'=>$total];
+
                 /* return $orders->payment_id; */
               $stripe= StripeController::getPaymentIntent($orders->payment_id);
               $stripeData_invoice = json_decode($stripe->getContent(), true);
@@ -350,7 +351,26 @@ class TourController extends Controller
            if((isset($stripeData_invoice['data']['charge_details']['balance_transaction']) && $stripeData_invoice['data']['charge_details']['balance_transaction'] !== null) ){
             $flag=1;
            }
+           /* return $invoice_content; */
 
+           $currencies = json_decode(Storage::get('currencies.json'),true);
+           $currencyInfo = null;
+           $currencyCode = strtoupper($invoice_content['data']['payment_intent']['currency']);
+           foreach ($currencies as $currency) {
+            if (strtoupper($currency['code']) === $currencyCode) {
+                $currencyInfo = $currency['currency'];
+                break;
+            }
+        }
+
+        if ($currencyInfo) {
+            $invoice_content['data']['payment_intent']['currency'] = $currencyInfo;
+        }
+        /*    return $invoice_content['data']['payment_intent']['currency'];
+           return $currencies; */
+        /*    return view('emails.invoice')->with( $invoice_content); */
+
+          /*   return view('emails.booking_confirmation_2')->with(['orders'=>$orders] ); */
            Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice,$invoice_content,$flag));
 
            return ApiResponse::success('Email sent successfully');
