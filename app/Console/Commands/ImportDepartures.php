@@ -5,77 +5,87 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Tour;
 use App\Models\Departure;
-use App\Http\Controllers\ProxyTourRadarController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\TourRadarController;
+use Illuminate\Support\Facades\Log;
 
 class ImportDepartures extends Command
 {
-    // The name and signature of the console command.
     protected $signature = 'departures:import';
-
-    // The console command description.
-    protected $description = 'Import departures for all tours using the internal controller method';
+    protected $description = 'Import departures for all tours using the TourRadarController static method';
 
     public function handle()
     {
-        // Instantiate the controller once.
-        $controller = new ProxyTourRadarController();
+        Log::info("Starting ImportDepartures command.");
+        $this->info("Starting ImportDepartures command.");
 
         // Retrieve all tours.
         $tours = Tour::all();
+        Log::info("Retrieved tours count: " . $tours->count());
+        $this->info("Retrieved tours count: " . $tours->count());
 
         foreach ($tours as $tour) {
+            $tourId = $tour->tour_id;
             $dateRange = $tour->date_range ?? '20250401-20251231';
             $params = [
-                'tourId'     => $tour->tour_id,
+                'tourId'     => $tourId,
                 'date_range' => $dateRange,
-                // include additional parameters if needed, e.g. 'currency'
             ];
 
-            // Create a Request instance with our parameters.
-            $request = Request::create('/departures', 'GET', $params);
+            Log::info("Processing tour with ID: {$tourId} and date_range: {$dateRange}");
+            $this->info("Processing tour with ID: {$tourId}");
 
-            $this->info("Importing departures for tour ID: {$tour->tour_id}");
+            // Directly call the static method.
+            $response = TourRadarController::getDeparturesByTour($params);
+            Log::info("Received response for tour ID {$tourId}: " . json_encode($response));
 
-            // Call the departures method directly.
-            $response = $controller->departures($request);
-            
-            // Assuming your controller returns a JSON response, decode it.
-            $data = $response->getData(true);
+            // Check for error response.
+            if (isset($response['error'])) {
+                Log::error("Error for tour ID {$tourId}: " . $response['error']);
+                $this->error("Error for tour ID {$tourId}: " . $response['error']);
+                continue;
+            }
 
-            $this->info("Response for tour ID: {$tour->tour_id}", $data);
+            if (isset($response['items']) && is_array($response['items'])) {
+                $itemCount = count($response['items']);
+                Log::info("Found {$itemCount} departure items for tour ID {$tourId}");
+                $this->info("Found {$itemCount} departure items for tour ID {$tourId}");
 
-            if (isset($data['data']['items']) && is_array($data['data']['items'])) {
-                foreach ($data['data']['items'] as $departureData) {
+                foreach ($response['items'] as $departureData) {
+                    Log::info("Processing departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
+                    $this->info("Processing departure ID: " . $departureData['id']);
+
                     // Map and store the departure data.
-                    Departure::updateOrCreate(
-                        ['id' => $departureData['id']], // Unique key
+                    $departure = Departure::updateOrCreate(
+                        ['id' => $departureData['id']], // Unique identifier.
                         [
-                            'date'                    => $departureData['date'],
-                            'availability'            => $departureData['availability'],
-                            'departure_type'          => $departureData['departure_type'],
-                            'is_instant_confirmable'  => $departureData['is_instant_confirmable'],
-                            // You can set currency dynamically if the response includes it.
-                            'currency'                => $departureData['currency'] ?? 'USD',
-                            'based_on'                => $departureData['prices']['based_on'] ?? null,
-                            'price_base'              => $departureData['prices']['price_base'] ?? 0,
-                            'price_addons'            => $departureData['prices']['price_addons'] ?? 0,
-                            'price_promotion'         => $departureData['prices']['price_total'] ?? 0,
-                            'price_total_upfront'     => $departureData['prices']['price_total_upfront'] ?? 0,
-                            'price_total'             => $departureData['prices']['price_total'] ?? 0,
-                            'promotion'               => $departureData['prices']['promotion'] ?? null,
-                            'mandatory_addons'        => json_encode($departureData['prices']['mandatory_addons'] ?? []),
-                            // Map optional_extras if provided in your response.
-                            'optional_extras'         => json_encode($departureData['optional_extras'] ?? []),
+                            'date'                   => $departureData['date'],
+                            'availability'           => $departureData['availability'],
+                            'departure_type'         => $departureData['departure_type'],
+                            'is_instant_confirmable' => $departureData['is_instant_confirmable'],
+                            'currency'               => $departureData['currency'] ?? 'USD',
+                            'based_on'               => $departureData['prices']['based_on'] ?? null,
+                            'price_base'             => $departureData['prices']['price_base'] ?? 0,
+                            'price_addons'           => $departureData['prices']['price_addons'] ?? 0,
+                            'price_promotion'        => $departureData['prices']['price_total'] ?? 0,
+                            'price_total_upfront'    => $departureData['prices']['price_total_upfront'] ?? 0,
+                            'price_total'            => $departureData['prices']['price_total'] ?? 0,
+                            'promotion'              => $departureData['prices']['promotion'] ?? null,
+                            'mandatory_addons'       => json_encode($departureData['prices']['mandatory_addons'] ?? []),
+                            'optional_extras'        => json_encode($departureData['optional_extras'] ?? []),
                         ]
                     );
+                    Log::info("Saved departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
+                    $this->info("Saved departure ID: " . $departureData['id']);
                 }
-                $this->info("Departures imported for tour ID: {$tour->tour_id}");
+                Log::info("Finished processing tour ID {$tourId}");
+                $this->info("Finished processing tour ID {$tourId}");
             } else {
-                $this->error("No departure items found for tour ID: {$tour->tour_id}");
+                Log::warning("No departure items found for tour ID: {$tourId}");
+                $this->warn("No departure items found for tour ID: {$tourId}");
             }
         }
 
-        $this->info('All departures imported successfully.');
+        Log::info("All departures imported successfully.");
+        $this->info("All departures imported successfully.");
     }
 }
