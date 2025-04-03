@@ -242,12 +242,23 @@ public static function getDeparturesByTour($params)
                     $travelers = $params['travelers'];
     
                     $validAccommodations = array_filter($accommodations, function ($acc) use ($travelers) {
-                        if ($travelers === 1) {
-                            return $acc['beds_number'] === 1;
+                        // Ensure 'beds_number' is set and greater than 0
+                        if (!isset($acc['beds_number']) || $acc['beds_number'] <= 0) {
+                            return false;
                         }
-                        // Prevent division by zero
-                        return isset($acc['beds_number']) && $acc['beds_number'] > 0 && $travelers % $acc['beds_number'] === 0;
-                    });                    
+                    
+                        // Check if the accommodation is shared or not
+                        $isShared = isset($acc['is_shared']) ? $acc['is_shared'] : false; // Default to false if not set
+                    
+                        // If only one traveler, consider 'is_shared' condition
+                        if ($travelers === 1) {
+                            return $isShared || $acc['beds_number'] === 1;
+                        }
+                    
+                        // For multiple travelers, ensure beds_number divides evenly into travelers
+                        return $travelers % $acc['beds_number'] === 0;
+                    });
+                                        
     
                     if (!empty($validAccommodations)) {
                         // Choose the cheapest accommodation (assuming price is in 'value')
@@ -264,8 +275,14 @@ public static function getDeparturesByTour($params)
     
                 return $departure;
             }, array_values($filteredDepartures));
-    
-            return ['items' => $departuresWithDetails];
+            
+
+            $filteredDeparturesWithAccommodations = array_filter($departuresWithDetails, function ($departure) {
+                return !empty($departure['cheapestAccommodation']); // Keep only departures with a valid accommodation
+            });
+            
+            return ['items' => array_values($filteredDeparturesWithAccommodations)];
+            //return ['items' => $departuresWithDetails];
 
         } catch (\Exception $e) {
            // Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
@@ -290,6 +307,7 @@ public static function getDeparturesByTour($params)
         $response = Http::withHeaders($headers)->get($url);
         $departureData = $response->json();
 
+/*        
         // Check if accommodations and price_tiers exist and are not empty
         if (isset($departureData['prices']['accommodations'])) {
             foreach ($departureData['prices']['accommodations'] as &$accommodation) {
@@ -318,7 +336,7 @@ public static function getDeparturesByTour($params)
                 }
             }
         }
-
+*/
         return $departureData;
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
