@@ -99,7 +99,7 @@ class UsersFilters
             $query->where('name', 'like', '%' . $filter . '%')
             ->orWhere('email', 'like', '%' . $filter . '%');
         });
-        $users->where('active',1);
+        // $users->where('active',1);
         $users = $users->get();
 
         $users = $users->map(function($u) use($admin) {
@@ -107,6 +107,7 @@ class UsersFilters
             $u->job_title=$u->job?$u->job->name:'N/A';
             /* !$admin?:$u->code=$u->password; */
             $permissions =$admin?$this->permissions:[];
+            $u->actions = false;
             $notifications =$this->notifications;
             if (!empty($u->permission) && is_iterable($u->permission)) {
                 $u->permission->map(function($uu) use (&$permissions, &$notifications,$admin) {
