@@ -39,9 +39,11 @@ class ImportDepartures extends Command
 
             // Call the departures method directly.
             $response = $controller->departures($request);
+            
+            $this->info("Response for tour ID: {$tour->tour_id}", $response);
 
             // Assuming your controller returns a JSON response, decode it.
-            $data = $response->getData(true);
+            $data = $response;
 
             if (isset($data['data']['items']) && is_array($data['data']['items'])) {
                 foreach ($data['data']['items'] as $departureData) {
