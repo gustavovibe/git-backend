@@ -306,7 +306,7 @@ public static function getDeparturesByTour($params)
         // First, get the departure information
         $response = Http::withHeaders($headers)->get($url);
         $departureData = $response->json();
-
+        
 /*        
         // Check if accommodations and price_tiers exist and are not empty
         if (isset($departureData['prices']['accommodations'])) {

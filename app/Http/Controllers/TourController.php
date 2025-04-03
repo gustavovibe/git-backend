@@ -95,7 +95,7 @@ class TourController extends Controller
                 }
             }
         }
-
+        
         if ($request->has('tour_ids')) {
             $tourIds = $this->extractArrayFromQueryParam($request->input('tour_ids'));
             $query->whereIn('tour_id', $tourIds);
