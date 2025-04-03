@@ -5,8 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
-use App\Filters\ToursFilters;
-use App\Models\Tour;
 
 class TourRadarController extends Controller
 {
@@ -112,24 +110,29 @@ public static function getDeparturesByTour($params)
         $start = ($page - 1) * $itemsPerPage;
         $end = $start + $itemsPerPage;
 
+        // Log::info('Starting to fetch departures', [
+        //     'tourIds' => $tourIds,
+        //     'params' => $params,
+        //     'start' => $start,
+        //     'end' => $end,
+        // ]);
+
         $tourIds = array_slice($tourIds, $start, $itemsPerPage);
 
         foreach ($tourIds as $tourId) {
             $params['tourId'] = $tourId;
-            
             $params['page'] = 1; // Always fetch first page of departures for each tourId
             $response = $this->getDeparturesByTourParams($params);
-            Log::info('API response from getDeparturesByTourParams', ['tourId' => $tourId, 'response' => $response]);
 
             if (isset($response['items'])) {
+               // Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
+
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
-                    // Ensure every departure gets the correct tour_id key
-                    $departure['tour_id'] = $tourId; // Ensure the tour_id is set
-                    $departures[] = $departure; // Add each departure to the array
                     if (isset($departure['prices']['price_total'])) {
                         $priceTotal = $departure['prices']['price_total'];
                         if ($cheapestDeparture === null || $priceTotal < $cheapestDeparture['prices']['price_total']) {
+                            $departure['tourId'] = $tourId; // Add tourId to departure array
                             $cheapestDeparture = $departure;
                         }
                     }
@@ -137,16 +140,14 @@ public static function getDeparturesByTour($params)
                 if ($cheapestDeparture !== null) {
                     $departures[] = $cheapestDeparture;
                 }
+            } else {
+               // Log::info('No departures found for tour', ['tourId' => $tourId]);
             }
-            
-            if (!isset($response['items'])) {
-                Log::error("Missing 'items' key in response", ['tourId' => $tourId, 'response' => $response]);
-            }
+
             sleep(0.1); // delay between API calls
         }
-        
 
-       Log::info('Returning departures', ['departures' => $departures]);
+       // Log::info('Returning departures', ['departures' => $departures]);
 
         return response()->json(['items' => $departures]);
        }catch(Exception $e){
@@ -162,7 +163,7 @@ public static function getDeparturesByTour($params)
             'Authorization' => 'Bearer ' . $accessToken,
         ];
         $queryParams = [];
-        $tourId = $params['tourId'];
+
         if (isset($params['currency'])) {
             $queryParams['currency'] = $params['currency'];
         }
@@ -210,7 +211,7 @@ public static function getDeparturesByTour($params)
             }
 
             $departures = $responseBody['items'];
-            Log::info('Departures: ', $departures);
+
             $filteredDepartures = array_filter($departures, function ($departure) use ($params) {
                 $date = $departure['date'];
                 $availability = $departure['availability'];
@@ -223,37 +224,33 @@ public static function getDeparturesByTour($params)
                         $availability >= $travelers &&
                         $departureType == "guaranteed");
             });
-            Log::info('Filtered departures: ', $filteredDepartures);
+
             // Fetch additional departure details for each item
             $departuresWithDetails = array_map(function ($departure) use ($params) {
-                // Get the detailed departure info
                 $departureDetails = self::getDeparture([
-                    'tourId'      => $params['tourId'],
+                    'tourId' => $params['tourId'],
                     'departureId' => $departure['id']
                 ]);
-                
-                // Delay 0.1 seconds between API calls
-                usleep(100000); // 100,000 microseconds = 0.1 seconds
-            
-                // Attach the detailed departure info to the departure
                 $departure['departures'] = $departureDetails;
-            
-                // Process accommodations: check if departureDetails has a valid accommodations array
-                if (isset($departureDetails['prices']['accommodations']) && is_array($departureDetails['prices']['accommodations'])) {
+    
+                // Process accommodations to select the cheapest valid one based on travelers
+                if (
+                    isset($departureDetails['prices']['accommodations']) &&
+                    is_array($departureDetails['prices']['accommodations'])
+                ) {
                     $accommodations = $departureDetails['prices']['accommodations'];
                     $travelers = $params['travelers'];
-                    
-                    // Filter accommodations based on travelers criteria
+    
                     $validAccommodations = array_filter($accommodations, function ($acc) use ($travelers) {
                         if ($travelers === 1) {
-                            return isset($acc['beds_number']) && $acc['beds_number'] === 1;
+                            return $acc['beds_number'] === 1;
                         }
-                        // For multiple travelers, ensure beds_number is set, > 0, and divides evenly into travelers
-                        return isset($acc['beds_number']) && $acc['beds_number'] > 0 && ($travelers % $acc['beds_number'] === 0);
+                        // For multiple travelers, check if the traveler count divides evenly by the beds number
+                        return $travelers % $acc['beds_number'] === 0;
                     });
-                    
+    
                     if (!empty($validAccommodations)) {
-                        // Choose the cheapest accommodation based on the 'value' property
+                        // Choose the cheapest accommodation (assuming price is in 'value')
                         $cheapest = array_reduce($validAccommodations, function ($prev, $curr) {
                             return ($prev === null || $curr['value'] < $prev['value']) ? $curr : $prev;
                         }, null);
@@ -264,59 +261,17 @@ public static function getDeparturesByTour($params)
                 } else {
                     $departure['cheapestAccommodation'] = null;
                 }
-                
+    
                 return $departure;
             }, array_values($filteredDepartures));
-            
-            Log::info('Filtered departures with details: ', $filteredDepartures);
-
-           $groupedDepartures = [];
-            foreach ($departuresWithDetails as $departure) {
-                $departure['tour_id'] = $tourId;
-                if ($tourId) {
-                    $groupedDepartures[$tourId][] = $departure;
-                }
-            }
-            Log::info('Grouped departures by tour_id', ['groupedDepartures' => $groupedDepartures]);
-            // Extract unique tour_ids from the grouped departures
-            $tourIds = array_keys($groupedDepartures);
-
-            // Query the local database for tours matching these tour_ids, including relationships
-            $dbTours = \App\Models\Tour::with(['cities', 'natural_destination', 'type', 'countries'])
-                ->whereIn('tour_id', $tourIds)
-                ->get()
-                ->toArray();
-
-            // Merge the departures into each tour record under a new key "departure"
-            $toursWithDepartures = array_map(function ($tour) use ($groupedDepartures) {
-                $tourId = $tour['tour_id'];
-                // Add the departures array for this tour (if exists)
-                $tour['departure'] = $groupedDepartures[$tourId] ?? [];
-                return $tour;
-            }, $dbTours);
-            Log::info('Tours after merging departures', ['toursWithDepartures' => $toursWithDepartures]);
-            // Sort the tours by reviews_count (desc) and ratings_overall (desc)
-            usort($toursWithDepartures, function ($a, $b) {
-                $reviewsDiff = ($b['reviews_count'] ?? 0) - ($a['reviews_count'] ?? 0);
-                if ($reviewsDiff === 0) {
-                    return floatval($b['ratings_overall'] ?? 0) - floatval($a['ratings_overall'] ?? 0);
-                }
-                return $reviewsDiff;
-            });
-            Log::info('Tours after sorting', ['toursWithDepartures' => $toursWithDepartures]);
-            // Mark the top 3 tours as best_seller; the rest as false
-            foreach ($toursWithDepartures as $index => &$tour) {
-                $tour['best_seller'] = $index < 3;
-            }
-            Log::info('Final tours with best_seller flag', ['toursWithDepartures' => $toursWithDepartures]);
-            return ['items' => $toursWithDepartures];
+    
+            return ['items' => $departuresWithDetails];
 
         } catch (\Exception $e) {
            // Log::error('Error fetching departures for tour ' . $params['tourId'], ['error' => $e->getMessage()]);
             return ['error' => $e->getMessage()];
         }
     }
-
 
     
     public static function getDeparture($params)
