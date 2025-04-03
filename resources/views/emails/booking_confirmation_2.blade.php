@@ -461,618 +461,624 @@
     </style>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif; padding:2%;">
-
-    <br>
+<body style="font-family: 'Canaro', sans-serif; padding:15%; background-color:#E6E6E6">
     <div>
         <div class="lateralD btnT mh">
             <div>
-               {{--  <img style="width: 20%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo.png')))}}" alt=""> --}}
+                <img style="width: 80%" src="https://vibeadventures.be/images//logo.png" alt="">
             </div>
             <div>
                 <label style="margin-top: 20px;">Manage my booking</label>
-                <P style="text-align: right;">For more info, open <u>Help & support</u> </P>
+                <br>
+                <P style="text-align: right;"> <b>If you need help,<u style="color: #82CF45">contact us</u></b>  </P>
             </div>
         </div>
     </div>
     <br>
-    {{-- <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid #82CF45;"></div> --}}
+    <div style="background-color:white; padding:5%">
+        <br>
+
+        {{-- <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid #82CF45;"></div> --}}
 
 
-    <div>
-            @if ($orders->booking_status !='pending')
-            <h1>We've booked everything for your trip!</h1>
+        <div>
+                @if ($orders->booking_status !='pending')
+                <h1>We've booked everything for your trip!</h1>
 
-            @else
-            <h1>All good so far! We're now confirming your booking with the tour operator.</h1>
-            @endif
-        </div>
-    <br>
-    <div>
-
-        <table style="width:100%">
-            <tr>
-                <td style="font-weight: bold;color:gray">BOOKING NUMBER</td>
-                <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
-            </tr>
-            <tr>
-                <td>
-                    <div style="margin-top: 2%">
-                        <b>{{ chunk_split($orders->booking_id, 3, ' ') }}</b>
-                    </div>
-                </td>
-                <td>
-                    <div style="margin-top: 2%">
-                        @if ($orders->booking_status !='pending')
-                      {{--   <img style="width: 20%; height: 3%;"
-                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}"> --}}
-                        <p style="width: 25%; height: 3%;color: #82CF45;background: rgba(130, 207, 69, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Confirmed</p>
-                        @else
-                        {{-- <img style="width: 20%; height: 3%;"
-                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}"> --}}
-                        <p style="width: 25%; height: 3%;color: orange; background:rgba(255, 165, 0, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Processing</p>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div class="textG mh" style="text-align: justify;">
-       @if ($orders->booking_status!='pending')
-       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
-       <br>
-       @else
-       <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
-       <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
-        booking confirmation and e-ticket as soon as posible.</p>
-        <p>Her's what happens next:</p>
-        @endif
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                @if ($orders->booking_status!='pending')
-
-                <td style="width: 5%;">
-                    {{-- <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}"> --}}
-                    <img style="width: 80%; height:35%" src="https://vibeadventures.be/images/timeframe-confirm.png">
-                </td>
-                <td style="width: 60%; padding-left: 10px;">
-                    <div style="margin-top: 5%">
-                        <p><b>Payment</b></p>
-                        <p>Your payment was successfully processed</p>
-                        <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
-                        <p>Both the tour operator and airline carriers have confirmed your trip-you're all set to travel!</p>
-                        <p style="margin-top: 10%"><b>Get ready for the trip</b></p>
-                        <p>Make sure to check in with the airlines and book your pre- and post-tour accommodation (not included in the package). You can do this now or wait until you receive the trip notes from the operator (usually 2-4 weeks before departure) to book at the same hotels where the adventure starts and ends.</p>
-                    </div>
-                </td>
                 @else
-                <td style="width: 5%;">
-                <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-pending.png'))) }}">
-                </td>
-                <td style="width: 60%; padding-left: 10px;">
-                    <div style="margin-top: 5%">
-                        <p><b>Payment</b></p>
-                        <p>We've received your payment, but the funds remain with your bank and won't be charged until the booking is confirmed.</p>
-                        <p style="margin-top: 10%"><b>Booking with the tour operator</b></p>
-                        <p>We're contacting the tour operator to confirm your booking.</p>
-                        <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
-                        <p>You'll receive your final booking confirmation, and you're all set to go!</p>
-                    </div>
-                </td>
+                <h1>All good so far! We're now confirming your booking with the tour operator.</h1>
                 @endif
-            </tr>
-        </table>
-        <br>
-
-
-
-        <br>
-       <div style="text-align: center">
-        <div>
-            <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
-        </div>
+            </div>
         <br>
         <div>
-            <label>If you need help, <a style="color:#82CF45;text-decoration:none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact-us" >contact us</a></label>
-        </div>
-        </div>
-       <br>
-       <div style="text-align: justify; border-style: dotted; padding:2%; border-radius:15px;border-color:#82CF45">
 
-           @if ($orders->booking_status!='pending')
-           <div style="page-break-inside: avoid">
-            <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
-               <p><b>How do i check in for my flight?</b></p>
-               <p>You can check in online through the airline's website or at the airport check-in counter. Make sure to download your e-ticket and complete the process well in advance.</p>
-           </div>
-           <div style="page-break-inside: avoid">
-               <p><b>Where can i find baggage and check-in policies?</b></p>
-               <p>Review the conditions outlined by each airline carrier in your flight summary before your trip. </p>
-           </div>
-           <div style="page-break-inside: avoid">
-               <p><b>Are the accommodations guarented as listed in the tour description or trip notes?</b></p>
-               <p>Accommodations are approximate and subject to change based on availability, group size, and other factors. if changes occour, a similar category accommodation will be provided </p>
-           </div>
-           <div style="page-break-inside: avoid">
-               <p><b>Will need to pay any additional fees for accommodations?</b></p>
-               <p>In some locations, travelers may need to payy a municipal tax directly to hotels upon arrival. </p>
-           </div>
-           <div style="page-break-inside: avoid">
-               <p><b>What happens if the weather impacts my scheduled activities?</b></p>
-               <p>In case of unfavorable weather or other valid reasons, the sequence and duration of activities may be modifued or canceled without prior notice.</p>
-           </div>
-           @else
-           <div style="page-break-inside: avoid;">
-            <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
-               <p><b>When will i get the final booking confirmation?</b></p>
-               <p>You'll receive the final booking confirmation as soon as we get it from the tour operator, as we don't operate the adventures ourselves.</p>
-               <p>Since we gather data from multiple tour operators to offer you the best selections and prices, our booking process is more complex. Most bookings are confirmed inmmediately, but occasionally, it may take uo to 72 hours. Rest assured, we prioritize bookings to ensure everyone can travel as planned.</p>
-           </div>
-           <div style="page-break-inside: avoid;">
-               <p><b>What happens to my money?</b></p>
-               <p>We've held the necessary funds for your booking to secure the flights and adventure, but the money remains with your bank and wont' be charged until the booking is confirmed. If we're unable to confirm your booking within 72 hours, it will be automatically canceled, and your request fully refunded.</p>
-           </div>
-           <div style="page-break-inside: avoid;">
-               <p><b>Do i need a visa for my trip</b></p>
-               <p>Check visa requirements for the country in your adventure itinerary and flight summary. Don't forget to check if you need a transit visa as well. </p>
-           </div>
-           @endif
-       </div>
-    </div>
-    <br>
-    <div>
-        <table width="100%">
-            <tr>
-                <td>
-                    <h2>Adventure summary</h2>
-                </td>
-                <td style="text-align: right;">
-                    <h3>
-                        <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
-                            Download itinerary
-                        </a>
-                    </h3>
-                </td>
-            </tr>
-        </table>
-        <div class="Borderg" style="padding: 1%;">
-            <table width="100%">
+            <table style="width:100%">
                 <tr>
-                    @if ($orders->image)
-                    <td style="width: 50%; vertical-align:middle;padding:2%;" >
-                        <img src="{{ $orders->image }}" style="width: 90%; height: 150px; border-radius:12px;" />
+                    <td style="font-weight: bold;color:gray">BOOKING NUMBER</td>
+                    <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="margin-top: 2%">
+                            <b>{{ chunk_split($orders->booking_id, 3, ' ') }}</b>
+                        </div>
                     </td>
-                    @endif
-                    <td style="width: 80%; vertical-align: top;">
-                        <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
-                        <p>
-                            {{-- img style="width: 16px; height: 16px; vertical-align: middle;"
-                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}"> --}}
-                            <img style="width: 16px; height: 16px; vertical-align: middle;"
-                                src="https://vibeadventures.be/images/star.png">
-                            <b class="Tcolor">{{ $orders->ratings_overall }}</b> {{ $orders->reviews_count }} reviews
-                        </p>
-                        <table width="100%">
-                            <tr>
-                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td> --}}
-                                <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="https://vibeadventures.be/images/double-right.png"></td>
-                                <td style="padding: 1%;">Starts in: {{ $orders->start_city . ',' . $orders->origin }}
-                                </td>
-
-                              {{--   <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td> --}}
-                                <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="https://vibeadventures.be/images/double-left.png"></td>
-                                <td style="padding: 1%;">Ends in:
-                                    {{ $orders->end_city . ',' . $orders->f_destination }}</td>
-                            </tr>
-                            <tr>
-                               {{--  <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
-                                <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="https://vibeadventures.be/images/calendar-event.png"></td>
-                                <td style="padding: 1%;">Starts on:
-                                    {{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</td>
-
-                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
-                                <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="https://vibeadventures.be/images/calendar-event.png"></td>
-                                <td style="padding: 1%;">Ends on:
-                                    {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</td>
-                            </tr>
-                            <tr>
-                                {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td> --}}
-                                <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                        src="https://vibeadventures.be/images/clock.png"></td>
-                                <td style="padding: 1%;">Duration: {{ $orders->tour->tour_length_days }} days</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </table>
+                    <td>
+                        <div style="margin-top: 2%">
+                            @if ($orders->booking_status !='pending')
+                          {{--   <img style="width: 20%; height: 3%;"
+                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}"> --}}
+                            <p style="width: 25%; height: 3%;color: #82CF45;background: rgba(130, 207, 69, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Confirmed</p>
+                            @else
+                            {{-- <img style="width: 20%; height: 3%;"
+                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}"> --}}
+                            <p style="width: 25%; height: 3%;color: orange; background:rgba(255, 165, 0, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Processing</p>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             </table>
         </div>
-        @if ($orders->booking_status !='pending')
-        <div style="page-break-before: always;">
+        <div class="textG mh" style="text-align: justify;">
+           @if ($orders->booking_status!='pending')
+           <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
+           <br>
+           @else
+           <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
+           <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
+            booking confirmation and e-ticket as soon as posible.</p>
+            <p>Her's what happens next:</p>
+            @endif
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    @if ($orders->booking_status!='pending')
+
+                    <td style="width: 5%;">
+                        {{-- <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}"> --}}
+                        <img style="width: 80%; height:35%" src="https://vibeadventures.be/images/timeframe-confirm.png">
+                    </td>
+                    <td style="width: 60%; padding-left: 10px;">
+                        <div style="margin-top: 5%">
+
+                            <p><b>Payment</b></p>
+                            <p>Your payment was successfully processed</p>
+                            <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
+                            <p>Both the tour operator and airline carriers have confirmed your trip-you're all set to travel!</p>
+                            <p style="margin-top: 10%"><b>Get ready for the trip</b></p>
+                            <p>Make sure to check in with the airlines and book your pre- and post-tour accommodation (not included in the package). You can do this now or wait until you receive the trip notes from the operator (usually 2-4 weeks before departure) to book at the same hotels where the adventure starts and ends.</p>
+                        </div>
+                    </td>
+                    @else
+                    <td style="width: 5%;">
+                    <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-pending.png'))) }}">
+                    </td>
+                    <td style="width: 60%; padding-left: 10px;">
+                        <div style="margin-top: 5%">
+                            <p><b>Payment</b></p>
+                            <p>We've received your payment, but the funds remain with your bank and won't be charged until the booking is confirmed.</p>
+                            <p style="margin-top: 10%"><b>Booking with the tour operator</b></p>
+                            <p>We're contacting the tour operator to confirm your booking.</p>
+                            <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
+                            <p>You'll receive your final booking confirmation, and you're all set to go!</p>
+                        </div>
+                    </td>
+                    @endif
+                </tr>
+            </table>
+            <br>
+
+
+
+            <br>
+           <div style="text-align: center">
+            <div>
+                <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
+            </div>
+            <br>
+            <div>
+                <label>If you need help, <a style="color:#82CF45;text-decoration:none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact-us" >contact us</a></label>
+            </div>
+            </div>
+           <br>
+           <div style="text-align: justify; border-style: dotted; padding:2%; border-radius:15px;border-color:#82CF45">
+
+               @if ($orders->booking_status!='pending')
+               <div style="page-break-inside: avoid">
+                <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
+                   <p><b>How do i check in for my flight?</b></p>
+                   <p>You can check in online through the airline's website or at the airport check-in counter. Make sure to download your e-ticket and complete the process well in advance.</p>
+               </div>
+               <div style="page-break-inside: avoid">
+                   <p><b>Where can i find baggage and check-in policies?</b></p>
+                   <p>Review the conditions outlined by each airline carrier in your flight summary before your trip. </p>
+               </div>
+               <div style="page-break-inside: avoid">
+                   <p><b>Are the accommodations guarented as listed in the tour description or trip notes?</b></p>
+                   <p>Accommodations are approximate and subject to change based on availability, group size, and other factors. if changes occour, a similar category accommodation will be provided </p>
+               </div>
+               <div style="page-break-inside: avoid">
+                   <p><b>Will need to pay any additional fees for accommodations?</b></p>
+                   <p>In some locations, travelers may need to payy a municipal tax directly to hotels upon arrival. </p>
+               </div>
+               <div style="page-break-inside: avoid">
+                   <p><b>What happens if the weather impacts my scheduled activities?</b></p>
+                   <p>In case of unfavorable weather or other valid reasons, the sequence and duration of activities may be modifued or canceled without prior notice.</p>
+               </div>
+               @else
+               <div style="page-break-inside: avoid;">
+                <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
+                   <p><b>When will i get the final booking confirmation?</b></p>
+                   <p>You'll receive the final booking confirmation as soon as we get it from the tour operator, as we don't operate the adventures ourselves.</p>
+                   <p>Since we gather data from multiple tour operators to offer you the best selections and prices, our booking process is more complex. Most bookings are confirmed inmmediately, but occasionally, it may take uo to 72 hours. Rest assured, we prioritize bookings to ensure everyone can travel as planned.</p>
+               </div>
+               <div style="page-break-inside: avoid;">
+                   <p><b>What happens to my money?</b></p>
+                   <p>We've held the necessary funds for your booking to secure the flights and adventure, but the money remains with your bank and wont' be charged until the booking is confirmed. If we're unable to confirm your booking within 72 hours, it will be automatically canceled, and your request fully refunded.</p>
+               </div>
+               <div style="page-break-inside: avoid;">
+                   <p><b>Do i need a visa for my trip</b></p>
+                   <p>Check visa requirements for the country in your adventure itinerary and flight summary. Don't forget to check if you need a transit visa as well. </p>
+               </div>
+               @endif
+           </div>
+        </div>
+        <br>
+        <div>
             <table width="100%">
                 <tr>
                     <td>
-                        <h2>Flights summary</h2>
+                        <h2>Adventure summary</h2>
                     </td>
                     <td style="text-align: right;">
-                        <h3 >
-                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}">
-                                Download tickets
+                        <h3>
+                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
+                                Download itinerary
                             </a>
                         </h3>
                     </td>
                 </tr>
             </table>
             <div class="Borderg" style="padding: 1%;">
-                @foreach ($orders->flightTour->flight['data']['slices'] as $or)
-                    <table style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 1%;">
-                        <tr>
-                            <td style="width: 25%; text-align: center; vertical-align: top;">
-                                <label>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</label><br>
-                                <p>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}
-                                </p>
-                                <p class="Tbox">
-                                    {{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</p>
-                                <br>
-                                <label>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</label><br>
-                                <p>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</p>
-                            </td>
-                            <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
-                                <div class="line-container">
-                                    <div class="line"></div>
-                                    {{-- <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
-                                        alt="Icon"> --}}
-                                    <img class=" airplane-icon" style="width: 10%;height:10%; margin-top:70%;margin-left:-15%" src="https://vibeadventures.be/images/airplane.png" alt="Icon">
-                                </div>
-                            </td>
-                            <td style="width: 40%; text-align: left; vertical-align: top;">
-                                @if(isset($or['origin']['city']['name'])  )
-                                <label class="Tcolor">{{ $or['origin']['city']['name'] }}</label><br>
-                                @endif
-                                <p>{{ $or['origin']['name'] }}</p>
-                                <table style="width: 100%">
-                                    <tr>
-                                        <td style=" width:20%"><img
-                                            src="{{ $orders->flightTour->flight['data']['owner']['logo_symbol_url'] }}"
-                                            {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
-                                                style="width: 50%; height: 10%; border-radius: 12px;"></td>
-                                        <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
-                                        {{-- <td style="margin-left:50%;"><img
-                                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td> --}}
-                                        <td style="margin-left:50%;"><img src="https://vibeadventures.be/images/chevron-down.png"></td>
-                                    </tr>
-                                </table>
-                                <label class="Tcolor">{{ $or['destination']['name'] }}</label><br>
-                                <p>{{ $or['destination']['city_name'] }}</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4" style="height: 20px;"></td> <!-- Espacio entre filas -->
-                        </tr>
-                    </table>
-                    <br>
-                @endforeach
-            </div>
-        </div>
-        @endif
+                <table width="100%">
+                    <tr>
+                        @if ($orders->image)
+                        <td style="width: 50%; vertical-align:middle;padding:2%;" >
+                            <img src="{{ $orders->image }}" style="width: 90%; height: 150px; border-radius:12px;" />
+                        </td>
+                        @endif
+                        <td style="width: 80%; vertical-align: top;">
+                            <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
+                            <p>
+                                {{-- img style="width: 16px; height: 16px; vertical-align: middle;"
+                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}"> --}}
+                                <img style="width: 16px; height: 16px; vertical-align: middle;"
+                                    src="https://vibeadventures.be/images/star.png">
+                                <b class="Tcolor">{{ $orders->ratings_overall }}</b> {{ $orders->reviews_count }} reviews
+                            </p>
+                            <table width="100%">
+                                <tr>
+                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td> --}}
+                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="https://vibeadventures.be/images/double-right.png"></td>
+                                    <td style="padding: 1%;">Starts in: {{ $orders->start_city . ',' . $orders->origin }}
+                                    </td>
 
-        <div style="page-break-inside: avoid;">
-            <h2 class="mh">Payment</h2>
-            <br>
-            <div class="Borderg " style="padding: 2%;">
-                <div>
-                    <h3>Price breakdown</h3>
-                </div>
-                <div>
-                    <table style="width: 100%;">
-                            @foreach ($orders->flightTour->tour['accommodations'] as $accommodation)
-                                @if ($accommodation['type'] == 'basePrice')
-                                    <tr>
-                                        <td>
-                                            <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
-                                            USD x
-                                            <a style="color:#82CF45;">{{ count($orders->flightTour->tour['passengers']) }}</a> adult(s)
-                                        </td>
-                                        <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * count($orders->flightTour->tour['passengers']), 2) }}
-                                            USD</td>
-                                    </tr>
+                                  {{--   <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td> --}}
+                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="https://vibeadventures.be/images/double-left.png"></td>
+                                    <td style="padding: 1%;">Ends in:
+                                        {{ $orders->end_city . ',' . $orders->f_destination }}</td>
+                                </tr>
+                                <tr>
+                                   {{--  <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
+                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="https://vibeadventures.be/images/calendar-event.png"></td>
+                                    <td style="padding: 1%;">Starts on:
+                                        {{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</td>
+
+                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
+                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="https://vibeadventures.be/images/calendar-event.png"></td>
+                                    <td style="padding: 1%;">Ends on:
+                                        {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</td>
+                                </tr>
+                                <tr>
+                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td> --}}
+                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
+                                            src="https://vibeadventures.be/images/clock.png"></td>
+                                    <td style="padding: 1%;">Duration: {{ $orders->tour->tour_length_days }} days</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            @if ($orders->booking_status !='pending')
+            <div style="page-break-before: always;">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <h2>Flights summary</h2>
+                        </td>
+                        <td style="text-align: right;">
+                            <h3 >
+                                <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}">
+                                    Download tickets
+                                </a>
+                            </h3>
+                        </td>
+                    </tr>
+                </table>
+                <div class="Borderg" style="padding: 1%;">
+                    @foreach ($orders->flightTour->flight['data']['slices'] as $or)
+                        <table style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 1%;">
+                            <tr>
+                                <td style="width: 25%; text-align: center; vertical-align: top;">
+                                    <label>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</label><br>
+                                    <p>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}
+                                    </p>
+                                    <p class="Tbox">
+                                        {{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</p>
                                     <br>
-                                @elseif ($accommodation['type'] == 'accommodation')
-                                    <tr>
-                                        <td>
-                                            <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
-                                            USD x
-                                            <a style="color:#82CF45;">{{ $accommodation['prices'][0]['pax_count'] }}</a> single
-                                        </td>
-                                        <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * $accommodation['prices'][0]['pax_count'], 2) }}
-                                            USD</td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                    </table>
+                                    <label>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</label><br>
+                                    <p>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</p>
+                                </td>
+                                <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
+                                    <div class="line-container">
+                                        <div class="line"></div>
+                                        {{-- <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
+                                            alt="Icon"> --}}
+                                        <img class=" airplane-icon" style="width: 10%;height:10%; margin-top:70%;margin-left:-15%" src="https://vibeadventures.be/images/airplane.png" alt="Icon">
+                                    </div>
+                                </td>
+                                <td style="width: 40%; text-align: left; vertical-align: top;">
+                                    @if(isset($or['origin']['city']['name'])  )
+                                    <label class="Tcolor">{{ $or['origin']['city']['name'] }}</label><br>
+                                    @endif
+                                    <p>{{ $or['origin']['name'] }}</p>
+                                    <table style="width: 100%">
+                                        <tr>
+                                            <td style=" width:20%"><img
+                                                src="{{ $orders->flightTour->flight['data']['owner']['logo_symbol_url'] }}"
+                                                {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
+                                                    style="width: 50%; height: 10%; border-radius: 12px;"></td>
+                                            <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
+                                            {{-- <td style="margin-left:50%;"><img
+                                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td> --}}
+                                            <td style="margin-left:50%;"><img src="https://vibeadventures.be/images/chevron-down.png"></td>
+                                        </tr>
+                                    </table>
+                                    <label class="Tcolor">{{ $or['destination']['name'] }}</label><br>
+                                    <p>{{ $or['destination']['city_name'] }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="height: 20px;"></td> <!-- Espacio entre filas -->
+                            </tr>
+                        </table>
+                        <br>
+                    @endforeach
                 </div>
-                <div style="padding: 1%;">
-                    <div class="laterald">
-                        <table style="width: 100%;margin-left:2%;">
+            </div>
+            @endif
+            <br>
+            <div style="page-break-inside: avoid;">
+                <h2 class="mh">Payment</h2>
+                <br>
+                <div class="Borderg " style="padding: 2%;">
+                    <div>
+                        <h3>Price breakdown</h3>
+                    </div>
+                    <div>
+                        <table style="width: 100%;">
+                                @foreach ($orders->flightTour->tour['accommodations'] as $accommodation)
+                                    @if ($accommodation['type'] == 'basePrice')
+                                        <tr>
+                                            <td>
+                                                <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
+                                                USD x
+                                                <a style="color:#82CF45;">{{ count($orders->flightTour->tour['passengers']) }}</a> adult(s)
+                                            </td>
+                                            <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * count($orders->flightTour->tour['passengers']), 2) }}
+                                                USD</td>
+                                        </tr>
+                                        <br>
+                                    @elseif ($accommodation['type'] == 'accommodation')
+                                        <tr>
+                                            <td>
+                                                <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
+                                                USD x
+                                                <a style="color:#82CF45;">{{ $accommodation['prices'][0]['pax_count'] }}</a> single
+                                            </td>
+                                            <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * $accommodation['prices'][0]['pax_count'], 2) }}
+                                                USD</td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                        </table>
+                    </div>
+                    <div style="padding: 1%;">
+                        <div class="laterald">
+                            <table style="width: 100%;margin-left:2%;">
+                                <tr>
+                                    <td>
+                                        <p style="color:gray;font-size:10px;">Total price of the trip including all taxes and fees</p>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <h3>${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</h3>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <table style="width: 100%;margin-left:2%;" class="textG" >
+                                <tr>
+                                    <td>
+                                        <a style="font-style: italic;">Flights to/from destination</a>
+                                    </td>
+                                    <td style="text-align: right;"> <a id="color">included</a></td>
+                                </tr>
+                        </table>
+                        <br>
+                        <table style="width: 100%;margin-left:2%;" class="textG" >
                             <tr>
                                 <td>
-                                    <p style="color:gray;font-size:10px;">Total price of the trip including all taxes and fees</p>
+                                    <a style="font-style: italic;">Multi-day adventure</a>
                                 </td>
-                                <td style="text-align: right;">
-                                    <h3>${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</h3>
-                                </td>
+                                <td style="text-align: right;"><a id="color">included</a></td>
                             </tr>
                         </table>
                     </div>
 
-                    <table style="width: 100%;margin-left:2%;" class="textG" >
+                    <table width="100%">
+                    <tr>
+                        <td>
+                            <h3>Payment history</h3>
+                        </td>
+                        <td style="text-align: right; display:none;">
+                            <a style="text-decoration: none">
+                                <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                    <table style="width: 100%;" >
+                        <tbody>
+                            <tr>
+                                <td>{{ $orders->payment_method }}</td>
+                                <td>{{ \Carbon\Carbon::parse($orders->departure)->format('M d, Y') }}</td>
+                                <td style="text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <td></td>
+                            <td style="color:#82CF45;">Total</td>
+                            <td style="color:#82CF45;text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            {{-- @foreach ($orders->travelers as $travelers)
+            <div style="page-break-inside: avoid; margin-top:5%">
+                <h2 class="mh">Travelers</h2>
+                <div class="Borderg " style="padding: 2%;">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td><p>{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}</b></p></td>
+                            <td style="text-align: right">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            @endforeach --}}
+
+            <div  style="page-break-before: always;">
+
+                <h2>Travelers</h2>
+                <div class="Borderg" style="padding: 2%;padding-left:4%">
+                    @foreach ($orders->flightTour->tour['passengers'] as $passenger)
+                    <div>
+                        <table style="width: 100%">
                             <tr>
                                 <td>
-                                    <a style="font-style: italic;">Flights to/from destination</a>
+                                   {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/male.png')))}}"> --}}
+                                    <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                    src="https://vibeadventures.be/images/male.png">
                                 </td>
-                                <td style="text-align: right;"> <a id="color">included</a></td>
+                                <td>
+                                    <h2>{{ $passenger['fields']['first_name'].' '.$passenger['fields']['last_name'] }}</h2>
+                                </td>
+                                <td>
+                                   {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/vector.png')))}}"> --}}
+                                    <img style="width: 20px; height: 20px; vertical-align: middle;"
+                                    src="https://vibeadventures.be/images/Vector.png">
+                                </td>
                             </tr>
-                    </table>
-                    <br>
-                    <table style="width: 100%;margin-left:2%;" class="textG" >
+                        </table>
+                    </div>
+                    <h3 style="color: #82CF45;">Personal info </h3>
+                    <table style="width: 100%; " >
                         <tr>
-                            <td>
-                                <a style="font-style: italic;">Multi-day adventure</a>
-                            </td>
-                            <td style="text-align: right;"><a id="color">included</a></td>
+                                <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                    <label style="color: gray;">First Name:</label>
+                                    <p style="font-size: 22px;">{{ $passenger['fields']['first_name'] }}</p>
+                                </td>
+                                <td style="width:5%">
+                                <td>
+                                    <label style="color: gray;">Last Name:</label>
+                                    <p style="font-size: 22px">{{ $passenger['fields']['last_name'] }}</p>
+                                </td>
                         </tr>
-                    </table>
-                </div>
-
-                <table width="100%">
-                <tr>
-                    <td>
-                        <h3>Payment history</h3>
-                    </td>
-                    <td style="text-align: right; display:none;">
-                        <a style="text-decoration: none">
-                            <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
-                        </a>
-                    </td>
-                </tr>
-            </table>
-                <table style="width: 100%;" >
-                    <tbody>
                         <tr>
-                            <td>{{ $orders->payment_method }}</td>
-                            <td>{{ \Carbon\Carbon::parse($orders->departure)->format('M d, Y') }}</td>
-                            <td style="text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <td></td>
-                        <td style="color:#82CF45;">Total</td>
-                        <td style="color:#82CF45;text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        @foreach ($orders->travelers as $travelers)
-        <div style="page-break-inside: avoid; margin-top:5%">
-            <h2 class="mh">Travelers</h2>
-            <div class="Borderg " style="padding: 2%;">
-                <table style="width: 100%;">
-                    <tr>
-                        <td><p>{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}</b></p></td>
-                        <td style="text-align: right">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        @endforeach
-
-        <div  style="page-break-before: always;">
-
-            <h2>Travelers</h2>
-            <div class="Borderg" style="padding: 2%;padding-left:4%">
-                @foreach ($orders->flightTour->tour['passengers'] as $passenger)
-                <div>
-                    <table style="width: 100%">
-                        <tr>
-                            <td>
-                               {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/male.png')))}}"> --}}
-                                <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                src="https://vibeadventures.be/images/male.png">
-                            </td>
-                            <td>
-                                <h2>{{ $passenger['fields']['first_name'].' '.$passenger['fields']['last_name'] }}</h2>
-                            </td>
-                            <td>
-                               {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/vector.png')))}}"> --}}
-                                <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                src="https://vibeadventures.be/images/Vector.png">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <h3 style="color: #82CF45;">Personal info </h3>
-                <table style="width: 100%; " >
-                    <tr>
                             <td style="width: 33%; padding: 5px; vertical-align: top;">
-                                <label style="color: gray;">First Name:</label>
-                                <p style="font-size: 22px;">{{ $passenger['fields']['first_name'] }}</p>
+                                <label style="color: gray;">Date of birth:</label>
+                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->translatedFormat('d F Y') }}</p>
                             </td>
                             <td style="width:5%">
                             <td>
-                                <label style="color: gray;">Last Name:</label>
-                                <p style="font-size: 22px">{{ $passenger['fields']['last_name'] }}</p>
-                            </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 33%; padding: 5px; vertical-align: top;">
-                            <label style="color: gray;">Date of birth:</label>
-                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->translatedFormat('d F Y') }}</p>
-                        </td>
-                        <td style="width:5%">
-                        <td>
-                            @if ( isset($passenger['fields']['gender']) )
-                            <div>
-                                <label style="color: gray;">Gender:</label>
-                                <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
-                            </div>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
-                <h3 style="color: #82CF45;">Passport info</h3>
-
-                <table style="width: 100%; " >
-                    <tr>
-                            <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                @if ( isset($passenger['fields']['gender']) )
                                 <div>
-                                    <label style="color: gray;font-weight:bold;">Place of issue:</label>
-                                    <p style="font-size: 22px">{{ $passenger['fields']['place_of_issue'] }}</p>
+                                    <label style="color: gray;">Gender:</label>
+                                    <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
                                 </div>
-                            </td>
-                            <td style="width:5%">
-
-                            </td>
-                            <td>
-                                <label style="color: gray;font-weight:bold;">Passport number:</label>
-                                <p style="font-size: 22px">{{ $passenger['fields']['passport_number'] }}</p>
-                            </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 33%; padding: 5px; vertical-align: top;">
-                            <label style="color: gray;font-weight:bold;">Date of issue:</label>
-                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->translatedFormat('d F Y') }}</p>
-                        </td>
-                        <td style="width:5%">
-                        <td>
-                            <label style="color: gray;font-weight:bold;">Date of expiration:</label>
-                            <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->translatedFormat('d F Y') }}</p>
-                        </td>
-                    </tr>
-                </table>
-                @endforeach
-            </div>
-        </div>
-        <br>
-        <div  style="page-break-before: always; padding:2%" class="Recomend">
-            <div id="container">
-                <h2 style="text-align: center;">Recommended</h2>
-                <p style="color: grey; font-size:12px;">Adding these services to your trip now can save you money to
-                    purchasing them later or in the
-                    destination</p>
-                <div>
-                    <table class="card">
-                        <tr>
-                            <td>
-                                <div>
-                                    <img id="img_" src="https://vibeadventures.be/images/transfer.png">
-                                    <h5>Airport transfer</h5>
-                                    <p style="width:100%">Airport transfers not included adventure?</p>
-                                    <a>Go somewhere
-                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                    </a>
-
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    <img id="img_" src="https://vibeadventures.be/images/insurance.png">
-                                    <h5>Insurance</h5>
-                                    <p style="width:100%">Available up to 24h before departure</p>
-                                    <a>Manager Insurance
-
-                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                    </a>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    <img id="img_" src="https://vibeadventures.be/images/accommodation.png">
-                                    <h5>Accommodation</h5>
-                                    <p style="width:100%">Need pre- or post-tour accommodation?</p>
-                                    <a>Book Accommodation
-
-                                        <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                    </a>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    <img id="img_" src="https://vibeadventures.be/images/activities.png">
-                                    <h5>Activities</h5>
-                                    <p style="width:100%">Got extra days in the destination before or after
-                                        the adventure?</p>
-                                    <a>Find Activities
-                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                    </a>
-                                </div>
+                                @endif
                             </td>
                         </tr>
                     </table>
+                    <h3 style="color: #82CF45;">Passport info</h3>
+
+                    <table style="width: 100%; " >
+                        <tr>
+                                <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                    <div>
+                                        <label style="color: gray;font-weight:bold;">Place of issue:</label>
+                                        <p style="font-size: 22px">{{ $passenger['fields']['place_of_issue'] }}</p>
+                                    </div>
+                                </td>
+                                <td style="width:5%">
+
+                                </td>
+                                <td>
+                                    <label style="color: gray;font-weight:bold;">Passport number:</label>
+                                    <p style="font-size: 22px">{{ $passenger['fields']['passport_number'] }}</p>
+                                </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 33%; padding: 5px; vertical-align: top;">
+                                <label style="color: gray;font-weight:bold;">Date of issue:</label>
+                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->translatedFormat('d F Y') }}</p>
+                            </td>
+                            <td style="width:5%">
+                            <td>
+                                <label style="color: gray;font-weight:bold;">Date of expiration:</label>
+                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->translatedFormat('d F Y') }}</p>
+                            </td>
+                        </tr>
+                    </table>
+                    @endforeach
                 </div>
             </div>
-        {{--     @include('emails.recommended_component') --}}
-        </div>
-        <div class="footer">
-            <hr>
-            <div>
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <label style="font-size: 18px;">
-                                Excellent
-                               {{--  <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
-                                    style="vertical-align: middle;"> --}}
-                            </label>
-                        </td>
-                        <td style="text-align: right;">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt=""> --}}
-                            <h3>Trustindex</h3>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <hr>
             <br>
-            <div>
-                <table width="100%">
-                    <tr>
-                        <img style="width:35%;" src="https://vibeadventures.be/images/logo.png">
-                        <td style="text-align: right;">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/face-icon.png">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/insta-icon.png">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/youtube-icon.png">
-                        </td>
-                    </tr>
-                </table>
+            <div  style="page-break-before: always; padding:2%" class="Recomend">
+                <div id="container">
+                    <h2 style="text-align: center;">Recommended</h2>
+                    <p style="color: grey; font-size:12px;">Adding these services to your trip now can save you money to
+                        purchasing them later or in the
+                        destination</p>
+                    <div>
+                        <table class="card">
+                            <tr>
+                                <td>
+                                    <div>
+                                        <img id="img_" src="https://vibeadventures.be/images/transfer.png">
+                                        <h5>Airport transfer</h5>
+                                        <p style="width:100%">Airport transfers not included adventure?</p>
+                                        <a>Go somewhere
+                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
+                                        </a>
+
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+
+                                        <img id="img_" src="https://vibeadventures.be/images/insurance.png">
+                                        <h5>Insurance</h5>
+                                        <p style="width:100%">Available up to 24h before departure</p>
+                                        <a>Manager Insurance
+
+                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+
+                                        <img id="img_" src="https://vibeadventures.be/images/accommodation.png">
+                                        <h5>Accommodation</h5>
+                                        <p style="width:100%">Need pre- or post-tour accommodation?</p>
+                                        <a>Book Accommodation
+
+                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+
+                                        <img id="img_" src="https://vibeadventures.be/images/activities.png">
+                                        <h5>Activities</h5>
+                                        <p style="width:100%">Got extra days in the destination before or after
+                                            the adventure?</p>
+                                        <a>Find Activities
+                                                <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            {{--     @include('emails.recommended_component') --}}
+            </div>
+            <div class="footer">
+                <hr>
+                <div>
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <label style="font-size: 18px;">
+                                    Excellent
+                                   {{--  <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
+                                        style="vertical-align: middle;"> --}}
+                                </label>
+                            </td>
+                            <td style="text-align: right;">
+                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt=""> --}}
+                                <h3>Trustindex</h3>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <hr>
                 <br>
                 <div>
-                    <p>300 Delaware Ave, Ste 210 #549</p>
-                    <p>Wilmington, DE 19801</p>
+                    <table width="100%">
+                        <tr>
+                            <img style="width:35%;" src="https://vibeadventures.be/images/logo.png">
+                            <td style="text-align: right;">
+                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}"> --}}
+                                <img src="https://vibeadventures.be/images/face-icon.png">
+                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}"> --}}
+                                <img src="https://vibeadventures.be/images/insta-icon.png">
+                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}"> --}}
+                                <img src="https://vibeadventures.be/images/youtube-icon.png">
+                            </td>
+                        </tr>
+                    </table>
                     <br>
-                    <p>You can <a>change your email preferences</a> or view our <a>Terms & Conditions</a> and <a>Privacy
-                            Policy</a></p>
+                    <div>
+                        <p>300 Delaware Ave, Ste 210 #549</p>
+                        <p>Wilmington, DE 19801</p>
+                        <br>
+                        <p>You can <a>change your email preferences</a> or view our <a>Terms & Conditions</a> and <a>Privacy
+                                Policy</a></p>
+                    </div>
                 </div>
             </div>
-        </div>
+    </div>
+
 </body>
 
 
