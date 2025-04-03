@@ -25,7 +25,7 @@ class ImportDepartures extends Command
 
         foreach ($tours as $tour) {
             $tourId = $tour->tour_id;
-            $dateRange = $tour->date_range ?? '20250401-20251231';
+            $dateRange = $tour->date_range ?? '20250501-20251231';
             $params = [
                 'tourId'     => $tourId,
                 'date_range' => $dateRange,
