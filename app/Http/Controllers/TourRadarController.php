@@ -225,35 +225,35 @@ public static function getDeparturesByTour($params)
             });
             Log::info('Filtered departures: ', $filteredDepartures);
             // Fetch additional departure details for each item
-                $departuresWithDetails = [];
-                foreach ($filteredDepartures as $departure) {
-                    $departureDetails = self::getDeparture([
-                        'tourId' => $params['tourId'],
-                        'departureId' => $departure['id']
-                    ]);
-                    sleep(0.1); // delay 0.1 seconds between each API call
-                    $departure['departures'] = $departureDetails;
-                    $departuresWithDetails[] = $departure;
-                }
-
-                // Process accommodations to select the cheapest valid one based on travelers
-                if (
-                    isset($departureDetails['prices']['accommodations']) &&
-                    is_array($departureDetails['prices']['accommodations'])
-                ) {
+            $departuresWithDetails = array_map(function ($departure) use ($params) {
+                // Get the detailed departure info
+                $departureDetails = self::getDeparture([
+                    'tourId'      => $params['tourId'],
+                    'departureId' => $departure['id']
+                ]);
+                
+                // Delay 0.1 seconds between API calls
+                usleep(100000); // 100,000 microseconds = 0.1 seconds
+            
+                // Attach the detailed departure info to the departure
+                $departure['departures'] = $departureDetails;
+            
+                // Process accommodations: check if departureDetails has a valid accommodations array
+                if (isset($departureDetails['prices']['accommodations']) && is_array($departureDetails['prices']['accommodations'])) {
                     $accommodations = $departureDetails['prices']['accommodations'];
                     $travelers = $params['travelers'];
-    
+                    
+                    // Filter accommodations based on travelers criteria
                     $validAccommodations = array_filter($accommodations, function ($acc) use ($travelers) {
                         if ($travelers === 1) {
-                            return $acc['beds_number'] === 1;
+                            return isset($acc['beds_number']) && $acc['beds_number'] === 1;
                         }
-                        // For multiple travelers, check if the traveler count divides evenly by the beds number
-                        return $travelers % $acc['beds_number'] === 0;
+                        // For multiple travelers, ensure beds_number is set, > 0, and divides evenly into travelers
+                        return isset($acc['beds_number']) && $acc['beds_number'] > 0 && ($travelers % $acc['beds_number'] === 0);
                     });
-    
+                    
                     if (!empty($validAccommodations)) {
-                        // Choose the cheapest accommodation (assuming price is in 'value')
+                        // Choose the cheapest accommodation based on the 'value' property
                         $cheapest = array_reduce($validAccommodations, function ($prev, $curr) {
                             return ($prev === null || $curr['value'] < $prev['value']) ? $curr : $prev;
                         }, null);
@@ -264,9 +264,10 @@ public static function getDeparturesByTour($params)
                 } else {
                     $departure['cheapestAccommodation'] = null;
                 }
-    
+                
                 return $departure;
             }, array_values($filteredDepartures));
+            
             Log::info('Filtered departures with details: ', $filteredDepartures);
 
            $groupedDepartures = [];
