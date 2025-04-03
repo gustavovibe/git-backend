@@ -69,7 +69,7 @@ class ImportDepartures extends Command
                             'price_promotion'        => $departureData['prices']['price_total'] ?? 0,
                             'price_total_upfront'    => $departureData['prices']['price_total_upfront'] ?? 0,
                             'price_total'            => $departureData['prices']['price_total'] ?? 0,
-                            'promotion'              => $departureData['prices']['promotion'] ?? null,
+                            'promotion'              => json_encode($departureData['prices']['promotion'] ?? []),
                             'mandatory_addons'       => json_encode($departureData['prices']['mandatory_addons'] ?? []),
                             'optional_extras'        => json_encode($departureData['optional_extras'] ?? []),
                         ]

@@ -10,6 +10,7 @@ return new class extends Migration
         Schema::create('departures', function (Blueprint $table) {
             // If you are going to use your own id values, you can use bigInteger without autoIncrement:
             $table->unsignedBigInteger('id')->primary();
+            $table->unsignedBigInteger('tour_id')->nullable(); // store which tour this belongs to
             $table->date('date');
             $table->integer('availability');
             $table->string('departure_type');
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->integer('price_promotion');
             $table->integer('price_total_upfront');
             $table->integer('price_total');
-            $table->string('promotion')->nullable();
+            $table->json('promotion')->nullable();
             // JSON columns for arrays (ensure your database supports JSON type)
             $table->json('mandatory_addons')->nullable();
             $table->json('optional_extras')->nullable();
