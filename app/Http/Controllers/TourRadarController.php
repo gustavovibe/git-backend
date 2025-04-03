@@ -245,9 +245,9 @@ public static function getDeparturesByTour($params)
                         if ($travelers === 1) {
                             return $acc['beds_number'] === 1;
                         }
-                        // For multiple travelers, check if the traveler count divides evenly by the beds number
-                        return $travelers % $acc['beds_number'] === 0;
-                    });
+                        // Prevent division by zero
+                        return isset($acc['beds_number']) && $acc['beds_number'] > 0 && $travelers % $acc['beds_number'] === 0;
+                    });                    
     
                     if (!empty($validAccommodations)) {
                         // Choose the cheapest accommodation (assuming price is in 'value')
