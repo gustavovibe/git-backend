@@ -327,7 +327,7 @@ public static function getDeparturesByTour($params)
             return ['items' => []];
         }
         
-        Log::info('Departures found for tour', [$params['tourId'], 'departures' => $departures]);
+        Log::info('Departures found for tour', [$params['tourId'], 'departures' => $departures->toArray()]);
         
         // Process each departure to add detailed information and choose a valid, cheapest accommodation.
         $departuresWithDetails = array_map(function ($departure) use ($params, $travelers) {
@@ -338,6 +338,8 @@ public static function getDeparturesByTour($params)
             ]);
             $departure['departures'] = $departureDetails;
             
+        Log::info('Departures found for departure', $departure['id'], $departureDetails);    
+
             // Initialize cheapest accommodation as null.
             $departure['cheapestAccommodation'] = null;
             
@@ -379,7 +381,7 @@ public static function getDeparturesByTour($params)
         $filteredDepartures = array_filter($departuresWithDetails, function ($departure) {
             return !empty($departure['cheapestAccommodation']);
         });
-        
+        Log::info('$filteredDepartures', $filteredDepartures);
         return ['items' => array_values($filteredDepartures)];
     }
         
