@@ -338,7 +338,10 @@ public static function getDeparturesByTour($params)
             ]);
             $departure['departures'] = $departureDetails;
             
-        Log::info('Departures found for departure', $departure['id'], $departureDetails);    
+            Log::info('Departures found for departure', [
+                'id' => $departure['id'],
+                'details' => $departureDetails,
+            ]);               
 
             // Initialize cheapest accommodation as null.
             $departure['cheapestAccommodation'] = null;
