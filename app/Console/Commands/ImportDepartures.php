@@ -58,6 +58,7 @@ class ImportDepartures extends Command
                     $departure = Departure::updateOrCreate(
                         ['id' => $departureData['id']], // Unique identifier.
                         [
+                            'tour_id'               => $tourId, // save the tour_id
                             'date'                   => $departureData['date'],
                             'availability'           => $departureData['availability'],
                             'departure_type'         => $departureData['departure_type'],
