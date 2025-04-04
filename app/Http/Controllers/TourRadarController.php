@@ -119,24 +119,28 @@ public static function getDeparturesByTour($params)
 
             if (isset($response['items'])) {
                 Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
-
+                //$departures = array_merge($departures, $response['items']);
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
-                    if (isset($departure['prices']['price_total'])) {
-                        $priceTotal = $departure['prices']['price_total'];
-                        if ($cheapestDeparture === null || $priceTotal < $cheapestDeparture['prices']['price_total']) {
-                            $departure['tourId'] = $tourId; // Add tourId to departure array
+                    // Only consider departures that have a valid cheapestAccommodation value.
+                    if (isset($departure['cheapestAccommodation']) &&
+                        isset($departure['cheapestAccommodation']['value'])) {
+                        $value = $departure['cheapestAccommodation']['value'];
+                        // Pick the departure with the lowest cheapestAccommodation.value.
+                        if ($cheapestDeparture === null || $value < $cheapestDeparture['cheapestAccommodation']['value']) {
+                            // Optionally add the tourId to the departure.
+                            $departure['tourId'] = $tourId;
                             $cheapestDeparture = $departure;
                         }
                     }
                 }
+                Log::info('Cheapeast for tour', ['tourId' => $tourId, 'departure' => $cheapestDeparture]);
                 if ($cheapestDeparture !== null) {
                     $departures[] = $cheapestDeparture;
-                }
+                } 
             } else {
                 Log::info('No departures found for tour', ['tourId' => $tourId]);
             }
-
             sleep(0.1); // delay between API calls
         }
 
