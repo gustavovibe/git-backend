@@ -16,9 +16,10 @@ class Departure extends Model
         'price_total_upfront', 'price_total', 'promotion', 'mandatory_addons', 'optional_extras'
     ];
 
-    // One Departure can have many Accommodations
+    /* // One Departure can have many Accommodations
     public function accommodations()
     {
         return $this->hasMany(Accommodation::class, 'departure', 'id');
     }
+    */
 }
