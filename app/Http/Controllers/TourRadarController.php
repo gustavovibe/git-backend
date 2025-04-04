@@ -122,7 +122,7 @@ public static function getDeparturesByTour($params)
         foreach ($tourIds as $tourId) {
             $params['tourId'] = $tourId;
             $params['page'] = 1; // Always fetch first page of departures for each tourId
-            $response = $this->getDeparturesByTourParams($params);
+            $response = $this->getDeparturesByTourParamsV2($params);
 
             if (isset($response['items'])) {
                // Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
@@ -290,7 +290,93 @@ public static function getDeparturesByTour($params)
         }
     }
 
+    private function getDeparturesByTourParamsV2($params)
+    {
+        // Validate that date_range is provided in the expected "YYYY/MM/DD,YYYY/MM/DD" format.
+        if (!isset($params['date_range'])) {
+            return ['error' => 'Missing date_range parameter'];
+        }
+        
+        $dateRange = explode(',', $params['date_range']);
+        if (count($dateRange) !== 2) {
+            return ['error' => 'Invalid date_range format. It should be "YYYY/MM/DD,YYYY/MM/DD".'];
+        }
+        
+        // Format start and end dates.
+        $startDate = date('Y-m-d', strtotime($dateRange[0]));
+        $endDate   = date('Y-m-d', strtotime($dateRange[1]));
+        
+        // Validate the start date.
+        if (strtotime($startDate) < strtotime('2024-05-25')) {
+            return ['error' => 'Start date of the date range must be greater than or equal to 2024-05-25'];
+        }
+        
+        // Get number of travelers (default to 1 if not provided).
+        $travelers = isset($params['travelers']) ? $params['travelers'] : 1;
+        
+        // Retrieve departures from the local DB for the given tour_id within the date range,
+        // having availability greater than or equal to travelers, and with departure_type "guaranteed".
+        $departures = \App\Models\Departure::where('tour_id', $params['tourId'])
+            ->whereBetween('date', [$startDate, $endDate])
+            ->where('availability', '>=', $travelers)
+            ->where('departure_type', 'guaranteed')
+            ->get();
+        
+        // If no departures found, return an empty items array.
+        if ($departures->isEmpty()) {
+            return ['items' => []];
+        }
+        Log::info('Departures found for tour', [$params['tourId'], 'departures' => $departures]);
+        // Process each departure to include additional details.
+        $departuresWithDetails = $departures->map(function ($departure) use ($params, $travelers) {
+            // Convert the departure model to an array.
+            $depArray = $departure->toArray();
+            
+            // Fetch related accommodations using the relationship.
+            // Ensure you have defined this relationship in your Departure model.
+            $accommodations = $departure->accommodations;
+            
+            // Filter valid accommodations based on the number of travelers.
+            $validAccommodations = $accommodations->filter(function ($acc) use ($travelers) {
+                // Ensure beds_number exists and is greater than 0.
+                if (!isset($acc->beds_number) || $acc->beds_number <= 0) {
+                    return false;
+                }
+                
+                // Check if the accommodation is shared.
+                $isShared = $acc->is_shared;
+                
+                // For one traveler, either a shared room or a room with one bed is acceptable.
+                if ($travelers == 1) {
+                    return $isShared || $acc->beds_number == 1;
+                }
+                
+                // For multiple travelers, the number of travelers must be evenly divisible by beds_number.
+                return $travelers % $acc->beds_number === 0;
+            });
+            
+            // Determine the cheapest accommodation if available.
+            if ($validAccommodations->isNotEmpty()) {
+                // Sort by the price (assuming the field 'value' holds the price).
+                $cheapest = $validAccommodations->sortBy('value')->first();
+                $depArray['cheapestAccommodation'] = $cheapest;
+            } else {
+                $depArray['cheapestAccommodation'] = null;
+            }
+            
+            return $depArray;
+        });
+        
+        // Filter out departures that do not have a valid cheapest accommodation.
+        $filteredDepartures = $departuresWithDetails->filter(function ($departure) {
+            return !empty($departure['cheapestAccommodation']);
+        });
+        
+        return ['items' => array_values($filteredDepartures->toArray())];
+    }
+      
     
+
     public static function getDeparture($params)
 {
     $accessToken = self::getAccessToken();
