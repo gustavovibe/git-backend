@@ -19,7 +19,7 @@ class TourIdController extends Controller
      * @return array
      */
     public function index(Request $request)
-    {
+    {   
         try{
             $query = Tour::query();
 
