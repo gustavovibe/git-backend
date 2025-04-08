@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+
 class SystemUserController extends Controller
 {
     protected $email_validations;
@@ -113,21 +115,39 @@ class SystemUserController extends Controller
      * @param Request $r Request object
      * @return array
      */
-    public function deleteUsers(Request $r){
+    public function deleteUsers(Request $request){
         DB::beginTransaction();
         try{
-            $user = SystemUser::find($r->user_id);
+            $user = User::find($request->user_id);
             $user->active=0;
+            $user->deleted_at = Carbon::now();
+            $user->save();
+            
+            DB::commit();
+            return response()->json(['status' => 200, 'response' => ['user'=>$user]]);
+        }catch(Error $e){
+            DB::rollback();
+            return response()->json(['status' => 500, 'response' => $e]);
+        }
+    }
+
+    /**
+     * Active/Desactive Users
+     *
+     * Updated at 02/04/2025 (Aaron Rmz)
+     *
+     * @param Request $r Request object
+     * @return array
+     */
+    public function activeDesactiveUsers(Request $request){
+        DB::beginTransaction();
+        try{
+            $user = User::find($request->user_id);
+            $user->active = $request->active;
             $user->save();
 
-            ActionLog::create([
-                'user_id' => $r->user_log,
-                'type' => 'Delete',
-                'action' =>'User deleted successfully',
-                'item' => 'User',
-            ]);
             DB::commit();
-            return response()->json(['status' => 200, 'response' => ['user'=>$user,'perm'=>$perm]]);
+            return response()->json(['status' => 200, 'response' => ['user'=>$user]]);
         }catch(Error $e){
             DB::rollback();
             return response()->json(['status' => 500, 'response' => $e]);
