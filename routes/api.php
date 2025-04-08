@@ -133,6 +133,7 @@ Route::post('/add-users', [SystemUserController::class, 'createUser']);
 Route::get('/get-users', [SystemUserController::class, 'getUsers']);
 Route::get('/validate-email', [SystemUserController::class, 'validateEmail']);
 Route::delete('/delete-users', [SystemUserController::class, 'deleteUsers']);
+Route::patch('/active-desactive-user', [SystemUserController::class, 'activeDesactiveUsers']);
 
 
 Route::resource('jobs', JobsController::class);
