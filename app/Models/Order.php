@@ -84,6 +84,7 @@ class Order extends Model
         'gross_profit',
         'gross_profit_ratio',
         'average_price_per_person_per_day',
+        'flights'
     ];
 
     public function getGrossProfitAttribute()
@@ -108,6 +109,13 @@ class Order extends Model
     public function flightTour()
     {
         return $this->hasOne(FlightTour::class, 'id_order', 'booking_id');
+    }
+
+    public function getFlightsAttribute()
+    {
+        $flights = FlightTour::where('id_order', $this->booking_id)->select('flight')->get();
+        $flights = $flights->pluck('flight')->pluck('data')->pluck('slices');
+        return $flights;
     }
 
     public function user()
