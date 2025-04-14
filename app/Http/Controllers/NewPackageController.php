@@ -639,8 +639,9 @@ public function convertDurationToMinutes($duration)
                     Log::info('Email send attempt from package controller');
                 
                     $bookingId = json_decode($order['booking_id']);
-                    $duffelId = json_decode($order['duffel_id']);
-                    Log::info('Duffel ID:', ['duffel_id' => $duffelId]);
+                    $duffelId = $order['duffel_id'];
+                    Log::info('Duffel ID raw value:', ['duffel_id' => $order['duffel_id']]);
+
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
                 
