@@ -640,7 +640,7 @@ public function convertDurationToMinutes($duration)
                 
                     $bookingId = json_decode($order['booking_id']);
                     $duffelId = json_decode($order['duffel_id']);
-                
+                    Log::info('Duffel ID:', ['duffel_id' => $duffelId]);
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
                 

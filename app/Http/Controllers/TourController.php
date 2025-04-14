@@ -230,12 +230,11 @@ class TourController extends Controller
 
             Log::info("Creating Stripe request...");
 
-            if ($status != "unpaid"){
             $stripeData = Self::ticketStructure($r);
-          /*   Log::info("Stripe data received: ", $stripeData); */
-        /*     return $stripeData; */
+            /*   Log::info("Stripe data received: ", $stripeData); */
+            /*     return $stripeData; */
             //aqui se usa tour_id
-            }
+
             $orders=ToursFilters::OrdersPrint($r);
             /* return $stripeData; */
             if (!$orders) {
