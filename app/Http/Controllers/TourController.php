@@ -218,12 +218,12 @@ class TourController extends Controller
     public static function emailBConfirmation($bookingId, $duffelId, $paymentId){
 
         try{
-            Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $payment_id");
+            Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId");
 
             $data = [
                 'tour_id' => $bookingId,
                 'orderId' => $duffelId,
-                'q'=>$payment_id,
+                'q'=> $paymentId,
             ];
 
             $r = Request::create('/', 'GET', $data);
