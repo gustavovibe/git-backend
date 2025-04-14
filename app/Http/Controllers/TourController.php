@@ -215,10 +215,10 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public static function emailBConfirmation($tour_id,$orderId,$payment_id){
+    public static function emailBConfirmation($bookingId, $duffelId, $paymentId){
 
         try{
-            Log::info("emailBConfirmation triggered with tour_id: $tour_id, orderId: $orderId, payment_id: $payment_id");
+            Log::info("emailBConfirmation triggered with tour_id: $tour_id, orderId: $duffelId, payment_id: $payment_id");
 
             $data = [
                 'tour_id' => $tour_id,
