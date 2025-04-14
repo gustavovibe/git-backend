@@ -590,7 +590,8 @@ public function convertDurationToMinutes($duration)
                 $cs = $session->id;
                 // Extract metadata
                 $attemptId = $session->metadata->attempt_id ?? null;
-
+                $status = $session->payment_status ?? null;
+                \Log::info('Status: ' . $status);
                 if (!$attemptId) {
                     \Log::error('No attempt ID found in session metadata.');
                     break;

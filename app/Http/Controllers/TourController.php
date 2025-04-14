@@ -216,6 +216,7 @@ class TourController extends Controller
      * @return array
      */
     public static function emailBConfirmation($tour_id,$orderId,$payment_id){
+
         try{
             Log::info("emailBConfirmation triggered with tour_id: $tour_id, orderId: $orderId, payment_id: $payment_id");
 
@@ -229,11 +230,12 @@ class TourController extends Controller
 
             Log::info("Creating Stripe request...");
 
-
+            if ($status != "unpaid"){
             $stripeData = Self::ticketStructure($r);
           /*   Log::info("Stripe data received: ", $stripeData); */
         /*     return $stripeData; */
             //aqui se usa tour_id
+            }
             $orders=ToursFilters::OrdersPrint($r);
             /* return $stripeData; */
             if (!$orders) {
@@ -449,8 +451,10 @@ class TourController extends Controller
 
 
     public static  function  ticketStructure(Request $r){
- /*        return $r->all(); */
-        $booking_data = (new DuffelApiController)->getOrderById($r);
+        return $r->all();
+        $booking_data_response = (new DuffelApiController)->getOrderById($r);
+        $booking_data = json_decode($booking_data_response->getContent(), true);
+
 
             if (!isset($booking_data['data'])) {
                 throw new Exception('Invalid booking data structure');
