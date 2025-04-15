@@ -215,7 +215,7 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public static function emailBConfirmation($bookingId, $duffelId, $paymentId){
+    public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $passengers){
 
         try{
             Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId");
@@ -265,6 +265,7 @@ class TourController extends Controller
                         }
                     }
                 }
+
 
                 $adults = 0;
                 $children = 0;

@@ -77,7 +77,8 @@ class Order extends Model
         'created_at',
         'updated_at',
         'commission',
-        'stripe_fee'
+        'stripe_fee',
+        'passengers'
     ];
 
     protected $appends = [
