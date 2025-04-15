@@ -247,9 +247,9 @@ class TourController extends Controller
                 Log::error("User email not found in order data");
                 return ApiResponse::error("User email not found");
             }
-
+/*
                 $accommodations = $orders->flightTour->tour['accommodations'] ?? [];
-               /*  return $orders->flightTour->tour['accommodations']; */
+               /*  return $orders->flightTour->tour['accommodations'];
                 // Inicializar precios en 0
                 $adult_price = 0;
                 $child_price = 0;
@@ -302,6 +302,40 @@ class TourController extends Controller
                 $invoice= [  'adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants,'subtotal'=>$subtotal,'tax'=>$tax,'total'=>$total];
 
                 /* return $orders->payment_id; */
+                $invoice = [
+                    'adults'         => 0,
+                    'children'       => 0,
+                    'infants'        => 0,
+                    'total_adults'   => 0,
+                    'total_children' => 0,
+                    'total_infants'  => 0,
+                    'subtotal'       => 0,
+                    'tax'            => 0, // As specified, tax is 0
+                    'total'          => 0,
+                ];
+                
+                // Iterate over each passenger entry
+                foreach ($passengers as $passenger) {
+                    // Calculate totals per passenger type based on the type
+                    if ($passenger['passengerType'] === 'adult') {
+                        $invoice['adults'] += $passenger['passengers'];
+                        $invoice['total_adults'] += $passenger['unitPrice'] * $passenger['passengers'];
+                    } elseif ($passenger['passengerType'] === 'child') {
+                        $invoice['children'] += $passenger['passengers'];
+                        $invoice['total_children'] += $passenger['unitPrice'] * $passenger['passengers'];
+                    }
+                    // If you have other types like infant, you can add additional conditions here.
+                }
+                
+                // Calculate the subtotal (both adults and children)
+                $invoice['subtotal'] = $invoice['total_adults'] + $invoice['total_children'];
+                
+                // tax is set to 0 as per your specification
+                $invoice['tax'] = 0;
+                
+                // Calculate the total (subtotal + tax)
+                $invoice['total'] = $invoice['subtotal'] + $invoice['tax'];
+
               $stripe= StripeController::getPaymentIntent($orders->payment_id);
               $stripeData_invoice = json_decode($stripe->getContent(), true);
               $invoice_content=['data'=>$stripeData_invoice['data'],'orders'=>$orders,'values'=>$invoice];
