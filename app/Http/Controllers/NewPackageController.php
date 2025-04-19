@@ -108,7 +108,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'created_at' => now(),
             'updated_at' => now(),
             'expiration' => $expiration,
-            'passengers' => $passengers
+            'passengers' => json_encode($passengers)
         ]);
         $attemptUrl = $newUrl . '&attempt_id=' . $attemptId;
         // Create the Stripe session
