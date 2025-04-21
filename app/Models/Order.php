@@ -87,7 +87,10 @@ class Order extends Model
         'average_price_per_person_per_day',
         'flights'
     ];
-
+    protected $casts = [
+        'passengers' => 'array',
+    ];
+    
     public function getGrossProfitAttribute()
     {
         return  $this->paid - $this->paid_to_suppliers - $this->refunded;
