@@ -341,7 +341,7 @@ class TourController extends Controller
            $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
 
            $email = $orders->user->email;
-           Log::info('address emailBConfirmation:', $email);
+           Log::info('address emailBConfirmation: ' . $email);
 
            $flag=0;
            if((isset($stripeData_invoice['data']['charge_details']['balance_transaction']) && $stripeData_invoice['data']['charge_details']['balance_transaction'] !== null) ){
@@ -368,6 +368,7 @@ class TourController extends Controller
           /*   return view('emails.booking_confirmation_2')->with(['orders'=>$orders] ); */
           Log::info('stripe data BookEmail: ', $stripeData);
           Log::info('invoice BookEmail:', $invoice);
+          Log::info('invoice content BookEmail:', $invoice_content);
            Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice,$invoice_content,$flag));
 
            return ApiResponse::success('Email sent successfully');
