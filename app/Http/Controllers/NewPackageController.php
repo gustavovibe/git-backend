@@ -662,17 +662,13 @@ public function convertDurationToMinutes($duration)
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
 
-                    $raw = $RequestPassengers;  
-
-                    // Flatten one level if necessary
-                    if (is_array($raw) && count($raw) === 1 && is_array($raw[0])) {
-                        $passengersToSend = $raw[0];
-                    } else {
-                        $passengersToSend = $raw;
+                    $raw = $RequestPassengers; 
+                    $passengersArray = is_string($raw) ? json_decode($raw, true) : $raw;
                     }
-                    Log::info('Request passengers before emailBConfirmation:', $passengersToSend);
 
-                    $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $passengersToSend);
+                    Log::info('Request passengers before emailBConfirmation:', $passengersArray);
+
+                    $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $passengersArray);
 
                     // Log the response
                     Log::info('Response from emailBConfirmation:', ['response' => $response]);

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Arr;
 use App\Filters\ToursFilters;
 use App\Models\Tour;
 use Illuminate\Http\Request;
@@ -216,24 +216,9 @@ class TourController extends Controller
      * @return array
      */
     public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers){
-        $rawPassengers = $RequestPassengers;
+        $passengers = Arr::wrap($RequestPassengers);
 
-        if (is_string($rawPassengers)) {
-            $passengers = json_decode($rawPassengers, true);
-        } elseif (is_array($rawPassengers)) {
-            $passengers = $rawPassengers;
-        } else {
-            Log::error('Passengers must be an array or JSON string', ['raw' => $rawPassengers]);
-            return ApiResponse::error('Invalid passenger data');
-        }
-    
-        // 2) Guard that it really is an array
-        if (!is_array($passengers)) {
-            Log::error('json_decode failed or not array', ['decoded' => $passengers]);
-            return ApiResponse::error('Invalid passenger data');
-        }
-    
-        Log::info('Passengers now normalized:', ['passengers' => $passengers]);
+        Log::info('Passengers normalized:', ['passengers' => $passengers]);
 
         try{
             Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId, passengers: $passengers");
