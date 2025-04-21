@@ -256,61 +256,7 @@ class TourController extends Controller
                 Log::error("User email not found in order data");
                 return ApiResponse::error("User email not found");
             }
-/*
-                $accommodations = $orders->flightTour->tour['accommodations'] ?? [];
-               /*  return $orders->flightTour->tour['accommodations'];
-                // Inicializar precios en 0
-                $adult_price = 0;
-                $child_price = 0;
-                $infant_price = 372; // Definir si aplica un precio distinto
 
-                // Verificar y asignar precios de acuerdo al tipo de acomodación
-                if (!empty($accommodations)) {
-                    foreach ($accommodations as $accommodation) {
-                        if ($accommodation['type'] === 'basePrice') {
-                            $adult_price = $accommodation['prices'][0]['price_per_pax'] ?? 0;
-                        } elseif ($accommodation['type'] === 'accommodation') {
-                            $child_price = $accommodation['prices'][0]['price_per_pax'] ?? 0;
-                        }
-                    }
-                }
-
-
-                $adults = 0;
-                $children = 0;
-                $infants = 0;
-                // Obtener cantidades de pasajeros
-                foreach ($orders['travelers'] ?? [] as $traveler) {
-                    if (!empty($traveler['birth'])) {
-                        $birthDate = Carbon::parse($traveler['birth']);
-                        $age = $birthDate->age; // Calcula la edad con base en la fecha actual
-
-                        if ($age >= 18) {
-                            $adults++;
-                        } elseif ($age >= 2 && $age < 18) {
-                            $children++;
-                        } else {
-                            $infants++;
-                        }
-                    }
-                }
-                // Calcular totales
-                $total_adults =  $adult_price;
-                $total_children =  $child_price;
-                $total_infants =  $infant_price;
-
-                $flight_price = $orders->flightTour['flight']['data']['total_amount'] ?? 0;
-
-                // Obtener precio del tour
-                $tour_price = $orders->flightTour['tour']['total_value'] ?? 0;
-                // Calcular subtotal y total
-                $subtotal = $total_adults + $total_children + $total_infants + $flight_price + $tour_price;
-                $tax = 0; // Si no hay VAT
-                $total = $subtotal + $tax;
-
-                $invoice= [  'adults'=>$adults,'children'=>$children,'infants'=>$infants,'total_adults'=>$total_adults,'total_children'=>$total_children,'total_infants'=>$total_infants,'subtotal'=>$subtotal,'tax'=>$tax,'total'=>$total];
-
-                /* return $orders->payment_id; */
                 $invoice = [
                     'adults'         => 0,
                     'children'       => 0,
@@ -395,11 +341,13 @@ class TourController extends Controller
            $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
 
            $email = $orders->user->email;
+           Log::info('address emailBConfirmation:', $email);
+
            $flag=0;
            if((isset($stripeData_invoice['data']['charge_details']['balance_transaction']) && $stripeData_invoice['data']['charge_details']['balance_transaction'] !== null) ){
             $flag=1;
            }
-           /* return $invoice_content; */
+           /* return $invoice_content; 
 
            $currencies = json_decode(Storage::get('currencies.json'),true);
            $currencyInfo = null;
@@ -410,15 +358,16 @@ class TourController extends Controller
                 break;
             }
         }
-
-        if ($currencyInfo) {
-            $invoice_content['data']['payment_intent']['currency'] = $currencyInfo;
-        }
+           */
+            $invoice_content['data']['payment_intent']['currency'] = 'USD';
+    
         /*    return $invoice_content['data']['payment_intent']['currency'];
            return $currencies; */
         /*    return view('emails.invoice')->with( $invoice_content); */
 
           /*   return view('emails.booking_confirmation_2')->with(['orders'=>$orders] ); */
+          Log::info('stripe data BookEmail: ', $stripeData);
+          Log::info('invoice BookEmail:', $invoice);
            Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice,$invoice_content,$flag));
 
            return ApiResponse::success('Email sent successfully');
