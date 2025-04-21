@@ -428,18 +428,23 @@ class ToursFilters
         return $destination;
     }
 
-    public static function OrdersPrint(Request $r){
-       $orders = Order::with(['flightTour', 'travelers', 'user'])->find($r->tour_id);
-return $orders;
-       if($orders->start && $orders->end){
-           $orders->days= Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
-       }
-        $orders->image=$orders->tour->main_image;
-        $orders->reviews_count=$orders->tour->reviews_count;
-        $orders->ratings_overall=$orders->tour->ratings_overall;
-        unset($orders->tour);
+    public static function OrdersPrint(Request $r) {
+        $orders = Order::with(['flightTour', 'travelers', 'user', 'tour'])->find($r->booking_id); // Added 'tour'
+    
+        if ($orders->start && $orders->end) {
+            $orders->days = Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
+        }
+    
+        if ($orders->tour) {
+            $orders->image = $orders->tour->main_image;
+            $orders->reviews_count = $orders->tour->reviews_count;
+            $orders->ratings_overall = $orders->tour->ratings_overall;
+            unset($orders->tour);
+        }
+    
         return $orders;
     }
+    
 
     public function OrdersAll(Request $r,$csv){
 

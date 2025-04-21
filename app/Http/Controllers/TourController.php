@@ -222,7 +222,7 @@ class TourController extends Controller
 
         try{
             Log::info("emailBConfirmation triggered", [
-                'tour_id'   => $bookingId,
+                'booking_id'   => $bookingId,
                 'orderId'   => $duffelId,
                 'payment_id'=> $paymentId,
                 'passengers'=> $passengers
@@ -230,7 +230,7 @@ class TourController extends Controller
             
 
             $data = [
-                'tour_id' => $bookingId,
+                'booking_id' => $bookingId,
                 'orderId' => $duffelId,
                 'q'=> $paymentId,
             ];
@@ -348,7 +348,7 @@ class TourController extends Controller
                 // Calculate the total (subtotal + tax)
                 $invoice['total'] = $invoice['subtotal'] + $invoice['tax'];
 
-              $stripe= StripeController::getPaymentIntent($orders->payment_id);
+              $stripe= StripeController::getPaymentIntent($paymentId);
               $stripeData_invoice = json_decode($stripe->getContent(), true);
               $invoice_content=['data'=>$stripeData_invoice['data'],'orders'=>$orders,'values'=>$invoice];
 
