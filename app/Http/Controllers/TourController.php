@@ -216,7 +216,6 @@ class TourController extends Controller
      * @return array
      */
     public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers){
-        $passengers = json_decode($RequestPassengers, true); // force array with `true`
 
         try{
             Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId");
