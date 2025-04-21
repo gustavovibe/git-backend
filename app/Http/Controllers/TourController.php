@@ -358,6 +358,7 @@ class TourController extends Controller
                 break;
             }
         }
+
            */
             $invoice_content['data']['payment_intent']['currency'] = 'USD';
     
@@ -369,7 +370,7 @@ class TourController extends Controller
           Log::info('stripe data BookEmail: ', $stripeData);
           Log::info('invoice BookEmail:', $invoice);
           Log::info('invoice content BookEmail:', $invoice_content);
-           Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice,$invoice_content,$flag));
+           Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice, $invoice_content, $flag));
 
            return ApiResponse::success('Email sent successfully');
         } catch (Exception $e) {
@@ -447,16 +448,15 @@ class TourController extends Controller
 
 
     public static  function  ticketStructure(Request $r){
-        return $r->all();
+        //return $r->all();
         $booking_data_response = (new DuffelApiController)->getOrderById($r);
         $booking_data = json_decode($booking_data_response->getContent(), true);
-
 
             if (!isset($booking_data['data'])) {
                 throw new Exception('Invalid booking data structure');
             }
 
-            logger()->info('Booking data:', $booking_data);
+            logger()->info('Booking data inside ticketStructure:', $booking_data);
 
             $passengersData = [];
 
