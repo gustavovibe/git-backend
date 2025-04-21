@@ -208,8 +208,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
             Log::info('bookPackage duffel request: ' . json_encode($flight));
             $flightResponse = DuffelApiController::createNewBooking($flight);
 
-            //Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
-
+            Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
+            $orderId = $response[2]['data']['id'] ?? null;
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
                 DB::table('attempts')
@@ -228,6 +228,17 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $RequestPassengers);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
+                $bookingId = $order['booking_id'];
+
+                DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'booking_id' => $bookingId ?? null,
+                        'duffel_res' => $flightResponse ?? null,
+                        'order_id' => $flightResponse['data']['id'] ?? null,
+                        'payment_id' => $paymentId,
+                        'updated_at' => now(),
+                    ]);
             }
         }
         return [$status, $tourResponse, $flightResponse, $order];
@@ -333,6 +344,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'stripe_fee' => null,
             'passengers' => $RequestPassengers
         ];
+        \Log::info('Order data:', $orderData);
 
         $order = Order::create($orderData);
 
@@ -612,7 +624,7 @@ public function convertDurationToMinutes($duration)
                 $RequestTour = json_decode($attempt->tour, true);
                 $RequestFlight = json_decode($attempt->flight, true);
                 $RequestPassengers = json_decode($attempt->passengers, true);
-
+                \Log::info('Request passengers: ' . $RequestPassengers); 
                 \Log::info('Payment Id: ' . $paymentId);
 
                 // Execute booking process
@@ -669,7 +681,7 @@ public function convertDurationToMinutes($duration)
                 }
                 
 
-
+                /*
                 // Update database record
                 DB::table('attempts')
                     ->where('id', $attemptId)
@@ -683,7 +695,7 @@ public function convertDurationToMinutes($duration)
                         'checkout_session' => $cs,
                         'updated_at' => now(),
                     ]);
-
+                */
 
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
