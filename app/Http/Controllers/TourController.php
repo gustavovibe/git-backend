@@ -221,7 +221,13 @@ class TourController extends Controller
         Log::info('Passengers normalized:', ['passengers' => $passengers]);
 
         try{
-            Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId, passengers: $passengers");
+            Log::info("emailBConfirmation triggered", [
+                'tour_id'   => $bookingId,
+                'orderId'   => $duffelId,
+                'payment_id'=> $paymentId,
+                'passengers'=> $passengers
+            ]);
+            
 
             $data = [
                 'tour_id' => $bookingId,
