@@ -225,6 +225,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             }
 
             elseif (isset($flightResponse['data']) && $flightResponse['data']['payment_status']['paid_at'] != null) {
+                
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $RequestPassengers);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
@@ -660,9 +661,18 @@ public function convertDurationToMinutes($duration)
 
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
-                    Log::info('Request passengers before emailBConfirmation:', [$RequestPassengers]); // Log it just before calling
 
-                    $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
+                    $raw = $RequestPassengers;  
+
+                    // Flatten one level if necessary
+                    if (is_array($raw) && count($raw) === 1 && is_array($raw[0])) {
+                        $passengersToSend = $raw[0];
+                    } else {
+                        $passengersToSend = $raw;
+                    }
+                    Log::info('Request passengers before emailBConfirmation:', $passengersToSend);
+
+                    $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $passengersToSend);
 
                     // Log the response
                     Log::info('Response from emailBConfirmation:', ['response' => $response]);

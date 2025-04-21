@@ -216,10 +216,27 @@ class TourController extends Controller
      * @return array
      */
     public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers){
-        $passengers = $RequestPassengers;
+        $rawPassengers = $RequestPassengers;
+
+        if (is_string($rawPassengers)) {
+            $passengers = json_decode($rawPassengers, true);
+        } elseif (is_array($rawPassengers)) {
+            $passengers = $rawPassengers;
+        } else {
+            Log::error('Passengers must be an array or JSON string', ['raw' => $rawPassengers]);
+            return ApiResponse::error('Invalid passenger data');
+        }
+    
+        // 2) Guard that it really is an array
+        if (!is_array($passengers)) {
+            Log::error('json_decode failed or not array', ['decoded' => $passengers]);
+            return ApiResponse::error('Invalid passenger data');
+        }
+    
+        Log::info('Passengers now normalized:', ['passengers' => $passengers]);
 
         try{
-            Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId");
+            Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId, passengers: $passengers");
 
             $data = [
                 'tour_id' => $bookingId,
@@ -321,13 +338,13 @@ class TourController extends Controller
                 }
                 
                 // Iterate over each passenger entry
-                foreach ($passengers as $passenger) {
-                    if ($passenger['passengerType'] === 'adult') {
-                        $invoice['adults'] += $passenger['passengers'];
-                        $invoice['total_adults'] += $passenger['unitPrice'] * $passenger['passengers'];
-                    } elseif ($passenger['passengerType'] === 'child') {
-                        $invoice['children'] += $passenger['passengers'];
-                        $invoice['total_children'] += $passenger['unitPrice'] * $passenger['passengers'];
+                foreach ($passengers as $p) {
+                    if (($p['passengerType'] ?? '') === 'adult') {
+                        $invoice['adults']       += $p['passengers'];
+                        $invoice['total_adults'] += $p['unitPrice'] * $p['passengers'];
+                    } elseif (($p['passengerType'] ?? '') === 'child') {
+                        $invoice['children']       += $p['passengers'];
+                        $invoice['total_children'] += $p['unitPrice'] * $p['passengers'];
                     }
                 }
                 
@@ -366,7 +383,7 @@ class TourController extends Controller
            $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
            $tourData = $tourResponse->getData(true);
            $tour=$tourData['data'];
-
+           Log::info('tour data inside emailBConfirmation:', $tour);
            foreach($tour['destinations']['countries'] as $co){
                $countries[]=$co['country_name'];
            }
