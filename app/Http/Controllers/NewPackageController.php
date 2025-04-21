@@ -664,7 +664,6 @@ public function convertDurationToMinutes($duration)
 
                     $raw = $RequestPassengers; 
                     $passengersArray = is_string($raw) ? json_decode($raw, true) : $raw;
-                    }
 
                     Log::info('Request passengers before emailBConfirmation:', $passengersArray);
 
