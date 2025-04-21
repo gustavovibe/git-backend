@@ -450,13 +450,20 @@ class TourController extends Controller
     public static  function  ticketStructure(Request $r){
         //return $r->all();
         $booking_data_response = (new DuffelApiController)->getOrderById($r);
-        $booking_data = json_decode($booking_data_response->getContent(), true);
 
-            if (!isset($booking_data['data'])) {
-                throw new Exception('Invalid booking data structure');
-            }
+        if ($booking_data_response instanceof \Illuminate\Http\JsonResponse) {
+            $booking_data = $booking_data_response->getData(true);
+        } elseif (is_array($booking_data_response)) {
+            $booking_data = $booking_data_response;
+        } else {
+            throw new \Exception("Unexpected response type from DuffelApiController::getOrderById()");
+        }
 
-            logger()->info('Booking data inside ticketStructure:', $booking_data);
+        if (!isset($booking_data['data'])) {
+            throw new \Exception('Invalid booking data structure');
+        }
+
+        logger()->info('Booking data inside ticketStructure:', $booking_data);
 
             $passengersData = [];
 
