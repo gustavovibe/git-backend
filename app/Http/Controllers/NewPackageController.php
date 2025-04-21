@@ -624,7 +624,7 @@ public function convertDurationToMinutes($duration)
                 $RequestTour = json_decode($attempt->tour, true);
                 $RequestFlight = json_decode($attempt->flight, true);
                 $RequestPassengers = json_decode($attempt->passengers, true);
-                \Log::info('Request passengers: ' . $RequestPassengers); 
+                \Log::info('Request passengers:', $RequestPassengers); 
                 \Log::info('Payment Id: ' . $paymentId);
 
                 // Execute booking process
