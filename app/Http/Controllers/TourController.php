@@ -215,7 +215,8 @@ class TourController extends Controller
      * @param int $booking_id Booking ID
      * @return array
      */
-    public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $passengers){
+    public static function emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers){
+        $passengers = json_decode($RequestPassengers, true); // force array with `true`
 
         try{
             Log::info("emailBConfirmation triggered with tour_id: $bookingId, orderId: $duffelId, payment_id: $paymentId");
@@ -313,10 +314,14 @@ class TourController extends Controller
                     'tax'            => 0, // As specified, tax is 0
                     'total'          => 0,
                 ];
+                Log::info('Request passengers inside emailBConfirmation:', $passengers);
+                if (!is_array($passengers)) {
+                    Log::error('Passengers is not an array or is null', ['passengers' => $passengers]);
+                    return ApiResponse::error("Invalid passenger data");
+                }
                 
                 // Iterate over each passenger entry
                 foreach ($passengers as $passenger) {
-                    // Calculate totals per passenger type based on the type
                     if ($passenger['passengerType'] === 'adult') {
                         $invoice['adults'] += $passenger['passengers'];
                         $invoice['total_adults'] += $passenger['unitPrice'] * $passenger['passengers'];
@@ -324,7 +329,6 @@ class TourController extends Controller
                         $invoice['children'] += $passenger['passengers'];
                         $invoice['total_children'] += $passenger['unitPrice'] * $passenger['passengers'];
                     }
-                    // If you have other types like infant, you can add additional conditions here.
                 }
                 
                 // Calculate the subtotal (both adults and children)

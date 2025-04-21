@@ -660,10 +660,10 @@ public function convertDurationToMinutes($duration)
 
                     // Log input data
                     Log::info('Booking ID:', ['booking_id' => $bookingId]);
-                
-                    // Capture response from the function
+                    Log::info('Request passengers before emailBConfirmation:', [$RequestPassengers]); // Log it just before calling
+
                     $response = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
-                
+
                     // Log the response
                     Log::info('Response from emailBConfirmation:', ['response' => $response]);
                 
