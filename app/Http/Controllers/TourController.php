@@ -250,7 +250,7 @@ class TourController extends Controller
                 Log::error("OrdersPrint returned null");
                 return ApiResponse::error("OrdersPrint returned null");
             }
-            Log::info("Order found: ", ['order_id' => $orders->id ?? 'N/A']);
+            Log::info("Order found: ", ['order' => $orders ?? 'N/A']);
 
             if (!isset($orders->user) || empty($orders->user->email)) {
                 Log::error("User email not found in order data");
