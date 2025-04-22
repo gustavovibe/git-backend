@@ -777,34 +777,6 @@
                     <div>
                         <h3>Price breakdown</h3>
                     </div>
-                    <div>
-                        <table style="width: 100%;">
-                                @foreach ($orders->flightTour->tour['accommodations'] as $accommodation)
-                                    @if ($accommodation['type'] == 'basePrice')
-                                        <tr>
-                                            <td>
-                                                <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
-                                                USD x
-                                                <a style="color:#82CF45;">{{ count($orders->flightTour->tour['passengers']) }}</a> adult(s)
-                                            </td>
-                                            <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * count($orders->flightTour->tour['passengers']), 2) }}
-                                                USD</td>
-                                        </tr>
-                                        <br>
-                                    @elseif ($accommodation['type'] == 'accommodation')
-                                        <tr>
-                                            <td>
-                                                <a style="color:#82CF45;">${{ number_format($accommodation['prices'][0]['price_per_pax'], 2) }}</a>
-                                                USD x
-                                                <a style="color:#82CF45;">{{ $accommodation['prices'][0]['pax_count'] }}</a> single
-                                            </td>
-                                            <td style="text-align: right;">${{ number_format($accommodation['prices'][0]['price_per_pax'] * $accommodation['prices'][0]['pax_count'], 2) }}
-                                                USD</td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                        </table>
-                    </div>
                     <div style="padding: 1%;">
                         <div class="laterald">
                             <table style="width: 100%;margin-left:2%;">
@@ -813,7 +785,7 @@
                                         <p style="color:gray;font-size:10px;">Total price of the trip including all taxes and fees</p>
                                     </td>
                                     <td style="text-align: right;">
-                                        <h3>${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</h3>
+                                        <h3>${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</h3>
                                     </td>
                                 </tr>
                             </table>
@@ -828,12 +800,24 @@
                                 </tr>
                         </table>
                         <br>
-                        <table style="width: 100%;margin-left:2%;" class="textG" >
+                        <table style="width: 100%; margin-left: 2%;" class="textG">
                             <tr>
                                 <td>
-                                    <a style="font-style: italic;">Multi-day adventure</a>
+                                    <span style="font-style: italic;">Multi-day adventure</span>
+
+                                    @foreach (json_decode($orders->passengers, true) as $acc)
+                                        <p>
+                                            <span style="color: #82CF45;">
+                                                {{ $acc['passengers'] }}
+                                            </span>
+                                            × {{ $acc['name'] }}
+                                        </p>
+                                    @endforeach
+
                                 </td>
-                                <td style="text-align: right;"><a id="color">included</a></td>
+                                <td style="text-align: right;">
+                                    <span id="color">included</span>
+                                </td>
                             </tr>
                         </table>
                     </div>
