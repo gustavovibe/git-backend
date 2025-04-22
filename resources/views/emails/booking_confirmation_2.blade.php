@@ -805,7 +805,7 @@
                                 <td>
                                     <span style="font-style: italic;">Multi-day adventure</span>
 
-                                    @foreach (json_decode($orders->passengers, true) as $acc)
+                                    @foreach ($orders['passengers'] as $acc)
                                         <p>
                                             <span style="color: #82CF45;">
                                                 {{ $acc['passengers'] }}
