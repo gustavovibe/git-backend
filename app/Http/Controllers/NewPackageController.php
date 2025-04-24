@@ -216,7 +216,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->where('id', $attemptId)
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        'duffel_res' => json_encode($flightResponse),
+                        'duffel_res' => json_encode($flightResponse) ?? null,
+                        'tourradar_res' => json_encode($tourResponse) ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
@@ -236,6 +237,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->update([
                         'booking_id' => $bookingId ?? null,
                         'duffel_res' => $flightResponse ?? null,
+                        'tourradar_res' => json_encode($tourResponse) ?? null,
                         'order_id' => $flightResponse['data']['id'] ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
@@ -751,7 +753,7 @@ public function convertDurationToMinutes($duration)
     
             Log::info('Attempt retrieved:', ['attempt' => $attempt]);
     
-            if ($attempt && $attempt->booking_id) {
+            if ($attempt && $attempt->tourradar_res && $attempt->$duffel_res) {
                 $tourradar_res = json_decode($attempt->tourradar_res, true);
                 Log::info('Decoded tourradar_res:', ['tourradar_res' => $tourradar_res]);
     
@@ -827,6 +829,11 @@ public function convertDurationToMinutes($duration)
                     'tourradar_res' => $tourradar_res,
                     'duffel_res' => $duffel_res,
                     'passengers' => $attempt->passengers
+                ]);
+            }else {
+                return response()->json([
+                    'status' => $attempt->status ?? 'pending',
+                    'reason' => "missing tourradar res or duffel res"
                 ]);
             }
     
