@@ -688,7 +688,6 @@ public function convertDurationToMinutes($duration)
                 }
                 
 
-                /*
                 // Update database record
                 DB::table('attempts')
                     ->where('id', $attemptId)
@@ -702,7 +701,6 @@ public function convertDurationToMinutes($duration)
                         'checkout_session' => $cs,
                         'updated_at' => now(),
                     ]);
-                */
 
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
