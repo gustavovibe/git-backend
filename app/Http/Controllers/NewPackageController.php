@@ -184,7 +184,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $tourResponse = TourRadarController::createNewBooking($tourBody);
 
         // Log tour response
-        // Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
@@ -216,8 +216,8 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->where('id', $attemptId)
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        'duffel_res' => json_encode($flightResponse) ?? null,
-                        'tourradar_res' => json_encode($tourResponse) ?? null,
+                        'duffel_res' => $flightResponse ?? null,
+                        'tourradar_res' => $tourResponse ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
@@ -237,7 +237,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->update([
                         'booking_id' => $bookingId ?? null,
                         'duffel_res' => $flightResponse ?? null,
-                        'tourradar_res' => json_encode($tourResponse) ?? null,
+                        'tourradar_res' => $tourResponse,
                         'order_id' => $flightResponse['data']['id'] ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
@@ -694,7 +694,7 @@ public function convertDurationToMinutes($duration)
                     ->update([
                         'booking_id' => $bookingId,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        'tourradar_res' => json_encode($tourResponse),
+                        //'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
                         'payment_id' => $paymentId,
