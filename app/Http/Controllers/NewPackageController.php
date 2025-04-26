@@ -217,7 +217,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'duffel_res' => $flightResponse ?? null,
-                        'tourradar_res' => $tourResponse ?? null,
+                        'tourradar_res' => json_encode($tourResponse),
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
@@ -237,7 +237,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->update([
                         'booking_id' => $bookingId ?? null,
                         'duffel_res' => $flightResponse ?? null,
-                        'tourradar_res' => $tourResponse,
+                        'tourradar_res' => json_encode($tourResponse),
                         'order_id' => $flightResponse['data']['id'] ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
