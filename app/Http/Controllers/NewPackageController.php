@@ -209,7 +209,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $flightResponse = DuffelApiController::createNewBooking($flight);
 
             Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
-            $orderId = $response[2]['data']['id'] ?? null;
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
                 DB::table('attempts')
