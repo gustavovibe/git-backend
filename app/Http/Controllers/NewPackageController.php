@@ -216,7 +216,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         'duffel_res' => $flightResponse ?? null,
-                        'tourradar_res' => json_encode($tourResponse),
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
                     ]);
@@ -229,18 +228,6 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $RequestPassengers);
                 Log::info('order created: ' . json_encode($order));
                 $status = 0;
-                $bookingId = $order['booking_id'];
-
-                DB::table('attempts')
-                    ->where('id', $attemptId)
-                    ->update([
-                        'booking_id' => $bookingId ?? null,
-                        'duffel_res' => $flightResponse ?? null,
-                        'tourradar_res' => json_encode($tourResponse),
-                        'order_id' => $flightResponse['data']['id'] ?? null,
-                        'payment_id' => $paymentId,
-                        'updated_at' => now(),
-                    ]);
             }
         }
         return [$status, $tourResponse, $flightResponse, $order];
@@ -693,14 +680,14 @@ public function convertDurationToMinutes($duration)
                     ->update([
                         'booking_id' => $bookingId,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        //'tourradar_res' => json_encode($tourResponse),
+                        'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
                         'payment_id' => $paymentId,
                         'checkout_session' => $cs,
                         'updated_at' => now(),
                     ]);
-
+                
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
@@ -751,9 +738,7 @@ public function convertDurationToMinutes($duration)
             Log::info('Attempt retrieved:', ['attempt' => $attempt]);
     
             if ($attempt && $attempt->tourradar_res && $attempt->$duffel_res) {
-                $tourradar_res = json_decode($attempt->tourradar_res, true);
-                Log::info('Decoded tourradar_res:', ['tourradar_res' => $tourradar_res]);
-    
+                $tourradar_res = json_decode($attempt->tourradar_res, true);    
                 $adultsNumber = $childrenNumber = 0;
                 $totalPriceAdults = $totalPriceChildren = 0;
                 $adultCategoryIds = $childCategoryIds = [];
