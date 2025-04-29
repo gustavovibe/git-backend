@@ -673,6 +673,7 @@ public function convertDurationToMinutes($duration)
                     }
                 }
                 
+                \DB::enableQueryLog();
 
                 // Update database record
                 DB::table('attempts')
@@ -688,6 +689,8 @@ public function convertDurationToMinutes($duration)
                         'updated_at' => now(),
                     ]);
                 
+                \Log::info(\DB::getQueryLog());
+
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
