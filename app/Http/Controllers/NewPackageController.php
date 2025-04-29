@@ -215,6 +215,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                     ->where('id', $attemptId)
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        'tourradar_res' => $tourResponse,
                         'duffel_res' => $flightResponse ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
@@ -638,7 +639,23 @@ public function convertDurationToMinutes($duration)
 
                 $bookingId = null;
 
+                DB::enableQueryLog();
 
+                // Update database record
+                DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'booking_id' => $bookingId,
+                        'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        //'tourradar_res' => json_encode($tourResponse),
+                        //'duffel_res' => json_encode($flightResponse),
+                        'order_id' => $orderId,
+                        'payment_id' => $paymentId,
+                        'checkout_session' => $cs,
+                        'updated_at' => now(),
+                    ]);
+                
+                Log::info('Query log:', DB::getQueryLog());
 
                 if ($order != null) {
                     Log::info('Email send attempt from package controller');
@@ -672,24 +689,6 @@ public function convertDurationToMinutes($duration)
                         Log::warning('Unexpected response format from emailBConfirmation.', ['response' => $response]);
                     }
                 }
-                
-                DB::enableQueryLog();
-
-                // Update database record
-                DB::table('attempts')
-                    ->where('id', $attemptId)
-                    ->update([
-                        'booking_id' => $bookingId,
-                        'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        'tourradar_res' => json_encode($tourResponse),
-                        'duffel_res' => json_encode($flightResponse),
-                        'order_id' => $orderId,
-                        'payment_id' => $paymentId,
-                        'checkout_session' => $cs,
-                        'updated_at' => now(),
-                    ]);
-                
-                Log::info('Query log:', DB::getQueryLog());
 
 
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
