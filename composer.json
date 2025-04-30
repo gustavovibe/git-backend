@@ -19,6 +19,7 @@
         "intervention/image": "^2.7",
         "laravel/framework": "^11.34",
         "laravel/sanctum": "^4.0",
+        "laravel/telescope": "^5.7",
         "laravel/tinker": "^2.0",
         "league/flysystem-aws-s3-v3": "^3.8",
         "maatwebsite/excel": "^3.1",
