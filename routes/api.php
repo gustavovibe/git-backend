@@ -37,7 +37,7 @@ use App\Http\Controllers\PushNotificationsController;
 use App\Http\Controllers\ValidatorController;
 use App\Http\Controllers\NezasaController;
 use Dedoc\Scramble\Scramble;
-
+use App\Http\Controllers\PreviewMailController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
@@ -156,10 +156,9 @@ Route::get('countries-filter', [CountryController::class, 'getCountries']);
 Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
 Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
 
-Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
+Route::get('/preview/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
 
-Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
-Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
+Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
