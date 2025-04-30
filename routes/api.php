@@ -156,7 +156,7 @@ Route::get('countries-filter', [CountryController::class, 'getCountries']);
 Route::get('/email-tour-details', [TourController::class, 'emailTDetails']);
 Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails']);
 
-Route::get('/preview/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
+Route::get('/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
 
 Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
 
