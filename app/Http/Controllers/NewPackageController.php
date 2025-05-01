@@ -648,7 +648,7 @@ public function convertDurationToMinutes($duration)
                         'booking_id' => $bookingId,
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
                         //'tourradar_res' => json_encode($tourResponse),
-                        //'duffel_res' => json_encode($flightResponse),
+                        'duffel_res' => json_encode($flightResponse),
                         'order_id' => $orderId,
                         'payment_id' => $paymentId,
                         'checkout_session' => $cs,
