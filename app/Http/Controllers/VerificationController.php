@@ -6,6 +6,8 @@ use App\Models\Verification;
 use Illuminate\Http\Request;
 use App\Mail\MailRegistro;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use App\Helpers\ApiResponse;
 
 class VerificationController extends Controller
 {
@@ -46,10 +48,10 @@ class VerificationController extends Controller
      * @param Request $request Request object
      * @return array
      */
-    public function verified(Request $request)
-    {
+    public function verified(Request $request){
+
         $user = Verification::where('email', $request->email)->first();
-        if ($user->code === $request->code) {
+        if($user->code === $request->code){
             $user->verified = 1;
             $user->save();
             return response()->json([
@@ -63,4 +65,30 @@ class VerificationController extends Controller
             ], 400);
         }
     }
+
+    public function validateEmailReoon(Request $request){
+
+        $email = $request->input('email');
+        $apiKey = env('REOON_API_KEY');
+
+        $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
+            'email' => $email,
+            'key' => $apiKey,
+            'mode' => 'quick',
+        ]);
+
+        if($response->successful()){
+
+            $data = $response->json();
+            return response()->json([
+                'success' => true,
+                'status' => $data['status'],
+                'email' => $email,
+                'message' => 'Success',
+            ], 200);
+
+        }else{
+            return ApiResponse::error( 'Email verification failed', $response->status());
+        }
+    }// end public function validateEmailReoon(Request $request)
 }

@@ -13,7 +13,7 @@ class PreviewMailController extends Controller
     {
         // 1) validate+fetch the order
         $request->validate([
-            'booking_id' => 'required|integer|exists:orders,id',
+            'booking_id' => 'required|integer|exists:orders,booking_id',
         ]);
         $order = Order::findOrFail($request->query('booking_id'));
 

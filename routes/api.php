@@ -48,6 +48,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('import-cities', [Citycontroller::class, 'import']);
 Route::post('email-verification/code', [VerificationController::class, 'store']);
 Route::post('email-verification/verified', [VerificationController::class, 'verified']);
+Route::get('/validate-email-reoon', [VerificationController::class, 'validateEmailReoon']);
 Route::post('import-countries', [CountryController::class, 'import']);
 Route::post('import-natural_destinations', [NaturalDestinationController::class, 'import']);
 Route::resource('cities', Citycontroller::class);
