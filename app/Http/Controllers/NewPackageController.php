@@ -180,11 +180,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         Log::info('bookPackage Tour request: ' . json_encode($tourBody));
 
-        // Proceed with the API call
-        $tourResponse = TourRadarController::createNewBooking($tourBody);
-
-        // Log tour response
-        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        try {
+            $tourResponse = TourRadarController::createNewBooking($tourBody);
+            Log::info('…got tourResponse', ['response' => $tourResponse]);
+        } catch (\Throwable $e) {
+            Log::error('TourRadar booking threw exception', ['message' => $e->getMessage()]);
+            throw $e;  // or handle it
+        }
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
