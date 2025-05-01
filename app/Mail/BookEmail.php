@@ -31,6 +31,7 @@ class BookEmail extends Mailable
         $this->flag = $flag;
     }
 
+
     public function build()
     {
         $email = $this->subject('Booking confirmation')
@@ -54,7 +55,7 @@ class BookEmail extends Mailable
             $pdf3 = Pdf::loadView('emails.invoice', $this->invoice_content);
             $email->attachData($pdf3->output(), 'invoice.pdf', ['mime' => 'application/pdf']);
         }
-
+        if ($this->summaryValues) {
         // Adjuntar siempre el segundo PDF (si es requerido en todos los casos)
         $pdf2 = Pdf::loadView('emails.send_summary', [
             'tour' => $this->summaryValues['tour'],
@@ -64,6 +65,7 @@ class BookEmail extends Mailable
         $email->attachData($pdf2->output(), 'booking_summary_tour.pdf', [
             'mime' => 'application/pdf',
         ]);
+        }
 
         return $email;
     }
