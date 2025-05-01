@@ -601,61 +601,22 @@ public static function getDeparturesByTour($params)
         }
     }
 
-    public static function createNewBooking(array $body)
+    public static function createNewBooking($body)
     {
-        Log::info('createNewBooking ▶ start', [
-            'body' => $body,
-        ]);
-    
         $scope = "com.tourradar.bookings/write";
-        try {
-            $accessToken = self::getAccessToken($scope);
-            Log::info('createNewBooking ◀ got access token', [
-                'scope' => $scope,
-                // don’t log the token itself in production, but OK for local debugging:
-                'token_preview' => substr($accessToken, 0, 10) . '…',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('createNewBooking ✖ failed to get access token', [
-                'scope'   => $scope,
-                'message' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    
+        $accessToken = self::getAccessToken($scope);
         $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings";
         $headers = [
-            'Accept'        => 'application/json',
+            'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
+            
         ];
-        Log::info('createNewBooking ▶ about to HTTP POST', [
-            'url'     => $url,
-            'headers' => $headers,
-        ]);
-    
+
         try {
-            $response = Http::withHeaders($headers)
-                            ->retry(1, 100)
-                            ->post($url, $body);
-    
-            $statusCode = $response->status();
-            $json       = $response->json();
-    
-            Log::info('createNewBooking ✔ HTTP response', [
-                'status'   => $statusCode,
-                'response' => $json,
-            ]);
-    
-            return $json;
+            $response = Http::withHeaders($headers)->retry(1, 100)->post($url, $body); // Allow only 1 attempt
+            return $response->json();
         } catch (\Exception $e) {
-            Log::error('createNewBooking ✖ HTTP exception', [
-                'message' => $e->getMessage(),
-                'body'    => $body,
-                'url'     => $url,
-            ]);
-            // rethrow if you want to see it in Telescope’s Exceptions tab,
-            // or return an array so your calling code can detect it:
-            return ['error' => $e->getMessage()];
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

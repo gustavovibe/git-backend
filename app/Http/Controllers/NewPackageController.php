@@ -168,6 +168,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightResponse = null;
         $flight = $RequestFlight;
         $tourBody = $RequestTour;
+        $status = 0;
         if (isset($tourBody['description'])) {
             unset($tourBody['description']);
         }
