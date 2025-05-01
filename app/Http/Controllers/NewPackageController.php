@@ -168,6 +168,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
         $flightResponse = null;
         $flight = $RequestFlight;
         $tourBody = $RequestTour;
+        $status = 0;
         if (isset($tourBody['description'])) {
             unset($tourBody['description']);
         }
@@ -180,11 +181,13 @@ private function createCheckoutSessionInternal($productName, $productDescription
 
         Log::info('bookPackage Tour request: ' . json_encode($tourBody));
 
-        // Proceed with the API call
-        $tourResponse = TourRadarController::createNewBooking($tourBody);
-
-        // Log tour response
-        Log::info('bookPackage Tour response: ' . json_encode($tourResponse));
+        try {
+            $tourResponse = TourRadarController::createNewBooking($tourBody);
+            Log::info('…got tourResponse', ['response' => $tourResponse]);
+        } catch (\Throwable $e) {
+            Log::error('TourRadar booking threw exception', ['message' => $e->getMessage()]);
+            throw $e;  // or handle it
+        }
 
         if(isset($tourResponse['error']) && $tourResponse['error']){
             $status = 1;
@@ -205,17 +208,30 @@ private function createCheckoutSessionInternal($productName, $productDescription
             $tBookingId = $tourResponse['id'];
             Log::info('tourradar booking id: ' . json_encode($tBookingId));
 
-            Log::info('bookPackage duffel request: ' . json_encode($flight));
+            DB::enableQueryLog();
+            DB::table('attempts')
+                    ->where('id', $attemptId)
+                    ->update([
+                        'booking_id' => null,
+                        'status' => intval($status) > 0 ? 'failed' : 'pending',
+                        'tourradar_res' => json_encode($tourResponse),
+                        'payment_id' => $paymentId,
+                        'updated_at' => now(),
+                    ]);
+            Log::info('Query log:', DB::getQueryLog());
+
+
+            //Log::info('bookPackage duffel request: ' . json_encode($flight));
             $flightResponse = DuffelApiController::createNewBooking($flight);
 
-            Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
+            //Log::info('bookPackage duffel response: ' . json_encode($flightResponse));
             if(isset($flightResponse['errors']) && $flightResponse['errors']){
                 $status = 2;
                 DB::table('attempts')
                     ->where('id', $attemptId)
                     ->update([
                         'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        'tourradar_res' => $tourResponse,
+                        'tourradar_res' => json_encode($tourResponse),
                         'duffel_res' => $flightResponse ?? null,
                         'payment_id' => $paymentId,
                         'updated_at' => now(),
@@ -227,7 +243,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             elseif (isset($flightResponse['data']) && $flightResponse['data']['payment_status']['paid_at'] != null) {
                 
                 $order = $this->createOrder($flightResponse, $tourResponse, $paymentId, $RequestPassengers);
-                Log::info('order created: ' . json_encode($order));
+                //Log::info('order created: ' . json_encode($order));
                 $status = 0;
             }
         }
@@ -334,7 +350,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'stripe_fee' => null,
             'passengers' => $RequestPassengers
         ];
-        \Log::info('Order data:', $orderData);
+        //\Log::info('Order data:', $orderData);
 
         $order = Order::create($orderData);
 
@@ -631,9 +647,9 @@ public function convertDurationToMinutes($duration)
                 $tourResponse = $response[1] ?? null;
                 \Log::info('stripe webhook Tour response: ' . json_encode($tourResponse));
                 $flightResponse = $response[2] ?? null;
-                \Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
+                //\Log::info('stripe webhook Flight response: ' . json_encode($flightResponse));
                 $order = $response[3] ?? null;
-                \Log::info('stripe webhook Order response: ' . json_encode($order));
+                //\Log::info('stripe webhook Order response: ' . json_encode($order));
                 $orderId = $response[2]['data']['id'] ?? null;
                 \Log::info('stripe webhook OrderID response: ' . json_encode($orderId));
 
@@ -690,7 +706,20 @@ public function convertDurationToMinutes($duration)
                     }
                 }
 
-
+                                // Update database record
+                                DB::table('attempts')
+                                ->where('id', $attemptId)
+                                ->update([
+                                    'booking_id' => $bookingId,
+                                    'status' => intval($status) > 0 ? 'failed' : 'pending',
+                                    //'tourradar_res' => json_encode($tourResponse),
+                                    //'duffel_res' => json_encode($flightResponse),
+                                    'order_id' => $orderId,
+                                    'payment_id' => $paymentId,
+                                    'checkout_session' => $cs,
+                                    'updated_at' => now(),
+                                ]);
+                            
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
 

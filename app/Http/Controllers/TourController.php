@@ -250,7 +250,7 @@ class TourController extends Controller
                 Log::error("OrdersPrint returned null");
                 return ApiResponse::error("OrdersPrint returned null");
             }
-            Log::info("Order found: ", ['order' => $orders ?? 'N/A']);
+            Log::info("Order found: ", ['order' => $orders->booking_id ?? 'N/A']);
 
             if (!isset($orders->user) || empty($orders->user->email)) {
                 Log::error("User email not found in order data");
@@ -320,7 +320,7 @@ class TourController extends Controller
            $tourResponse = (new  ProxyTourRadarController)->show($orders->tour_id);
            $tourData = $tourResponse->getData(true);
            $tour=$tourData['data'];
-           Log::info('tour data inside emailBConfirmation:', $tour);
+           //Log::info('tour data inside emailBConfirmation:', $tour);
            foreach($tour['destinations']['countries'] as $co){
                $countries[]=$co['country_name'];
            }
@@ -367,9 +367,9 @@ class TourController extends Controller
         /*    return view('emails.invoice')->with( $invoice_content); */
 
           /*   return view('emails.booking_confirmation_2')->with(['orders'=>$orders] ); */
-          Log::info('stripe data BookEmail: ', $stripeData);
+          //Log::info('stripe data BookEmail: ', $stripeData);
           Log::info('invoice BookEmail:', $invoice);
-          Log::info('invoice content BookEmail:', $invoice_content);
+          //Log::info('invoice content BookEmail:', $invoice_content);
            Mail::to($email)->send(new BookEmail($orders, $stripeData, $values, $invoice, $invoice_content, $flag));
 
            return ApiResponse::success('Email sent successfully');
