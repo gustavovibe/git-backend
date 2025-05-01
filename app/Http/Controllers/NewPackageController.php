@@ -655,22 +655,6 @@ public function convertDurationToMinutes($duration)
 
                 $bookingId = null;
 
-                // Update database record
-                DB::table('attempts')
-                    ->where('id', $attemptId)
-                    ->update([
-                        'booking_id' => $bookingId,
-                        'status' => intval($status) > 0 ? 'failed' : 'pending',
-                        //'tourradar_res' => json_encode($tourResponse),
-                        'duffel_res' => json_encode($flightResponse),
-                        'order_id' => $orderId,
-                        'payment_id' => $paymentId,
-                        'checkout_session' => $cs,
-                        'updated_at' => now(),
-                    ]);
-                
-                
-
                 if ($order != null) {
                     Log::info('Email send attempt from package controller');
                 
@@ -704,7 +688,20 @@ public function convertDurationToMinutes($duration)
                     }
                 }
 
-
+                                // Update database record
+                                DB::table('attempts')
+                                ->where('id', $attemptId)
+                                ->update([
+                                    'booking_id' => $bookingId,
+                                    'status' => intval($status) > 0 ? 'failed' : 'pending',
+                                    //'tourradar_res' => json_encode($tourResponse),
+                                    //'duffel_res' => json_encode($flightResponse),
+                                    'order_id' => $orderId,
+                                    'payment_id' => $paymentId,
+                                    'checkout_session' => $cs,
+                                    'updated_at' => now(),
+                                ]);
+                            
                 \Log::info('Booking process completed for attempt ID: ' . $attemptId);
                 break;
 
