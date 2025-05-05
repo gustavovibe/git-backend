@@ -117,7 +117,7 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
-			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Your payment @if ($orders->booking_status !='pending') <strong>is being processed</strong>@else <strong>was successfully processed</strong>.</span></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Your payment @if ($orders->booking_status !='pending') <strong>is being processed</strong>@else <strong>was successfully processed</strong>@endif.</span></td>
 		</tr>
 	</tbody>
 </table>
@@ -138,6 +138,7 @@ Your booking is
 			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Tour operator and/or airline carriers are confirming your trip</span></td>
 			@else
 			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Both the tour operator and airline carriers have confirmed your trip&nbsp;— you’re all set to travel!</span></td>
+			@endif
 		</tr>
 	</tbody>
 </table>
