@@ -1,811 +1,326 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Document</title>
-    <style>
-        .column {
-            float: left;
-            width: 50%;
-        }
-
-        .row {
-            display: flex;
-        }
-
-        .btnT {
-            display: flex;
-            justify-content: space-between;
-
-            text-align: right;
-            margin-top: 40px;
-            align-items: center;
-        }
-
-        .btnT label {
-            background-color: orange;
-            color: white;
-            border-color: orange;
-            border-radius: 5px;
-            font-weight: bold;
-            padding: 10px;
-        }
-
-        .btnT u {
-            font-weight: bold;
-            text-underline-position: below;
-
-        }
-
-        .btnT img {
-            width: 70%;
-            float: left;
-        }
-
-        .t1 {
-            margin: 0 20px;
-            align-content: center;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .t1 label {
-          /*   border-style: solid; */
-            padding: 3%;
-            border-radius: 15px;
-            background-color: rgba(0, 128, 0, 0.1);
-        }
-
-        .textG  #color {
-            color:#82CF45;
-        }
-        .textG  #under {
-            color:#82CF45;
-            text-decoration: underline;
-        }
-
-
-        .tGroup {
-            display: flex;
-            justify-content: space-between;
-            margin: 0 20px;
-            text-align: right;
-            align-items: center;
-        }
-
-        .tGroup u {
-            color: orange;
-            font-weight: bold;
-        }
-
-        .Borderg {
-            border-color: #82CF45;
-            border-style: solid;
-            border-radius: 15px;
-
-        }
-
-        .tDesc img {
-            padding: 8%;
-            border-radius: 15px;
-            display: block;
-            margin: 0 auto;
-            width: 80%;
-            height: 80%;
-        }
-
-        .tDesc b {
-            border-style: solid;
-            border-radius: 5px;
-            border-color: #82CF45;
-            border-width: 2px;
-            padding: 1%;
-        }
-
-        .fGroup {
-            padding: 1%;
-            display: flex;
-            flex-direction: row;
-            margin-bottom: 20px;
-        }
-
-        .fGroup #t2 {
-            /* text-align: center; */
-            align-content: center;
-            color: orange;
-            border-style: solid;
-            padding: 1%;
-            display: inline-block;
-            margin-top: 1%;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-        .ffGroup {
-            display: flex;
-            justify-content: space-between;
-            text-align: right;
-            align-items: center;
-        }
-
-        .ffGroup a {
-            color: gray;
-            font-weight: bold;
-        }
-
-        .ffGroup label {
-            font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .fffgroup {
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 10px;
-            border-color: gainsboro;
-            border-width: 2px;
-
-        }
-
-        .fffgroup .column:first-child {
-            text-align: right;
-            width: 20%;
-        }
-
-        .fffgroup .column:last-child {
-            text-align: right;
-            align-content: center;
-        }
-
-        .fffgroup label {
-            font-weight: bold;
-        }
-
-        .Tcolor {
-            color: #82CF45;
-        }
-
-        .Tscolor {
-            color: grey;
-        }
-
-        .png {
-            vertical-align: middle;
-            margin: 0 5px;
-
-        }
-
-        .Tbox {
-            border-style: solid;
-            border-radius: 5px;
-            border-color: #82CF45;
-            border-width: 2px;
-            color: #82CF45;
-            margin-bottom: 1em;
-            display: inline-block;
-        }
-
-        .mh {
-            margin: 0 20px;
-        }
-
-        @media (max-width: 768px) {
-            .mh {
-                margin: 0 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .mh {
-                margin: 0 5px;
-            }
-        }
-
-        .t1 {
-            width: 100%;
-            border-collapse: collapse;
-            margin-left: 1px;
-        }
-
-        .t1 td:first-child {
-            text-align: left;
-        }
-
-        .t1 td:last-child {
-            text-align: right;
-        }
-
-        .t1 a {
-            color: #82CF45;
-        }
-
-        .t1 tbody td {
-            border-bottom: gainsboro;
-            border-bottom-style: solid;
-            padding: 1%;
-        }
-
-        .t1 tfoot td {
-            color: #82CF45;
-            font-weight: bold;
-            padding-right: 1%;
-        }
-
-
-        .tt {
-
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin: 20px;
-
-        }
-
-        .tt label {
-            width: 100%;
-            border: 2px solid #82CF45;
-            padding: 3%;
-            border-radius: 15px;
-            background-color: rgba(0, 128, 0, 0.1);
-            font-size: 1.5rem;
-            max-width: 100%;
-        }
-
-
-        @media (max-width: 768px) {
-            .tt label {
-                font-size: 1.2rem;
-                padding: 5%;
-            }
-
-            .tt {
-                margin: 10px;
-            }
-        }
-
-
-        @media (max-width: 480px) {
-            .tt label {
-                font-size: 1rem;
-                padding: 6%;
-            }
-
-            .tt {
-                margin: 5px;
-            }
-        }
-
-
-        .laterald {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .grid-container {
-            display: grid;
-            padding: 1%;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .grid-container div label {
-            color: #82CF45;
-        }
-
-        .grid-container div h4 {
-            text-decoration: underline;
-        }
-
-        .Recomend #container {
-            width: 100%;
-            margin-left: -10px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 3%;
-            background-color: rgba(0, 128, 0, 0.1);
-        }
-
-        .Recomend h1 {
-            text-align: center;
-        }
-
-        .Recomend p {
-            text-align: center;
-        }
-
-
-
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        .card {
-            width: 100%;
-        }
-
-
-        .card #img_ {
-            width: 80%;
-            height: 100px;
-            /* padding: 5%; */
-            border-radius: 10px
-        }
-
-        .card #iconic {
-            margin-top: 2%;
-            width: 10%;
-        }
-
-        .card td {
-            width: 20%;
-            padding: 1%
-        }
-
-
-
-        .card a {
-            background-color: orange;
-            color: white;
-          /*   padding: 1%; */
-            padding-top: 2%;
-            font-weight: bold;
-            border-radius: 5px;
-            font-size: 11px;
-            display: block;
-            text-align: center;
-            align-content: center;
-            vertical-align: middle;
-            height: 3%;
-            margin-bottom: 3%;
-            margin-left: 3%;
-            margin-right: 3%;
-        }
-
-        .card p {
-            font-size: 12px;
-            text-align: center;
-            height: 3rem;
-            color: gray;
-        }
-
-        .card h5 {
-            text-align: center;
-        }
-
-        .card div {
-            background-color: white;
-            padding: 2%;
-            border-radius: 12px;
-        }
-
-        .footer hr{
-            color: #ddd;
-            margin-bottom: 3%;
-            margin-top: 3%;
-        }
-
-        .footer label{
-            color: gray;
-        }
-
-        .footer p{
-            color: gray;
-        }
-        .footer a{
-            text-decoration: underline;
-        }
-
-        .line-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            width: 100%;
-            height: 200px;
-            /* Adjust height as needed */
-            margin: 20px 0;
-        }
-
-        .line {
-            width: 2px;
-            height: 100%;
-            margin-left: 50%;
-            background-color: gainsboro;
-            position: relative;
-        }
-
-        .line::before,
-        .line::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background-color: #ddd;
-            border-radius: 50%;
-            position: absolute;
-            left: 80%;
-            transform: translateX(-50%);
-        }
-
-        .line::before {
-            top: 0;
-        }
-
-        .line::after {
-            bottom: 0;
-        }
-
-        .airplane-icon {
-            position: absolute;
-            top: 50%;
-            left: 48.5%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: auto;
-        }
-
-        .icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-70%, -70%) rotate(180deg);
-            /* Rotate the icon to point down */
-            font-size: 24px;
-        }
-    </style>
+	<title></title>
 </head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
+	<tbody>
+		<tr>
+			<td align="left" style="max-width: 203px;" valign="middle"><img alt="" border="0" class="w203px" src="https://vibeadventures.be/images//logo.png" style="display: block; max-width: 203px; width: 100%;" width="203" /></td>
+			<td style="width:20px">&nbsp;</td>
+			<td align="right"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Manage my booking</a><br />
+			<span style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If you need help, <span style="color: #82cf45; font-weight: bold;">contact us</span></span></td>
+		</tr>
+	</tbody>
+</table>
 
-<body style="font-family: 'Canaro', sans-serif; padding:15%; background-color:#E6E6E6">
-    <div>
-        <div class="lateralD btnT mh">
-            <div>
-                <img style="width: 80%" src="https://vibeadventures.be/images//logo.png" alt="">
-            </div>
-            <div>
-                <label style="margin-top: 20px;">Manage my booking</label>
-                <br>
-                <P style="text-align: right;"> <b>If you need help,<u style="color: #82CF45">contact us</u></b>  </P>
-            </div>
-        </div>
-    </div>
-    <br>
-    <div style="background-color:white; padding:5%">
-        <br>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
+	<tbody>
+		<tr>
+			<td align="left" bgcolor="#ffffff" style="padding: 30px;" valign="top">
+			<div align="center" style="padding: 20px 0px;" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;">
+Your booking is 
+@if ($orders->booking_status == 'pending') 
+    <strong>pending</strong>
+@else 
+    <strong>confirmed</strong>
+@endif
+</span></div>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
-        {{-- <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 15px solid #82CF45;"></div> --}}
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
+	<tbody>
+		<tr>
+			<td align="center" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0" style="text-align: center;">
+				<tbody>
+					<tr>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #4f4f4f; line-height: 20px; text-transform: uppercase;">Booking number</td>
+					</tr>
+					<tr>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">481 324</td>
+					</tr>
+				</tbody>
+			</table>
+			</td>
+			<td align="center" valign="top">
+			<table border="0" cellpadding="0" cellspacing="0" style="text-align: center;">
+				<tbody>
+					<tr>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #4f4f4f; line-height: 20px; text-transform: uppercase;">Booking status</td>
+					</tr>
+					<tr>
+						<td align="center">
+						@if ($orders->booking_status !='pending')
+						<table border="0" cellpadding="0" cellspacing="0" style="background: #ff6c0e; border-radius: 20px; width: 100px;">
+							<tbody>
+								<tr>
+									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1408838964.png" style="display: block;" width="18" /></td>
+									<td style="font-family: Arial, sans-serif; font-size: 12px; color: #ffffff; font-weight: bold; text-decoration: none;">Pending</td>
+								</tr>
+							</tbody>
+						</table>	
+						@else
+						<table border="0" cellpadding="0" cellspacing="0" style="background: #82cf45; border-radius: 20px; width: 100px;">
+							<tbody>
+								<tr>
+									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1408838964.png" style="display: block;" width="18" /></td>
+									<td style="font-family: Arial, sans-serif; font-size: 12px; color: #ffffff; font-weight: bold; text-decoration: none;">Confirmed</td>
+								</tr>
+							</tbody>
+						</table>
+						</td>
+					</tr>
+				</tbody>
+			@endif
+</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 25px auto;width: 100%;text-align: center;">
+	<tbody>
+		<tr>
+			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $orders->user->name }}</span> <span style="font-weight: normal; text-decoration: none;">, thank you for choosing Vibe Adventures! </span> </span></td>
+		</tr>
+	</tbody>
+</table>
 
-        <div>
-                @if ($orders->booking_status !='pending')
-                <h1>We've booked everything for your trip!</h1>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: center;">
+	<tbody>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">Your reservation is 
+<span style="color: #82cf45;">
+  @if ($orders->booking_status == 'pending') 
+    <strong>processing</strong>
+  @else 
+    <strong>complete</strong>
+  @endif
+</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                @else
-                <h1>All good so far! We're now confirming your booking with the tour operator.</h1>
-                @endif
-            </div>
-        <br>
-        <div>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:20px auto auto auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td style="width: 35px;"><img alt="" border="0" height="24" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1886082545.png" style="display: block;" width="24" /></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">Payment</span></td>
+		</tr>
+	</tbody>
+</table>
 
-            <table style="width:100%">
-                <tr>
-                    <td style="font-weight: bold;color:gray">BOOKING NUMBER</td>
-                    <td style="font-weight: bold;color:gray">BOOKING STATUS</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div style="margin-top: 2%">
-                            <b>{{ chunk_split($orders->booking_id, 3, ' ') }}</b>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="margin-top: 2%">
-                            @if ($orders->booking_status !='pending')
-                          {{--   <img style="width: 20%; height: 3%;"
-                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/confirmed.png')))}}"> --}}
-                            <p style="width: 25%; height: 3%;color: #82CF45;background: rgba(130, 207, 69, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Confirmed</p>
-                            @else
-                            {{-- <img style="width: 20%; height: 3%;"
-                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/processing.png')))}}"> --}}
-                            <p style="width: 25%; height: 3%;color: orange; background:rgba(255, 165, 0, 0.2); font-weight:bold; padding:2%; padding-left:3%;padding-right:4%; border-radius:12px;">Processing</p>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="textG mh" style="text-align: justify;">
-           @if ($orders->booking_status!='pending')
-           <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! We're happy to confirm that your reservation is <p style="color: #82CF45">complete</p> </p>
-           <br>
-           @else
-           <p> <b>{{ $orders->user->name }}</b>, thank you for choosing Vibe Adventures! </p>
-           <p>We've received you payment and are <a style="color: orange; font-weight:bold">confirming</a> yout booking with he tour operator(Your flights are currently reserved). This process can take up to 72 hours. We'll send your final
-            booking confirmation and e-ticket as soon as posible.</p>
-            <p>Her's what happens next:</p>
-            @endif
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Your payment @if ($orders->booking_status !='pending') <strong>is being processed</strong>@else <strong>was successfully processed</strong>.</span></td>
+		</tr>
+	</tbody>
+</table>
 
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    @if ($orders->booking_status!='pending')
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td style="width: 35px;"><img alt="" border="0" height="24" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1886082545.png" style="display: block;" width="24" /></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">Final booking confirmation</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                    <td style="width: 5%;">
-                        {{-- <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-confirm.png'))) }}"> --}}
-                        <img style="width: 80%; height:35%" src="https://vibeadventures.be/images/timeframe-confirm.png">
-                    </td>
-                    <td style="width: 60%; padding-left: 10px;">
-                        <div style="margin-top: 5%">
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			@if ($orders->booking_status !='pending')
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Tour operator and/or airline carriers are confirming your trip</span></td>
+			@else
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Both the tour operator and airline carriers have confirmed your trip&nbsp;— you’re all set to travel!</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                            <p><b>Payment</b></p>
-                            <p>Your payment was successfully processed</p>
-                            <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
-                            <p>Both the tour operator and airline carriers have confirmed your trip-you're all set to travel!</p>
-                            <p style="margin-top: 10%"><b>Get ready for the trip</b></p>
-                            <p>Make sure to check in with the airlines and book your pre- and post-tour accommodation (not included in the package). You can do this now or wait until you receive the trip notes from the operator (usually 2-4 weeks before departure) to book at the same hotels where the adventure starts and ends.</p>
-                        </div>
-                    </td>
-                    @else
-                    <td style="width: 5%;">
-                    <img style="width: 80%; height:35%" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/timeframe-pending.png'))) }}">
-                    </td>
-                    <td style="width: 60%; padding-left: 10px;">
-                        <div style="margin-top: 5%">
-                            <p><b>Payment</b></p>
-                            <p>We've received your payment, but the funds remain with your bank and won't be charged until the booking is confirmed.</p>
-                            <p style="margin-top: 10%"><b>Booking with the tour operator</b></p>
-                            <p>We're contacting the tour operator to confirm your booking.</p>
-                            <p style="margin-top: 10%"><b>Final booking confirmation</b></p>
-                            <p>You'll receive your final booking confirmation, and you're all set to go!</p>
-                        </div>
-                    </td>
-                    @endif
-                </tr>
-            </table>
-            <br>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td style="width: 35px;"><img alt="" border="0" height="24" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-603419551.png" style="display: block;" width="24" /></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">Get ready for the trip</span></td>
+		</tr>
+	</tbody>
+</table>
 
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td>
+			<ul>
+				<li><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Book Pre- and Post-Tour Accommodation<span style="font-weight: normal; text-decoration: none;">: These are not included in the organized adventure. You can </span><span style="color: #82cf45; text-decoration: none;">book them now</span><span style="text-decoration: none;"> or wait for your trip notes (usually sent 2–4 weeks before departure) to book the same hotels where the adventure starts and ends. </span></span></li>
+				<li><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Check-in with the Airlines: Make sure to complete your check-in online (recommended) or at the airport before your flight. </span></li>
+			</ul>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;height: 15px; line-height: 15px; font-size: 13px;width:100%">
+	<tbody>
+		<tr>
+			<td align="center" style="border-radius: 3px;" valign="middle">
+			<div style="overflow: hidden; border-radius: 3px;"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">View booking</a>
 
-            <br>
-           <div style="text-align: center">
-            <div>
-                <a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->booking_id }}" style="background-color: orange; padding:2%;color:white;border-radius:10px;font-weight:bold;text-decoration: none;">View booking</a>
-            </div>
-            <br>
-            <div>
-                <label>If you need help, <a style="color:#82CF45;text-decoration:none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact-us" >contact us</a></label>
-            </div>
-            </div>
-           <br>
-           <div style="text-align: justify; border-style: dotted; padding:2%; border-radius:15px;border-color:#82CF45">
+			<div style="height: 10px; line-height: 10px; font-size: 8px;">&nbsp;</div>
 
-               @if ($orders->booking_status!='pending')
-               <div style="page-break-inside: avoid">
-                <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
-                   <p><b>How do i check in for my flight?</b></p>
-                   <p>You can check in online through the airline's website or at the airport check-in counter. Make sure to download your e-ticket and complete the process well in advance.</p>
-               </div>
-               <div style="page-break-inside: avoid">
-                   <p><b>Where can i find baggage and check-in policies?</b></p>
-                   <p>Review the conditions outlined by each airline carrier in your flight summary before your trip. </p>
-               </div>
-               <div style="page-break-inside: avoid">
-                   <p><b>Are the accommodations guarented as listed in the tour description or trip notes?</b></p>
-                   <p>Accommodations are approximate and subject to change based on availability, group size, and other factors. if changes occour, a similar category accommodation will be provided </p>
-               </div>
-               <div style="page-break-inside: avoid">
-                   <p><b>Will need to pay any additional fees for accommodations?</b></p>
-                   <p>In some locations, travelers may need to payy a municipal tax directly to hotels upon arrival. </p>
-               </div>
-               <div style="page-break-inside: avoid">
-                   <p><b>What happens if the weather impacts my scheduled activities?</b></p>
-                   <p>In case of unfavorable weather or other valid reasons, the sequence and duration of activities may be modifued or canceled without prior notice.</p>
-               </div>
-               @else
-               <div style="page-break-inside: avoid;">
-                <p style="color: gray"> <b>FREQUENTLY ASKED QUESTIONS</b> </p>
-                   <p><b>When will i get the final booking confirmation?</b></p>
-                   <p>You'll receive the final booking confirmation as soon as we get it from the tour operator, as we don't operate the adventures ourselves.</p>
-                   <p>Since we gather data from multiple tour operators to offer you the best selections and prices, our booking process is more complex. Most bookings are confirmed inmmediately, but occasionally, it may take uo to 72 hours. Rest assured, we prioritize bookings to ensure everyone can travel as planned.</p>
-               </div>
-               <div style="page-break-inside: avoid;">
-                   <p><b>What happens to my money?</b></p>
-                   <p>We've held the necessary funds for your booking to secure the flights and adventure, but the money remains with your bank and wont' be charged until the booking is confirmed. If we're unable to confirm your booking within 72 hours, it will be automatically canceled, and your request fully refunded.</p>
-               </div>
-               <div style="page-break-inside: avoid;">
-                   <p><b>Do i need a visa for my trip</b></p>
-                   <p>Check visa requirements for the country in your adventure itinerary and flight summary. Don't forget to check if you need a transit visa as well. </p>
-               </div>
-               @endif
-           </div>
-        </div>
-        <br>
-        <div>
-            <table width="100%">
-                <tr>
-                    <td>
-                        <h2>Adventure summary</h2>
-                    </td>
-                    <td style="text-align: right;">
-                        <h3>
-                            <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}">
-                                Download itinerary
-                            </a>
-                        </h3>
-                    </td>
-                </tr>
-            </table>
-            <div class="Borderg" style="padding: 1%;">
-                <table width="100%">
-                    <tr>
-                        @if ($orders->image)
-                        <td style="width: 50%; vertical-align:middle;padding:2%;" >
-                            <img src="{{ $orders->image }}" style="width: 90%; height: 150px; border-radius:12px;" />
-                        </td>
-                        @endif
-                        <td style="width: 80%; vertical-align: top;">
-                            <h3 class="Tcolor">{{ $orders->tour->tour_name }}</h3>
-                            <p>
-                                {{-- img style="width: 16px; height: 16px; vertical-align: middle;"
-                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/star.png')))}}"> --}}
-                                <img style="width: 16px; height: 16px; vertical-align: middle;"
-                                    src="https://vibeadventures.be/images/star.png">
-                                <b class="Tcolor">{{ $orders->ratings_overall }}</b> {{ $orders->reviews_count }} reviews
-                            </p>
-                            <table width="100%">
-                                <tr>
-                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-right.png')))}}"></td> --}}
-                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="https://vibeadventures.be/images/double-right.png"></td>
-                                    <td style="padding: 1%;">Starts in: {{ $orders->start_city . ',' . $orders->origin }}
-                                    </td>
+			<div>
+			<div style="line-height: 17px;"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;"><span style="text-decoration: none;">If you need help, </span><span style="color: #82cf45; font-weight: bold; text-decoration: none;">contact us</span></span></div>
+			</div>
+			</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                                  {{--   <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/double-left.png')))}}"></td> --}}
-                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="https://vibeadventures.be/images/double-left.png"></td>
-                                    <td style="padding: 1%;">Ends in:
-                                        {{ $orders->end_city . ',' . $orders->f_destination }}</td>
-                                </tr>
-                                <tr>
-                                   {{--  <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
-                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="https://vibeadventures.be/images/calendar-event.png"></td>
-                                    <td style="padding: 1%;">Starts on:
-                                        {{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</td>
+<table border="0" cellpadding="0" cellspacing="0" style="padding: 20px 30px; border-radius: 20px; border-width: 1px; border-color: #82cf45; border-style: dotted;border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
+	<tbody>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Frequently Asked Questions</span></td>
+		</tr>
+		<tr height="20" style="height: 20px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">Why doesn't my trip include pre- and post-tour accommodations?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">Since our trips combine organized adventures with flights from independent suppliers, we book flights one day before and one day after the adventure. This ensures smooth logistics, gives travelers time to rest between the adventure and flights, and offers extra time to explore the destination independently.</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">How do I check in for my flight?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px;">You can check in online through the airline's website using your name and booking number (found on your e-ticket) or at the airport check-in counter. Make sure to download your e-ticket and have it ready for check-in.</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">Where can I find baggage and check-in policies?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">Review the conditions outlined by each airline carrier in your flight summary before your trip. </span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">Are the accommodations guaranteed as listed in the tour description or trip notes?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">Accommodations are approximate and may change based on availability, group size, and other factors. If changes occur, accommodations of a similar category will be provided.</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">What happens if the weather impacts my scheduled activities?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">In case of unfavorable weather or other valid reasons, the sequence and duration of activities may be modified or canceled without prior notice.</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">Do I need a visa for my trip?</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">Check visa requirements for the country in your adventure itinerary and flight summary. Don’t forget to check if you need a transit visa as well.</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/calendar-event.png')))}}"></td> --}}
-                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="https://vibeadventures.be/images/calendar-event.png"></td>
-                                    <td style="padding: 1%;">Ends on:
-                                        {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</td>
-                                </tr>
-                                <tr>
-                                    {{-- <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/clock.png')))}}"></td> --}}
-                                    <td style="padding: 1%;"><img style="width: 16px; height: 16px; vertical-align: middle;"
-                                            src="https://vibeadventures.be/images/clock.png"></td>
-                                    <td style="padding: 1%;">Duration: {{ $orders->tour->tour_length_days }} days</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            @if ($orders->booking_status !='pending')
-            <div style="page-break-before: always;">
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <h2>Flights summary</h2>
-                        </td>
-                        <td style="text-align: right;">
-                            <h3 >
-                                <a style="color: orange;text-decoration: underline;" href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}">
-                                    Download tickets
-                                </a>
-                            </h3>
-                        </td>
-                    </tr>
-                </table>
-                <div class="Borderg" style="padding: 1%;">
-                    @foreach ($orders->flightTour->flight['data']['slices'] as $or)
-                        <table style="width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 1%;">
-                            <tr>
-                                <td style="width: 25%; text-align: center; vertical-align: top;">
-                                    <label>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</label><br>
-                                    <p>{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}
-                                    </p>
-                                    <p class="Tbox">
-                                        {{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</p>
-                                    <br>
-                                    <label>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</label><br>
-                                    <p>{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</p>
-                                </td>
-                                <td style="width: 10%; text-align: center; vertical-align: top; padding: 0;">
-                                    <div class="line-container">
-                                        <div class="line"></div>
-                                        {{-- <img class=" airplane-icon" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/airplane.png')))}}"
-                                            alt="Icon"> --}}
-                                        <img class=" airplane-icon" style="width: 10%;height:10%; margin-top:70%;margin-left:-15%" src="https://vibeadventures.be/images/airplane.png" alt="Icon">
-                                    </div>
-                                </td>
-                                <td style="width: 40%; text-align: left; vertical-align: top;">
-                                    @if(isset($or['origin']['city']['name'])  )
-                                    <label class="Tcolor">{{ $or['origin']['city']['name'] }}</label><br>
-                                    @endif
-                                    <p>{{ $or['origin']['name'] }}</p>
-                                    <table style="width: 100%">
-                                        <tr>
-                                            <td style=" width:20%"><img
-                                                src="{{ $orders->flightTour->flight['data']['owner']['logo_symbol_url'] }}"
-                                                {{-- src="{{ public_path('storage/images/logo_flight.png')}}" --}}
-                                                    style="width: 50%; height: 10%; border-radius: 12px;"></td>
-                                            <td>{{ $orders->flightTour->flight['data']['owner']['name'] }}</td>
-                                            {{-- <td style="margin-left:50%;"><img
-                                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/chevron-down.png')))}}"></td> --}}
-                                            <td style="margin-left:50%;"><img src="https://vibeadventures.be/images/chevron-down.png"></td>
-                                        </tr>
-                                    </table>
-                                    <label class="Tcolor">{{ $or['destination']['name'] }}</label><br>
-                                    <p>{{ $or['destination']['city_name'] }}</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" style="height: 20px;"></td> <!-- Espacio entre filas -->
-                            </tr>
-                        </table>
-                        <br>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-            <br>
-            <div style="page-break-inside: avoid;">
-                <h2 class="mh">Payment</h2>
-                <br>
-                <div class="Borderg " style="padding: 2%;">
-                    <div>
-                        <h3>Price breakdown</h3>
-                    </div>
-                    <div style="padding: 1%;">
-                        <div class="laterald">
-                            <table style="width: 100%;margin-left:2%;">
-                                <tr>
-                                    <td>
-                                        <p style="color:gray;font-size:10px;">Total price of the trip including all taxes and fees</p>
-                                    </td>
-                                    <td style="text-align: right;">
-                                        <h3>${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</h3>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Adventure summary</span></td>
+			<td align="right" valign="middle">
+				<a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download itinerary</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
-                        <table style="width: 100%;margin-left:2%;" class="textG" >
-                                <tr>
-                                    <td>
-                                        <a style="font-style: italic;">Flights to/from destination</a>
-                                    </td>
-                                    <td style="text-align: right;"> <a id="color">included</a></td>
-                                </tr>
-                        </table>
-                        <br>
-                        <table style="width: 100%; margin-left: 2%;" class="textG">
-                            <tr>
-                                <td>
-                                    <span style="font-style: italic;">Multi-day adventure</span>
+<table border="0" cellpadding="0" cellspacing="0" style="padding: 20px 30px; border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
+	<tbody>
+		<tr>
+			<td align="left" style="width:150px;padding-right: 20px;" valign="middle">
+				 @if ($orders->image)
+				<img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i367754284.png" style="height:150px;" />
+				@endif
+			</td>
+			<td align="left" valign="top">
+			<table>
+				<tbody>
+					<tr>
+						<td><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 15px; color: #82cf45;">{{ $orders->tour->tour_name }}</span></td>
+					</tr>
+				</tbody>
+			</table>
 
-                                    @foreach ($orders['passengers'] as $acc)
+			<table>
+				<tbody>
+					<tr>
+						<td width="24"><img border="0" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i196401944.png" style="display: block;" width="18" /></td>
+						<td width="30"><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #82cf45;">{{ $orders->ratings_overall }}</span></td>
+						<td><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #9ca3af;">{{ $orders->reviews_count }} reviews </span></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table>
+				<tbody>
+					<tr>
+						<td width="28"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1337963125.png" style="height: 26px;width: 26px;" /></td>
+						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Starts in: </span></td>
+						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $orders->start_city . ',' . $orders->origin }}</span></td>
+						<td width="28"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1337963125.png" style="height: 26px;width: 26px;" /></td>
+						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Ends in: </span></td>
+						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $orders->end_city . ',' . $orders->f_destination }}</span></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table>
+				<tbody>
+					<tr>
+						<td width="30"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1067799321.png" style="margin-left:-3px;height: 30px;width: 30px;" /></td>
+						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Starts on:</span></td>
+						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</span></td>
+						<td width="32"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i64381891.png" style="margin-left:1px;height: 28px;width: 28px;" /></td>
+						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Ends on:</span></td>
+						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</span></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table>
+				<tbody>
+					<tr>
+						<td width="30"><img border="0" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i751044998.png" style="margin-left:-1px;height: 28px;width: 28px;" /></td>
+						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Rooms:</span></td>
+						<td><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">
+							 @foreach ($orders['passengers'] as $acc)
                                         <p>
                                             <span style="color: #82CF45;">
                                                 {{ $acc['passengers'] }}
@@ -813,257 +328,295 @@
                                             × {{ $acc['name'] }}
                                         </p>
                                     @endforeach
+						</span></td>
+					</tr>
+				</tbody>
+			@endif
+</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
-                                </td>
-                                <td style="text-align: right;">
-                                    <span id="color">included</span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Flights summary</span></td>
+			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download tickets</a></td>
+		</tr>
+	</tbody>
+</table>
 
-                    <table width="100%">
-                    <tr>
-                        <td>
-                            <h3>Payment history</h3>
-                        </td>
-                        <td style="text-align: right; display:none;">
-                            <a style="text-decoration: none">
-                                <h4 style="color: orange;text-decoration: underline;">Download invoice</h4>
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-                    <table style="width: 100%;" >
-                        <tbody>
-                            <tr>
-                                <td>{{ $orders->payment_method }}</td>
-                                <td>{{ \Carbon\Carbon::parse($orders->departure)->format('M d, Y') }}</td>
-                                <td style="text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <td></td>
-                            <td style="color:#82CF45;">Total</td>
-                            <td style="color:#82CF45;text-align:right;">${{ number_format($orders->flightTour->tour['total_value'], 2) }} USD</td>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
+<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
+<div style="padding: 20px 30px;">
+@foreach ($orders->attempt->duffel_res['data']['slices'] as $or)	
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #4f4f4f;">
+				@if(isset($or['origin']['city']['name'])  )
+				<b>{{ $or['origin']['city']['name'] }}</b>
+				@endif
+				 → 
+				@if(isset($or['destination']['city']['name'])  )
+				<b>{{ $or['destination']['city']['name'] }}</b>
+				@endif
+			</span></td>
+			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">21h 55m</span></td>
+		</tr>
+	</tbody>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</span><br />
+			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">@if(isset($or['origin']['city']['name'])  )
+				<b>{{ $or['origin']['city']['name'] }}@endif</b>
+				({{$or['origin']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['origin']['name']}}</span></td>
+		</tr>
+	</tbody>
+</table>
 
-            {{-- @foreach ($orders->travelers as $travelers)
-            <div style="page-break-inside: avoid; margin-top:5%">
-                <h2 class="mh">Travelers</h2>
-                <div class="Borderg " style="padding: 2%;">
-                    <table style="width: 100%;">
-                        <tr>
-                            <td><p>{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}</b></p></td>
-                            <td style="text-align: right">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            @endforeach --}}
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;padding-left:10px;padding-right: 10px;">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle">
+			<span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
+				{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}
+			</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;"><strong>{{$or['marketing_carrier']['name']}}</strong> {{$or['marketing_carrier_flight_number']}}</span></td>
+		</tr>
+	</tbody>
+</table>
+@endforeach
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;padding-left:10px;padding-right: 10px;display: none;">
+	<tbody>
+		<tr>
+			<td align="center" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000; text-decoration: none;"><strong>5h 55m </strong>layover</span></td>
+		</tr>
+	</tbody>
+</table>
 
-            <div  style="page-break-before: always;">
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;padding-left:10px;padding-right: 10px;">
+	<tbody>
+		<tr>
+			<td align="center" valign="middle"><a href="#" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px dotted #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">{{ $orders->tour_length }} days in destination</a></td>
+		</tr>
+	</tbody>
+</table>
 
-                <h2>Travelers</h2>
-                <div class="Borderg" style="padding: 2%;padding-left:4%">
-                    @foreach ($orders->flightTour->tour['passengers'] as $passenger)
-                    <div>
-                        <table style="width: 100%">
-                            <tr>
-                                <td>
-                                   {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/male.png')))}}"> --}}
-                                    <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                    src="https://vibeadventures.be/images/male.png">
-                                </td>
-                                <td>
-                                    <h2>{{ $passenger['fields']['first_name'].' '.$passenger['fields']['last_name'] }}</h2>
-                                </td>
-                                <td>
-                                   {{--  <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                    src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/vector.png')))}}"> --}}
-                                    <img style="width: 20px; height: 20px; vertical-align: middle;"
-                                    src="https://vibeadventures.be/images/Vector.png">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <h3 style="color: #82CF45;">Personal info </h3>
-                    <table style="width: 100%; " >
-                        <tr>
-                                <td style="width: 33%; padding: 5px; vertical-align: top;">
-                                    <label style="color: gray;">First Name:</label>
-                                    <p style="font-size: 22px;">{{ $passenger['fields']['first_name'] }}</p>
-                                </td>
-                                <td style="width:5%">
-                                <td>
-                                    <label style="color: gray;">Last Name:</label>
-                                    <p style="font-size: 22px">{{ $passenger['fields']['last_name'] }}</p>
-                                </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 33%; padding: 5px; vertical-align: top;">
-                                <label style="color: gray;">Date of birth:</label>
-                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth'])->translatedFormat('d F Y') }}</p>
-                            </td>
-                            <td style="width:5%">
-                            <td>
-                                @if ( isset($passenger['fields']['gender']) )
-                                <div>
-                                    <label style="color: gray;">Gender:</label>
-                                    <p style="font-size: 22px">{{ $passenger['fields']['gender'] }}</p>
-                                </div>
-                                @endif
-                            </td>
-                        </tr>
-                    </table>
-                    <h3 style="color: #82CF45;">Passport info</h3>
+</div>
+</div>
 
-                    <table style="width: 100%; " >
-                        <tr>
-                                <td style="width: 33%; padding: 5px; vertical-align: top;">
-                                    <div>
-                                        <label style="color: gray;font-weight:bold;">Place of issue:</label>
-                                        <p style="font-size: 22px">{{ $passenger['fields']['place_of_issue'] }}</p>
-                                    </div>
-                                </td>
-                                <td style="width:5%">
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Payment</span></td>
+			<td align="right" valign="middle"><a href="#" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download invoice</a></td>
+		</tr>
+	</tbody>
+</table>
 
-                                </td>
-                                <td>
-                                    <label style="color: gray;font-weight:bold;">Passport number:</label>
-                                    <p style="font-size: 22px">{{ $passenger['fields']['passport_number'] }}</p>
-                                </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 33%; padding: 5px; vertical-align: top;">
-                                <label style="color: gray;font-weight:bold;">Date of issue:</label>
-                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date'])->translatedFormat('d F Y') }}</p>
-                            </td>
-                            <td style="width:5%">
-                            <td>
-                                <label style="color: gray;font-weight:bold;">Date of expiration:</label>
-                                <p style="font-size: 22px">{{ \Carbon\Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date'])->translatedFormat('d F Y') }}</p>
-                            </td>
-                        </tr>
-                    </table>
-                    @endforeach
-                </div>
-            </div>
-            <br>
-            <div  style="page-break-before: always; padding:2%" class="Recomend">
-                <div id="container">
-                    <h2 style="text-align: center;">Recommended</h2>
-                    <p style="color: grey; font-size:12px;">Adding these services to your trip now can save you money to
-                        purchasing them later or in the
-                        destination</p>
-                    <div>
-                        <table class="card">
-                            <tr>
-                                <td>
-                                    <div>
-                                        <img id="img_" src="https://vibeadventures.be/images/transfer.png">
-                                        <h5>Airport transfer</h5>
-                                        <p style="width:100%">Airport transfers not included adventure?</p>
-                                        <a>Go somewhere
-                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                        </a>
+<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
+<div style="padding: 20px 30px;">
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">Total</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+		</tr>
+		<tr style="height:5px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #4f4f4f;">Incl. taxes and fees</span></td>
+			<td align="right" valign="middle"><a href="#" style="font-size:14px;font-weight:bold;line-height: 18px;width: fit-content;border: 1px dotted #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 0px 10px;display:none" target="_blank">$100 USD OFF</a></td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;margin-left:10px">Flights</span></td>
+			<td align="right" valign="middle"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 18px; color: #82cf45;">Included</span></td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;margin-left:10px">Organized Adventure</span></td>
+			<td align="right" valign="middle"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 18px; color: #82cf45;">Included</span></td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle">&nbsp;</td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;font-style:italic">{{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</span></td>
+		</tr>
+		<tr>
+			<td align="left" valign="middle">&nbsp;</td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;font-style:italic">
+				 @foreach ($orders['passengers'] as $acc)
+                                        <p>
+                                            <span style="color: #82CF45;">
+                                                {{ $acc['passengers'] }}
+                                            </span>
+                                            × {{ $acc['name'] }}
+                                        </p>
+                                    @endforeach
+			</span>
+			</td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 20px; color: #000000;">Payment history</span></td>
+			<td align="right" valign="middle">&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
 
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px">
+	<tbody>
+		<tr>
+			<th align="center" valign="middle"><a href="#" style="font-size:14px;line-height: 18px;width: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Date and time</a></th>
+			<th align="center" valign="middle"><a href="#" style="font-size:14px;line-height: 18px;width: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Payment method</a></th>
+			<th align="center" valign="middle"><a href="#" style="font-size:14px;line-height: 18px;width: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Payment status</a></th>
+			<th align="center" valign="middle"><a href="#" style="font-size:14px;line-height: 18px;width: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Amount</a></th>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">May 05, 2025</span></td>
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;"><strong>Visa</strong>****4242</span></td>
+			@if ($orders->booking_status !='pending')
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Pending ✔</span></td>
+			@else
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Succeeded ✔</span></td>
+<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000; font-weight: bold;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+@endif
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
 
-                                        <img id="img_" src="https://vibeadventures.be/images/insurance.png">
-                                        <h5>Insurance</h5>
-                                        <p style="width:100%">Available up to 24h before departure</p>
-                                        <a>Manager Insurance
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Travelers</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                        </a>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
+<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
+<div style="padding: 20px 30px;">
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+	<tbody>
+		{{-- @foreach ($orders->travelers as $travelers)
+		<tr>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1682235450.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}<b></span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</span></td>
+		</tr>
+		<tr style="height:10px">
+		@endforeach --}}	
+	</tbody>
+</table>
+</div>
+</div>
 
-                                        <img id="img_" src="https://vibeadventures.be/images/accommodation.png">
-                                        <h5>Accommodation</h5>
-                                        <p style="width:100%">Need pre- or post-tour accommodation?</p>
-                                        <a>Book Accommodation
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px;dispaly:none">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Your contacts</span></td>
+		</tr>
+	</tbody>
+</table>
 
-                                            <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                        </a>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
+<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;display:none">
+<div style="padding: 20px 30px;">
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i728805621.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">+420 775163341</span></td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1097817612.png" style="max-width: 24px; width: 100%;" width="24" /> <a href="mailto:aliaksei.veka@gmail.com" style="color: #000000; text-decoration: none;" target="_blank">aliaksei.veka@gmail.com</a></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
 
-                                        <img id="img_" src="https://vibeadventures.be/images/activities.png">
-                                        <h5>Activities</h5>
-                                        <p style="width:100%">Got extra days in the destination before or after
-                                            the adventure?</p>
-                                        <a>Find Activities
-                                                <img style="width: 10%;height:10%" id="img_" src="https://vibeadventures.be/images/box-arrow-up-right.png">
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            {{--     @include('emails.recommended_component') --}}
-            </div>
-            <div class="footer">
-                <hr>
-                <div>
-                    <table width="100%">
-                        <tr>
-                            <td>
-                                <label style="font-size: 18px;">
-                                    Excellent
-                                   {{--  <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
-                                        style="vertical-align: middle;"> --}}
-                                </label>
-                            </td>
-                            <td style="text-align: right;">
-                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt=""> --}}
-                                <h3>Trustindex</h3>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <hr>
-                <br>
-                <div>
-                    <table width="100%">
-                        <tr>
-                            <img style="width:35%;" src="https://vibeadventures.be/images/logo.png">
-                            <td style="text-align: right;">
-                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}"> --}}
-                                <img src="https://vibeadventures.be/images/face-icon.png">
-                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}"> --}}
-                                <img src="https://vibeadventures.be/images/insta-icon.png">
-                                {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}"> --}}
-                                <img src="https://vibeadventures.be/images/youtube-icon.png">
-                            </td>
-                        </tr>
-                    </table>
-                    <br>
-                    <div>
-                        <p>300 Delaware Ave, Ste 210 #549</p>
-                        <p>Wilmington, DE 19801</p>
-                        <br>
-                        <p>You can <a>change your email preferences</a> or view our <a>Terms & Conditions</a> and <a>Privacy
-                                Policy</a></p>
-                    </div>
-                </div>
-            </div>
-    </div>
+<div border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px;border-radius: 10px; border-width: 1px; border-color: #82cf45; border-style: dotted;">
+<div style="padding: 20px 30px;">
+<table>
+	<tbody>
+		<tr style="height:20px">
+		</tr>
+		<tr>
+			<td align="center"><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 25px; color: #000000;">Recommended</span></td>
+		</tr>
+		<tr style="height:10px">
+		</tr>
+		<tr>
+			<td align="center"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #4f4f4f;width:80%">Adding these services to your trip now can save you money compared to purchasing them later or in the destination.</span></td>
+		</tr>
+		<tr style="height:20px">
+		</tr>
+	</tbody>
+</table>
 
+<table style="width:100%">
+	<tbody>
+		<tr>
+			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i503421886.png" style="display: block;" width="73" /><br />
+			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Airport transfer</span><br />
+			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">not included in adventure? </span><br />
+			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
+			Transfers </a></td>
+			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-312608904.png" style="display: block;" width="73" /><br />
+			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Insurance</span><br />
+			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Available up to 24h before departure</span><br />
+			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
+			Insurance</a></td>
+			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-36888821.png" style="display: block;" width="73" /><br />
+			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Accommodation</span><br />
+			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Need pre or post tour accommodation?</span><br />
+			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Book<br />
+			accommodations</a></td>
+			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1821386128.png" style="display: block;" width="73" /><br />
+			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Activities</span><br />
+			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Got extra days in the destination before or after the adventure?</span><br />
+			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Find<br />
+			activities</a></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+
+<div class="footer" style="margin-top:25px;">
+<table style="max-width: 600px;margin:0 auto;width: 100%;">
+	<tbody>
+		<tr>
+			<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i980061126.png" style="vertical-align: middle;width: 150px;" /></td>
+			<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1150146922.png" style="vertical-align: middle;width: 150px;" /></td>
+			<td><img alt="" border="0" height="17" src="img/i-531206069.png" style="display: block;" width="104" />
+			<div style="height: 12px; line-height: 12px; font-size: 10px;">&nbsp;</div>
+			<img alt="" border="0" height="17" src="img/i-1234402721.png" style="display: block;" width="99" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<table style="max-width: 600px;margin:0 auto;width: 100%;">
+	<tbody>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Ayuntamiento 115, Colonia Centro<br />
+			<br />
+			Cuauhtémoc, CDMX 06000 </span></td>
+		</tr>
+	</tbody>
+</table>
+</div>
 </body>
-
-
 </html>
