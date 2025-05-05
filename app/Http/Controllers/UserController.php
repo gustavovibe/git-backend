@@ -328,7 +328,8 @@ class UserController extends Controller
             $data=[
                 'password'=>$password,
                 'name'=>$user->name,
-                'id'=>$user->id
+                'id'=>$user->id, 
+                'email'=>$user->email
             ];
 
             /* return view('emails.send_pass',compact('data')); */

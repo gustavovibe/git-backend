@@ -229,7 +229,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                         'hear' => "without comment",
                         ]);
 
-                        Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random]));
+                        Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random, "email" => $user->email]));
                 }
 
                 $traveler=Traveler::updateOrCreate(
