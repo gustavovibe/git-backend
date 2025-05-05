@@ -601,9 +601,20 @@ Your booking is
 		<tr>
 			<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i980061126.png" style="vertical-align: middle;width: 150px;" /></td>
 			<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1150146922.png" style="vertical-align: middle;width: 150px;" /></td>
-			<td><img alt="" border="0" height="17" src="img/i-531206069.png" style="display: block;" width="104" />
-			<div style="height: 12px; line-height: 12px; font-size: 10px;">&nbsp;</div>
-			<img alt="" border="0" height="17" src="img/i-1234402721.png" style="display: block;" width="99" /></td>
+			<td style="text-align: right;">
+                <table style="width: 100%;">
+					<tr>
+                		<td><a href="https://www.facebook.com/VibeAdventures"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/facebook.png" style="width:32px"/></a></td>
+                		<td><a href="https://www.instagram.com/vibe.adventures"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/instagram.png" style="width:32px"/></a></td>
+                		<td><a href="https://www.youtube.com/channel/UCQ9qyA-fVkdXarHBlzDCUBA?view_as=subscriber"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/youtube.png" style="width:32px"/></a></td>
+                	</tr>
+                	<tr>
+                		<td><a href="https://www.tiktok.com/@vibeadventures"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/tiktok.png" style="width:32px"/></a></td>
+                		<td><a href="https://www.pinterest.com/vibe_adventures/"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/pinterest.png" style="width:32px"/></a></td>
+                		<td><a href="https://twitter.com/vibe_adventures"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/twitter.png" style="width:32px"/></a></td>
+                	</tr>
+                </table>
+            </td>
 		</tr>
 	</tbody>
 </table>

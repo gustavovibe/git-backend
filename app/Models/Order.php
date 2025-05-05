@@ -6,8 +6,9 @@ use App\Filters\ToursFilters;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;  
 
 class Order extends Model
 {
