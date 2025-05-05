@@ -115,6 +115,11 @@ class Order extends Model
         return $this->hasOne(FlightTour::class, 'id_order', 'booking_id');
     }
 
+    public function attempt()
+    {
+        return $this->hasOne(Attempt::class, 'booking_id', 'booking_id');
+    }
+
     public function getFlightsAttribute()
     {
         $flights = FlightTour::where('id_order', $this->booking_id)->select('flight')->get();
