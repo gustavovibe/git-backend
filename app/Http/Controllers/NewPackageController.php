@@ -501,8 +501,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
                 'hear' => "without comment",
             ]);
             $user->save();
-
-            Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random, 'id'=>$user->id]));
+            Mail::to($user->email)->send(new SendPass(['name'=>$passenger['fields']['first_name'],'password'=>$random, 'id'=>$user->id, "email" => $passenger['fields']['email']]));
 
         }
 

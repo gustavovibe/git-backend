@@ -20,7 +20,7 @@ class SendPass extends Mailable
 
     public function build()
     {
-        return $this->subject(' Temporary Password for Your Account')->view('emails.send_pass')->with([
+        return $this->subject(' Temporary Password for Your Account')->view('emails.welcome')->with([
             'data' => $this->data,
         ]);
     }

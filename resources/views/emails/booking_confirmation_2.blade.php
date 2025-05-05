@@ -18,7 +18,14 @@
 	<tbody>
 		<tr>
 			<td align="left" bgcolor="#ffffff" style="padding: 30px;" valign="top">
-			<div align="center" style="padding: 20px 0px;" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;">Your booking is @if ($orders->booking_status !='pending')<strong>pending</strong>@else<strong>confirmed</strong>.</span></div>
+			<div align="center" style="padding: 20px 0px;" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;">
+Your booking is 
+@if ($orders->booking_status == 'pending') 
+    <strong>pending</strong>
+@else 
+    <strong>confirmed</strong>
+@endif
+</span></div>
 			</td>
 		</tr>
 	</tbody>
@@ -68,7 +75,8 @@
 						</td>
 					</tr>
 				</tbody>
-			</table>
+			@endif
+</table>
 			</td>
 		</tr>
 	</tbody>
@@ -85,7 +93,14 @@
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
-			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">Your reservation is <span style="color: #82cf45;">@if ($orders->booking_status !='pending') <strong>processing</strong> @else <strong>complete</strong>.</span></span></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">Your reservation is 
+<span style="color: #82cf45;">
+  @if ($orders->booking_status == 'pending') 
+    <strong>processing</strong>
+  @else 
+    <strong>complete</strong>
+  @endif
+</span></td>
 		</tr>
 	</tbody>
 </table>
@@ -316,7 +331,8 @@
 						</span></td>
 					</tr>
 				</tbody>
-			</table>
+			@endif
+</table>
 			</td>
 		</tr>
 	</tbody>
@@ -474,7 +490,8 @@
 			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Pending ✔</span></td>
 			@else
 			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Succeeded ✔</span></td>
-			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000; font-weight: bold;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000; font-weight: bold;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+@endif
 		</tr>
 	</tbody>
 </table>
