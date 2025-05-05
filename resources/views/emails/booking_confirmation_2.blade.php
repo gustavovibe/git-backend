@@ -332,8 +332,7 @@ Your booking is
 						</span></td>
 					</tr>
 				</tbody>
-			@endif
-</table>
+			</table>
 			</td>
 		</tr>
 	</tbody>
