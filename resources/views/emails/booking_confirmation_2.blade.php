@@ -385,7 +385,7 @@ Your booking is
 			<span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
 				{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}
 			</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;"><strong>{{$or['marketing_carrier']['name']}}</strong> {{$or['marketing_carrier_flight_number']}}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;"><strong>{{$or['segments'][0]['operating_carrier']['name']}}</strong> {{$or['segments'][0]['operating_carrier_flight_number']}}</span></td>
 		</tr>
 	</tbody>
 </table>
@@ -484,8 +484,8 @@ Your booking is
 		<tr style="height:10px">
 		</tr>
 		<tr>
-			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">May 05, 2025</span></td>
-			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;"><strong>Visa</strong>****4242</span></td>
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">{{ \Carbon\Carbon::parse($orders->stripe_created)->format('M d, Y') }}</span></td>
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">@if ($orders->last_4)<strong>Visa</strong>****{{$orders->last_4}}@else<strong>{{$orders->payment_method}}</strong>@endif</span></td>
 			@if ($orders->booking_status !='pending')
 			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Pending ✔</span></td>
 			@else

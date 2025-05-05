@@ -165,7 +165,7 @@ Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);
 
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
-Route::get('/stripe', [StripeController::class, 'getPaymentIntentFromQuery']);
+Route::get('/stripe', [StripeController::class, 'getPaymentIntentFromQuery'])->name('stripe.query');
 
 Route::resource('action-logs', ActionLogController::class);
 

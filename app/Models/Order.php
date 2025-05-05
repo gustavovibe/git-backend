@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;  
 
 class Order extends Model
 {
@@ -85,8 +86,40 @@ class Order extends Model
         'gross_profit',
         'gross_profit_ratio',
         'average_price_per_person_per_day',
-        'flights'
+        'flights',
+        'last_4',
+        'stripe_created',
     ];
+    public function getLast4Attribute(): ?string
+    {
+        return $this->fetchStripeJson('data.payment_method_details.card.last4');
+    }
+
+    /**
+     * Created timestamp from the PaymentIntent, wrapped in Carbon
+     */
+    public function getStripeCreatedAttribute(): ?Carbon
+    {
+        $ts = $this->fetchStripeJson('data.payment_intent.created');
+        return $ts ? Carbon::createFromTimestamp($ts) : null;
+    }
+
+    /**
+     * Shared helper to call your /stripe?q={payment_id} endpoint,
+     * cache for 5 minutes, and pull a nested JSON key.
+     */
+    protected function fetchStripeJson(string $path)
+    {
+        return Cache::remember("order:{$this->id}:stripe", now()->addMinutes(5), function () {
+            $resp = Http::get(route('stripe.query'), ['q' => $this->payment_id]);
+            if (! $resp->successful()) {
+                return null;
+            }
+            return $resp->json(); // full array
+        }) 
+        ? data_get(Cache::get("order:{$this->id}:stripe"), $path) 
+        : null;
+    }
     protected $casts = [
         'passengers' => 'array',
     ];
@@ -212,6 +245,7 @@ class Order extends Model
           //booking
           !$filters['channel']?:$query->wherein('channel',explode(',', $filters['channel']));
           !$filters['payment_method']?:$query->wherein('payment_method',explode(',', $filters['payment_method']));
+
           !$filters['medium']?:$query->wherein('medium',explode(',', $filters['medium']));
           !$filters['day']?:$query->wherein(DB::raw('DAYOFWEEK(start)'),explode(',',$filters['day']));
 
