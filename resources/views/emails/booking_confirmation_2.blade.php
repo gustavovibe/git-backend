@@ -266,8 +266,8 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" style="width:150px;padding-right: 20px;" valign="middle">
-				 @if ($orders->image)
-				<img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i367754284.png" style="height:150px;" />
+				 @if ($orders->tour->main_thumbnail)
+				<img src="{{ $orders->tour->main_thumbnail }}" style="height:150px;" />
 				@endif
 			</td>
 			<td align="left" valign="top">
@@ -283,8 +283,8 @@ Your booking is
 				<tbody>
 					<tr>
 						<td width="24"><img border="0" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i196401944.png" style="display: block;" width="18" /></td>
-						<td width="30"><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #82cf45;">{{ $orders->ratings_overall }}</span></td>
-						<td><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #9ca3af;">{{ $orders->reviews_count }} reviews </span></td>
+						<td width="30"><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #82cf45;">{{ $orders->tour->ratings_overall }}</span></td>
+						<td><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #9ca3af;">{{ $orders->tour->reviews_count }} reviews </span></td>
 					</tr>
 				</tbody>
 			</table>
@@ -358,8 +358,8 @@ Your booking is
 				<b>{{ $or['origin']['city']['name'] }}</b>
 				@endif
 				 → 
-				@if(isset($or['destination']['city']['name'])  )
-				<b>{{ $or['destination']['city']['name'] }}</b>
+				@if(isset($or['destination']['city_name'])  )
+				<b>{{ $or['destination']['city_name'] }}</b>
 				@endif
 			</span></td>
 			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">21h 55m</span></td>
@@ -389,19 +389,32 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
+
+{{-- === HERE: After the very first slice, inject your extra table === --}}
+    @if ($loop->first)
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:20px;margin-bottom:20px;padding-left:10px;padding-right: 10px;">
+            <tbody>
+                <tr>
+                    <td align="center" valign="middle">
+                        <a href="#"
+                           style="font-size:14px;font-weight:bold;line-height:31px;width:171px;
+                                  border: 1px dotted #ff6c0e;color:#ff6c0e;border-radius:10px;
+                                  display:inline-block;font-family:Canaro, sans-serif;
+                                  text-align:center;text-decoration:none;
+                                  -webkit-text-size-adjust:none;box-sizing:border-box;"
+                           target="_blank">
+                            {{ $orders->tour_length }} days in destination
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    @endif
 @endforeach
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;padding-left:10px;padding-right: 10px;display: none;">
 	<tbody>
 		<tr>
 			<td align="center" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000; text-decoration: none;"><strong>5h 55m </strong>layover</span></td>
-		</tr>
-	</tbody>
-</table>
-
-<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;padding-left:10px;padding-right: 10px;">
-	<tbody>
-		<tr>
-			<td align="center" valign="middle"><a href="#" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px dotted #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">{{ $orders->tour_length }} days in destination</a></td>
 		</tr>
 	</tbody>
 </table>
@@ -510,10 +523,10 @@ Your booking is
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
-		{{-- @foreach ($orders->travelers as $travelers)
+		{{-- @foreach ($orders->travelers as $traveler)
 		<tr>
-			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1682235450.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ $travelers->title }} <b>{{ $travelers->name.' '.$travelers->last }}<b></span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ \Carbon\Carbon::parse($travelers->birth)->format('j M Y') }}</span></td>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1682235450.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ $traveler->title }} <b>{{ $traveler->name.' '.$traveler->last }}<b></span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ \Carbon\Carbon::parse($traveler->birth)->format('j M Y') }}</span></td>
 		</tr>
 		<tr style="height:10px">
 		@endforeach --}}	
