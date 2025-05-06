@@ -356,10 +356,14 @@ Your booking is
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #4f4f4f;">
 				@if(isset($or['origin']['city']['name'])  )
 				<b>{{ $or['origin']['city']['name'] }}</b>
+				@else 
+				<b>{{ $or['origin']['city_name'] }}</b>
 				@endif
 				 → 
 				@if(isset($or['destination']['city_name'])  )
 				<b>{{ $or['destination']['city_name'] }}</b>
+				@else 
+				<b>{{ $or['destination']['city']['name'] }}</b>
 				@endif
 			</span></td>
 			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">21h 55m</span></td>
@@ -523,13 +527,13 @@ Your booking is
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
-		{{-- @foreach ($orders->travelers as $traveler)
+		@foreach ($orders->travelers as $travelers)
 		<tr>
 			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1682235450.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ $traveler->title }} <b>{{ $traveler->name.' '.$traveler->last }}<b></span></td>
 			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ \Carbon\Carbon::parse($traveler->birth)->format('j M Y') }}</span></td>
 		</tr>
 		<tr style="height:10px">
-		@endforeach --}}	
+		@endforeach	
 	</tbody>
 </table>
 </div>
