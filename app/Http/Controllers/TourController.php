@@ -607,6 +607,7 @@ class TourController extends Controller
         return $pdf->stream('booking_summary_tour.pdf');
     }
 
+    
     /**
      * Carrier list.
      *
