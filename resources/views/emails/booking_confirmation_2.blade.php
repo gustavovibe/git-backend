@@ -355,11 +355,11 @@ Your booking is
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #4f4f4f;">
 				@if(isset($or['segments'][0]['origin']['city']['name'])  )
-				<b>{{ $or['origin']['city']['name'] }}</b>
+				<b>{{ $or['segments'][0]['origin']['city']['name'] }}</b>
 				@endif
 				 → 
 				@if(isset($or['segments'][0]['destination']['city']['name'])  )
-				<b>{{ $or['destination']['city_name'] }}</b>
+				<b>{{ $or['segments'][0]['destination']['city']['name'] }}</b>
 				@endif
 			</span></td>
 			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</span></td>
@@ -369,23 +369,14 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
 	<tbody>
 		<tr>
-			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</span><br />
-			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}</span></td>
+			<td align="left" valign="middle">
+				<span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</span><br />
+				<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}</span>
+			</td>
 			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
 				@if(isset($or['segments'][0]['origin']['city']['name'])  )
 				<b>{{ $or['segments'][0]['origin']['city']['name'] }}@endif</b>
 				({{$or['segments'][0]['origin']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['origin']['name']}}</span></td>
-		</tr>
-	</tbody>
-</table>
-<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;margin-bottom:10px;padding-left:10px;padding-right: 10px;">
-	<tbody>
-		<tr>
-			<td align="left" valign="middle">
-			<span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
-				{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}
-			</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;"><strong>{{$or['segments'][0]['operating_carrier']['name']}}</strong> {{$or['segments'][0]['operating_carrier_flight_number']}}</span></td>
 		</tr>
 	</tbody>
 </table>
