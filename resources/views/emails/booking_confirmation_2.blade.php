@@ -338,7 +338,7 @@ Your booking is
 	</tbody>
 </table>
 @endif
-@if $orders->attempt->duffel_res['data']['slices']
+@if ($orders->attempt->duffel_res['data']['slices'])
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -378,7 +378,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;margin-bottom:10px;padding-left:10px;padding-right: 10px;">
 	<tbody>
 		<tr>
@@ -390,7 +389,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
 	<tbody>
 		<tr>
@@ -403,7 +401,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;margin-bottom:10px;padding-left:10px;padding-right: 10px;">
 	<tbody>
 		<tr>
@@ -415,7 +412,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 {{-- === HERE: After the very first slice, inject your extra table === --}}
     @if ($loop->first)
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:20px;margin-bottom:20px;padding-left:10px;padding-right: 10px;">
@@ -444,7 +440,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 </div>
 </div>
 @endif
