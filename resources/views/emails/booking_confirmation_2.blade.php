@@ -41,7 +41,7 @@ Your booking is
 						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #4f4f4f; line-height: 20px; text-transform: uppercase;">Booking number</td>
 					</tr>
 					<tr>
-						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">481 324</td>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">{{$orders->booking_id}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -251,6 +251,7 @@ Your booking is
 	</tbody>
 </table>
 
+@if ($orders->tour)
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -261,7 +262,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="padding: 20px 30px; border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 	<tbody>
 		<tr>
@@ -337,7 +337,8 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
+@endif
+@if $orders->attempt->duffel_res['data']['slices']
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -346,7 +347,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
 @foreach ($orders->attempt->duffel_res['data']['slices'] as $or)	
@@ -354,19 +354,15 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #4f4f4f;">
-				@if(isset($or['origin']['city']['name'])  )
+				@if(isset($or['segments'][0]['origin']['city']['name'])  )
 				<b>{{ $or['origin']['city']['name'] }}</b>
-				@else 
-				<b>{{ $or['origin']['city_name'] }}</b>
 				@endif
 				 → 
-				@if(isset($or['destination']['city_name'])  )
+				@if(isset($or['segments'][0]['destination']['city']['name'])  )
 				<b>{{ $or['destination']['city_name'] }}</b>
-				@else 
-				<b>{{ $or['destination']['city']['name'] }}</b>
 				@endif
 			</span></td>
-			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">21h 55m</span></td>
+			<td align="right" valign="middle"><span style="font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 14px; color: #000000;">{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}</span></td>
 		</tr>
 	</tbody>
 </table>
@@ -375,14 +371,40 @@ Your booking is
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</span><br />
 			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">@if(isset($or['origin']['city']['name'])  )
-				<b>{{ $or['origin']['city']['name'] }}@endif</b>
-				({{$or['origin']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['origin']['name']}}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
+				@if(isset($or['segments'][0]['origin']['city']['name'])  )
+				<b>{{ $or['segments'][0]['origin']['city']['name'] }}@endif</b>
+				({{$or['segments'][0]['origin']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['origin']['name']}}</span></td>
 		</tr>
 	</tbody>
 </table>
 
-<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;padding-left:10px;padding-right: 10px;">
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;margin-bottom:10px;padding-left:10px;padding-right: 10px;">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle">
+			<span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
+				{{ \Carbon\CarbonInterval::make($or['duration'])->format('%hh %im') }}
+			</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;"><strong>{{$or['segments'][0]['operating_carrier']['name']}}</strong> {{$or['segments'][0]['operating_carrier_flight_number']}}</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</span><br />
+			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
+				@if(isset($or['segments'][0]['destination']['city']['name'])  )
+				<b>{{ $or['segments'][0]['destination']['city']['name'] }}@endif</b>
+				({{$or['segments'][0]['destination']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['destination']['name']}}</span></td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:0px;margin-bottom:10px;padding-left:10px;padding-right: 10px;">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle">
@@ -425,7 +447,7 @@ Your booking is
 
 </div>
 </div>
-
+@endif
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -522,7 +544,7 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
+@if ($orders->travelers)
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
@@ -538,7 +560,7 @@ Your booking is
 </table>
 </div>
 </div>
-
+@endif
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px;dispaly:none">
 	<tbody>
 		<tr>
