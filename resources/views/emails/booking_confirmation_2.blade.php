@@ -354,11 +354,15 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #4f4f4f;">
-				@if(isset($or['segments'][0]['origin']['city']['name'])  )
+			@if(isset($or['segments'][0]['origin']['city']['name'])  )
 				<b>{{ $or['segments'][0]['origin']['city']['name'] }}</b>
+				@else 
+				<b>{{ $or['segments'][0]['origin']['city_name'] }}</b>
 				@endif
 				 → 
-				@if(isset($or['segments'][0]['destination']['city']['name'])  )
+				@if(isset($or['segments'][0]['destination']['city_name'])  )
+				<b>{{ $or['segments'][0]['destination']['city_name'] }}</b>
+				@else 
 				<b>{{ $or['segments'][0]['destination']['city']['name'] }}</b>
 				@endif
 			</span></td>
