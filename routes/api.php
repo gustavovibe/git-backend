@@ -40,7 +40,7 @@ use Dedoc\Scramble\Scramble;
 use App\Http\Controllers\PreviewMailController;
 use App\Http\Controllers\PreviewInvoiceController;
 
-Route::get('invoice', PreviewInvoiceController::class);
+Route::get('/preview/invoice', PreviewInvoiceController::class);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);

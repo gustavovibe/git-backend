@@ -74,7 +74,7 @@ class PreviewInvoiceController extends Controller
         $pdf = Pdf::loadView('emails.invoice', $invoice_content);
 
         // Optionally force download:
-        // return $pdf->download('invoice.pdf');
+        return $pdf->download('invoice.pdf');
 
         // Or just inline in the browser:
         return $pdf->stream('invoice.pdf');
