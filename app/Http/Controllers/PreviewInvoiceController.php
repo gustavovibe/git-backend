@@ -14,13 +14,14 @@ class PreviewInvoiceController extends Controller
 {
     public function __invoke(Request $request)
     {
+        Log::info('Invoice preview request received', ['query' => $request->all()]);
         // 1) Validate your inputs
         $data = $request->validate([
-            'booking_id'  => 'required|integer|exists:attempts,id', // or orders,id if you store it there
+            'booking_id'  => 'required|integer|exists:orders,booking_id', 
             'orderId'     => 'required|string',   // duffelId
             'payment_id'  => 'required|string',
         ]);
-
+        Log::info('Request validated successfully', ['validated' => $data]);
         // 2) Rebuild exactly your invoice array
         //    (I’m pulling passengers directly from your 'attempts' JSON column)
         $attempt = \DB::table('attempts')->find($data['booking_id']);
