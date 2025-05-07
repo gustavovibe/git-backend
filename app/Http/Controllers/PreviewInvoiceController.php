@@ -24,8 +24,9 @@ class PreviewInvoiceController extends Controller
         Log::info('Request validated successfully', ['validated' => $data]);
         // 2) Rebuild exactly your invoice array
         //    (I’m pulling passengers directly from your 'attempts' JSON column)
-        $attempt = \DB::table('orders')->find($data['booking_id']);
-        $passengers = Arr::wrap(json_decode($attempt->passengers, true));
+        $order = \DB::table('orders')->where('booking_id', $data['booking_id'])->first();
+
+        $passengers = Arr::wrap(json_decode($order->passengers, true));
 
         // Build `invoice` totals
         $invoice = [
