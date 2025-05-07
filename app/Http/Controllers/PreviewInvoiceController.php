@@ -24,7 +24,7 @@ class PreviewInvoiceController extends Controller
         Log::info('Request validated successfully', ['validated' => $data]);
         // 2) Rebuild exactly your invoice array
         //    (I’m pulling passengers directly from your 'attempts' JSON column)
-        $attempt = \DB::table('attempts')->find($data['booking_id']);
+        $attempt = \DB::table('orders')->find($data['booking_id']);
         $passengers = Arr::wrap(json_decode($attempt->passengers, true));
 
         // Build `invoice` totals
@@ -32,9 +32,11 @@ class PreviewInvoiceController extends Controller
             'adults'         => 0,
             'children'       => 0,
             'infants'        => 0,
+            'travelers'      => 0,
             'total_adults'   => 0,
             'total_children' => 0,
             'total_infants'  => 0,
+            'total_travelers'  => 0,
             'subtotal'       => 0,
             'tax'            => 0,
             'total'          => 0,
@@ -46,9 +48,13 @@ class PreviewInvoiceController extends Controller
             } elseif (($p['passengerType'] ?? '') === 'child') {
                 $invoice['children']++;
                 $invoice['total_children'] += $p['unitPrice'] * $p['passengers'];
+            } else {
+                $invoice['travelers']++;
+                $invoice['total_travelers'] += $p['unitPrice'] * $p['passengers'];
             }
         }
-        $invoice['subtotal'] = $invoice['total_adults'] + $invoice['total_children'];
+        $invoice['unitPrice'] =  $p['unitPrice'];
+        $invoice['subtotal'] = $p['totalPrice'];
         $invoice['tax']      = 0;
         $invoice['total']    = $invoice['subtotal'];
 

@@ -91,7 +91,7 @@
                         @if($values['children'] > 0)
                         <p>{{ $values['tax'] }}</p>
                         @endif
-                        @if($values['infants'] > 0)
+                        @if($values['travelers'] > 0)
                         <p>{{ $values['tax'] }}</p>
                         @endif
 
@@ -100,13 +100,13 @@
                 <td>
                     <div>
                         @if($values['adults'] > 0)
-                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
+                        <p>US$ {{ $values['unitPrice'] }}</p>
                         @endif
                         @if($values['children'] > 0)
-                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
+                        <p>US$ {{ $values['unitPrice'] }}</p>
                         @endif
-                        @if($values['infants'] > 0)
-                        <p>US$ {{ $orders->paid/$orders->travelers_number }}</p>
+                        @if($values['travelers'] > 0)
+                        <p>US$ {{ $values['unitPrice'] }}</p>
                         @endif
 
                     </div>
@@ -119,21 +119,21 @@
                         @if($values['children'] > 0)
                         <p>{{ $values['children'] }} <b style="color: #82CF45">child(s)</b></p>
                         @endif
-                        @if($values['infants'] > 0)
-                        <p>{{ $values['infants'] }} <b style="color: #82CF45">infant(s)</b></p>
+                        @if($values['travelers'] > 0)
+                        <p>{{ $values['travelers'] }} <b style="color: #82CF45">traveler(s)</b></p>
                         @endif
                     </div>
                 </td>
                 <td>
                     <div>
                         @if($values['adults'] > 0)
-                        <p>US$ {{ $values['adults'] *  ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">adult(s)</b></p>
+                        <p>US$ {{ $values['adults'] *  ($values['unitPrice'])  }} <b style="color: #82CF45">adult(s)</b></p>
                         @endif
                         @if($values['children'] > 0)
-                        <p>US$ {{ $values['children'] *  ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">child(s)</b></p>
+                        <p>US$ {{ $values['children'] *  ($values['unitPrice'])  }} <b style="color: #82CF45">child(s)</b></p>
                         @endif
-                        @if($values['infants'] > 0)
-                        <p>US$ {{ $values['infants'] *   ($orders->paid/$orders->travelers_number)  }} <b style="color: #82CF45">infant(s)</b></p>
+                        @if($values['travelers'] > 0)
+                        <p>US$ {{ $values['travelers'] *   ($values['unitPrice'])  }} <b style="color: #82CF45">infant(s)</b></p>
                         @endif
                     </div>
                 </td>
