@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
 use App\Http\Controllers\StripeController;
-use App\Http\Controllers\ToursFilters;
+use App\Http\Filters\ToursFilters;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
