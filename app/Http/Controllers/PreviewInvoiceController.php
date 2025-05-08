@@ -18,8 +18,6 @@ class PreviewInvoiceController extends Controller
         // 1) Validate your inputs
         $data = $request->validate([
             'booking_id'  => 'required|integer|exists:orders,booking_id', 
-            'orderId'     => 'required|string',   // duffelId
-            'payment_id'  => 'required|string',
         ]);
         Log::info('Request validated successfully', ['validated' => $data]);
         // 2) Rebuild exactly your invoice array
@@ -60,14 +58,14 @@ class PreviewInvoiceController extends Controller
         $invoice['total']    = $invoice['subtotal'];
 
         // 3) Retrieve Stripe payment‐intent data
-        $stripeResponse = StripeController::getPaymentIntent($data['payment_id']);
+        $stripeResponse = StripeController::getPaymentIntent($order->payment_id);
         $stripeJson     = json_decode($stripeResponse->getContent(), true);
 
         // 4) Pull your `OrdersPrint` (so you can get $orders, if needed in the invoice view)
         $fakeRequest = Request::create('/', 'GET', [
             'booking_id' => $data['booking_id'],
-            'orderId'    => $data['orderId'],
-            'q'          => $data['payment_id'],
+            'orderId'    => $order->duffel_id,
+            'q'          => $order->payment_id,
         ]);
         $ordersPrint = ToursFilters::OrdersPrint($fakeRequest);
 
