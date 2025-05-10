@@ -1,74 +1,71 @@
 <body>
-    <div style="padding: 4%">
-
+    <div style="padding: 1%">
         <table style="width: 100%">
             <tr>
                 <td>
                     <div>
-                        <h2 style="color: black">INVOICE</h2>
-                        <h2 style="color: #7F91A8">{{ $data['charge_details']['receipt_number'] }}</h2>
+                        <h2 style="color: black;font-family: Canaro, sans-serif;font-size:12px">INVOICE</h2>
+                        <h2 style="color: #7F91A8; font-family: Canaro, sans-serif;font-size:12px">{{ $data['charge_details']['receipt_number'] }}</h2>
                     </div>
                 </td>
                 <td style="text-align: right">
                     <img style="width: 30%" src="https://vibeadventures.be/images/logo.png" alt="">
                 </td>
             </tr>
-
-
-
         </table>
-        <h2 style="text-align: center; color: #650808; padding:1%;" >This invoice was already paid.</h2>
+
+        <h2 style="text-align: center; color: #650808; padding:1%;font-size:12px">This invoice was already paid.</h2>
 
         <table style="width: 100%;">
             <tr>
                 <td style="width: 48%; padding:3%; border: 1px solid #FAFAFA;">
-                    <div>
-                        <p><b>Supplier</b></p>
-                        <p>Vibe Adventures, Inc.</p>
-                        <p>300 Delaware Ave,Ste 210 #549</p>
-                        <p>Wilmington, 1981</p>
-                        <p>US</p>
+                    <div style="font-family: Canaro, sans-serif;font-size:10px">
+                        <span><b>Supplier</b></span>
+                        <span>Vibe Adventures, Inc.</span>
+                        <span>300 Delaware Ave,Ste 210 #549</span>
+                        <span>Wilmington, 1981</span>
+                        <span>US</span>
                         <br>
-                        <p><b>Customer</b></p>
-                        <p>{{ $data['charge_details']['billing_details']['name'] }}</p>
-                        <p>{{  $data['charge_details']['billing_details']['address']['line1']  }}</p>
-                        <p>{{  $data['charge_details']['billing_details']['address']['line2'].' '.$data['charge_details']['billing_details']['address']['postal_code'] }}</p>
-                        <p>{{ $data['charge_details']['billing_details']['address']['state'] }}</p>
+                        <span><b>Customer</b></span>
+                        <span>{{ $data['charge_details']['billing_details']['name'] }}</span>
+                        <span>{{  $data['charge_details']['billing_details']['address']['line1']  }}</span>
+                        <span>{{  $data['charge_details']['billing_details']['address']['line2'].' '.$data['charge_details']['billing_details']['address']['postal_code'] }}</span>
+                        <span>{{ $data['charge_details']['billing_details']['address']['state'] }}</span>
                     </div>
                 </td>
                 <td style="width: 4%;"></td>
                 <td style="padding:3%">
                     <div style="margin-bottom:10%; text-align:center;">
-                        <table>
+                        <table style="font-family: Canaro, sans-serif;font-size:10px">
                             <tr>
-                                <td> <p><b>Booking ID</b></p> </td>
+                                <td> <span><b>Booking ID</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>{{ $orders->booking_id }}</p></td>
+                                <td> <span>{{ $orders->booking_id }}</span></td>
                             </tr>
                             <tr>
-                                <td> <p><b>Type</b></p> </td>
+                                <td> <span><b>Type</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>Booking</p></td>
+                                <td> <span>Booking</span></td>
                             </tr>
                             <tr>
-                                <td> <p><b>Issue Date</b></p> </td>
+                                <td> <span><b>Issue Date</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</p></td>
+                                <td> <span>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</span></td>
                             </tr>
                             <tr>
-                                <td> <p><b>Due Date</b></p> </td>
+                                <td> <span><b>Due Date</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</p></td>
+                                <td> <span>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</span></td>
                             </tr>
                             <tr>
-                                <td> <p><b>Taxable Date</b></p> </td>
+                                <td> <span><b>Taxable Date</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</p></td>
+                                <td> <span>{{ date('Y-m-d',$data['balance_transaction']['created']) }}</span></td>
                             </tr>
                             <tr>
-                                <td> <p><b>Currency</b></p> </td>
+                                <td> <span><b>Currency</b></span> </td>
                                 <td style="width: 3%;"></td>
-                                <td> <p>{{ strtoupper($data['payment_intent']['currency']) }}</p></td>
+                                <td> <span>{{ strtoupper($data['payment_intent']['currency']) }}</span></td>
                             </tr>
                         </table>
                     </div>
@@ -76,52 +73,48 @@
             </tr>
         </table>
         <br>
-        <table style="width: 100%;border-collapse: collapse; text-align:center">
+        <table style="width: 100%;border-bottom: 1px solid #82CF45; text-align:left;font-family: Canaro, sans-serif;font-size:10px">
             <tr>
-                <th style="width: 10%;padding:1%"> <p>Item</p></th>
+                <th style="width: 10%;padding:1%"> <span>Item</span></th>
                 <th style="width: 50%">Description</th>
                 <th style="width: 15%">Unit Price</th>
                 <th style="width: 10%"> Qty</th>
                 <th style="width: 15%">Price inc. VAT</th>
             </tr>
             <tr>
-                <td><p>Trip</p></td>
-                <td style="border-right: 1px dotted black">    
-                    <p>
-                        {{ $orders->tour_name }} organized adventure
-                        ({{ \Carbon\Carbon::parse($orders->arrival)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}) for {{$orders->travelers_number}} travelers:
-                    </p><br>
+                <td><span>Trip</span></td>
+                <td style="border-right: 1px dotted black;font-">    
+                    <span>
+                    <span style="color: #82CF45;">{{ $orders->tour_name }} organized adventure</span>
+                        ({{ \Carbon\Carbon::parse($orders->arrival)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}) for {{$orders->travelers_number}} traveler(s):
+                    </span>
                     <ul>
-                    <li style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">
-						@foreach ($orders['passengers'] as $acc)
-                            <span style="color: #82CF45;">
-                                {{ $acc['passengers'] }}
-                            </span>
-                                × {{ $acc['name'] }}
-                        @endforeach
-                    </li>
-                    @if ($orders->attempt->duffel_res['data']['slices'])
-                    <li>
-                    flights ( {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['origin']['iata_code']}} 
-                    - {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['destination']['iata_code']}} 
-                    on {{ \Carbon\Carbon::parse($orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['departing_at'])->format('D, d/m') }}
-                    ; {{$orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['origin']['iata_code']}} 
-                    - {{$orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['destination']['iata_code']}} 
-                    on {{ \Carbon\Carbon::parse($orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['departing_at'])->format('D, d/m') }}) 
-                    </li>
-                    @endif
+                        <li>
+                            @foreach ($orders['passengers'] as $acc)f
+                                    {{ $acc['passengers'] }} 
+                                    ×  <span style="color: #82CF45;">{{ $acc['name'] }}</span>
+                            @endforeach
+                        </li>
+                        @if ($orders->attempt->duffel_res['data']['slices'])
+                        <li>
+                        flights (<span style="color: #82CF45;"> {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['origin']['iata_code']}} 
+                        - {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['destination']['iata_code']}} </span>
+                        on {{ \Carbon\Carbon::parse($orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['departing_at'])->format('D, d/m') }}
+                        ; <span style="color: #82CF45;">{{$orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['origin']['iata_code']}} 
+                        - {{$orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['destination']['iata_code']}} </span>
+                        on {{ \Carbon\Carbon::parse($orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['departing_at'])->format('D, d/m') }}) 
+                        </li>
+                        @endif
+                    </ul>
                 </td>
-                <td><p>{{ 'US $'.$orders->paid }}</p></td>
-                <td><p>1</p></td>
-                <td><p>{{ 'US $'.$orders->paid }}</p></td>
+                <td><span>{{ 'US $'.$orders->paid }}</span></td>
+                <td><span>1</span></td>
+                <td><span>{{ 'US $'.$orders->paid }}</span></td>
             </tr>
         </table>
         <br>
-        <hr  style="border-bottom: 1px solid #82CF45;">
-        <br>
         <div>
-
-            <table style="text-align: center; width:100%" >
+            <table style="text-align: right; width:100%" >
                 <tr>
                     <td style="width: 70%"></td>
                     <th>Subtotal</th>
@@ -130,7 +123,7 @@
                 <tr>
                     <td style="width: 70%"></td>
                     <th>Tax</th>
-                    <td><p>{{ 'US $'.$values['tax'] }}</p></td>
+                    <td><span>{{ 'US $'.$values['tax'] }}</span></td>
                 </tr>
                 <tr>
                     <td style="width: 70%"></td>
@@ -140,4 +133,16 @@
             </table>
         </div>
     </div>
+    <table style="text-align:left">
+        <tr>
+            <td>
+            <p style="font-family: Canaro, sans-serif;font-size:10px">* This is a simplified invoice. If you require an electronic invoice in CFDI format, please <a href="https://vibeadventures.com/contact" style="color: #82CF45;" >contact us</a>.</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <p style="font-family: Canaro, sans-serif;font-size:10px">For more information visit:<a href="https://vibeadventures.com">https://vibeadventures.com</a></span>
+            </td>
+        </tr>
+    </table>
 </body>
