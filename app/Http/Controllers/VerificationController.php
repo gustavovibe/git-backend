@@ -70,7 +70,7 @@ class VerificationController extends Controller
 
         $email = $request->input('email');
         $apiKey2 = env('REOON_API_KEY');
-        $apiKey = env('LbuThgNLnfhxiJj6sM3m9otTWDgtjmVw');
+        $apiKey = 'LbuThgNLnfhxiJj6sM3m9otTWDgtjmVw';
         $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
             'email' => $email,
             'key' => $apiKey,
