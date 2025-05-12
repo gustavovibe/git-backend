@@ -1,5 +1,5 @@
 <body>
-    <div style="padding: 1%">
+    <div style="padding: 0 2%">
         <table style="width: 100%">
             <tr>
                 <td>
@@ -25,8 +25,8 @@
                         <span>300 Delaware Ave,Ste 210 #549</span><br>
                         <span>Wilmington, 1981</span><br>
                         <span>US</span>
-                        <br>
-                        <span><b>Customer</b></span>
+                        <br><br>
+                        <span><b>Customer</b></span><br>
                         <span>{{ $data['charge_details']['billing_details']['name'] }}</span>
                         <span>{{  $data['charge_details']['billing_details']['address']['line1']  }}</span>
                         <span>{{  $data['charge_details']['billing_details']['address']['line2'].' '.$data['charge_details']['billing_details']['address']['postal_code'] }}</span>
@@ -74,14 +74,16 @@
         </table>
         <br>
         <table style="width: 100%;border-bottom: 1px solid #82CF45; font-family: Canaro, sans-serif;font-size:10px">
-            <tr style="text-align:left">
-                <th style="width: 10%;padding:1%"> <span>Item</span></th>
+            <tr style="text-align:left;">
+                <th style="width: 10%"> <span>Item</span></th>
                 <th style="width: 50%">Description</th>
-                <th style="width: 15%">Unit Price</th>
+                <th style="width: 1%"></th>
+                <th style="width: 13%">Unit Price</th>
+                <th style="width: 1%"></th>
                 <th style="width: 10%"> Qty</th>
                 <th style="width: 15%">Price inc. VAT</th>
             </tr>
-            <tr style="text-align:left">
+            <tr style="text-align:left;">
                 <td><span>Trip</span></td>
                 <td style="border-right: 1px dotted black;">    
                     <span>
@@ -107,14 +109,16 @@
                         @endif
                     </ul>
                 </td>
+                <td style="width: 1%"></td>
                 <td><span>{{ 'US $'.$orders->paid }}</span></td>
+                <th style="width: 1%"></th>
                 <td><span>1</span></td>
                 <td><span>{{ 'US $'.$orders->paid }}</span></td>
             </tr>
         </table>
         <br>
         <div>
-            <table style="text-align: right; font-family: Canaro, sans-serif;font-size:12px width:100%" >
+            <table style="font-family: Canaro, sans-serif;font-size:11px; width:100%;" >
                 <tr>
                     <td style="width: 70%"></td>
                     <th>Subtotal</th>
@@ -132,8 +136,7 @@
                 </tr>
             </table>
         </div>
-    </div>
-    <table style="text-align:left">
+         <table style="text-align:left">
         <tr>
             <td>
             <span style="font-family: Canaro, sans-serif;font-size:10px">* This is a simplified invoice. If you require an electronic invoice in CFDI format, please <a href="https://vibeadventures.com/contact" style="color: #82CF45;" >contact us</a>.</span>
@@ -145,4 +148,5 @@
             </td>
         </tr>
     </table>
+    </div>
 </body>

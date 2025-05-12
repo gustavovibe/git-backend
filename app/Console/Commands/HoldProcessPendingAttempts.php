@@ -9,6 +9,7 @@ use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\newPackageController;
 use App\Http\Controllers\DuffelApiController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\TourController;
 use App\Models\Order;
 
 class HoldProcessPendingAttempts extends Command
@@ -34,7 +35,10 @@ class HoldProcessPendingAttempts extends Command
             ->get();
 
         foreach ($pendingAttempts as $attempt) {
-
+            $duffelId = $attempt->order_id; 
+            $bookingId = $attempt->booking_id;  
+            $RequestPassengers = $attempt->passengers;  
+            $paymentIntent = $attempt->payment_id;
             Log::info('automatic Processing attempt ID: ' . $attempt->id. 'expiration: ' . $attempt->expiration );
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing $ResponseTour: ' . json_encode($ResponseTour));
@@ -76,10 +80,10 @@ class HoldProcessPendingAttempts extends Command
                 Log::info('automatic Flight Data: ' . json_encode($flight));
 
                 if (isset($flight['data']['payment_status']['awaiting_payment'])) {
-                    $orderId = $attempt->order_id; // Using TourRadar's ID as order_id
+                    
                     $flightBody = [
                         'data' => [
-                            'order_id' => $orderId,
+                            'order_id' => $duffelId,
                             'payment' => [
                                 'type' => 'balance',
                                 'amount' => $flight['data']['total_amount'],
@@ -90,18 +94,18 @@ class HoldProcessPendingAttempts extends Command
 
                     // Call the confirmFlight function
                     $flightResponse = DuffelApiController::payBooking($flightBody);
-                    Log::info("automatic Duffel response for booking ID {$orderId}: " . json_encode($flightResponse));
+                    Log::info("automatic Duffel response for booking ID {$duffelId}: " . json_encode($flightResponse));
 
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
-                        Log::error('automatic Duffel booking failed for duffel order ID ' . $orderId);
+                        Log::error('automatic Duffel booking failed for duffel order ID ' . $duffelId);
                     } else {
-                        $paymentIntent = $attempt->payment_id;
-                        Log::info('automatic Duffel booking successful for duffel order ID ' . $orderId);
+                        
+                        Log::info('automatic Duffel booking successful for duffel order ID ' . $duffelId);
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
 
                         // Execute get paymentIntent
-                        $stripePiResponse = StripeController::getPaymentIntent($paymentId);
+                        $stripePiResponse = StripeController::getPaymentIntent($paymentIntent);
 
                         // Extract the data from the JsonResponse
                         $stripePi = $stripePiResponse->getData(true); // Convert the JSON response to an associative array
@@ -127,12 +131,14 @@ class HoldProcessPendingAttempts extends Command
                         }
                     }
                 } else {
-                    Log::warning('automatic Flight data is incomplete for duffel order ID ' . $orderId);
+                    Log::warning('automatic Flight data is incomplete for duffel order ID ' . $duffelId);
                 }
 
                 // Update the attempt status to confirmed
                 DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-                Log::info('automatic duffel order ID ' . $orderId . ' confirmed.');
+                $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
+                Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
+                Log::info('automatic duffel order ID ' . $duffelId . ' confirmed.');
             }
         }
 
@@ -143,7 +149,6 @@ class HoldProcessPendingAttempts extends Command
 
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
-            $paymentIntent = $attempt->payment_id;
             if(!$paymentIntent){
                 Log::error('No payment intent found in attempt');
                 continue;
@@ -154,13 +159,13 @@ class HoldProcessPendingAttempts extends Command
                 $stripePaymentData = $stripePayment->getData(true); // Convert to array
 
                 if ($stripePaymentData['data']['payment_intent']['canceled_at'] == null) {
-                    $stripeResponse = StripeController::cancellPayment($paymentIntent);
-                    Log::info('automatic Stripe cancell payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                    $stripeResponse = StripeController::cancelPayment($paymentIntent);
+                    Log::info('automatic Stripe cancel payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                     DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                     Log::info('automatic attempt failed (expired): ' . $attempt->id );
                 } else {
                     DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
-                    Log::info('automatic attempt already cancelled in stripe: ' . $attempt->id );
+                    Log::info('automatic attempt already canceled in stripe: ' . $attempt->id . 'data' . $stripePaymentData['data']['payment_intent']);
                 }
             } catch (\Exception $e) {
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 use Stripe\StripeClient;
+use App\Models\Attempt;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class StripeController extends Controller
 {
@@ -95,7 +98,39 @@ class StripeController extends Controller
             json_encode($cancellResponse)
         ));
     }
-    
+    public function cancelPayment(Request $request)
+    {   
+        $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
+        $paymentId = $request->query('payment_id');
+
+        if (!$paymentId) {
+            return response()->json(['error' => 'Missing payment_id'], 400);
+        }
+
+        // Find the attempt by payment_id
+        $attempt = Attempt::where('payment_id', $paymentId)->first();
+
+        if (!$attempt || !$attempt->checkout_id) {
+            return response()->json(['error' => 'Checkout session not found for this payment_id'], 404);
+        }
+
+        try {
+            Stripe::setApiKey($stripeSecret);
+
+            // Expire the Checkout Session
+            $expiredSession = Session::expire($attempt->checkout_id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Checkout session expired successfully.',
+                'session_status' => $expiredSession->status,
+            ]);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
     public static function expireSession($cs){
         $stripeSecret = 'sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb';
         $stripe = new \Stripe\StripeClient($stripeSecret);
