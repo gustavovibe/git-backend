@@ -209,6 +209,44 @@ class DestinationController extends Controller
     if(!$destination){
       return ApiResponse::notFound('Destination not found');
     }
+    
+    if($destination->destination_id && $destination->destination->overview == 'overview'){
+
+      $destinations_table = Destination::find($destination->destination_id);
+      $messages = [
+        ['role' => 'user', 'content' => 'Write a brief overview of the destination: '.$destination->name.', including the highlights of traveling there as well as a few characteristics. The text should not exceed 200 words.']
+      ];
+      $open_ai_response = $this->openAIService->getOpenAiChatSimple($messages);
+      $overview = isset($open_ai_response['choices']) && !empty($open_ai_response['choices']) ? $open_ai_response['choices'][0]['message']['content'] : '';
+      if(empty($open_ai_response['choices'])){
+        return ApiResponse::error($open_ai_response['error']['message']);
+      }
+
+      $destinations_table->update([
+        'overview' => $overview
+      ]);
+      $destination->overview = $overview;
+
+    }// end if($destination->destination_id && $destination->overview == 'overview'){
+
+    if($destination->destination_id && empty($destination->destination->video_url)){
+
+      $destinations_table = Destination::find($destination->destination_id);
+      $messages = [
+        ['role' => 'user', 'content' => 'Find a video in Youtube about: '.$destination->name.', the video should including the highlights of traveling there as well as a few characteristics. Return only the link video.']
+      ];
+      $open_ai_response = $this->openAIService->getOpenAiChatSimple($messages);
+      $video_url = isset($open_ai_response['choices']) && !empty($open_ai_response['choices']) ? $open_ai_response['choices'][0]['message']['content'] : '';
+      if(empty($open_ai_response['choices'])){
+        return ApiResponse::error($open_ai_response['error']['message']);
+      }
+
+      $destinations_table->update([
+        'video_url' => $video_url
+      ]);
+      $destination->video_url = $video_url;
+
+    }// end if($destination->destination_id && $destination->overview == 'overview'){
 
     if(!$destination->destination_id){
       
@@ -233,6 +271,13 @@ class DestinationController extends Controller
         'role'=> 'user',
         'content' => 'Make a list of 7 items that describe the best time to visit (weather, local activities, celebration, no crowds, etc.). (each up to 15-25 words).'
       ];
+      $overview_message = [
+        'role' => 'user',
+        'content' => 'Write a brief overview of the destination, including the highlights of traveling there as well as a few characteristics. The text should not exceed 200 words.'
+      ];
+      $tg_video_messages = [
+        ['role' => 'user', 'content' => 'Recommend a video in Youtube about the destination, the video should including the highlights of traveling there as well as a few characteristics. Return only the link video.']
+      ];
       $messages = array();
       switch ($category) {
 
@@ -255,6 +300,8 @@ class DestinationController extends Controller
           $messages[]= $quick_facts_message;
           $messages[]= $things_to_do_message;
           $messages[]= $top_attractions_message;
+          $messages[]= $overview_message;
+          $messages[]= $tg_video_messages;
           break;
         case 'city':
           $open_message = [
@@ -265,6 +312,8 @@ class DestinationController extends Controller
           $messages[]= $quick_facts_message;
           $messages[]= $things_to_do_message;
           $messages[]= $top_attractions_message;
+          $messages[]= $overview_message;
+          $messages[]= $tg_video_messages;
           break;
         default:
           return ApiResponse::invalid('Invalid category');
@@ -291,8 +340,10 @@ class DestinationController extends Controller
         $things_to_do = is_array($content['things_to_do']) ? json_encode($content['things_to_do']) : $content['things_to_do'];
         $travel_tips = is_array($content['travel_tips']) ? json_encode($content['travel_tips']) : $content['travel_tips'];
         $best_time_to_visit = is_array($content['best_time_to_visit']) ? json_encode($content['best_time_to_visit']) : $content['best_time_to_visit'];
+        $overview = isset($content['overview']) ? $content['overview'] : 'overview';
+        $tg_video = isset($content['tg_video']) ? $content['tg_video'] : '';
         $insert_data = [
-          'overview' => 'overview',
+          'overview' => $overview,
           'quick_facts' => 'quick_facts',
           'qf_population' => $content['quick_facts']['population'],
           'qf_capital' => $content['quick_facts']['capital'],
@@ -309,6 +360,7 @@ class DestinationController extends Controller
           'slug' => 'slug',
           'excerpt' => 'brief',
           'meta_description' => 'guide',
+          'video_url' => $tg_video
         ];
 
         $new_destination = Destination::create($insert_data);
@@ -347,7 +399,8 @@ class DestinationController extends Controller
     $destination->best_time_to_visit = $this->parseTextContent($destination->destination->best_time_to_visit ?? '');
     $destination->travel_tips = $this->parseTextContent($destination->destination->travel_tips ?? '');
     $destination->things_to_do = $this->parseTextContent($destination->destination->things_to_do ?? '');
-
+    $destination->video_url = $destination->destination->video_url;
+    
     return ApiResponse::success($destination, $response_message);
 
   }// end
