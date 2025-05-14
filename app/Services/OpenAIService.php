@@ -75,9 +75,11 @@ class OpenAIService
               "best_time_to_visit" => [
                 "type" => "array",
                 "items" => ["type" => "string"]
-              ]
+              ],
+              "overview" => ["type" => "string"]
             ],
-            "required" => ["quick_facts", "things_to_do", "top_attractions", "travel_tips", "best_time_to_visit"],
+            "required" => ["quick_facts", "things_to_do", "top_attractions", "travel_tips", "best_time_to_visit", "overview"],
+            "video_url" => ["type" => "string"],
             "additionalProperties" => false
           ],
           "strict" => true
