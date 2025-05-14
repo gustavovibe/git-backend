@@ -79,7 +79,7 @@ class HoldProcessPendingAttempts extends Command
                 $flight = json_decode($attempt->duffel_res, true);
                 Log::info('automatic Flight Data: ' . json_encode($flight));
 
-                if (isset($flight['data']['payment_status']['awaiting_payment'])) {
+                if (isset($flight['data']['payment_status']['awaiting_payment']) && $flight['data']['payment_status']['awaiting_payment'] == true) {
                     
                     $flightBody = [
                         'data' => [
@@ -94,8 +94,8 @@ class HoldProcessPendingAttempts extends Command
 
                     // Call the confirmFlight function
                     $flightResponse = DuffelApiController::payBooking($flightBody);
-                    Log::info("automatic Duffel response for booking ID {$duffelId}: " . json_encode($flightResponse));
-
+                    Log::info("automatic Duffel payment response for booking ID {$duffelId}: " . json_encode($flightResponse));
+                    Log::info('automatic duffel order ID ' . $duffelId . ' confirmed.');
                     if (isset($flightResponse['errors']) && $flightResponse['errors']) {
                         Log::error('automatic Duffel booking failed for duffel order ID ' . $duffelId);
                     } else {
@@ -104,6 +104,7 @@ class HoldProcessPendingAttempts extends Command
                         $stripeResponse = StripeController::capturePayment($paymentIntent);
                         Log::info('automatic Stripe payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
 
+                        /* Stripe Fee
                         // Execute get paymentIntent
                         $stripePiResponse = StripeController::getPaymentIntent($paymentIntent);
 
@@ -129,16 +130,24 @@ class HoldProcessPendingAttempts extends Command
                                 'message' => 'Stripe fee not found in the response.',
                             ], 404);
                         }
+                        */
+                        DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
+                        $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
+                        Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
                     }
                 } else {
-                    Log::warning('automatic Flight data is incomplete for duffel order ID ' . $duffelId);
-                }
-
-                // Update the attempt status to confirmed
-                DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-                $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
-                Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
-                Log::info('automatic duffel order ID ' . $duffelId . ' confirmed.');
+                    Log::warning('automatic Flight did not have a hold on the payment for duffel order ID ' . $duffelId);
+                    if (isset($flightResponse['errors']) && $flightResponse['errors']) {
+                        Log::error('automatic Duffel (non hold) booking failed for duffel order ID ' . $duffelId);
+                    } else {
+                        $stripeResponse = StripeController::capturePayment($paymentIntent);
+                        Log::info('automatic Stripe (not duffel hold) payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                        DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
+                        $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
+                        Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
+                    }
+                }                
+                
             }
         }
 
