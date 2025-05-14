@@ -171,6 +171,31 @@ class HoldProcessPendingAttempts extends Command
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
         }
+        $failedAttempts = DB::table('attempts')
+            ->where('status', 'failed')
+            ->get();
+
+        foreach ($failedAttempts as $attempt) {
+            Log::info('automatic Processing failed attempt ID: ' . $attempt->id);
+            if(!$paymentIntent){
+                Log::error('No payment intent found in attempt');
+                continue;
+            }
+            try {
+                $stripePayment = StripeController::getPaymentIntent($paymentIntent);
+                Log::info('automatic Stripe payment retrieved for payment ID ' . $paymentIntent . ': ' . json_encode($stripePayment));
+                $stripePaymentData = $stripePayment->getData(true); // Convert to array
+
+                if ($stripePaymentData['data']['payment_intent']['canceled_at'] == null) {
+                    $stripeResponse = StripeController::cancelPayment($paymentIntent);
+                    Log::info('automatic Stripe cancel payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                } else {
+                    Log::info('automatic attempt already canceled in stripe: ' . $attempt->id . 'data' . $stripePaymentData['data']['payment_intent']);
+                }
+            } catch (\Exception $e) {
+                Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
+            }
+        }
         /*
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
@@ -192,4 +217,5 @@ class HoldProcessPendingAttempts extends Command
         }
         */
     }
+    
 }
