@@ -12,7 +12,7 @@
             right: 0;
             height: 80px;
             text-align: center;
-        /*     border-bottom: 2px solid black; */
+        /*  border-bottom: 2px solid black; */
             padding: 10px;
         }
 
@@ -23,7 +23,7 @@
 
         /* Asegurarse de que el encabezado se repita en cada página */
         @page {
-            margin-top: 20px;
+            margin-top: 80px;
         }
 
         .content {
@@ -31,21 +31,21 @@
         }
     </style>
 </head>
-<body style="font-family: 'Roboto', sans-serif;">
+<body style="font-family: Arial, sans-serif;">
     <div class="header">
         <table style="width: 100%">
             <tr>
                 <td style="width: 40%">
-                    <img style="width: 100%"
+                    <img style="width: 200px"
                          src="https://vibeadventures.be/images/logo.png"
                          alt="Logo">
                 </td>
                 <td style="width: 40%"></td>
-                <td style="width: 60%">
+                <td style="width: 60%" valign="right">
                     <table>
                         <tr>
                             <td>
-                                <p style="font-size: 13px;"><b>BOOKING NUMBER</b></p>
+                                <p style="font-family: 'Roboto', sans-serif;font-size: 13px;"><b>BOOKING NUMBER</b></p>
                             </td>
                             <td>
                                 <p>{{ $data['booking_reference'] }}</p>
@@ -57,7 +57,7 @@
         </table>
     </div>
 
-    <h2>Passengers</h2>
+    <h2 style="font-family: 'Roboto', sans-serif;font-size:15px">Passengers</h2>
     <div>
         @foreach ($data['passengers'] as $passenger)
             <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
@@ -69,17 +69,15 @@
                                  alt="User">
                         </td>
                         <td>
-                            <b style="font-size: 23px;">{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }}
+                            <b style="font-size: 12px; font-family: 'Roboto', sans-serif;">{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }}
                                 {{ $passenger['family_name'] }}
-                                {{ \Carbon\Carbon::parse($passenger['born_on'])->format('D M Y') }}</b>
+                                ({{ \Carbon\Carbon::parse($passenger['born_on'])->format('D M Y') }})</b>
                         </td>
                     </tr>
                 </table>
 
                 <p>
-                    @foreach ($data['slices'] as $slices)
-                        @foreach ($slices['segments'] as $segments)
-                            @foreach ($segments['passengers'] as $seg_passenger)
+                            @foreach ($data['slices'][0][segments][0]['passengers'] as $seg_passenger)
                                 @if ($seg_passenger['passenger_id'] == $passenger['id'])
                                 <table style="width: 100%; margin-bottom: 5px;">
                                     <tr>
@@ -92,15 +90,11 @@
                                             <p style="margin: 0; padding: 0;">
                                                 @foreach ($seg_passenger['baggages'] as $index => $baggage)
                                                     @if ($index > 0), @endif
-                                                    {{ $baggage['quantity'] }}x
-                                                    @if ($baggage['type'] == 'checked')
-                                                        Checked Bag (45 + 66 + 45cm, 10kg)
-                                                    @elseif ($baggage['type'] == 'carry_on')
-                                                        carry-on luggage (45 + 66 + 45cm, 10kg)
-                                                    @elseif ($baggage['type'] == 'personal')
-                                                        personal Item (20 + 35 + 45 cm, 5kg)
-                                                    @else
-                                                        {{ ucfirst($baggage['type']) }} <!-- Default case if type is unknown -->
+                                                    {{ $baggage['quantity'] }} x
+                                                    @if ($baggage['type'] == 'checked')Checked Bag (45 + 66 + 45cm, 10kg)
+                                                    @elseif ($baggage['type'] == 'carry_on')carry-on luggage (45 + 66 + 45cm, 10kg)
+                                                    @elseif ($baggage['type'] == 'personal')personal Item (20 + 35 + 45 cm, 5kg)
+                                                    @else{{ ucfirst($baggage['type']) }} <!-- Default case if type is unknown -->
                                                     @endif
                                                 @endforeach
                                             </p>
@@ -109,8 +103,23 @@
                                 </table>
                                 @endif
                             @endforeach
-                        @endforeach
-                    @endforeach
+                </p>
+                <p>   
+                                <table style="width: 100%; margin-bottom: 5px;">
+                                    <tr>
+                                        <td style="width: 10%; vertical-align: middle; padding-right: 5px;">
+                                            <img style="width: 20px; height: auto;"
+                                                 src="https://vibeadventures.be/images/Bag.png"
+                                                 alt="Bag">
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <p style="margin: 0; padding: 0;">
+                                                <b>E-ticket-number: </b>
+                                                <span style="color:#82CF45;">{{ $passengers['id'] }}</span>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
                 </p>
             </div>
             <br>
@@ -164,10 +173,10 @@
 <p> <b style="color: red;">*</b> All timer are local. Arrive at the airport at leaste 2 hours before domestic flights and 3 hours before international flights, especially with checked baggage. Check the airport's official guidelines for more details.</p>
 <br>
 <h2>Check In</h2>
-<p>Check directly with the airline using the carrier reservation number (PNR):</p>
-<div style="margin-left:5%">
+<div style="margin-left:5%;border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
+    <p>Check directly with the airline using the carrier reservation number (PNR): <span style="color:#82CF45;">{{ $data['booking_reference'] }}</span></p>
     @foreach ( $data["passengers"] as $passengers )
-        <p>PNR (Reservation #) for {{ $passengers['given_name']." ".$passengers['family_name'].": "}}<span style="color:#82CF45;">{{ $passengers['id'] }}</span> </p>
+        <p>E-ticket number for {{ $passengers['given_name']." ".$passengers['family_name'].": "}}<span style="color:#82CF45;">{{ $passengers['id'] }}</span> </p>
     @endforeach
 </div>
 
@@ -176,11 +185,9 @@
         <h2 style="display: inline; margin-right: 10px;">
             Fare Conditions <b style="color: red">*</b>
         </h2>
-        <p style="display: inline-block; background-color: #82CF45; color: white; border-radius: 12px; padding: 5px 10px; margin: 0;">
-            Economy
-        </p>
     </span>
-    <div>
+    <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
+    <p><b>Class:</b> Economy.</p>    
     <p><b>Refundabilty:</b> Non-refundable except under extraordinary circumstances.</p>
     <p><b>Changes:</b> Allowed up to 48h before departure, $100 USD fee applies.</p>
     <p><b>Baggage:</b> 1 carry-on (7kg) included, no checked baggage. </p>
@@ -189,13 +196,13 @@
     <p><b>Priority Boarding:</b> Not included.</p>
     <br>
     <label><b style="color: red">*</b> Please check the airline's website or contact the airline directly for further details.</label>
-</div>
+    </div>
 </div>
 
 
 <div style="margin-top:20px">
 <h1>Help & Support</h1>
-<h3>Please <span style="color: #82CF45">contact us</span> if any help is needed.</h3>
+<h3>Please <a href="https://vibeadventures.com/contact" style="color: #82CF45">contact us</a> if any help is needed.</h3>
 <br>
 <h1>Additional Information</h1>
 <br>
