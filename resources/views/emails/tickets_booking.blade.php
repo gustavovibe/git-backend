@@ -115,7 +115,7 @@
                                         <td style="vertical-align: middle;">
                                             <p style="margin: 0; padding: 0;">
                                                 <b>E-ticket-number: </b>
-                                                <span style="color:#82CF45;">{{ $passengers['id'] }}</span>
+                                                <span style="color:#82CF45;">{{ $passenger['id'] }}</span>
                                             </p>
                                         </td>
                                     </tr>
