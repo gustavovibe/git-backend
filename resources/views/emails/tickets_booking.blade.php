@@ -77,7 +77,7 @@
                 </table>
 
                 <p>
-                            @foreach ($data['slices'][0][segments][0]['passengers'] as $seg_passenger)
+                            @foreach ($data['slices'][0]['segments'][0]['passengers'] as $seg_passenger)
                                 @if ($seg_passenger['passenger_id'] == $passenger['id'])
                                 <table style="width: 100%; margin-bottom: 5px;">
                                     <tr>
