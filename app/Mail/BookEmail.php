@@ -43,6 +43,7 @@ class BookEmail extends Mailable
         // Adjuntar solo si 'data' no está vacío
         if ($this->data) {
             $pdf1 = Pdf::loadView('emails.tickets_booking', [
+                
                 'data' => $this->data['data'],
                 'passengers_data' => $this->data['passengers_data']
             ]);

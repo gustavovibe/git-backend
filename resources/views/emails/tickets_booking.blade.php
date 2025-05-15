@@ -18,16 +18,16 @@
 
         /* El contenido principal tiene margen en la parte superior para evitar que se sobreponga con el encabezado */
         body {
-            margin-top: 100px;
+            margin-top:20px;
         }
 
         /* Asegurarse de que el encabezado se repita en cada página */
         @page {
-            margin-top: 100px;
+            margin-top: 20px;
         }
 
         .content {
-            margin-top: 100px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -64,12 +64,12 @@
                 <table>
                     <tr>
                         <td style="width: 10%">
-                            <img style="width: 50%"
+                            <img style="width: 50%; height: auto;"
                                  src="https://vibeadventures.be/images/user.png"
                                  alt="User">
                         </td>
                         <td>
-                            <b style="font-size: 23px;">{{ $passenger['title'] }} {{ $passenger['given_name'] }}
+                            <b style="font-size: 23px;">{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }}
                                 {{ $passenger['family_name'] }}
                                 {{ \Carbon\Carbon::parse($passenger['born_on'])->format('D M Y') }}</b>
                         </td>
@@ -94,9 +94,9 @@
                                                     @if ($index > 0), @endif
                                                     {{ $baggage['quantity'] }}x
                                                     @if ($baggage['type'] == 'checked')
-                                                        Checked Bag (45 + 66 + 45cm, 10kg),
+                                                        Checked Bag (45 + 66 + 45cm, 10kg)
                                                     @elseif ($baggage['type'] == 'carry_on')
-                                                        carry-on luggage (45 + 66 + 45cm, 10kg),
+                                                        carry-on luggage (45 + 66 + 45cm, 10kg)
                                                     @elseif ($baggage['type'] == 'personal')
                                                         personal Item (20 + 35 + 45 cm, 5kg)
                                                     @else
@@ -171,7 +171,7 @@
     @endforeach
 </div>
 
-<div style="page-break-inside: avoid;">
+<div style="margin-top:20px">
     <span>
         <h2 style="display: inline; margin-right: 10px;">
             Fare Conditions <b style="color: red">*</b>
@@ -193,7 +193,7 @@
 </div>
 
 
-<div style="page-break-inside: avoid;">
+<div style="margin-top:20px">
 <h1>Help & Support</h1>
 <h3>Please <span style="color: #82CF45">contact us</span> if any help is needed.</h3>
 <br>
