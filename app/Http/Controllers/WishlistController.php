@@ -98,21 +98,38 @@ class WishlistController extends Controller
         }
 
         try{
+            $existElement = Wishlist::where(['traveler_id' => $traveler->traveler_id, 'tour_id' => $tour_id])->first();
+            
+            if($existElement){
+                return ApiResponse::error('Element already exists in wishlist');
+            }
+            $insert_data = [
+                'traveler_id' => $traveler->traveler_id,
+                'user_id' => $user_id,
+                'wish_id' => 0,
+                'tour_id' => $tour_id,
+                'notes' => 'new tour wishlist'
+            ];
 
-          $insert_data = [
-              'traveler_id' => $traveler->traveler_id,
-              'user_id' => $user_id,
-              'wish_id' => 0,
-              'tour_id' => $tour_id,
-              'notes' => 'new tour wishlist'
-          ];
-
-          $new_wishlist = Wishlist::create($insert_data);
-          return ApiResponse::success($new_wishlist, 'Wishlist item added successfully');
+            $new_wishlist = Wishlist::create($insert_data);
+            return ApiResponse::success($new_wishlist, 'Wishlist item added successfully');
 
         }catch (\Exception $e) {
           return ApiResponse::error($e->getMessage());
         }
 
     }// end public function store(Request $request){
+
+
+    public function delete(int $wishlist_id, Request $request){
+
+        try{
+            Wishlist::where('id', $wishlist_id)->delete();
+            return ApiResponse::success('Wishlist item deleted successfully');
+
+        }catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+
+    }
 }
