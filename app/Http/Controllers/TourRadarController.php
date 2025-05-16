@@ -624,7 +624,7 @@ public static function getDeparturesByTour($params)
     {
         $scope = "com.tourradar.bookings/read";
         $accessToken = self::getAccessToken($scope);
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings/{$id}";
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/bookings/{$id}/status";
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,

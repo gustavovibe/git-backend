@@ -217,6 +217,8 @@ Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
 
 Route::get('status',[NewPackageController::class, 'checkBookingStatus']);
 
+Route::get('tourradar-status/{id}',[TourRadarController::class, 'checkBooking']);
+
 Route::get('/airports', [AirportController::class, 'getAirports']);
 
 Route::get('/recover-pass',[AuthController::class, 'recoverPass']);

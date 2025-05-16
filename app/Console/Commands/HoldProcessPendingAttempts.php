@@ -64,7 +64,8 @@ class HoldProcessPendingAttempts extends Command
             } else {
                 try {
                     // If the order is not found, make the API call
-                    $statusResponse = TourRadarController::checkBooking($tBookingId);
+                    $tourradarResponse = TourRadarController::checkBooking($tBookingId);
+                    $statusResponse = $tourradarResponse ->status;
                     Log::info("Automatic API call made for tourradar booking ID: " . $tBookingId . " - Response: " . $statusResponse);
                 } catch (\Exception $e) {
                     Log::error('API error checking tourradar booking ID ' . $tBookingId . ': ' . $e->getMessage());
@@ -148,6 +149,8 @@ class HoldProcessPendingAttempts extends Command
                     }
                 }                
                 
+            }else {
+                Log::warning('tourradar booking has not been confirmed ' . $$attempt->booking_id);
             }
         }
 
