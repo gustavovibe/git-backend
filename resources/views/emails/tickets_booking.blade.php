@@ -40,17 +40,9 @@
                          alt="Logo">
                 </td>
                 <td style="width: 40%"></td>
-                <td style="width: 60%" valign="right">
-                    <table>
-                        <tr>
-                            <td>
-                                <p style="font-family: 'Roboto', sans-serif;font-size: 13px;"><b>BOOKING NUMBER</b></p>
-                            </td>
-                            <td>
-                                <p>{{ $data['booking_reference'] }}</p>
-                            </td>
-                        </tr>
-                    </table>
+                <td style="width: 60%" valign="right" style="text-align:right">
+                    <p style="font-family: 'Roboto', sans-serif;font-size: 13px;"><b>BOOKING NUMBER</b></p>
+                    <p style="font-family: 'Roboto', sans-serif;font-size: 13px;">{{ $data['booking_reference'] }}</p>
                 </td>
             </tr>
         </table>
@@ -64,19 +56,18 @@
                     <tr>
                         <td style="width: 10%">
                             <img style="width: 50%; height: auto;"
-                                 src="https://vibeadventures.be/images/user.png"
+                                 src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/user.png"
                                  alt="User">
                         </td>
                         <td>
-                            <p style="font-size: 14px; font-family: 'Roboto', sans-serif;">
+                            <p style="font-size: 14px; font-family: 'Roboto', sans-serif;margin:0">
                                 <b>{{ ucfirst($passenger['title']) }} {{ $passenger['given_name'] }} {{ $passenger['family_name'] }}</b>
                                 <span>({{ \Carbon\Carbon::parse($passenger['born_on'])->format('D M Y') }})</span>
                             </p>
                         </td>
                     </tr>
                 </table>
-
-                <p>
+                <p style="margin:0">
                             @foreach ($data['slices'][0]['segments'][0]['passengers'] as $seg_passenger)
                                 @if ($seg_passenger['passenger_id'] == $passenger['id'])
                                 <table style="width: 100%; margin-bottom: 5px;">
@@ -86,7 +77,7 @@
                                                  src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/bag.png" />
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <p style="font-size: 12px; font-family: 'Roboto', sans-serif;">
+                                            <p style="font-size: 12px; font-family: 'Roboto', sans-serif;margin:0">
                                                 @foreach ($seg_passenger['baggages'] as $index => $baggage)
                                                     @if ($index > 0), @endif
                                                     {{ $baggage['quantity'] }} x
@@ -103,7 +94,7 @@
                                 @endif
                             @endforeach
                 </p>
-                <p>   
+                <p style="margin:0">   
                                 <table style="width: 100%; margin-bottom: 5px;">
                                     <tr>
                                         <td style="width: 10%; vertical-align: middle; padding-right: 5px;">
@@ -123,43 +114,43 @@
         @endforeach
     </div>
 
-    <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;text-align: right">Itinerary</h2>
+    <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;text-align: left">Itinerary</h2>
     @foreach ($data['slices'] as $slice)
     @foreach ($slice['segments'] as $segment)
-    <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
+    <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;margin-bottom:10px">
         <table style="width: 100%">
             <tr>
-                <td style="text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['formatted_departing_hour'] }}</td>
+                <td style="text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right"><b>{{ $segment['formatted_departing_hour'] }}</b></td>
                 <td style="padding-left: 5%">
-                    <p style="font-size: 14px; font-family: 'Roboto', sans-serif;">
+                    <b style="font-size: 14px; font-family: 'Roboto', sans-serif;">
                         <span style="color:#82CF45;">{{ $segment['origin']['iata_city_code'] }}</span> {{ $segment['origin']['city_name'] }}
-                    </p>
+                    </b>
                 </td>
                 <td>
                 </td>
                 <td rowspan="4" style="text-align: center; padding-left: 5%;">
                     <div style="text-align: right;">
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Carrier:</b> {{ $segment['operating_carrier']['name'] }}</p>
-                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Flight no:</b> {{ $segment['operating_carrier_flight_number'] }}</p>
+                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Flight #:</b> {{ $segment['operating_carrier_flight_number'] }}</p>
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Duration:</b> {{ $segment['formatted_duration']  }}</p>
                     </div>
                 </td>
             </tr>
             <tr>
                 <td style="font-size: 12px;text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['formatted_arriving_at'] }}</td>
-                <td style="padding-left: 5%;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['origin']['name'] }}</td>
+                <td style="padding-left: 5%;font-family: 'Roboto', sans-serif;font-size: 12px;">{{ $segment['origin']['name'] }}</td>
             </tr>
             <tr>
-                <td style="text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['formatted_arriving_hour'] }}</td>
+                <td style="text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right"><b>{{ $segment['formatted_arriving_hour'] }}</b></td>
                 <td style="padding-left: 5%">
-                    <p style="font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">
+                    <b style="font-family: 'Roboto', sans-serif;font-size: 12px;">
                         <span style="color:#82CF45;">{{ $segment['destination']['iata_city_code'] }}</span> {{ $segment['destination']['city_name'] }}
-                    </p>
+                    </b>
                 </td>
             </tr>
             <tr>
                 <td style="font-size: 12px;text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['formatted_arriving_at'] }}</td>
-                <td style="padding-left: 5%;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right">{{ $segment['destination']['name'] }}</td>
+                <td style="padding-left: 5%;font-family: 'Roboto', sans-serif;font-size: 12px;">{{ $segment['destination']['name'] }}</td>
             </tr>
         </table>
     </div>
@@ -170,7 +161,7 @@
     All timer are local. Arrive at the airport at leaste 2 hours before domestic flights and 3 hours before international flights, especially with checked baggage. Check the airport's official guidelines for more details.
 </p>
 <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;">Check In</h2>
-<div style="margin-left:5%;border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
+<div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
     <p style="font-family: 'Roboto', sans-serif;font-size: 11px;">Check directly with the airline using the carrier reservation number (PNR): <span style="color:#82CF45;">{{ $data['booking_reference'] }}</span></p>
     @foreach ( $data["passengers"] as $passengers )
         <p style="font-family: 'Roboto', sans-serif;font-size: 11px;">E-ticket number for {{ $passengers['given_name']." ".$passengers['family_name'].": "}}<span style="color:#82CF45;">{{ $passengers['id'] }}</span> </p>

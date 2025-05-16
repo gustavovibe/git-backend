@@ -475,9 +475,9 @@ class TourController extends Controller
                     $duration = $segment['duration'];
                     $interval = new DateInterval($duration);
                     $segment['formatted_duration'] = $interval->h . 'h ' . str_pad($interval->i, 2, '0', STR_PAD_LEFT) . 'm';
-                    $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y, H:i');
+                    $segment['formatted_departing_at'] = Carbon::parse($segment['departing_at'])->format('D, d M Y');
                     $segment['formatted_departing_hour'] = Carbon::parse($segment['departing_at'])->format('H:i');
-                    $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y, H:i');
+                    $segment['formatted_arriving_at'] = Carbon::parse($segment['arriving_at'])->format('D, d M Y');
                     $segment['formatted_arriving_hour'] = Carbon::parse($segment['arriving_at'])->format('H:i');
 
                     // Recorrer los pasajeros y agregar la información de equipaje
