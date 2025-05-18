@@ -73,15 +73,15 @@
             </tr>
         </table>
         <br>
-        <table style="width: 100%;border-bottom: 1px solid #82CF45; font-family: Canaro, sans-serif;font-size:10px">
+        <table style="width: 100%;border-bottom: 1px solid #82CF45; font-family: Canaro, sans-serif;font-size:10px;text-align:left">
             <tr style="text-align:left;">
-                <th style="width: 10%"> <span>Item</span></th>
-                <th style="width: 50%">Description</th>
+                <th style="width: 10%;text-align:left" >Item</th>
+                <th style="width: 50%;text-align:left">Description</th>
                 <th style="width: 1%"></th>
-                <th style="width: 13%">Unit Price</th>
-                <th style="width: 1%"></th>
-                <th style="width: 10%"> Qty</th>
-                <th style="width: 15%">Price inc. VAT</th>
+                <th style="width: 13%;text-align:left">Unit Price</th>
+                <th style="width: 1%;text-align:left"></th>
+                <th style="width: 10%;text-align:left">Qty</th>
+                <th style="width: 15%;text-align:left">Price inc. VAT</th>
             </tr>
             <tr style="text-align:left;">
                 <td><span>Trip</span></td>

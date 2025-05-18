@@ -67,7 +67,6 @@
                         </td>
                     </tr>
                 </table>
-                <p style="margin:0">
                             @foreach ($data['slices'][0]['segments'][0]['passengers'] as $seg_passenger)
                                 @if ($seg_passenger['passenger_id'] == $passenger['id'])
                                 <table style="width: 100%; margin-bottom: 5px;">
@@ -93,8 +92,6 @@
                                 </table>
                                 @endif
                             @endforeach
-                </p>
-                <p style="margin:0">   
                                 <table style="width: 100%; margin-bottom: 5px;">
                                     <tr>
                                         <td style="width: 10%; vertical-align: middle; padding-right: 5px;">
@@ -109,7 +106,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                </p>
             </div>
         @endforeach
     </div>

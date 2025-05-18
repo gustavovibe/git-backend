@@ -753,7 +753,7 @@ public function convertDurationToMinutes($duration)
     
             Log::info('Attempt retrieved:', ['attempt' => $attempt]);
     
-            if ($attempt && $attempt->tourradar_res && $attempt->$duffel_res) {
+            if ($attempt && $attempt->tourradar_res && $attempt->duffel_res) {
                 $tourradar_res = json_decode($attempt->tourradar_res, true);    
                 $adultsNumber = $childrenNumber = 0;
                 $totalPriceAdults = $totalPriceChildren = 0;

@@ -53,13 +53,13 @@ class StripeController extends Controller
                 $responseData['payment_method_details'] = $paymentMethodDetails;
             }
 
-            $latestChargeId = $paymentIntent->latest_charge ?? null;
+            $firstCharge = $paymentIntent->charges['data'][0] ?? null;
 
-            if ($latestChargeId) {
-                $charge = $stripe->charges->retrieve($latestChargeId);
-                $responseData['charge_details'] = $charge;
+            if ($firstCharge) {
+                //$charge = $stripe->charges->retrieve($latestChargeId);
+                $responseData['charge_details'] = $firstCharge;
 
-                $balanceTransactionId = $charge->balance_transaction ?? null;
+                $balanceTransactionId = $firstCharge->balance_transaction ?? null;
 
                 if ($balanceTransactionId) {
                     $balanceTransactionDetails = $stripe->balanceTransactions->retrieve($balanceTransactionId);
