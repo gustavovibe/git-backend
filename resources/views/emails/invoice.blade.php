@@ -5,7 +5,7 @@
                 <td>
                     <div>
                         <h2 style="color: black;font-family: Canaro, sans-serif;font-size:12px">INVOICE</h2>
-                        <h2 style="color: #7F91A8; font-family: Canaro, sans-serif;font-size:12px">{{ $data['charge_details']['receipt_number'] }}</h2>
+                        <h2 style="color: #7F91A8; font-family: Canaro, sans-serif;font-size:12px">{{ $data['id'] }}</h2>
                     </div>
                 </td>
                 <td style="text-align: right">
@@ -27,9 +27,9 @@
                         <span>US</span>
                         <br><br>
                         <span><b>Customer</b></span><br>
-                        <span>{{ $data['charge_details']['billing_details']['name'] }}</span>
-                        <span>{{  $data['charge_details']['billing_details']['address']['line1']  }}</span>
-                        <span>{{  $data['charge_details']['billing_details']['address']['line2'].' '.$data['charge_details']['billing_details']['address']['postal_code'] }}</span>
+                        <span>{{ $data['charge_details']['billing_details']['name'] }}</span><br>
+                        <span>{{  $data['charge_details']['billing_details']['address']['line1']  }}</span><br>
+                        <span>{{  $data['charge_details']['billing_details']['address']['line2'].' '.$data['charge_details']['billing_details']['address']['postal_code'] }}</span><br>
                         <span>{{ $data['charge_details']['billing_details']['address']['state'] }}</span>
                     </div>
                 </td>
@@ -92,14 +92,14 @@
                     </span>
                     <ul>
                         <li>
-                            @foreach ($orders['passengers'] as $acc)f
+                            @foreach ($orders['passengers'] as $acc)
                                     {{ $acc['passengers'] }} 
                                     ×  <span style="color: #82CF45;">{{ $acc['name'] }}</span>
                             @endforeach
                         </li>
                         @if ($orders->attempt->duffel_res['data']['slices'])
                         <li>
-                        flights (<span style="color: #82CF45;"> {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['origin']['iata_code']}} 
+                        Flights (<span style="color: #82CF45;"> {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['origin']['iata_code']}} 
                         - {{$orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['destination']['iata_code']}} </span>
                         on {{ \Carbon\Carbon::parse($orders->attempt->duffel_res['data']['slices'][0]['segments'][0]['departing_at'])->format('D, d/m') }}
                         ; <span style="color: #82CF45;">{{$orders->attempt->duffel_res['data']['slices'][1]['segments'][0]['origin']['iata_code']}} 
