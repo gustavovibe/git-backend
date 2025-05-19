@@ -53,7 +53,7 @@ class PreviewInvoiceController extends Controller
             }
         }
         $invoice['unitPrice'] =  $p['unitPrice'];
-        $invoice['subtotal'] = $p['totalPrice'];
+        $invoice['subtotal'] = $order->paid;
         $invoice['tax']      = 0;
         $invoice['total']    = $invoice['subtotal'];
 

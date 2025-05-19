@@ -330,7 +330,7 @@ private function createCheckoutSessionInternal($productName, $productDescription
             'travelers_number' => count($tourResponse['passengers']),
             'reference' => $flightResponse['data']['booking_reference'],
             'currency' => $tourResponse['currency'],
-            'paid' => $tourResponse['total_value'] + $flightResponse['data']['total_amount'],
+            'paid' => ceil(($tourResponse['total_value'] + $flightResponse['data']['total_amount'])*1.15),
             'p_flight' => $flightResponse['data']['total_amount'],
             'p_tour' => $tourResponse['total_value'],
             'commission_value_tour' => $tourResponse['partner_info']['commission_value'],
