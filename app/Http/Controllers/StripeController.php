@@ -8,6 +8,8 @@ use Stripe\StripeClient;
 use App\Models\Attempt;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Stripe\PaymentIntent;
+use Stripe\Charge;
 
 class StripeController extends Controller
 {
@@ -53,13 +55,13 @@ class StripeController extends Controller
                 $responseData['payment_method_details'] = $paymentMethodDetails;
             }
 
-            $firstCharge = $paymentIntent->charges['data'][0] ?? null;
+            $latestChargeId = $paymentIntent->latest_charge ?? null;
 
-            if ($firstCharge) {
-                //$charge = $stripe->charges->retrieve($latestChargeId);
-                $responseData['charge_details'] = $firstCharge;
+            if ($latestChargeId) {
+                $charge = Charge::retrieve($latestChargeId);
+                $responseData['charge_details'] = $charge;
 
-                $balanceTransactionId = $firstCharge->balance_transaction ?? null;
+                $balanceTransactionId = $charge->balance_transaction ?? null;
 
                 if ($balanceTransactionId) {
                     $balanceTransactionDetails = $stripe->balanceTransactions->retrieve($balanceTransactionId);
