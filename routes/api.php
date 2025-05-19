@@ -47,6 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('test', [AuthController::class, 'test']);
 });
 
+Route::post('search_youtube', [DestinationController::class, 'searchYTApi']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('import-cities', [Citycontroller::class, 'import']);
 Route::post('email-verification/code', [VerificationController::class, 'store']);

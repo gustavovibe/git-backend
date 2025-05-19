@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Services\OpenAIService;
 use Unsplash\HttpClient;
 use Unsplash\Search;
+use Illuminate\Support\Facades\Http;
 
 class DestinationController extends Controller
 {
@@ -230,27 +231,46 @@ class DestinationController extends Controller
     }// end if($destination->destination_id && $destination->overview == 'overview'){
 
     if($destination->destination_id && empty($destination->destination->video_url)){
-
+      /** YT Video searcch */
       $destinations_table = Destination::find($destination->destination_id);
-      $messages = [
-        ['role' => 'user', 'content' => 'Find a video in Youtube about: '.$destination->name.', the video should including the highlights of traveling there as well as a few characteristics. Return only the link video.']
-      ];
-      $open_ai_response = $this->openAIService->getOpenAiChatSimple($messages);
-      $video_url = isset($open_ai_response['choices']) && !empty($open_ai_response['choices']) ? $open_ai_response['choices'][0]['message']['content'] : '';
-      if(empty($open_ai_response['choices'])){
-        return ApiResponse::error($open_ai_response['error']['message']);
-      }
+      
+      try {
 
-      $destinations_table->update([
-        'video_url' => $video_url
-      ]);
-      $destination->video_url = $video_url;
+        $gcloud_api_key = !empty(env('GCLOUD_API_KEY')) ? env('GCLOUD_API_KEY') : 'AIzaSyBIjpGancr9vQByFa1MUst_eo29spVtSmM';
+        $search_query = ' Mejores sitios para visitar en ' . $destination->name;
+        $response = Http::get('https://www.googleapis.com/youtube/v3/search', [
+          'part' => 'snippet',
+          'q' => $search_query,
+          'maxResults' => 3,
+          'key' => $gcloud_api_key,
+          'type' => 'video'
+        ]);
+        $data = $response->json();
+
+        if(isset($data['items'][0]['id']['videoId'])){
+
+          $video_id = $data['items'][0]['id']['videoId'];
+          $video_url = "https://www.youtube.com/embed/" . $video_id;
+
+          $destinations_table->update([
+            'video_url' => $video_url
+          ]);
+          $destination->destination->video_url = $video_url;
+          
+        } else {
+          return ApiResponse::error('No video found', 404);
+        }
+
+      } catch (\Exception $e) {
+        return ApiResponse::error('Failed to fetch data from YouTube API: ' . $e->getMessage());
+      }
+      
 
     }// end if($destination->destination_id && $destination->overview == 'overview'){
 
     if(!$destination->destination_id){
       
-      $destination_name = $destination->name;
+      $destination_name = $category == 'country' ? $destination->name : ($category == 'city' ? $destination->city_name : '');
       $quick_facts_message = [
         'role'=> 'user',
         'content' => 'Give me the following quick facts about the destination, include brief data with inputs for Population, Area (km2), Currency, Official language(s), Country Code, Plug Type, Time Zone, and High Season'
@@ -275,9 +295,6 @@ class DestinationController extends Controller
         'role' => 'user',
         'content' => 'Write a brief overview of the destination, including the highlights of traveling there as well as a few characteristics. The text should not exceed 200 words.'
       ];
-      $tg_video_messages = [
-        ['role' => 'user', 'content' => 'Recommend a video in Youtube about the destination, the video should including the highlights of traveling there as well as a few characteristics. Return only the link video.']
-      ];
       $messages = array();
       switch ($category) {
 
@@ -301,7 +318,6 @@ class DestinationController extends Controller
           $messages[]= $things_to_do_message;
           $messages[]= $top_attractions_message;
           $messages[]= $overview_message;
-          $messages[]= $tg_video_messages;
           break;
         case 'city':
           $open_message = [
@@ -313,7 +329,6 @@ class DestinationController extends Controller
           $messages[]= $things_to_do_message;
           $messages[]= $top_attractions_message;
           $messages[]= $overview_message;
-          $messages[]= $tg_video_messages;
           break;
         default:
           return ApiResponse::invalid('Invalid category');
@@ -324,14 +339,12 @@ class DestinationController extends Controller
       $messages[]= $travel_tips_message;
       $messages[]= $best_time_message;
       
-      
-
       try {
 
         $open_ai_response = $this->openAIService->getOpenAiChat($messages);
         \Log::info('ChatGPT response log.', ['response' => $open_ai_response]);
         if(empty($open_ai_response['choices'])){
-          return ApiResponse::error($open_ai_response['error']['message']);
+          return ApiResponse::error('Aqui, llega' . $open_ai_response['error']['message']);
         }
 
         $chat_completion = $open_ai_response['choices'][0]['message'];
@@ -412,7 +425,7 @@ class DestinationController extends Controller
    * If its empty make a request to Unsplash API: https://unsplash.com/documentation
    * 
    */
-  function getUnsplashGallery(Request $request){
+  public function getUnsplashGallery(Request $request){
 
     $gallery = null;
     $id = $request->input('id');
@@ -484,4 +497,33 @@ class DestinationController extends Controller
 
     return [];
   }// private function parseTextContent($value){
+
+  public function searchYTApi(Request $request){
+
+    $search_query = $request->input('search', 'highlights de México para visitar el país');
+    if(empty($search_query)){
+      return ApiResponse::error('Search Query is empty');
+    }
+    
+    $gcloud_api_key = !empty(env('GCLOUD_API_KEY')) ? env('GCLOUD_API_KEY') : 'AIzaSyBIjpGancr9vQByFa1MUst_eo29spVtSmM';
+    
+    try {
+
+      $response = Http::get('https://www.googleapis.com/youtube/v3/search', [
+        'part' => 'snippet',
+        'q' => $search_query,
+        'maxResults' => 5,
+        'key' => $gcloud_api_key,
+        'type' => 'video'
+      ]);
+      $data = $response->json();
+      return ApiResponse::success($data, 'Success');
+
+    } catch (\Exception $e) {
+      return ApiResponse::error('Failed to fetch data from YouTube API: ' . $e->getMessage());
+    }
+  
+
+  }// end public function searchYTApi(Request $request){
+
 }

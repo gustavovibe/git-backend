@@ -826,7 +826,7 @@ public function convertDurationToMinutes($duration)
                     'expiration' => $attempt->expiration ?? null,
                     'tourradar_res' => $tourradar_res,
                     'duffel_res' => $duffel_res,
-                    'passengers' => $attempt->passengers
+                    'passengers' => json_decode($attempt->passengers, true),
                 ]);
             }else {
                 return response()->json([

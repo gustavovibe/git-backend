@@ -58,6 +58,7 @@ class StripeController extends Controller
             $latestChargeId = $paymentIntent->latest_charge ?? null;
 
             if ($latestChargeId) {
+                Stripe::setApiKey('sk_test_51Ll0SlL1sFOlxHWWCPqAKdMXnFb9ZdBNm1arMMoKEQ9dgxUkiTfVH7C97or4VcziWtKDTICsV3FFTCl6SS7khK8v00Tn4lEZKb');
                 $charge = Charge::retrieve($latestChargeId);
                 $responseData['charge_details'] = $charge;
 
