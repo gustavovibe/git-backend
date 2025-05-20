@@ -455,7 +455,7 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">Total</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">${{ number_format( ceil($orders->paid), 2 ) }} USD</span></td>
 		</tr>
 		<tr style="height:5px">
 		</tr>

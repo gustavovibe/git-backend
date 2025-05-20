@@ -90,12 +90,18 @@ class Order extends Model
         'flights',
         'last_4',
         'stripe_created',
+        'last_charge',
     ];
     public function getLast4Attribute(): ?string
     {
         return $this->fetchStripeJson('data.payment_method_details.card.last4');
     }
 
+    public function getLastChargeAttribute(): ?string
+    {
+        return $this->fetchStripeJson('data.payment_intent.latest_charge');
+    }
+    \
     /**
      * Created timestamp from the PaymentIntent, wrapped in Carbon
      */

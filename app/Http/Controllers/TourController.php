@@ -379,6 +379,21 @@ class TourController extends Controller
         }
     }
 
+    public function bookingCancellation(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|integer|exists:orders,booking_id',
+        ]);
+        $order = Order::findOrFail($request->query('booking_id'));
+
+        try {
+            Mail::to($email)->send(new CancelMail($orders));
+            return ApiResponse::success('Email sent successfully');
+         } catch (Exception $e) {
+             Log::error("Error in emailBConfirmation: " . $e->getMessage());
+             return ApiResponse::error($e->getMessage());
+         }
+    }
 
     public function emailBookTest(Request $r){
         return $this->emailBConfirmation($r->tour_id,$r->orderId,$r->orderId,);
