@@ -218,6 +218,7 @@ class OtherCommands extends Command
                 Log::error('No payment intent found in attempt: ' . $attempt->id );
                 continue;
             }
+                
             try {
                 $stripeResponse = StripeController::expireSession($cs);
                 Log::info('automatic Stripe cancell payment for payment checkout ' . $cs . ' and payment id: ' .$paymentIntent. ' response: ' . json_encode($stripeResponse));
@@ -232,3 +233,4 @@ class OtherCommands extends Command
     }
     
 }
+*/
