@@ -164,6 +164,8 @@ Route::get('/email-booking-confirmation', [TourController::class, 'emailTDetails
 
 Route::get('/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
 
+Route::get('/bookingcancellation', [TourController::class, 'bookingCancellation']);
+
 Route::get('destinationsV2', [Citycontroller::class, 'destinationsV2']);
 
 Route::get('duffel/get-seats', [DuffelApiController::class, 'getSeats']);

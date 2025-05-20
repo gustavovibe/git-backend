@@ -145,6 +145,8 @@ class HoldProcessPendingAttempts extends Command
                     Log::info('automatic Stripe cancel payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
                     DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                     Log::info('automatic attempt failed (expired): ' . $attempt->id );
+                    $mailResponse = TourController::bookingCancellation($bookingId);
+                    Log::info('automatic mail sent ' . $mailResponse . ' cancelled.');
                 } else {
                     DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'failed']);
                     Log::info('automatic attempt already canceled in stripe: ' . $attempt->id . 'data' . $stripePaymentData['data']['payment_intent']);
@@ -171,6 +173,8 @@ class HoldProcessPendingAttempts extends Command
                 if ($stripePaymentData['data']['payment_intent']['canceled_at'] == null) {
                     $stripeResponse = StripeController::cancelPayment($paymentIntent);
                     Log::info('automatic Stripe cancel payment for payment ID ' . $paymentIntent . ': ' . json_encode($stripeResponse));
+                    $mailResponse = TourController::bookingCancellation($bookingId);
+                    Log::info('automatic mail sent ' . $mailResponse . ' cancelled.');
                 } else {
                     Log::info('automatic attempt already canceled in stripe: ' . $attempt->id . 'data' . $stripePaymentData['data']['payment_intent']);
                 }
