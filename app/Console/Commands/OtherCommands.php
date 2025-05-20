@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -13,7 +13,7 @@ use App\Http\Controllers\TourController;
 use App\Models\Order;
 
 
-class HoldProcessPendingAttempts extends Command
+class OtherCommands extends Command
 {
     protected $signature = 'process:pending-attempts';
     protected $description = 'Process pending attempts and confirm bookings.';
@@ -132,7 +132,7 @@ class HoldProcessPendingAttempts extends Command
                                 'message' => 'Stripe fee not found in the response.',
                             ], 404);
                         }
-                        */
+
                         DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
                         $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
                         Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
@@ -209,7 +209,7 @@ class HoldProcessPendingAttempts extends Command
                 Log::error('automatic Error cancelling payment ID ' . $paymentIntent . ': ' . $e->getMessage());
             }
         }
-        /*
+
         foreach ($expiredAttempts as $attempt) {
             Log::info('automatic Processing expired attempt ID: ' . $attempt->id . 'expiration: ' . $attempt->expiration);
             $cs = $attempt->checkout_session;
@@ -228,7 +228,7 @@ class HoldProcessPendingAttempts extends Command
 
             }
         }
-        */
+
     }
     
 }
