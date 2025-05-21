@@ -101,7 +101,7 @@ class Order extends Model
     {
         return $this->fetchStripeJson('data.payment_intent.latest_charge');
     }
-    \
+
     /**
      * Created timestamp from the PaymentIntent, wrapped in Carbon
      */
