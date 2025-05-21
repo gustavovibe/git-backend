@@ -5,7 +5,7 @@
                 <td>
                     <div>
                         <h2 style="color: black;font-family: Canaro, sans-serif;font-size:12px">INVOICE</h2>
-                        <h2 style="color: #7F91A8; font-family: Canaro, sans-serif;font-size:12px">{{ $data['id'] }}</h2>
+                        <h2 style="color: #7F91A8; font-family: Canaro, sans-serif;font-size:12px">{{ $data['payment_intent']['id'] }}</h2>
                     </div>
                 </td>
                 <td style="text-align: right">
