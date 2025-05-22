@@ -383,9 +383,10 @@ class TourController extends Controller
     {
         $request->validate([
             'booking_id' => 'required|integer|exists:orders,booking_id',
+            'email'      => 'required|email',
         ]);
         $order = Order::findOrFail($request->query('booking_id'));
-
+        $email = $order->user->email;
         try {
             Mail::to($email)->send(new CancelMail($orders));
             return ApiResponse::success('Email sent successfully');

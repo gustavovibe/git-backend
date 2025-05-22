@@ -31,4 +31,3 @@ class BookEmail extends Mailable
         return $email;
     }
 }
-
