@@ -31,4 +31,20 @@ class PreviewMailController extends Controller
         // 3) return it — Laravel will render the HTML of your Blade template
         return $mailable;
     }
+
+    public function cancelConfirmation(Request $request)
+    {
+        // 1) validate+fetch the order
+        $request->validate([
+            'booking_id' => 'required|integer|exists:orders,booking_id',
+        ]);
+        $order = Order::findOrFail($request->query('booking_id'));
+
+        // 2) instantiate with "just orders" and disable attachments
+        //    build() will still call ->view('emails.booking_confirmation_2')->with(['orders'=>…])
+        $mailable = new CancelMail($order);
+
+        // 3) return it — Laravel will render the HTML of your Blade template
+        return $mailable;
+    }
 }
