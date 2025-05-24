@@ -21,9 +21,27 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
+use App\Services\RecaptchaService;
 
 class UserController extends Controller
 {
+
+    /**
+     * @var RecaptchaService
+     */
+    protected $recaptchaService;
+
+    /**
+     * Constructor to inject RecaptchaService.
+     * Laravel will automatically resolve this dependency.
+     *
+     * @param RecaptchaService $recaptchaService
+     */
+    public function __construct(RecaptchaService $recaptchaService)
+    {
+        $this->recaptchaService = $recaptchaService;
+    }
+
 
     /**
      * Get user by id.
@@ -370,6 +388,7 @@ class UserController extends Controller
                 'message' => 'required|string',
                 'booking' => 'nullable|string|max:255',  // opcional
                 'link' => 'nullable|url|max:255',        // opcional
+                'captchaToken' => 'required|string',
             ], [
                 'name.required' => 'The name field is required.',
                 'last.required' => 'The last name field is required.',
@@ -379,13 +398,32 @@ class UserController extends Controller
                 'message.required' => 'The message field cannot be empty.',
                 'booking.required' => 'The booking field is required if provided.',
                 'link.required' => 'The link field is required if provided.',
+                'captchaToken.required' => 'reCAPTCHA verification is required. Please try again.',
             ]);
-            $c=ContacUs::where('email',$r->email)->first();
-            $contact= $c? $c:new ContacUs;
-            $contact->fill($validated);
-            $contact->save();
 
-            return response()->json(['success'=>true,'data'=>$contact]);
+            $recaptchaToken = $validated['captchaToken'];
+            $clientIpAddress = $r->ip();
+            
+            $recaptchaAssessment = $this->recaptchaService->verifyRecaptchaToken(
+                $recaptchaToken,
+                $clientIpAddress,
+                'SUBMIT_FORM'
+            );
+
+            // Check the reCAPTCHA assessment result
+             if ($recaptchaAssessment['success']) {
+
+                $c=ContacUs::where('email',$r->email)->first();
+                $contact= $c? $c:new ContacUs;
+                $contact->fill($validated);
+                $contact->save();
+
+                return response()->json(['success'=>true,'data'=>$contact]);
+
+            }else{
+                // reCAPTCHA verification failed
+                return response()->json(['success' => false, 'data' => [$recaptchaAssessment['message']]], 403);
+            }
         } catch (ValidationException $e) {
             $errors = $e->errors();
             $errorMessages = collect($errors)->flatten()->toArray();
