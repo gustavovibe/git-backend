@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+
 class BookEmail extends Mailable
 {
     use Queueable, SerializesModels;
@@ -37,7 +38,7 @@ class BookEmail extends Mailable
         $email = $this->subject('Booking confirmation')
                       ->view('emails.booking_confirmation_2')
                       ->with([
-                          'orders' => $this->orders,
+                          'order' => $this->orders,
                       ]);
 
         // Adjuntar solo si 'data' no está vacío

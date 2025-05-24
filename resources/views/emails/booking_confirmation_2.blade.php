@@ -20,7 +20,7 @@
 			<td align="left" bgcolor="#ffffff" style="padding: 30px;" valign="top">
 			<div align="center" style="padding: 20px 0px;" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;">
 Your booking is 
-@if ($orders->booking_status == 'pending') 
+@if ($order->booking_status == 'pending') 
     <strong>pending</strong>
 @else 
     <strong>confirmed</strong>
@@ -41,7 +41,7 @@ Your booking is
 						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #4f4f4f; line-height: 20px; text-transform: uppercase;">Booking number</td>
 					</tr>
 					<tr>
-						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">{{$orders->booking_id}}</td>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">{{$order->booking_id}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -54,12 +54,12 @@ Your booking is
 					</tr>
 					<tr>
 						<td align="center">
-						@if ($orders->booking_status !='pending')
-						<table border="0" cellpadding="0" cellspacing="0" style="background: #ff6c0e; border-radius: 20px; width: 100px;">
+						@if ($order->booking_status !='confirmed')
+						<table border="0" cellpadding="0" cellspacing="0" style="background: rgb(255,108,14,0.25); border-radius: 20px; width: 100px;">
 							<tbody>
 								<tr>
-									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1408838964.png" style="display: block;" width="18" /></td>
-									<td style="font-family: Arial, sans-serif; font-size: 12px; color: #ffffff; font-weight: bold; text-decoration: none;">Pending</td>
+									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/sync.png" style="display: block;" width="18" /></td>
+									<td style="font-family: Arial, sans-serif; font-size: 12px; color: #FF6C0E; font-weight: bold; text-decoration: none;">Pending</td>
 								</tr>
 							</tbody>
 						</table>	
@@ -72,10 +72,10 @@ Your booking is
 								</tr>
 							</tbody>
 						</table>
+						@endif
 						</td>
 					</tr>
 				</tbody>
-			@endif
 </table>
 			</td>
 		</tr>
@@ -85,7 +85,7 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 25px auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
-			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $orders->user->name }}</span> <span style="font-weight: normal; text-decoration: none;">, thank you for choosing Vibe Adventures! </span> </span></td>
+			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $order->user->name }}</span> <span style="font-weight: normal; text-decoration: none;">, thank you for choosing Vibe Adventures! </span> </span></td>
 		</tr>
 	</tbody>
 </table>
@@ -93,18 +93,21 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
-			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">Your reservation is 
-<span style="color: #82cf45;">
-  @if ($orders->booking_status == 'pending') 
-    <strong>processing</strong>
-  @else 
-    <strong>complete</strong>
-  @endif
-</span></td>
+			<td>
+			@if ($order->booking_status == 'pending') 	
+				<span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">
+					Your reservation is 
+					<strong style="color: #82cf45;">complete</strong> 
+				</span>	
+			@else
+				<span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;font-weight: normal; text-decoration: none;">
+				We’ve received your payment and are confirming your booking with the tour operator (your flights are reserved). This process can take up to 72 hours. We’ll send your final booking confirmation and e-tickets as soon as possible.
+				</span>
+			@endif
+			</td>
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:20px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -117,11 +120,12 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
-			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Your payment @if ($orders->booking_status !='pending') <strong>is being processed</strong>@else <strong>was successfully processed</strong>@endif.</span></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Your payment @if ($order->booking_status !='pending') <strong>is being processed</strong>@else <strong>was successfully processed</strong>@endif.</span></td>
 		</tr>
 	</tbody>
 </table>
 
+@if ($order->booking_status !='pending')
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -130,19 +134,35 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
-			@if ($orders->booking_status !='pending')
-			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Tour operator and/or airline carriers are confirming your trip</span></td>
-			@else
 			<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Both the tour operator and airline carriers have confirmed your trip&nbsp;— you’re all set to travel!</span></td>
-			@endif
 		</tr>
 	</tbody>
 </table>
-
+@else
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td style="width: 35px;"><img alt="" border="0" height="24" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/pending.png" style="display: block;" width="24" /></td>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">Booking with the tour operator.</span></td>
+		</tr>
+	</tbody>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
+	<tbody>
+		<tr>
+			<td>
+				<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">
+					We’re confirming your booking with the tour operator. Once complete, you’ll receive your final confirmation and be all set!
+				</span>
+			</td>
+		</tr>
+	</tbody>
+</table>
+@endif
+@if ($order->booking_status !='pending')
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -151,7 +171,6 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -164,6 +183,7 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
+@endif
 
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;height: 15px; line-height: 15px; font-size: 13px;width:100%">
 	<tbody>
@@ -190,6 +210,7 @@ Your booking is
 		</tr>
 		<tr height="20" style="height: 20px;">
 		</tr>
+		@if ($order->booking_status !='pending')
 		<tr>
 			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">Why doesn't my trip include pre- and post-tour accommodations?</span></td>
 		</tr>
@@ -248,16 +269,46 @@ Your booking is
 		<tr>
 			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">Check visa requirements for the country in your adventure itinerary and flight summary. Don’t forget to check if you need a transit visa as well.</span></td>
 		</tr>
+		@else
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">
+				When will I get the final booking confirmation?
+			</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">		
+			You’ll receive the final booking confirmation as soon as we get it from the tour operator, as we don’t operate the adventures ourselves. Since we gather data from multiple tour operators to offer you the best selection and prices, our booking process is more complex. Most bookings are confirmed immediately, but occasionally, it may take up to 72 hours. Rest assured, we prioritize bookings to ensure everyone can travel as planned.			
+			</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;font-weight: bold;">
+				What happens to my money?
+			</span></td>
+		</tr>
+		<tr height="10" style="height: 10px;">
+		</tr>
+		<tr>
+			<td><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;">		
+			We’ve held the necessary funds for your booking to secure the flights and adventure, but the money remains with your bank and won’t be charged until the booking is confirmed. If we’re unable to confirm your booking within 72 hours, it will be automatically canceled, and your request fully refunded.			
+			</span></td>
+		</tr>
+		<tr height="15" style="height: 15px;">
+		</tr>
+		@endif
 	</tbody>
 </table>
 
-@if ($orders->tour)
+@if ($order->tour)
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Adventure summary</span></td>
 			<td align="right" valign="middle">
-				<a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $orders->tour_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download itinerary</a>
+				<a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $order->tour_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download itinerary</a>
 			</td>
 		</tr>
 	</tbody>
@@ -266,15 +317,15 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" style="width:150px;padding-right: 20px;" valign="middle">
-				 @if ($orders->tour->main_thumbnail)
-				<img src="{{ $orders->tour->main_thumbnail }}" style="height:150px;" />
+				 @if ($order->tour->main_thumbnail)
+				<img src="{{ $order->tour->main_thumbnail }}" style="height:150px;" />
 				@endif
 			</td>
 			<td align="left" valign="top">
 			<table>
 				<tbody>
 					<tr>
-						<td><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 15px; color: #82cf45;">{{ $orders->tour->tour_name }}</span></td>
+						<td><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 15px; color: #82cf45;">{{ $order->tour->tour_name }}</span></td>
 					</tr>
 				</tbody>
 			</table>
@@ -283,8 +334,8 @@ Your booking is
 				<tbody>
 					<tr>
 						<td width="24"><img border="0" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i196401944.png" style="display: block;" width="18" /></td>
-						<td width="30"><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #82cf45;">{{ $orders->tour->ratings_overall }}</span></td>
-						<td><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #9ca3af;">{{ $orders->tour->reviews_count }} reviews </span></td>
+						<td width="30"><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #82cf45;">{{ $order->tour->ratings_overall }}</span></td>
+						<td><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #9ca3af;">{{ $order->tour->reviews_count }} reviews </span></td>
 					</tr>
 				</tbody>
 			</table>
@@ -294,10 +345,10 @@ Your booking is
 					<tr>
 						<td width="28"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1337963125.png" style="height: 26px;width: 26px;" /></td>
 						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Starts in: </span></td>
-						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $orders->start_city . ',' . $orders->origin }}</span></td>
+						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $order->start_city . ',' . $order->origin }}</span></td>
 						<td width="28"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1337963125.png" style="height: 26px;width: 26px;" /></td>
 						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Ends in: </span></td>
-						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $orders->end_city . ',' . $orders->f_destination }}</span></td>
+						<td style="min-width: 76px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ $order->end_city . ',' . $order->f_destination }}</span></td>
 					</tr>
 				</tbody>
 			</table>
@@ -307,10 +358,10 @@ Your booking is
 					<tr>
 						<td width="30"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1067799321.png" style="margin-left:-3px;height: 30px;width: 30px;" /></td>
 						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Starts on:</span></td>
-						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }}</span></td>
+						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($order->start)->format('M d, Y') }}</span></td>
 						<td width="32"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i64381891.png" style="margin-left:1px;height: 28px;width: 28px;" /></td>
 						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Ends on:</span></td>
-						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</span></td>
+						<td style="min-width: 72px;"><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">{{ \Carbon\Carbon::parse($order->end)->format('M d, Y') }}</span></td>
 					</tr>
 				</tbody>
 			</table>
@@ -321,7 +372,7 @@ Your booking is
 						<td width="30"><img border="0" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i751044998.png" style="margin-left:-1px;height: 28px;width: 28px;" /></td>
 						<td style="min-width: 50px;"><span style="font-family: 'Interstate Light Cond', sans-serif; font-size: 12px; color: #000000;">Rooms:</span></td>
 						<td><span style="color: #9ca3af;font-family: 'Interstate Light Cond', sans-serif; font-size: 12px;">
-							 @foreach ($orders['passengers'] as $acc)
+							 @foreach ($order['passengers'] as $acc)
                                         <p>
                                             <span style="color: #82CF45;">
                                                 {{ $acc['passengers'] }}
@@ -338,19 +389,19 @@ Your booking is
 	</tbody>
 </table>
 @endif
-@if (isset($orders->attempt->duffel_res['data']['slices']))
+@if (isset($order->attempt->duffel_res['data']['slices']))
 
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Flights summary</span></td>
-			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/get-tickets?orderId={{ $orders->duffel_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download tickets</a></td>
+			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/get-tickets?orderId={{ $order->duffel_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download tickets</a></td>
 		</tr>
 	</tbody>
 </table>
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
-@foreach ($orders->attempt->duffel_res['data']['slices'] as $or)	
+@foreach ($order->attempt->duffel_res['data']['slices'] as $or)	
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
 		<tr>
@@ -421,7 +472,7 @@ Your booking is
                                   text-align:center;text-decoration:none;
                                   -webkit-text-size-adjust:none;box-sizing:border-box;"
                            target="_blank">
-                            {{ $orders->tour_length }} days in destination
+                            {{ $order->tour_length }} days in destination
                         </a>
                     </td>
                 </tr>
@@ -439,23 +490,22 @@ Your booking is
 </div>
 </div>
 @endif
-@if ($orders->booking_status !='pending')
+@if ($order->booking_status !='pending')
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Payment</span></td>
-			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/preview/invoice?booking_id={{$orders->booking_id}}&orderId={{$orders->duffel_id}}&payment_id={{$orders->payment_id}}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download invoice</a></td>
+			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/preview/invoice?booking_id={{$order->booking_id}}&orderId={{$order->duffel_id}}&payment_id={{$order->payment_id}}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download invoice</a></td>
 		</tr>
 	</tbody>
 </table>
-@endif
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">Total</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">${{ number_format( ceil($orders->paid), 2 ) }} USD</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 22px; color: #000000;">${{ number_format( ceil($order->paid), 2 ) }} USD</span></td>
 		</tr>
 		<tr style="height:5px">
 		</tr>
@@ -479,12 +529,12 @@ Your booking is
 		</tr>
 		<tr>
 			<td align="left" valign="middle">&nbsp;</td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;font-style:italic">{{ \Carbon\Carbon::parse($orders->start)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($orders->end)->format('M d, Y') }}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;font-style:italic">{{ \Carbon\Carbon::parse($order->start)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($order->end)->format('M d, Y') }}</span></td>
 		</tr>
 		<tr>
 			<td align="left" valign="middle">&nbsp;</td>
 			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px;font-style:italic">
-				 @foreach ($orders['passengers'] as $acc)
+				 @foreach ($order['passengers'] as $acc)
                                         <p>
                                             <span style="color: #82CF45;">
                                                 {{ $acc['passengers'] }}
@@ -515,20 +565,20 @@ Your booking is
 		<tr style="height:10px">
 		</tr>
 		<tr>
-			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">{{ \Carbon\Carbon::parse($orders->stripe_created)->format('M d, Y') }}</span></td>
-			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">@if ($orders->last_4)<strong>Visa</strong>****{{$orders->last_4}}@else<strong>{{$orders->payment_method}}</strong>@endif</span></td>
-			@if ($orders->booking_status !='pending')
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">{{ \Carbon\Carbon::parse($order->stripe_created)->format('M d, Y') }}</span></td>
+			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000;">@if ($order->last_4)<strong>Visa</strong>****{{$order->last_4}}@else<strong>{{$order->payment_method}}</strong>@endif</span></td>
+			@if ($order->booking_status !='pending')
 			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Pending ✔</span></td>
 			@else
 			<td align="center" valign="middle"><span style="font-family: Inter, sans-serif;font-size: 13px;color: #82cf45;background: #def9cb;padding: 2px 8px;border-radius: 4px;border: 1px solid #82cf45;font-weight: bold;">Succeeded ✔</span></td>
-<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000; font-weight: bold;">${{ number_format( ceil($orders->paid * 1.15), 2 ) }} USD</span></td>
+<td align="center" valign="middle"><span style="font-family: Inter, sans-serif; font-size: 13px; color: #000000; font-weight: bold;">${{ number_format( ceil($order->paid * 1.15), 2 ) }} USD</span></td>
 @endif
 		</tr>
 	</tbody>
 </table>
 </div>
 </div>
-
+@endif
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -536,12 +586,12 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
-@if ($orders->travelers)
+@if ($order->travelers)
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
-		@foreach ($orders->travelers as $traveler)
+		@foreach ($order->travelers as $traveler)
 		<tr>
 			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1682235450.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ $traveler->title }} <b>{{ $traveler->name.' '.$traveler->last }}<b></span></td>
 			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{ \Carbon\Carbon::parse($traveler->birth)->format('j M Y') }}</span></td>
