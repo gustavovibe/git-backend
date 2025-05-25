@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Mail\BookEmail;
-use App\Mail\CancelEmail;
+use App\Mail\CancelMail;
 
 class PreviewMailController extends Controller
 {
