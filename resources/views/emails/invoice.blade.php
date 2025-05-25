@@ -139,7 +139,7 @@
          <table style="text-align:left">
         <tr>
             <td>
-            <span style="font-family: Canaro, sans-serif;font-size:10px">* This is a simplified invoice. If you require an electronic invoice in CFDI format, please <a href="https://vibeadventures.com/contact" style="color: #82CF45;" >contact us</a>.</span>
+            <span style="font-family: Canaro, sans-serif;font-size:10px">* This is a simplified invoice. If you need help, please <a href="https://vibeadventures.com/contact" style="color: #82CF45;" >contact us</a>.</span>
             </td>
         </tr>
         <tr>

@@ -596,6 +596,7 @@ class TourController extends Controller
      * @param Request $r Request object
      * @return array
      */
+    
     public function bookingSummaryPdf(Request $r){
         $tourResponse = (new  ProxyTourRadarController)->show($r->tour_id);
         $tourData = $tourResponse->getData(true);

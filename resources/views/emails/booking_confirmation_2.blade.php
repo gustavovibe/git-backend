@@ -654,7 +654,7 @@ Your booking is
 			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Airport transfer</span><br />
 			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">not included in adventure? </span><br />
 			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
-			Transfers </a></td>
+			Transfers <br></a></td>
 			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-312608904.png" style="display: block;" width="73" /><br />
 			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Insurance</span><br />
 			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Available up to 24h before departure</span><br />
@@ -667,7 +667,7 @@ Your booking is
 			accommodations</a></td>
 			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1821386128.png" style="display: block;" width="73" /><br />
 			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Activities</span><br />
-			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Got extra days in the destination before or after the adventure?</span><br />
+			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Got extra days before or after the adventure?</span><br />
 			<a href="#" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Find<br />
 			activities</a></td>
 		</tr>

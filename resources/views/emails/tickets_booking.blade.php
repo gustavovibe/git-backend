@@ -80,9 +80,9 @@
                                                 @foreach ($seg_passenger['baggages'] as $index => $baggage)
                                                     @if ($index > 0), @endif
                                                     {{ $baggage['quantity'] }} x
-                                                    @if ($baggage['type'] == 'checked')Checked Bag (45 + 66 + 45cm, 10kg)
-                                                    @elseif ($baggage['type'] == 'carry_on')carry-on luggage (45 + 66 + 45cm, 10kg)
-                                                    @elseif ($baggage['type'] == 'personal')personal Item (20 + 35 + 45 cm, 5kg)
+                                                    @if ($baggage['type'] == 'checked')Checked Bag 
+                                                    @elseif ($baggage['type'] == 'carry_on')carry-on luggage 
+                                                    @elseif ($baggage['type'] == 'personal')personal Item
                                                     @else{{ ucfirst($baggage['type']) }} <!-- Default case if type is unknown -->
                                                     @endif
                                                 @endforeach
@@ -127,7 +127,7 @@
                 <td rowspan="4" style="text-align: center; padding-left: 5%;">
                     <div style="text-align: right;">
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Carrier:</b> {{ $segment['operating_carrier']['name'] }}</p>
-                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Flight #:</b> {{ $segment['operating_carrier_flight_number'] }}</p>
+                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Flight #</b> {{ $segment['operating_carrier_flight_number'] }}</p>
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Duration:</b> {{ $segment['formatted_duration']  }}</p>
                     </div>
                 </td>
@@ -139,7 +139,7 @@
             <tr>
                 <td style="text-align: right;font-family: 'Roboto', sans-serif;font-size: 12px;text-align: right"><b>{{ $segment['formatted_arriving_hour'] }}</b></td>
                 <td style="padding-left: 5%">
-                    <b style="font-family: 'Roboto', sans-serif;font-size: 12px;">
+                    <b style="font-family: 'Roboto', sans-serif;font-size: 14px;">
                         <span style="color:#82CF45;">{{ $segment['destination']['iata_city_code'] }}</span> {{ $segment['destination']['city_name'] }}
                     </b>
                 </td>
@@ -172,21 +172,20 @@
     </span>
     <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
     <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Class:</b> Economy.</p>    
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Refundabilty:</b> Non-refundable except under extraordinary circumstances.</p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Changes:</b> Allowed up to 48h before departure, $100 USD fee applies.</p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Baggage:</b> 1 carry-on (7kg) included, no checked baggage. </p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Seat Selection:</b> Free at check-in, paid options available.</p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Lounge Access:</b> Not included.</p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Priority Boarding:</b> Not included.</p>
+    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Refundabilty:</b> if(data['conditions']['refund_before_departure'] == false) <span>Not refundable</span> @else <span>Refundable</span> @endif</p>
+    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Changes:</b>if(data['conditions']['allowed'] == false) <span>Not allowed</span> @else <span>Allowed</span> @endif </p>
     </div>
-    <label style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b style="color: red">*</b> Please check the airline's website or contact the airline directly for further details.</label>
+    <label style="font-family: 'Roboto', sans-serif;font-size: 11px;">
+        <b style="color: red">*</b> Please check the airline's full conditions on 
+        <a href="https://hopeful-nobel.74-208-189-166.plesk.page/my-trips" style="color: #82CF45">My trips</a> portal.
+    </label>
 </div>
 
 
 <div style="margin-top:10px">
 <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;">Help & Support</h2>
 <p style="font-family: 'Roboto', sans-serif;font-size: 11px;">Please 
-    <a href="https://vibeadventures.com/contact" style="color: #82CF45">contact us</a> if any help is needed.
+    <a href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" style="color: #82CF45">contact us</a> if any help is needed.
 </p>
 <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;">Additional Information</h2>
 <p style="font-family: 'Roboto', sans-serif;font-size: 11px;">"Vibeadventures.com does not take responsibility for any visa-related matters, including airport transit visas. Failure to provide the required documentation may result in denied boarding. It is your responsibility to ensure you have all necessary travel documents for your trip, such as a valid passport, appropriate visas, and any recommended vaccination records for your destination.}</p>

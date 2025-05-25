@@ -5,104 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Summary</title>
     <style>
-        @page {
-            margin: 100px 25px;
-        }
-
         body {
             margin: 0;
             padding: 0;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: -80px;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            text-align: center;
         }
 
         .footer img {
             width: 100%;
             height: 60px;
         }
-
-        /* Ocultar footer en la primera página */
-        @page:first {
-            @bottom-center {
-                content: none;
-            }
-        }
     </style>
 </head>
 <body style=" font-family: sans-serif;">
-    <div class="footer">
-        <img src="https://vibeadventures.be/images/Footer.png'">
-    </div>
-    <div style="width: 100%; height: 842.88px; position: relative; background: white">
-        <div
-            style="left: 60.40px; top: 781px; position: absolute;  justify-content: flex-start; align-items: center; gap: 40px; display: inline-flex">
-            <table>
+<div>  
+        <table style="text-align:center">
+            <tr>
+                <td>
+                    <img style="width: 226px; height: 68.99px;"src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                <span style="color: #4F5E71; font-size: 18.61px; font-family: Inter; font-weight: 700; text-decoration: underline; word-wrap: break-word">
+                Adventure Itinerary
+                </span>
+                </td>
+            </tr>
+            </tr>
+            <tr>
+                <td>
+                    <span style="color: #4F5E71; font-size: 45.61px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                    {{ $tour['tour_name'] }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img style="width: 487px; height: 324.67px;"src="{{ $tour['images'][0] }}" />                
+                </td>
+            </tr>
+        </table>
+        <table style="text-align:center">
                 <tr>
                     <td>
-                        <img style="width: 18px; height: 17.54px; left: 3.81px;"
+                        <img style="width: 18px; height: 17.54px;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" />
-                    </td>
-                    <td>
-                        <p
+                        <span
                             style="color: #82CF45; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            WIDE SELECTION</p>
+                            WIDE SELECTION</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
                         <img style="width: 18px; height: 17.54px; left: 3.81px;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/thumbs-up.png" />
-                    </td>
-                    <td>
-                        <p
+                            <span
                             style="color: #82CF45; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            EASY BOOKING</p>
+                            EASY BOOKING</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
                         <img style="width: 18px; height: 17.54px; left: 3.81px;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/key.png" />
-                    </td>
-                    <td>
-                        <p
+                            <span
                             style="color: #82CF45; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                            SECURE PAYMENTS</p>
+                            SECURE PAYMENTS</span>
                     </td>
                 </tr>
-            </table>
-        </div>
-        <div
-            style="width: 476px; height: 145px; left: 54.40px; top: 216px; position: absolute; color: #4F5E71; font-size: 45.61px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-            {{ $tour['tour_name'] }}</div>
-        <div
-            style="width: 202px; height: 19px; left: 333.40px; top: 185px; position: absolute; color: #4F5E71; font-size: 18.61px; font-family: Inter; font-weight: 700; text-decoration: underline; word-wrap: break-word">
-            Itinerary & Trip Notes</div>
-        <img style="width: 226px; height: 68.99px; left: 185.40px; top: 58px; position: absolute"
-            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
-        <img style="width: 487px; height: 324.67px; left: 54.40px; top: 407px; position: absolute"
-            src="{{ $tour['images'][0] }}" />
+        </table>
     </div>
 
 
     <div style="page-break-before: always;">
-        <div style="width: 595.92px; height: 900px; position: relative; background: white">
-            <div
-                style="width: 595.92px; height: 842.88px; padding-bottom: 0.88px; padding-right: 0.44px; left: 0px; top: 0px; position: absolute; flex-direction: column; justify-content: center; align-items: center; display: inline-flex">
-                <div style="width: 595.48px; height: 842px; position: relative">
-                    <div style="width: 595px; height: 842px; left: 0px; top: 0px; position: absolute">
-
-                        <img style="width: 481.50px; height: 283.50px; left: 57px; top: -680.75px; position: absolute"
+        <table style="width:100%; height: 900px; position: relative; background: white;text-align:center">
+            <tr>
+                <td>
+                <img style="width: 481.50px; height: 283.50px; left: 57px; top: -680.75px; position: absolute"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
-                    </div>
-
-                </div>
-            </div>
+                </td>
+                <td>
+                <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                    {{ $tour['tour_name'] }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
 
             <div
                 style="background-color: rgba(130, 207, 69, 0.20); border-radius:6px; padding: 10px;width: 45%; left: 55px; top: 480px; position: absolute;">
@@ -205,9 +192,6 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                         </div>
                     </div>
-                    <div
-                        style="width: 280px; height: 49px; color: #4F5E71; font-size: 10.95px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        Independent London City Stay</div>
                 </div>
             </div>
         </div>
@@ -220,14 +204,22 @@
     </div>
 
     <div style="page-break-before: always;">
-        <div>
-            <img style="width: 18%; height: 4%; margin-left:6%; "
+            <table style="width:100%; height: 900px; position: relative; background: white;text-align:center">
+                <tr>
+                    <td>
+                    <img style="width: 481.50px; height: 283.50px; left: 57px; top: -680.75px; position: absolute"
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
-                                <hr style="margin-top:10%;color:#4F5E71">
-        </div>
+                    </td>
+                    <td>
+                    <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                        {{ $tour['tour_name'] }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
 
         <div>
-            <p style="color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word;">Description</p>
+            <p style="color: #82CF45; font-size: 25px; font-family: Inter; font-weight: 700; word-wrap: break-word;">Introduction</p>
         </div>
         <div style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">
             {!! $tour['overview'] !!}
