@@ -7,7 +7,7 @@
     <title>Adventure Itinerary</title>
     <style>
         @page {
-            margin: 20mm 10mm 30mm 10mm; /* add bottom margin to allow space for footer */
+            margin: 15mm 10mm 15mm 10mm; /* add bottom margin to allow space for footer */
         }
         .footer {
             position: fixed;
@@ -20,59 +20,64 @@
         div.cover .footer { display: none; }
     </style>
 </head>
-<body style="margin: 10px;padding: 0;font-family: Arial, sans-serif;">
+<body style="margin: 10px;padding: 0;font-family: 'Roboto', sans-serif;">
   <div>  
     <div class="cover" style="width:100%">
-        <table style="text-align:center;width:100%">
-            <tr style="margin-bottom:100px">
+        <table style="text-align:center;width:100%;margin-bottom: 50px;">
+            <tr>
                 <td>
-                    <img style="width: 400px; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
+                    <img style="width: 300px; height: auto;" src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                 </td>
             </tr>
+        </table>
+        <table style="text-align:center;width:100%;margin-bottom: 50px;">
             <tr style="margin-bottom:100px">
                 <td>
-                <span style="color: #4F5E71; font-size: 22px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                <span style="color: #4F5E71; font-size: 22px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                 Adventure Itinerary
                 </span>
                 </td>
             </tr>
-            </tr>
+        </table>
+        <table style="text-align:center;width:100%;margin-bottom: 50px;">
             <tr style="margin-bottom:100px">
                 <td>
-                    <span style="color: #4F5E71; font-size: 60px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                    <span style="color: #4F5E71; font-size: 60px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                         {{ $tour['tour_name'] }}
                     </span>
                 </td>
             </tr>
+        </table>
+        <table style="text-align:center;width:100%;margin-bottom: 100px;">    
             <tr style="margin-bottom:100px">
                 <td>
-                    <img style="width: 600px; height: auto;"src="{{ $tour['images'][0] }}" />                
+                    <img style="width: 100%; height: auto;"src="{{ $tour['images'][0] }}" />                
                 </td>
             </tr>
         </table>
         <table style="text-align:center;width:100%">
                 <tr>
                     <td>
-                        <img style="width: 18px; height: 17.54px;"
+                        <img style="width: 20px; height: auto;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" />
                         <span
-                            style="color: #82CF45; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             WIDE SELECTION</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
-                        <img style="width: 18px; height: 17.54px; left: 3.81px;"
+                        <img style="width: 20px; height: auto;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/thumbs-up.png" />
                             <span
-                            style="color: #82CF45; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             EASY BOOKING</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
-                        <img style="width: 18px; height: 17.54px; left: 3.81px;"
+                        <img style="width: 20px; height: auto;"
                             src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/key.png" />
                             <span
-                            style="color: #82CF45; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             SECURE PAYMENTS</span>
                     </td>
                 </tr>
@@ -86,7 +91,7 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                    <span style="color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                    <span style="color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                         {{ $tour['tour_name'] }}
                     </span>
                 </td>
@@ -95,92 +100,92 @@
         <table style="text-align:center">
             <tr>
                 <td>
-                <span style="color: #82CF45; font-size: 25px; font-family: Inter; word-wrap: break-word; font-weight: 700; ;">
+                <span style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">
                     Overview
                 </span><br>
                 <img style="width:100%; height:auto" src="{{ $tour['map'] }}">
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;width:100%;">
+        <table style="margin:10px 0;width:100%;margin-bottom:30px">
             <tr>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:70%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:70%;padding: 10px;border-radius: 5px;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         DURATION
                     </span><br>
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                     {{ $tour['tour_length_days'] }} days
                     </span>
                 </td>
                 <td style="width:2%">
                 </td>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:28%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:28%;padding: 10px;border-radius: 5px;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         MAX GROUP SIZE
                     </span><br>
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                     {{ $tour['max_group_size'] }}
                     </span>
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;background-color: rgba(130, 207, 69, 0.20);">
+        <table style="margin:10px 0;width:100%;background-color: rgba(130, 207, 69, 0.20);margin-bottom:30px;padding: 10px;border-radius: 5px;">
             <tr>
                 <td style="width:15%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                        VISITED <br> COUNTRIES
                     </span>
                 </td>
                 <td style="width:1%"></td>
                 <td style="width:33%;" v-align="middle">
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                     {{ $countries_d['countries_text'] }}
                     </span>
                 </td>
                 <td style="width:2%"></td>
                 <td style="width:15%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                        STARTS IN <br> ENDS IN
                     </span>
                 </td>
                 <td style="width:1%"></td>
                 <td style="width:33%">
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         {{ $tour['start_city']['city_name'] }} <br>
                         {{ $tour['end_city']['city_name'] }}
                     </span>
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;background-color: rgba(130, 207, 69, 0.20);">
+        <table style="margin:10px 0;width:100%;background-color: rgba(130, 207, 69, 0.20);margin-bottom:30px;padding: 10px;border-radius: 5px;">
             <tr>
                 <td>
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         ADVENTURE STYLES
                     </span><br>
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         {{ $countries_d['tour_text'] }}
                     </span>
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;">
+        <table style="margin:10px 0;width:100%;">
             <tr>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%;padding: 10px;border-radius: 5px;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         OPERATED IN
                     </span><br>
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         {{ $countries_d['guide_text'] }}
                     </span>
                 </td>
                 <td style="width:2%">
                 </td>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%">
-                    <span style="color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%;padding: 10px;border-radius: 5px;">
+                    <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         PHYSICALLY DIFFICULTY
                     </span><br>
-                    <span style="color: gray; font-size:14px; font-family: Inter; word-wrap: break-word; font-weight: 700;">
+                    <span style="color: gray; font-size:14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         Moderate
                     </span>
                 </td>
@@ -195,7 +200,7 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                        <span style="color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             {{ $tour['tour_name'] }}
                         </span>
                     </td>
@@ -203,21 +208,21 @@
             </table>
 
         <div>
-            <p style="color: #82CF45; font-size: 25px; font-family: Inter; word-wrap: break-word; font-weight: 700; ;">Introduction</p>
+            <p style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">Introduction</p>
         </div>
-        <div style="text-align: justify; color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 400; margin-top:3%;">
+        <div style="text-align: justify; color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">
             {!! $tour['overview'] !!}
         </div>
         <br>
         <div>
-            <p style="color: #82CF45; font-size: 25px; font-family: Inter; word-wrap: break-word; font-weight: 700; ;">Itinerary</p>
+            <p style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">Itinerary</p>
         </div>
 
         <div>
             @foreach ( $tour['itinerary'] as $day )
                 <div style="page-break-inside: avoid;">
-                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: Inter; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['title'] !!}</label>
-                    <div style="text-align: justify; color: #4F5E71; font-size:16px; font-family: Inter; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['description'] !!}</div>
+                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['title'] !!}</label>
+                    <div style="text-align: justify; color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['description'] !!}</div>
                 </div>
                 <br>
             @endforeach
@@ -231,20 +236,20 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                        <span style="color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             {{ $tour['tour_name'] }}
                         </span>
                     </td>
                 </tr>
         </table>
         <div>
-            <p style="color: #82CF45; font-size: 25px; font-family: Inter; word-wrap: break-word; font-weight: 700; ;">Whats included!</p>
+            <p style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">Whats included!</p>
         </div>
         @foreach ( $services as $key=>$value)
         <div style="page-break-inside: avoid;">
           <h3>{{ ucfirst($key) }}</h3>
             @foreach ( $value as $item )
-                <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
+                <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
             @endforeach
         </div>
         @endforeach
@@ -253,7 +258,7 @@
         <div style="page-break-inside: avoid;">
           <h3>{{ ucfirst($key) }}</h3>
             @foreach ( $value as $item )
-                <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
+                <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
             @endforeach
         </div>
         @endforeach
@@ -266,7 +271,7 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; word-wrap: break-word; font-weight: 700; ">
+                        <span style="color: #4F5E71; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                             {{ $tour['tour_name'] }}
                         </span>
                     </td>
@@ -318,7 +323,7 @@
             </table>
             <br>
             <div style="text-align: center;">
-                <h1 style=" font-family: Inter; word-wrap: break-word; ">Expert Customer Support</h1>
+                <h1 style=" font-family: 'Roboto', sans-serif; word-wrap: break-word; ">Expert Customer Support</h1>
             </div>
             <table style="width: 100%">
                 <tr>

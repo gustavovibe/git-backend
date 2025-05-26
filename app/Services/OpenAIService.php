@@ -20,10 +20,10 @@ class OpenAIService
   {
     try {
 
-      $open_ai_key = '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'; 
+      $openAiKey = !empty(env('OPENAI_API_KEY')) ? env('OPENAI_API_KEY') : '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';
       $headers = [
         'Accept' => 'application/json',
-        'Authorization' => 'Bearer ' .$open_ai_key,
+        'Authorization' => 'Bearer ' .$openAiKey,
       ];
       $url = 'https://api.openai.com/v1/chat/completions';
 
@@ -102,7 +102,7 @@ class OpenAIService
   {
     try {
 
-      $openAiKey = env('OPENAI_API_KEY');
+      $openAiKey = !empty(env('OPENAI_API_KEY')) ? env('OPENAI_API_KEY') : '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';
       $headers = [
           'Accept' => 'application/json',
           'Authorization' => 'Bearer ' . $openAiKey,

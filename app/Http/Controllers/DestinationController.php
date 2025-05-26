@@ -227,6 +227,7 @@ class DestinationController extends Controller
         'overview' => $overview
       ]);
       $destination->overview = $overview;
+      $destination->destination->$overview = $overview;
 
     }// end if($destination->destination_id && $destination->overview == 'overview'){
 
@@ -413,7 +414,6 @@ class DestinationController extends Controller
     $destination->travel_tips = $this->parseTextContent($destination->destination->travel_tips ?? '');
     $destination->things_to_do = $this->parseTextContent($destination->destination->things_to_do ?? '');
     $destination->video_url = $destination->destination->video_url;
-    
     return ApiResponse::success($destination, $response_message);
 
   }// end
