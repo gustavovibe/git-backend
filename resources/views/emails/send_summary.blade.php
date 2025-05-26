@@ -3,21 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Summary</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .footer img {
-            width: 100%;
-            height: 60px;
-        }
-    </style>
+    <title>Adventure Itinerary</title>
 </head>
-<body>
+<body style="margin: 20px;padding: 0;font-family: 'Roboto', sans-serif;">
     <div style="page-break-before: always;width:100%">
         <table style="text-align:center;width:100%">
             <tr>
@@ -36,7 +24,7 @@
             <tr>
                 <td>
                     <span style="color: #4F5E71; font-size: 45.61px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                    {{ $tour['tour_name'] }}
+                        {{ $tour['tour_name'] }}
                     </span>
                 </td>
             </tr>
@@ -84,7 +72,7 @@
                     <td style="text-align:right">
                     <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
                         {{ $tour['tour_name'] }}
-                        </span>
+                    </span>
                 </td>
             </tr>
         </table>
@@ -193,8 +181,8 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                    <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        {{ $tour['tour_name'] }}
+                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                            {{ $tour['tour_name'] }}
                         </span>
                     </td>
                 </tr>
@@ -212,10 +200,10 @@
         </div>
 
         <div>
-            @foreach ( $tour['itinerary'] as $tour )
+            @foreach ( $tour['itinerary'] as $day )
                 <div style="page-break-inside: avoid;">
-                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $tour['title'] !!}</label>
-                    <div style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $tour['description'] !!}</div>
+                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $day['title'] !!}</label>
+                    <div style="text-align: justify; color: #4F5E71; font-size: 11px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $day['description'] !!}</div>
                 </div>
                 <br>
             @endforeach
@@ -232,8 +220,8 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                    <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        {{ $tour['tour_name'] }}
+                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                            {{ $tour['tour_name'] }}
                         </span>
                     </td>
                 </tr>
@@ -248,7 +236,8 @@
                 <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
             @endforeach
         </div>
-          @endforeach
+        @endforeach
+
         @foreach ( $services as $key=>$value)
         <div style="page-break-inside: avoid;">
           <h3>{{ ucfirst($key) }}</h3>
@@ -256,8 +245,7 @@
                 <label  style="text-align: justify; color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 400; margin-top:3%;">{!! $item['description'] !!}</label>
             @endforeach
         </div>
-          @endforeach
-
+        @endforeach
           <br>
           <img style="width:100%;height:auto;margin: 0 auto;"
             src="https://vibeadventures.be/images/Footer.png" >
@@ -271,8 +259,8 @@
                                 src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/logo.png" />
                     </td>
                     <td style="text-align:right">
-                    <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
-                        {{ $tour['tour_name'] }}
+                        <span style="color: #4F5E71; font-size: 14px; font-family: Inter; font-weight: 700; word-wrap: break-word">
+                            {{ $tour['tour_name'] }}
                         </span>
                     </td>
                 </tr>

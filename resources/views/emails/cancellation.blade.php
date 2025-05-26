@@ -1,7 +1,6 @@
 <html>
 <head>
-	
-	<title></title>
+	<title>Booking cancellation</title>
 </head>
 <body>
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
