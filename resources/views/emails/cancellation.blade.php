@@ -64,7 +64,6 @@
 						</td>
 					</tr>
 				</tbody>
-			@endif
 </table>
 			</td>
 		</tr>
