@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>PDF Ticket</title>
+    <title>Flight ticket</title>
     <style>
         /* Establece el encabezado como fijo */
         .header {

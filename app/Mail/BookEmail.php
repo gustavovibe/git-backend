@@ -35,7 +35,7 @@ class BookEmail extends Mailable
 
     public function build()
     {
-        $email = $this->subject('Booking confirmation')
+        $email = $this->subject('Your booking with Vibe Adventures')
                       ->view('emails.booking_confirmation_2')
                       ->with([
                           'order' => $this->orders,
@@ -48,7 +48,7 @@ class BookEmail extends Mailable
                 'data' => $this->data['data'],
                 'passengers_data' => $this->data['passengers_data']
             ]);
-            $email->attachData($pdf1->output(), 'tickets_booking.pdf', [
+            $email->attachData($pdf1->output(), 'flight_tickets.pdf', [
                 'mime' => 'application/pdf',
             ]);
         }
@@ -64,7 +64,7 @@ class BookEmail extends Mailable
             'countries_d' => $this->summaryValues['countries_d'],
             'services' => $this->summaryValues['services'],
         ]);
-        $email->attachData($pdf2->output(), 'booking_summary_tour.pdf', [
+        $email->attachData($pdf2->output(), 'adventure_summary.pdf', [
             'mime' => 'application/pdf',
         ]);
         }
