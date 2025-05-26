@@ -107,9 +107,9 @@
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;width:100%;">
+        <table style="margin:10px 0;width:100%;margin-bottom:30px">
             <tr>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:70%">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:70%;padding: 10px;border-radius: 5px;">
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         DURATION
                     </span><br>
@@ -119,7 +119,7 @@
                 </td>
                 <td style="width:2%">
                 </td>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:28%">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:28%;padding: 10px;border-radius: 5px;">
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         MAX GROUP SIZE
                     </span><br>
@@ -129,7 +129,7 @@
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;background-color: rgba(130, 207, 69, 0.20);">
+        <table style="margin:10px 0;width:100%;background-color: rgba(130, 207, 69, 0.20);margin-bottom:30px;padding: 10px;border-radius: 5px;">
             <tr>
                 <td style="width:15%">
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
@@ -157,7 +157,7 @@
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;background-color: rgba(130, 207, 69, 0.20);">
+        <table style="margin:10px 0;width:100%;background-color: rgba(130, 207, 69, 0.20);margin-bottom:30px;padding: 10px;border-radius: 5px;">
             <tr>
                 <td>
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
@@ -169,9 +169,9 @@
                 </td>
             </tr>
         </table>
-        <table style="margin:10px 0;">
+        <table style="margin:10px 0;width:100%;">
             <tr>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%;padding: 10px;border-radius: 5px;">
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         OPERATED IN
                     </span><br>
@@ -181,7 +181,7 @@
                 </td>
                 <td style="width:2%">
                 </td>
-                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%">
+                <td style="background-color: rgba(130, 207, 69, 0.20);width:48%;padding: 10px;border-radius: 5px;">
                     <span style="color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
                         PHYSICALLY DIFFICULTY
                     </span><br>
