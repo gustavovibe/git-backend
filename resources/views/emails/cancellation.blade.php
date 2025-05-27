@@ -13,7 +13,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
 	<tbody>
 		<tr>
@@ -28,7 +27,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
 	<tbody>
 		<tr>
@@ -63,12 +61,11 @@
 						</td>
 					</tr>
 				</tbody>
-</table>
+			</table>
 			</td>
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 25px auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
@@ -76,7 +73,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:20px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -93,7 +89,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -102,7 +97,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -110,7 +104,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:10px auto auto auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -119,7 +112,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 0 auto;width: 100%;text-align: left;">
 	<tbody>
 		<tr>
@@ -127,7 +119,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;height: 15px; line-height: 15px; font-size: 13px;width:100%;margin-top:20px;margin-bottom:20px">
 	<tbody>
 		<tr>
@@ -144,7 +135,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="padding: 20px 30px; border-radius: 20px; border-width: 1px; border-color: #82cf45; border-style: dotted;border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 	<tbody>
 		<tr>
@@ -194,7 +184,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;height: 15px; line-height: 15px; font-size: 13px;width:100%;margin-top:20px;">
 	<tbody>
 		<tr>
@@ -204,7 +193,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
@@ -214,31 +202,26 @@
 </table>
 <div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
-
-<table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px">
-	<tbody>
-        <tr valign="middle">
+<table border="0" style="width:100%;margin-top:10px">
+        	<tr valign="middle">
                 <a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Date and time</a>
                 <span>{{ \Carbon\Carbon::parse($orders->stripe_created)->format('M d, Y') }}</span>
-            </tr>
+            </tr><br>
 			<tr valign="middle">
                 <a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Payment method</a>
                 <span>@if ($orders->last_4)<strong>Visa</strong>****{{$orders->last_4}}@else<strong>{{$orders->payment_method}}</strong>@endif</span>
-            </tr>
+            </tr><br>
 			<tr valign="middle">
                 <a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Refund Id</a>
                 <span>{{$orders->last_charge}}</span>   
-            </tr>
+            </tr><br>
 			<tr valign="middle">
                 <a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Amount</a>
                 <span>${{ number_format( ceil($orders->paid), 2 ) }} USD</span>
             </tr>
-	</tbody>
 </table>
 </div>
 </div>
-
-
 <div class="footer" style="margin-top:25px;">
 <table style="max-width: 600px;margin:0 auto;width: 100%;">
 	<tbody>
@@ -262,7 +245,6 @@
 		</tr>
 	</tbody>
 </table>
-
 <table style="max-width: 600px;margin:0 auto;width: 100%;">
 	<tbody>
 		<tr>
