@@ -58,26 +58,26 @@
         <table style="text-align:center;width:100%">
                 <tr>
                     <td>
-                        <img style="width: 20px; height: auto;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/globe.png" />
+                        <img style="width: 35px; height: auto;"
+                            src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/globe.png" />
                         <span
-                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;vertical-align: super; ">
                             WIDE SELECTION</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
-                        <img style="width: 20px; height: auto;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/thumbs-up.png" />
+                        <img style="width: 35px; height: auto;"
+                            src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/like.png" />
                             <span
-                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;vertical-align: super; ">
                             EASY BOOKING</span>
                     </td>
                     <td style="width: 10%;"></td>
                     <td>
-                        <img style="width: 20px; height: auto;"
-                            src="https://hopeful-nobel.74-208-189-166.plesk.page/public/images/key.png" />
+                        <img style="width: 35px; height: auto;"
+                            src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/lock.png" />
                             <span
-                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
+                            style="color: #82CF45; font-size: 14px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;vertical-align: super; ">
                             SECURE PAYMENTS</span>
                     </td>
                 </tr>
