@@ -172,8 +172,8 @@
     </span>
     <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
     <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Class:</b> Economy.</p>    
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Refundabilty:</b> @if($data['conditions']['refund_before_departure'] == false) <span>Not refundable</span> @else <span>Refundable</span> @endif</p>
-    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Changes:</b>@if($data['conditions']['allowed'] == false) <span>Not allowed</span> @else <span>Allowed</span> @endif </p>
+    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Refundabilty:</b> @if($data['conditions']['refund_before_departure']['allowed'] == false) <span>Not refundable</span> @else <span>Refundable</span> @endif</p>
+    <p style="font-family: 'Roboto', sans-serif;font-size: 11px;"><b>Changes:</b>@if($data['conditions']['change_before_departure']['allowed'] == false) <span>Not allowed</span> @else <span>Allowed</span> @endif </p>
     </div>
     <label style="font-family: 'Roboto', sans-serif;font-size: 11px;">
         <b style="color: red">*</b> Please check the airline's full conditions on 
