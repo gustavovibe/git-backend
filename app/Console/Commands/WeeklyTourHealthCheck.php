@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Models\Tour;
+use App\Models\Departure;        // your Eloquent model for departures
+use App\Models\TourCountry;      // pivot model linking tours↔countries
+use App\Http\Controllers\TourRadarController;
+use Illuminate\Support\Arr;
+
+class WeeklyTourHealthCheck extends Command
+{
+    protected $signature = 'sync:weekly-tour-health';
+    protected $description = 'Weekly pick random tours per country, fetch one departure each, validate and flag is_active.';
+
+    public function handle()
+    {
+        // 1) Find all country IDs that we have tours for
+        $countryIds = TourCountry::distinct('country_id')
+                      ->pluck('country_id');
+
+        foreach ($countryIds as $countryId) {
+            $this->info("Country {$countryId}: picking up to 20 tours…");
+
+            // 2) Grab 20 random tours in that country
+            $tours = Tour::whereHas('countries', fn($q) => 
+                        $q->where('country_id', $countryId))
+                      ->inRandomOrder()
+                      ->limit(20)
+                      ->get();
+
+            foreach ($tours as $tour) {
+                $this->line(" → Tour {$tour->tour_id}: fetching departures…");
+
+                // 3) Fetch departures via your existing helper
+                //    (reuses your private method from SyncToursData)
+                $allDeps = app()
+                    ->call([TourRadarController::class, 'getDeparturesByTour'], [
+                        'tourId' => $tour->tour_id
+                    ])['items'] ?? [];
+
+                if (empty($allDeps)) {
+                    $this->warn("    No departures, marking as FAILED.");
+                    $tour->is_active = 3;
+                    $tour->save();
+                    continue;
+                }
+
+                // 4) Pick a single departure at random
+                $dep = Arr::random($allDeps);
+
+                // 5) Validate your four rules
+                $ok =
+                    ($dep['availability'] > 0)
+                    && ($dep['departure_type'] === 'guaranteed')
+                    && ($dep['is_instant_confirmable'] === true)
+                    && collect($dep['accommodations'])
+                        ->pluck('beds_number')
+                        ->filter(fn($beds) => $beds > 0)
+                        ->isNotEmpty();
+
+                // 6) Update tour flag
+                $tour->is_active = $ok ? 2 : 3;
+                $tour->save();
+
+                $this->info("    Departure {$dep['id']} → ". ($ok ? 'PASS' : 'FAIL'));
+
+                // 7) (Optional) Persist the sampled departure
+                Departure::updateOrCreate(
+                    ['tour_id' => $tour->tour_id, 'departure_id' => $dep['id']],
+                    [
+                        'date'        => $dep['date'],
+                        'availability'=> $dep['availability'],
+                        'type'        => $dep['departure_type'],
+                        'instant'     => $dep['is_instant_confirmable'],
+                        'raw'         => json_encode($dep),
+                    ]
+                );
+            }
+        }
+
+        $this->info('✔ Weekly tour health check complete.');
+    }
+}

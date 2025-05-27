@@ -21,8 +21,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:database-s3')->weekly();
         $schedule->command('process:pending-attempts')->everyThirtyMinutes();
         $schedule->command('sync:tours')
-            ->sundays()
-            ->at('00:00');
+         ->weeklyOn(0, '00:00');     // 0 = Sunday
+        $schedule->command('sync:weekly-tour-health')
+            ->weekly()   // runs every Monday at 00:00 by default
+            ->withoutOverlapping()
+            ->onOneServer();    
     }
 
     protected function commands()

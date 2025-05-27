@@ -274,6 +274,7 @@ private function saveCountriesToDatabase($countries, $tourId)
         }
     }
 }
+
 	
 private function saveNaturalsToDatabase($natural_destinations, $tourId)
 {
