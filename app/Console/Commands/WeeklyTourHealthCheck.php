@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Console\Commands;
-
 use Illuminate\Console\Command;
 use App\Models\Tour;
 use App\Models\Departure;        // your Eloquent model for departures
 use App\Models\TourCountry;      // pivot model linking tours↔countries
 use App\Http\Controllers\TourRadarController;
 use Illuminate\Support\Arr;
+use Carbon\Carbon;
+
 
 class WeeklyTourHealthCheck extends Command
 {
@@ -21,6 +22,7 @@ class WeeklyTourHealthCheck extends Command
                       ->pluck('country_id');
 
         foreach ($countryIds as $countryId) {
+            sleep(0.2);
             $this->info("Country {$countryId}: picking up to 20 tours…");
 
             // 2) Grab 20 random tours in that country
@@ -35,9 +37,13 @@ class WeeklyTourHealthCheck extends Command
 
                 // 3) Fetch departures via your existing helper
                 //    (reuses your private method from SyncToursData)
+                // this gives “20250527-20251127” if today is May 27, 2025
+            $dateRange = Carbon::now()->format('Ymd') . '-' . Carbon::now()->addMonths(6)->format('Ymd');
+
                 $allDeps = app()
                     ->call([TourRadarController::class, 'getDeparturesByTour'], [
-                        'tourId' => $tour->tour_id
+                        'tourId' => $tour->tour_id,
+                        'dateRange' => $dateRange,
                     ])['items'] ?? [];
 
                 if (empty($allDeps)) {

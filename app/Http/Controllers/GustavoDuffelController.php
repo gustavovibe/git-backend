@@ -76,10 +76,9 @@ class GustavoDuffelController extends Controller
             ];
             // Make the request to the Duffel API
             $response = Http::withHeaders([
-                'Accept-Encoding' => 'gzip',
+               'Accept-Encoding' => 'gzip, deflate, br',
                 'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Duffel-Version' => 'v1',
+                'Duffel-Version' => 'v2',
                 'Authorization' => 'Bearer duffel_test_tfNofacp8LVcPjSf7OA0Q78ghrmuoakwtBhjbxaRrs2',
             ])->post('https://api.duffel.com/air/offer_requests?supplier_timeout=5000&limit=5&sort=total_amount&max_connections=1', $requestBody);
 
