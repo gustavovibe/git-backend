@@ -104,6 +104,9 @@ Route::get('/tour-ids', [TourIdController::class, 'index']);
 Route::get('/travelers', [TravelersController::class, 'getTravelers']);
 Route::get('/showtravelers', [TravelersController::class, 'show']);
 Route::post('/write-travelers', [TravelersController::class, 'writeTravelers']);
+
+Route::post('travelers/update-mail-preferences/{user}', [TravelersController::class, 'updateMailPreferences']);
+
 Route::post('/write-orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'getOrders']);
 Route::get('/admin-orders', [OrderController::class, 'adminOrders']);

@@ -27,10 +27,12 @@ class TravelersController extends Controller
         try{
             if ($request->has('traveler_id')) {
                 $traveler_id = $request->query('traveler_id');
-                $traveler = Traveler::where('traveler_id', $traveler_id)->with('user_:hear,internal_notes,suscribed,id')->first();
+                $traveler = Traveler::where('traveler_id', $traveler_id)->with('user_:hear,internal_notes,suscribed,id,inspired_travel_preference,new_departures_preference')->first();
                 $traveler->birth=Carbon::parse($traveler->birth)->format('Y-m-d');
                 $traveler->issue=Carbon::parse($traveler->issue)->format('Y-m-d');
                 $traveler->expire=Carbon::parse($traveler->expire)->format('Y-m-d');
+                $traveler->inspiredTravelPreference = $traveler->user->inspired_travel_preference;
+                $traveler->newDeparturesPreference = $traveler->user->new_departures_preference;
                 if ($traveler) {
                     return response()->json($traveler);
                 } else {
@@ -310,5 +312,15 @@ class TravelersController extends Controller
         }catch(Exception $e){
             return ApiResponse::error($e->getMessage());
         }
+    }
+
+
+
+    public function updateMailPreferences(User $user, Request $request)
+    {
+        $preference = $request->input('preference');
+
+        $user->$preference = $user->$preference ? false : true;
+        $user->save();
     }
 }
