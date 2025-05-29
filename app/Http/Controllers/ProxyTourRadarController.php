@@ -44,7 +44,7 @@ class ProxyTourRadarController extends Controller
      * @param Request $request Request object
      * @return array     
      */
-    public function departures(Request $request)
+    public static function departures(Request $request)
     {
         $rules = [
             'tourId' => 'required',

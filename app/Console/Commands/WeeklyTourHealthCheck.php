@@ -8,7 +8,7 @@ use App\Models\TourCountry;      // pivot model linking tours↔countries
 use App\Http\Controllers\ProxyTourRadarController;
 use Illuminate\Support\Arr;
 use Carbon\Carbon;
-
+use Illuminate\Http\Request;
 
 class WeeklyTourHealthCheck extends Command
 {
@@ -40,19 +40,29 @@ class WeeklyTourHealthCheck extends Command
                 // this gives “20250527-20251127” if today is May 27, 2025
             $dateRange = Carbon::now()->format('Ymd') . '-' . Carbon::now()->addMonths(6)->format('Ymd');
 
-                $allDeps = app()
-                    ->call([ProxyTourRadarController::class, 'departures'], [
-                        'tourId' => $tour->tour_id,
-                        'dateRange' => $dateRange,
-                    ])['items'] ?? [];
-
+            $request = new Request([
+                'tourId' => $tour->tour_id,
+                'date_range' => $dateRange,
+            ]);
+            $controller = app(ProxyTourRadarController::class);
+            $allDeps = $controller->departures($request);
                     
-                if (empty($allDeps)) {
-                    $this->warn("    No departures, marking as FAILED.");
-                    $tour->is_active = 3;
-                    $tour->save();
-                    continue;
-                }
+            if (!isset($allDeps['success']) || !$allDeps['success']) {
+                $this->warn("    Error from API: " . json_encode($allDeps['error'] ?? []));
+                $tour->is_active = 3;
+                $tour->save();
+                continue;
+            }
+            
+            $deps = $allDeps['data']['items'] ?? [];
+            
+            if (empty($deps)) {
+                $this->warn("    No departures found.");
+                $tour->is_active = 3;
+                $tour->save();
+                continue;
+            }
+            
 
                 // 4) Pick a single departure at random
                 $dep = Arr::random($allDeps);
@@ -87,6 +97,6 @@ class WeeklyTourHealthCheck extends Command
             }
         }
 
-        $this->info('✔ Weekly tour health check complete.');
+        $this->info("Summary: {$totalChecked} tours checked, {$passed} passed, {$failed} failed.");
     }
 }
