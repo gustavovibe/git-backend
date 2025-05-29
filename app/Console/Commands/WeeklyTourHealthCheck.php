@@ -5,7 +5,7 @@ use Illuminate\Console\Command;
 use App\Models\Tour;
 use App\Models\Departure;        // your Eloquent model for departures
 use App\Models\TourCountry;      // pivot model linking tours↔countries
-use App\Http\Controllers\TourRadarController;
+use App\Http\Controllers\ProxyTourRadarController;
 use Illuminate\Support\Arr;
 use Carbon\Carbon;
 
@@ -41,11 +41,12 @@ class WeeklyTourHealthCheck extends Command
             $dateRange = Carbon::now()->format('Ymd') . '-' . Carbon::now()->addMonths(6)->format('Ymd');
 
                 $allDeps = app()
-                    ->call([TourRadarController::class, 'getDeparturesByTour'], [
+                    ->call([ProxyTourRadarController::class, 'departures'], [
                         'tourId' => $tour->tour_id,
                         'dateRange' => $dateRange,
                     ])['items'] ?? [];
 
+                    
                 if (empty($allDeps)) {
                     $this->warn("    No departures, marking as FAILED.");
                     $tour->is_active = 3;
