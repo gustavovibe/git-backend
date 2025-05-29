@@ -18,8 +18,8 @@ class WeeklyTourHealthCheck extends Command
     public function handle()
     {
         // 1) Find all country IDs that we have tours for
-        $countryIds = TourCountry::distinct('country_id')
-                      ->pluck('country_id');
+        $countryIds = TourCountry::distinct('t_country_id')
+                      ->pluck('t_country_id');
 
         foreach ($countryIds as $countryId) {
             sleep(0.2);
@@ -27,7 +27,7 @@ class WeeklyTourHealthCheck extends Command
 
             // 2) Grab 20 random tours in that country
             $tours = Tour::whereHas('countries', fn($q) => 
-                        $q->where('country_id', $countryId))
+                        $q->where('t_country_id', $countryId))
                       ->inRandomOrder()
                       ->limit(20)
                       ->get();
