@@ -17,5 +17,13 @@ class Enquiries extends Model
         'phone',
         'travelers',
         'message',
+        'topic',
+        'booking_id',
+        'adventure_link',
+        'tour_details',
+    ];
+
+    protected $casts = [
+        'tour_details' => 'array',
     ];
 }

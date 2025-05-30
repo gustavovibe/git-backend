@@ -31,7 +31,11 @@ class EnquiryController extends Controller
                 'email'=>$r->email,
                 'phone'=>$r->phone,
                 'travelers'=>$r->travelers,
-                'message'=>$r->message
+                'message'=>$r->message,
+                'topic' => $r->topic['value'],
+                'booking_id' => $r->booking,
+                'adventure_link' => $r->link,
+                'tour_details' => $r->tour_details,
             ]);
              self::emailNotification($enquiry);
 
@@ -56,7 +60,7 @@ class EnquiryController extends Controller
                 $query->where('permission_id',6);
             })->get();
             foreach ($user as $u){
-                Mail::to($u->email)->send(new EnquiryUser(['name'=>$u->name,'email'=>$enquiry->email]));
+                Mail::to($u->email)->send(new EnquiryUser($enquiry));
             }
 
             return $user;
