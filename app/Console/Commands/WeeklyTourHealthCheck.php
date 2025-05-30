@@ -79,7 +79,7 @@ class WeeklyTourHealthCheck extends Command
                         // 1) Call and decode (returns an array with success, data.items, etc.)
                         $detail = app(ProxyTourRadarController::class)->departure($detailReq);
 
-                        $this->line("→ detail response: {$detail}");
+                        $this->line("→ detail response: " . json_encode($detail));
 
                         // 2) Check for success
                         if (empty($detail['id'] ?? false)) {
