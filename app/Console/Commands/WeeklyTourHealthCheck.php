@@ -33,70 +33,87 @@ class WeeklyTourHealthCheck extends Command
                       ->get();
 
             foreach ($tours as $tour) {
-                $this->line(" → Tour {$tour->tour_id}: fetching departures…");
-
-                // 3) Fetch departures via your existing helper
-                //    (reuses your private method from SyncToursData)
-                // this gives “20250527-20251127” if today is May 27, 2025
-            $dateRange = Carbon::now()->format('Ymd') . '-' . Carbon::now()->addMonths(6)->format('Ymd');
-
-            $request = new Request([
-                'tourId' => $tour->tour_id,
-                'date_range' => $dateRange,
-            ]);
-            $controller = app(ProxyTourRadarController::class);
-            $response = $controller->departures($request);
-
-            $payload = $response->getData(true);
-
-            if (empty($payload['success']) || $payload['success'] !== true) {
-                $this->warn("    API error: " . json_encode($payload['error'] ?? 'unknown'));
-                $tour->is_active = 3;
-                $tour->save();
-                continue;
-            }
-
-            $allDeps = $payload['data']['items'] ?? [];
-
-            if (empty($allDeps)) {
-                $this->warn("    No departures found.");
-                $tour->is_active = 3;
-                $tour->save();
-                continue;
-            }
-            
-                // 4) Pick a single departure at random
-                $dep = Arr::random($allDeps);
-
-                // 5) Validate your four rules
-                $ok =
-                    ($dep['availability'] > 0)
-                    && ($dep['departure_type'] === 'guaranteed')
-                    && ($dep['is_instant_confirmable'] === true)
-                    && collect($dep['accommodations'])
-                        ->pluck('beds_number')
-                        ->filter(fn($beds) => $beds > 0)
-                        ->isNotEmpty();
-
-                // 6) Update tour flag
-                $tour->is_active = $ok ? 2 : 3;
-                $tour->save();
-
-                $this->info("    Departure {$dep['id']} → ". ($ok ? 'PASS' : 'FAIL'));
-
-                // 7) (Optional) Persist the sampled departure
-                Departure::updateOrCreate(
-                    ['tour_id' => $tour->tour_id, 'departure_id' => $dep['id']],
-                    [
-                        'date'        => $dep['date'],
-                        'availability'=> $dep['availability'],
-                        'type'        => $dep['departure_type'],
-                        'instant'     => $dep['is_instant_confirmable'],
-                        'raw'         => json_encode($dep),
-                    ]
-                );
-            }
-        }
+                        $this->line(" → Tour {$tour->tour_id}: fetching summary departures…");
+        
+                        // A) Build date range string
+                        $dateRange = Carbon::now()->format('Ymd')
+                                   . '-' 
+                                   . Carbon::now()->addMonths(6)->format('Ymd');
+        
+                        // B) Call the "departures" endpoint to get summaries
+                        $summaryReq = new Request([
+                            'tourId'     => $tour->tour_id,
+                            'date_range' => $dateRange,
+                        ]);
+                        $summaryResp = app(ProxyTourRadarController::class)
+                                        ->departures($summaryReq);
+                        $payload     = $summaryResp->getData(true);
+        
+                        // C) Validate the summary response
+                        if (empty($payload['success'] ?? false)) {
+                            $this->warn("    ERROR fetching departures summary.");
+                            $tour->is_active = 3;
+                            $tour->save();
+                            continue;
+                        }
+        
+                        $items = $payload['data']['items'] ?? [];
+                        if (empty($items)) {
+                            $this->warn("    No departures found.");
+                            $tour->is_active = 3;
+                            $tour->save();
+                            continue;
+                        }
+        
+                        // D) Pick one summary departure at random
+                        $depSummary = Arr::random($items);
+        
+                        $this->line("    → picked departure {$depSummary['id']} (summary)");
+        
+                        // E) Fetch the detailed departure (to get accommodations)
+                        $detailReq  = new Request([
+                            'tourId'      => $tour->tour_id,
+                            'departureId' => $depSummary['id'],
+                        ]);
+                        $detailResp = app(ProxyTourRadarController::class)
+                                        ->departure($detailReq);
+                        $detail     = $detailResp->getData(true);
+        
+                        // F) Pull accommodations from detailed payload
+                        $accoms = $detail['prices']['accommodations'] ?? [];
+        
+                        // G) Check that every beds_number > 0
+                        $allBedsPositive = collect($accoms)
+                            ->pluck('beds_number')
+                            ->every(fn($n) => $n > 0);
+        
+                        // H) Final combined pass/fail
+                        $ok = 
+                            ($depSummary['availability'] > 0)
+                            && ($depSummary['departure_type'] === 'guaranteed')
+                            && ($depSummary['is_instant_confirmable'] === true)
+                            && $allBedsPositive;
+        
+                        // I) Update tour flag
+                        $tour->is_active = $ok ? 2 : 3;
+                        $tour->save();
+        
+                        $this->info("    → Departure {$depSummary['id']} → ". ($ok ? 'PASS' : 'FAIL'));
+        
+                        /* J) (Optional) Persist the detailed departure
+                        Departure::updateOrCreate(
+                            ['tour_id' => $tour->tour_id, 'departure_id' => $dep['id']],
+                            [
+                                'date'        => $dep['date'],
+                                'availability'=> $dep['availability'],
+                                'type'        => $dep['departure_type'],
+                                'instant'     => $dep['is_instant_confirmable'],
+                                'raw'         => json_encode($dep),
+                            ]
+                        );
+                        */
+                    }
+        }      
 
         $this->info("Summary: {$totalChecked} tours checked, {$passed} passed, {$failed} failed.");
     }
