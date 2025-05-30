@@ -75,31 +75,51 @@ class WeeklyTourHealthCheck extends Command
                             'tourId'      => $tour->tour_id,
                             'departureId' => $depSummary['id'],
                         ]);
-                        $detailResp = app(ProxyTourRadarController::class)
-                                        ->departure($detailReq);
-                        $detail     = $detailResp->getData(true);
-        
-                        // F) Pull accommodations from detailed payload
-                        $accoms = $detail['prices']['accommodations'] ?? [];
-        
-                        // G) Check that every beds_number > 0
+
+                        // 1) Call and decode (returns an array with success, data.items, etc.)
+                        $detail = app(ProxyTourRadarController::class)
+                        ->departure(new Request([
+                            'tourId'      => $tour->tour_id,
+                            'departureId' => $depSummary['id'],
+                        ]));
+
+                        // 2) Check for success
+                        if (empty($detail['success'] ?? false)) {
+                        $this->warn("    ERROR fetching detailed departure.");
+                        $tour->is_active = 3;
+                        $tour->save();
+                        continue;
+                        }
+
+                        // 3) Pull out the first item
+                        $firstItem = $detail['data']['items'][0] ?? null;
+                        if (! $firstItem) {
+                        $this->warn("    No detailed items returned.");
+                        $tour->is_active = 3;
+                        $tour->save();
+                        continue;
+                        }
+
+                        // 4) Get the accommodations array from that first item
+                        $accoms = $firstItem['prices']['accommodations'] ?? [];
+
+                        // 5) Check that every beds_number > 0
                         $allBedsPositive = collect($accoms)
-                            ->pluck('beds_number')
-                            ->every(fn($n) => $n > 0);
-        
-                        // H) Final combined pass/fail
+                        ->pluck('beds_number')
+                        ->every(fn($n) => $n > 0);
+
+                        // … then combine with your other summary‐level rules …
                         $ok = 
-                            ($depSummary['availability'] > 0)
-                            && ($depSummary['departure_type'] === 'guaranteed')
-                            && ($depSummary['is_instant_confirmable'] === true)
-                            && $allBedsPositive;
-        
-                        // I) Update tour flag
+                        ($depSummary['availability'] > 0)
+                        && ($depSummary['departure_type'] === 'guaranteed')
+                        && ($depSummary['is_instant_confirmable'] === true)
+                        && $allBedsPositive;
+
+                        // 6) Flag and save
                         $tour->is_active = $ok ? 2 : 3;
                         $tour->save();
-        
                         $this->info("    → Departure {$depSummary['id']} → ". ($ok ? 'PASS' : 'FAIL'));
-        
+
                         /* J) (Optional) Persist the detailed departure
                         Departure::updateOrCreate(
                             ['tour_id' => $tour->tour_id, 'departure_id' => $dep['id']],
