@@ -45,8 +45,8 @@ class WeeklyTourHealthCheck extends Command
                             'tourId'     => $tour->tour_id,
                             'date_range' => $dateRange,
                         ]);
-                        $summaryResp = app(ProxyTourRadarController::class)
-                                        ->departures($summaryReq);
+                        $summaryResp = app(ProxyTourRadarController::class)->departures($summaryReq);
+
                         $payload     = $summaryResp->getData(true);
         
                         // C) Validate the summary response
@@ -77,11 +77,9 @@ class WeeklyTourHealthCheck extends Command
                         ]);
 
                         // 1) Call and decode (returns an array with success, data.items, etc.)
-                        $detail = app(ProxyTourRadarController::class)
-                        ->departure(new Request([
-                            'tourId'      => $tour->tour_id,
-                            'departureId' => $depSummary['id'],
-                        ]));
+                        $detail = app(ProxyTourRadarController::class)->departure($detailReq);
+
+                        $this->line("→ detail response: {$detail}");
 
                         // 2) Check for success
                         if (empty($detail['id'] ?? false)) {
