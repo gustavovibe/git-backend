@@ -22,7 +22,7 @@ class WeeklyTourHealthCheck extends Command
                       ->pluck('t_country_id');
 
         foreach ($countryIds as $countryId) {
-            sleep(0.2);
+            sleep(0.5);
             $this->info("Country {$countryId}: picking up to 20 tours…");
 
             // 2) Grab 20 random tours in that country
@@ -84,24 +84,24 @@ class WeeklyTourHealthCheck extends Command
                         ]));
 
                         // 2) Check for success
-                        if (empty($detail['success'] ?? false)) {
-                        $this->warn("    ERROR fetching detailed departure.");
+                        if (empty($detail['id'] ?? false)) {
+                        $this->warn("ERROR fetching detailed departure.");
                         $tour->is_active = 3;
                         $tour->save();
                         continue;
                         }
 
                         // 3) Pull out the first item
-                        $firstItem = $detail['data']['items'][0] ?? null;
+                        $firstItem = $detail['prices'][0] ?? null;
                         if (! $firstItem) {
-                        $this->warn("    No detailed items returned.");
+                        $this->warn("No detailed prices returned.");
                         $tour->is_active = 3;
                         $tour->save();
                         continue;
                         }
 
                         // 4) Get the accommodations array from that first item
-                        $accoms = $firstItem['prices']['accommodations'] ?? [];
+                        $accoms = $firstItem['accommodations'] ?? [];
 
                         // 5) Check that every beds_number > 0
                         $allBedsPositive = collect($accoms)
@@ -110,15 +110,15 @@ class WeeklyTourHealthCheck extends Command
 
                         // … then combine with your other summary‐level rules …
                         $ok = 
-                        ($depSummary['availability'] > 0)
-                        && ($depSummary['departure_type'] === 'guaranteed')
-                        && ($depSummary['is_instant_confirmable'] === true)
+                        ($firstItem['availability'] > 0)
+                        && ($firstItem['departure_type'] === 'guaranteed')
+                        && ($firstItem['is_instant_confirmable'] === true)
                         && $allBedsPositive;
 
                         // 6) Flag and save
                         $tour->is_active = $ok ? 2 : 3;
                         $tour->save();
-                        $this->info("    → Departure {$depSummary['id']} → ". ($ok ? 'PASS' : 'FAIL'));
+                        $this->info("→ Departure {$firstItem['id']} → ". ($ok ? 'PASS' : 'FAIL'));
 
                         /* J) (Optional) Persist the detailed departure
                         Departure::updateOrCreate(
