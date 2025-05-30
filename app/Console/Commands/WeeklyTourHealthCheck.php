@@ -45,28 +45,26 @@ class WeeklyTourHealthCheck extends Command
                 'date_range' => $dateRange,
             ]);
             $controller = app(ProxyTourRadarController::class);
-            $response   = $controller->departures($request);
-            $allDeps    = $response->getData(true);
+            $response = $controller->departures($request);
 
-            $allDeps = $controller->departures($request);
-                    
-            if (!isset($allDeps['success']) || !$allDeps['success']) {
-                $this->warn("    Error from API: " . json_encode($allDeps['error'] ?? []));
+            $payload = $response->getData(true);
+
+            if (empty($payload['success']) || $payload['success'] !== true) {
+                $this->warn("    API error: " . json_encode($payload['error'] ?? 'unknown'));
                 $tour->is_active = 3;
                 $tour->save();
                 continue;
             }
-            
-            $deps = $allDeps['data']['items'] ?? [];
-            
-            if (empty($deps)) {
+
+            $allDeps = $payload['data']['items'] ?? [];
+
+            if (empty($allDeps)) {
                 $this->warn("    No departures found.");
                 $tour->is_active = 3;
                 $tour->save();
                 continue;
             }
             
-
                 // 4) Pick a single departure at random
                 $dep = Arr::random($allDeps);
 
