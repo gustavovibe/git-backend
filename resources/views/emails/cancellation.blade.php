@@ -35,7 +35,7 @@
 						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #4f4f4f; line-height: 20px; text-transform: uppercase;">Booking number</td>
 					</tr>
 					<tr>
-						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">{{$orders-&gt;booking_id}}</td>
+						<td style="font-family: Arial, sans-serif; font-weight: bold; font-size: 16px; color: #000000; line-height: 20px; letter-spacing: 3px;">{{$orders->booking_id}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -68,7 +68,7 @@
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 25px auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
-			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $orders-&gt;user-&gt;name }}</span> <span style="font-weight: normal; text-decoration: none;">, since we couldn't confirm the adventure within 72 hours of booking, we've had to cancel it. Your refund has been processed and sent to your original payment method. </span> </span></td>
+			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $orders->user->name }}</span> <span style="font-weight: normal; text-decoration: none;">, since we couldn't confirm the adventure within 72 hours of booking, we've had to cancel it. Your refund has been processed and sent to your original payment method. </span> </span></td>
 		</tr>
 	</tbody>
 </table>
@@ -202,16 +202,16 @@
 <table border="0" style="width:100%;margin-top:10px">
 	<tbody>
 		<tr style="margin-bottom:10px" valign="middle">
-			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Date and time</a> <span>{{ \Carbon\Carbon::parse($orders-&gt;stripe_created)-&gt;format('M d, Y') }}</span></td>
+			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Date and time</a> <span>{{ \Carbon\Carbon::parse($orders->stripe_created)->format('M d, Y') }}</span></td>
 		</tr>
 		<tr style="margin-bottom:10px" valign="middle">
-			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Payment method</a> <span>@if ($orders-&gt;last_4)<strong>Visa</strong>****{{$orders-&gt;last_4}}@else<strong>{{$orders-&gt;payment_method}}</strong>@endif</span></td>
+			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Payment method</a> <span>@if ($orders->last_4)<strong>Visa</strong>****{{$orders->last_4}}@else<strong>{{$orders->payment_method}}</strong>@endif</span></td>
 		</tr>
 		<tr style="margin-bottom:10px" valign="middle">
-			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Refund Id</a> <span>{{$orders-&gt;last_charge}}</span></td>
+			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Refund Id</a> <span>{{$orders->last_charge}}</span></td>
 		</tr>
 		<tr style="margin-bottom:20px" valign="middle">
-			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Amount</a> <span>${{ number_format( ceil($orders-&gt;paid), 2 ) }} USD</span></td>
+			<td><a href="#" style="font-size:14px;line-height: 18px;widtr: fit-content;border: 2px dotted #82cf45;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;padding: 2px 10px;color: #4f4f4f;" target="_blank">Amount</a> <span>${{ number_format( ceil($orders->paid), 2 ) }} USD</span></td>
 		</tr>
 	</tbody>
 </table>

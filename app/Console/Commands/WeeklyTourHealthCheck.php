@@ -45,6 +45,9 @@ class WeeklyTourHealthCheck extends Command
                 'date_range' => $dateRange,
             ]);
             $controller = app(ProxyTourRadarController::class);
+            $response   = $controller->departures($request);
+            $allDeps    = $response->getData(true);
+
             $allDeps = $controller->departures($request);
                     
             if (!isset($allDeps['success']) || !$allDeps['success']) {

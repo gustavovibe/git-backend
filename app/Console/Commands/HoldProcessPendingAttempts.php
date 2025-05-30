@@ -114,7 +114,7 @@ class HoldProcessPendingAttempts extends Command
                             ], 404);
                         }
                         DB::table('attempts')->where('id', $attempt->id)->update(['status' => 'confirmed']);
-                        $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);
+                        $mailResponse = TourController::emailBConfirmation($bookingId, $duffelId, $paymentId, $RequestPassengers);                   
                         Log::info('automatic mail sent ' . $mailResponse . ' confirmed.');
                 } 
             }                 
