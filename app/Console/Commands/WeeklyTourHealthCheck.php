@@ -15,9 +15,14 @@ class WeeklyTourHealthCheck extends Command
     protected $signature = 'sync:weekly-tour-health';
     protected $description = 'Weekly pick random tours per country, fetch one departure each, validate and flag is_active.';
 
-    public function handle()
+    private function weeklyHealth()
     {
-        // 1) Find all country IDs that we have tours for
+        // Initialize counters
+        $totalChecked = 0;
+        $passed       = 0;
+        $failed       = 0;
+
+        // Find all country IDs that we have tours for
         $countryIds = TourCountry::distinct('t_country_id')
                       ->pluck('t_country_id');
 
@@ -25,7 +30,7 @@ class WeeklyTourHealthCheck extends Command
             usleep(500000);
             $this->info("Country {$countryId}: picking up to 20 tours…");
 
-            // 2) Grab 20 random tours in that country
+            // Grab 20 random tours in that country
             $tours = Tour::whereHas('countries', fn($q) => 
                         $q->where('t_country_id', $countryId))
                       ->inRandomOrder()
@@ -33,6 +38,7 @@ class WeeklyTourHealthCheck extends Command
                       ->get();
 
             foreach ($tours as $tour) {
+                        $totalChecked++;
                         $this->line(" → Tour {$tour->tour_id}: fetching summary departures…");
         
                         // A) Build date range string
@@ -108,15 +114,22 @@ class WeeklyTourHealthCheck extends Command
 
                         // … then combine with your other summary‐level rules …
                         $ok = 
-                        ($firstItem['availability'] > 0)
-                        && ($firstItem['departure_type'] === 'guaranteed')
-                        && ($firstItem['is_instant_confirmable'] === true)
-                        && $allBedsPositive;
+                            ($firstItem['availability'] > 0)
+                            && ($firstItem['departure_type'] === 'guaranteed')
+                            && ($firstItem['is_instant_confirmable'] === true)
+                            && $allBedsPositive;
 
-                        // 6) Flag and save
-                        $tour->is_active = $ok ? 2 : 3;
-                        $tour->save();
-                        $this->info("→ Departure {$firstItem['id']} → ". ($ok ? 'PASS' : 'FAIL'));
+                        // J) Update is_active using ->update([...]) instead of ->save()
+                        Tour::where('tour_id', $tour->tour_id)
+                            ->update(['is_active' => $ok ? 2 : 3]);
+
+                        if ($ok) {
+                            $passed++;
+                            $this->info("    → Departure {$firstItem['id']} → PASS");
+                        } else {
+                            $failed++;
+                            $this->warn("    → Departure {$firstItem['id']} → FAIL");
+                        }
 
                         /* J) (Optional) Persist the detailed departure
                         Departure::updateOrCreate(
