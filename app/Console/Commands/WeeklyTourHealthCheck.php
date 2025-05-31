@@ -90,7 +90,7 @@ class WeeklyTourHealthCheck extends Command
                         }
 
                         // 3) Pull out the first item
-                        $firstItem = $detail['prices'][0] ?? null;
+                        $firstItem = $detail['prices'] ?? null;
                         if (! $firstItem) {
                         $this->warn("No detailed prices returned.");
                         $tour->is_active = 3;
