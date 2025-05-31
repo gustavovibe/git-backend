@@ -90,7 +90,7 @@ class WeeklyTourHealthCheck extends Command
                         }
 
                         // 3) Pull out the first item
-                        $firstItem = $detail['prices'] ?? null;
+                        $firstItem = $detail ?? null;
                         if (! $firstItem) {
                         $this->warn("No detailed prices returned.");
                         $tour->is_active = 3;
@@ -99,7 +99,7 @@ class WeeklyTourHealthCheck extends Command
                         }
 
                         // 4) Get the accommodations array from that first item
-                        $accoms = $firstItem['accommodations'] ?? [];
+                        $accoms = $firstItem['prices']['accommodations'] ?? [];
 
                         // 5) Check that every beds_number > 0
                         $allBedsPositive = collect($accoms)
