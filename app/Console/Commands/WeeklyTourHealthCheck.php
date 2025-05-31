@@ -22,14 +22,14 @@ class WeeklyTourHealthCheck extends Command
                       ->pluck('t_country_id');
 
         foreach ($countryIds as $countryId) {
-            sleep(0.5);
+            usleep(500000);
             $this->info("Country {$countryId}: picking up to 20 tours…");
 
             // 2) Grab 20 random tours in that country
             $tours = Tour::whereHas('countries', fn($q) => 
                         $q->where('t_country_id', $countryId))
                       ->inRandomOrder()
-                      ->limit(20)
+                      ->limit(10)
                       ->get();
 
             foreach ($tours as $tour) {
