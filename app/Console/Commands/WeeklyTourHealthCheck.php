@@ -15,7 +15,7 @@ class WeeklyTourHealthCheck extends Command
     protected $signature = 'sync:weekly-tour-health';
     protected $description = 'Weekly pick random tours per country, fetch one departure each, validate and flag is_active.';
 
-    private function weeklyHealth()
+    private function handle()
     {
         // Initialize counters
         $totalChecked = 0;
