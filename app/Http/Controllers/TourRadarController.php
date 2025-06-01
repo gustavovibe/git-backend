@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
+use App\Models\Tour;
 
 class TourRadarController extends Controller
 {
