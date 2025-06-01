@@ -611,71 +611,74 @@ Your booking is
 	</tbody>
 </table>
 
-<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;display:none">
+<div border="0" cellpadding="0" cellspacing="0" style="border-radius: 20px; border-width: 1px; border-color: #82cf45;border-style: solid; border-collapse: separate;width:100%;max-width:600px;margin: 25px auto auto;">
 <div style="padding: 20px 30px;">
 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
 	<tbody>
 		<tr>
-			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i728805621.png" style="max-width: 24px; width: 100%;" width="24" /> <span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">+420 775163341</span></td>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i728805621.png" style="max-width: 24px; width: 100%;" width="24" /> 
+			<span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">{{$order->user->phone}}</span>
+			</td>
 		</tr>
 		<tr style="height:10px">
 		</tr>
 		<tr>
-			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1097817612.png" style="max-width: 24px; width: 100%;" width="24" /> <a href="mailto:aliaksei.veka@gmail.com" style="color: #000000; text-decoration: none;" target="_blank">aliaksei.veka@gmail.com</a></td>
+			<td align="left" valign="middle"><img alt="" border="0" class="w24px" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1097817612.png" style="max-width: 24px; width: 100%;" width="24" /> 
+			<span style="color: #000000; text-decoration: none;" target="_blank">{{$order->user->email}}</span>
+			</td>
 		</tr>
 	</tbody>
 </table>
 </div>
 </div>
-
+@if ($order->booking_status == 'confirmed') 
 <div border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px;border-radius: 10px; border-width: 1px; border-color: #82cf45; border-style: dotted;">
-<div style="padding: 20px 30px;">
-<table>
-	<tbody>
-		<tr style="height:20px">
-		</tr>
-		<tr>
-			<td align="center"><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 25px; color: #000000;">Recommended</span></td>
-		</tr>
-		<tr style="height:10px">
-		</tr>
-		<tr>
-			<td align="center"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #4f4f4f;width:80%">Adding these services to your trip now can save you money compared to purchasing them later or in the destination.</span></td>
-		</tr>
-		<tr style="height:20px">
-		</tr>
-	</tbody>
-</table>
-
-<table style="width:100%">
-	<tbody>
-		<tr>
-			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i503421886.png" style="display: block;" width="73" /><br />
-			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Airport transfer</span><br />
-			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">not included in adventure? </span><br />
-			<a href="https://www.welcomepickups.com/mexico-city/airport-transfer-book/?tap_a=134179-01b992&tap_s=4069286-0e3fe9 " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
-			Transfers <br></a></td>
-			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-312608904.png" style="display: block;" width="73" /><br />
-			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Insurance</span><br />
-			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Available up to 24h before departure</span><br />
-			<a href="https://visitorscoverage.com/?affid=ffe108ac09ad6&sub_id=b8f7c599386143409bc43f56a-436729" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
-			Insurance</a></td>
-			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-36888821.png" style="display: block;" width="73" /><br />
-			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Accommodation</span><br />
-			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Need pre or post tour accommodation?</span><br />
-			<a href="https://trip.tp.st/CGLH4d7u " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Book<br />
-			accommodations</a></td>
-			<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1821386128.png" style="display: block;" width="73" /><br />
-			<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Activities</span><br />
-			<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Got extra days before or after the adventure?</span><br />
-			<a href="https://www.viator.com/?pid=P00154312&uid=U00262192&mcid=58086&currency=EUR " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Find<br />
-			activities</a></td>
-		</tr>
-	</tbody>
-</table>
+ <div style="padding: 20px 30px;">
+	<table>
+		<tbody>
+			<tr style="height:20px">
+			</tr>
+			<tr>
+				<td align="center"><span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 25px; color: #000000;">Recommended</span></td>
+			</tr>
+			<tr style="height:10px">
+			</tr>
+			<tr>
+				<td align="center"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #4f4f4f;width:80%">Adding these services to your trip now can save you money compared to purchasing them later or in the destination.</span></td>
+			</tr>
+			<tr style="height:20px">
+			</tr>
+		</tbody>
+	</table>
+	<table style="width:100%">
+		<tbody>
+			<tr>
+				<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i503421886.png" style="display: block;" width="73" /><br />
+				<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Airport transfer</span><br />
+				<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">not included in adventure? </span><br />
+				<a href="https://www.welcomepickups.com/mexico-city/airport-transfer-book/?tap_a=134179-01b992&tap_s=4069286-0e3fe9 " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
+				Transfers <br></a></td>
+				<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-312608904.png" style="display: block;" width="73" /><br />
+				<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Insurance</span><br />
+				<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Available up to 24h before departure</span><br />
+				<a href="https://visitorscoverage.com/?affid=ffe108ac09ad6&sub_id=b8f7c599386143409bc43f56a-436729" style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Get<br />
+				Insurance</a></td>
+				<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-36888821.png" style="display: block;" width="73" /><br />
+				<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Accommodation</span><br />
+				<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Need pre or post tour accommodation?</span><br />
+				<a href="https://trip.tp.st/CGLH4d7u " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Book<br />
+				accommodations</a></td>
+				<td align="center" bgcolor="#ffffff" height="132" style="padding: 10px; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.11) 1.93642px 1.93642px 2.90463px;    width: 110px;" valign="middle"><img alt="" border="0" height="41" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i1821386128.png" style="display: block;" width="73" /><br />
+				<span style="font-family: Canaro, sans-serif; font-weight: bold; font-size: 11px; color: #000000;">Activities</span><br />
+				<span style="font-family: 'Interstate Light Cond', sans-serif;font-size: 8px;color: #000000;line-height: 10px;">Got extra days before or after the adventure?</span><br />
+				<a href="https://www.viator.com/?pid=P00154312&uid=U00262192&mcid=58086&currency=EUR " style="background-color:#ff6c0e;font-size: 10px;width: fit-content;color:#ffffff;border-radius: 4px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;padding: 4px 10px;text-decoration: none;margin-top:10px" target="_blank">Find<br />
+				activities</a></td>
+			</tr>
+		</tbody>
+	</table>
+ </div>
 </div>
-</div>
-
+@endif
 <div class="footer" style="margin-top:25px;">
 <table style="max-width: 600px;margin:0 auto;width: 100%;">
 	<tbody>
