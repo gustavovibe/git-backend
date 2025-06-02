@@ -105,7 +105,7 @@ public static function getDeparturesByTour($params)
         }
 
         $tourIds = explode(',', $params['tourIds']);
-        $allowedTourIds = Tour::whereIn('id', $tourIds)
+        $allowedTourIds = Tour::whereIn('tour_id', $tourIds)
             ->whereIn('is_active', [1, 2])
             ->pluck('tour_id')
             ->toArray();
