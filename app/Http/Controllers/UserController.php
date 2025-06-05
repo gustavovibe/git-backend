@@ -26,17 +26,9 @@ use App\Services\RecaptchaService;
 class UserController extends Controller
 {
 
-    /**
-     * @var RecaptchaService
-     */
+
     protected $recaptchaService;
 
-    /**
-     * Constructor to inject RecaptchaService.
-     * Laravel will automatically resolve this dependency.
-     *
-     * @param RecaptchaService $recaptchaService
-     */
     public function __construct(RecaptchaService $recaptchaService)
     {
         $this->recaptchaService = $recaptchaService;
