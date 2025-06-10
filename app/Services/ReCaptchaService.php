@@ -14,9 +14,9 @@ class RecaptchaService
 
   public function __construct(){
 
-    $this->projectId = env('GCLOUD_PROJECT_ID');
-    $this->apiKey = env('GCLOUD_API_KEY');
-    $this->siteKeyFrontend = env('GCLOUD_RECAPTCHA_KEY');
+    $this->projectId = !empty(env('GCLOUD_PROJECT_ID')) ? env('GCLOUD_PROJECT_ID') : 'vibe-adventures-1538011096375';
+    $this->apiKey = !empty(env('GCLOUD_API_KEY')) ? env('GCLOUD_API_KEY') : 'AIzaSyBIjpGancr9vQByFa1MUst_eo29spVtSmM';
+    $this->siteKeyFrontend = !empty(env('GCLOUD_RECAPTCHA_KEY')) ? env('GCLOUD_RECAPTCHA_KEY') : '6Lfoj4sqAAAAAHLT71BIUo5OwjQOU-nYfcKkHdqr';
     if (empty($this->projectId) || empty($this->apiKey) || empty($this->siteKeyFrontend)) {
       Log::error('reCAPTCHA Enterprise environment variables are not fully configured in RecaptchaService.');
     }
