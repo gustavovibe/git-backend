@@ -425,10 +425,20 @@ class DuffelApiController extends Controller
 
         // adding children
         if ($request->has('childrenCount')) {
-            for ($i = 0; $i < $request->childrenCount; $i++) {
-                array_push($passengers, $one_child);
+            $childrenCount = $request->input('childrenCount', 0);
+            $ages = $request->input('childrenAges', []);
+
+            for ($i = 0; $i < $childrenCount; $i++) {
+                if (isset($ages[$i])) {
+                    // Duﬀel wants “age” for under-18 passengers
+                    $passengers[] = ['age' => (int) $ages[$i]];
+                } else {
+                    // Fallback to the old “child” type
+                    $passengers[] = ['type' => 'child'];
+                }
             }
-        }
+        }     
+
         return $passengers;
     }
 
@@ -800,6 +810,8 @@ class DuffelApiController extends Controller
             'maxConnections' => 'sometimes',
             'sortByLeastExpensive' => 'sometimes',
             'sortByLeastDuration' => 'sometimes',
+            'childrenAges'   => 'sometimes|array',
+            'childrenAges.*' => 'integer|min:0|max:17',
         ];
         $messages = [
             'cabinClass.in' => "El campo :attribute debe ser uno de los siguientes valores: 'first' 'business' 'premium_economy' 'economy'",
