@@ -121,6 +121,38 @@ public static function getDeparturesByTour($params)
         foreach ($paginatedTourIds as $tourId) {
             $params['tourId'] = $tourId;
             $params['page'] = 1; // Always fetch first page of departures for each tourId
+
+            $cats = $tour->price_categories ?? [];
+
+            // ── new: find if there's a “child” category in your stored JSON ──
+            $childCat = collect($cats)->firstWhere('external_reference', 'child');
+
+            if ($childCat) {
+                // case #1: explicit child category
+                $childMin = $childCat['age_min'] ?? 0;
+                $childMax = $childCat['age_max'] ?? 18;
+            }
+            elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
+                // case #2: only adult category ⇒ default child range = [0,18]
+                $childMin = 0;
+                $childMax = 18;
+            }
+            else {
+                // case #3: single category with nulls ⇒ use your tour.min_age + default max=18
+                $childMin = $tour->min_age ?? 0;
+                $childMax = 18;
+            }
+
+            // ── new: apply the filter against the incoming childrenAges[] ──
+            $childrenAges = $request->input('childrenAges', []);
+            foreach ($childrenAges as $age) {
+                if ($age < $childMin || $age > $childMax) {
+                    Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
+                    // jump to the next tourId in the outer loop:
+                    continue 2;
+                }
+            }
+
             $response = $this->getDeparturesByTourParamsV2($params);
 
             if (isset($response['items'])) {

@@ -41,6 +41,7 @@ class Tour extends Model
         'operator_id',
 		'operator_name',
 		'commission',
+        'prices',
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
@@ -59,6 +60,7 @@ class Tour extends Model
         'price_currency' => 'string',
         'price_promotion' => 'decimal:2',
         'departures' => 'string', 
+        'prices' => 'array',
     ];
 
     public function cities()

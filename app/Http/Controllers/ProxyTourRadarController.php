@@ -131,6 +131,7 @@ class ProxyTourRadarController extends Controller
         }
 
         $response = TourRadarController::getPriceCategoriesByTour($request['tourId']);
+        
         return ApiResponse::success($response);
     }
 

@@ -14,6 +14,7 @@ use App\Models\TourNaturalDestination;
 use App\Models\TourType;
 use App\Models\Type;
 use Carbon\Carbon;
+use App\Http\Controllers\TourradarController;
 
 class SyncToursData extends Command
 {
@@ -126,6 +127,24 @@ class SyncToursData extends Command
         }
     }
 
+    public static function getPriceCategoriesByTour($tourId)
+    {
+        $accessToken = self::getAccessToken();
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
 private function saveTourToDatabase($tourData)
 {
     try {
@@ -138,6 +157,13 @@ private function saveTourToDatabase($tourData)
         $departuresItems = $departuresData['items'] ?? [];
         $departureStatus = 'not_guaranteed';
 		
+        $pricesResponse = TourradarController::getPriceCategoriesByTour($tourData['tour_id']);
+        // if your controller returns a JSON response object, you might need:
+            $priceCategories = [];
+            if (isset($pricesResponse['data']['price_categories'])) {
+                $priceCategories = $pricesResponse['data']['price_categories'];
+            }
+            
         foreach ($departuresItems as $departure) {
             if ($departure['departure_type'] === 'guaranteed') {
                 $departureStatus = 'guaranteed';
@@ -178,7 +204,8 @@ private function saveTourToDatabase($tourData)
                 'departures' => $departureStatus,
 				'operator_id' => $tourData['operator']['id'] ?? null,
 				'operator_name' => $tourData['operator']['name'] ?? null,
-                'commission' => $tourData['prices']['partner_info']['commission_rate'] ?? null
+                'commission' => $tourData['prices']['partner_info']['commission_rate'] ?? null,
+                'prices' => $priceCategories ?? null,
             ]
         );
 
@@ -208,6 +235,7 @@ private function saveTourToDatabase($tourData)
     } catch (\Exception $e) {
         $this->error("Error saving tour: {$tourData['tour_id']} - {$e->getMessage()}");
     }
+
 }
 private function weeklyHealth()
 {
