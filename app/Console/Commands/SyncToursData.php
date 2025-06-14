@@ -14,7 +14,7 @@ use App\Models\TourNaturalDestination;
 use App\Models\TourType;
 use App\Models\Type;
 use Carbon\Carbon;
-use App\Http\Controllers\TourradarController;
+use App\Http\Controllers\TourRadarController;
 
 class SyncToursData extends Command
 {
