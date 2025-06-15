@@ -230,7 +230,8 @@ private function saveTourToDatabase($tourData)
             $this->saveTypesToDatabase($tourData['tour_types'], $tourData['tour_id']);
         }
 
-        weeklyHealth();
+        $this->weeklyHealth();
+        
 
     } catch (\Exception $e) {
         $this->error("Error saving tour: {$tourData['tour_id']} - {$e->getMessage()}");
