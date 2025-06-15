@@ -144,12 +144,17 @@ public static function getDeparturesByTour($params)
             }
 
             // ── new: apply the filter against the incoming childrenAges[] ──
-            $childrenAges = $request->input('childrenAges', []);
-            foreach ($childrenAges as $age) {
-                if ($age < $childMin || $age > $childMax) {
-                    Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
-                    // jump to the next tourId in the outer loop:
-                    continue 2;
+            $childrenAgesRaw = $request->input('childrenAges'); // this will be "5,14"
+            $childrenAges = [];
+
+            if ($childrenAgesRaw) {
+                $childrenAges = array_map('intval', explode(',', $childrenAgesRaw));
+                foreach ($childrenAges as $age) {
+                    if ($age < $childMin || $age > $childMax) {
+                        Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
+                        // jump to the next tourId in the outer loop:
+                        continue 2;
+                    }
                 }
             }
 
