@@ -162,12 +162,13 @@ private function saveTourToDatabase($tourData)
         $departureStatus = 'not_guaranteed';
 		
         $pricesResponse = TourradarController::getPriceCategoriesByTour($tourData['tour_id']);
+        $this->info("price response: " . json_encode($pricesResponse));
         // if your controller returns a JSON response object, you might need:
             $priceCategories = [];
             if (isset($pricesResponse['data']['price_categories'])) {
                 $priceCategories = $pricesResponse['data']['price_categories'];
             }
-            
+        $this->info("price categories: " . json_encode($priceCategories)); 
         foreach ($departuresItems as $departure) {
             if ($departure['departure_type'] === 'guaranteed') {
                 $departureStatus = 'guaranteed';
