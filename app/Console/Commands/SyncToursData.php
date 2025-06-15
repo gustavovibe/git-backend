@@ -15,6 +15,11 @@ use App\Models\TourType;
 use App\Models\Type;
 use Carbon\Carbon;
 use App\Http\Controllers\TourRadarController;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Http\Controllers\ProxyTourRadarController;
+use App\Models\TourCountry;  
+use App\Models\Departure;
 
 class SyncToursData extends Command
 {
