@@ -31,7 +31,7 @@ class SyncToursData extends Command
         $this->token = $this->asyncGetAccessToken();
 
         $startPage = 1;
-        $endPage = 2;
+        $endPage = 175;
 
         for ($currentPage = $startPage; $currentPage <= $endPage; $currentPage++) {
             $tours = $this->fetchDataFromApi($currentPage)['items'] ?? [];
