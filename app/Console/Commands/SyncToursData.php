@@ -165,8 +165,8 @@ private function saveTourToDatabase($tourData)
         $this->info("price response: " . json_encode($pricesResponse));
         // if your controller returns a JSON response object, you might need:
             $priceCategories = [];
-            if (isset($pricesResponse['data']['price_categories'])) {
-                $priceCategories = $pricesResponse['data']['price_categories'];
+            if (isset($pricesResponse['price_categories'])) {
+                $priceCategories = $pricesResponse['price_categories'];
             }
         $this->info("price categories: " . json_encode($priceCategories)); 
         foreach ($departuresItems as $departure) {
