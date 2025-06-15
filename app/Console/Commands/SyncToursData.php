@@ -234,7 +234,7 @@ private function saveTourToDatabase($tourData)
             $this->saveTypesToDatabase($tourData['tour_types'], $tourData['tour_id']);
         }
 
-        $this->weeklyHealth();
+        //$this->weeklyHealth();
         
 
     } catch (\Exception $e) {
