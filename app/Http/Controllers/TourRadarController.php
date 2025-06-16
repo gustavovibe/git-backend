@@ -120,8 +120,15 @@ public static function getDeparturesByTour($params)
         foreach ($paginatedTourIds as $tourId) {
             $params['tourId'] = $tourId;
             $params['page'] = 1; // Always fetch first page of departures for each tourId
+            Log::info("Tour $tourId attributes:", $tour->getAttributes());
+            
+            Log::info(
+                "DB price_categories for tour $tourId",
+                ['raw' => $tour->getAttributes()['prices'],  // the raw JSON
+                 'cast' => $tour->prices]                   // the PHP array after casting
+            );
 
-            $cats = $tour->price_categories ?? [];
+            $cats = $tour->prices ?? [];
 
             // ── new: find if there's a “child” category in your stored JSON ──
             $childCat = collect($cats)->firstWhere('external_reference', 'child');
@@ -141,7 +148,7 @@ public static function getDeparturesByTour($params)
                 $childMin = $tour->min_age ?? 0;
                 $childMax = 18;
             }
-
+            Log::info("child ages: [$childMin,$childMax]");
             // ── new: apply the filter against the incoming childrenAges[] ──
             $childrenAgesRaw = $request->input('childrenAges'); // this will be "5,14"
             $childrenAges = [];
@@ -181,7 +188,7 @@ public static function getDeparturesByTour($params)
                 }
                 Log::info('Cheapest for tour', ['tourId' => $tourId, 'departure' => $cheapestDeparture]);
                 if ($cheapestDeparture !== null) {
-                    $cheapestDeparture['price_categories'] = $tour->prices ?? [];
+                    $cheapestDeparture['price_categories'] = $cats ?? [];
                     $departures[] = $cheapestDeparture;
                 } 
             } else {
