@@ -99,7 +99,6 @@ public static function getDeparturesByTour($params)
     {
        try{
         $params = $request->all();
-
         if (!isset($params['tourIds'])) {
             return response()->json(['error' => 'tourIds parameter is required'], 400);
         }
@@ -158,10 +157,12 @@ public static function getDeparturesByTour($params)
                 }
             }
 
+
             $response = $this->getDeparturesByTourParamsV2($params);
 
             if (isset($response['items'])) {
                 Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
+
                 //$departures = array_merge($departures, $response['items']);
                 $cheapestDeparture = null;
                 foreach ($response['items'] as $departure) {
@@ -173,12 +174,14 @@ public static function getDeparturesByTour($params)
                         if ($cheapestDeparture === null || $value < $cheapestDeparture['cheapestAccommodation']['value']) {
                             // Optionally add the tourId to the departure.
                             $departure['tourId'] = $tourId;
+                            
                             $cheapestDeparture = $departure;
                         }
                     }
                 }
-                Log::info('Cheapeast for tour', ['tourId' => $tourId, 'departure' => $cheapestDeparture]);
+                Log::info('Cheapest for tour', ['tourId' => $tourId, 'departure' => $cheapestDeparture]);
                 if ($cheapestDeparture !== null) {
+                    $cheapestDeparture['price_categories'] = $tour->prices ?? [];
                     $departures[] = $cheapestDeparture;
                 } 
             } else {
