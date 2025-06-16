@@ -119,9 +119,13 @@ public static function getDeparturesByTour($params)
 
         foreach ($paginatedTourIds as $tourId) {
             $params['tourId'] = $tourId;
+            $tour = Tour::where('tour_id', $tourId)->first();
+            if (! $tour) {
+                continue;
+            }
             $params['page'] = 1; // Always fetch first page of departures for each tourId
             Log::info("Tour $tourId attributes:", $tour->getAttributes());
-            
+
             Log::info(
                 "DB price_categories for tour $tourId",
                 ['raw' => $tour->getAttributes()['prices'],  // the raw JSON
