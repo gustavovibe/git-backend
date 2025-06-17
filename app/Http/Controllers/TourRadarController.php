@@ -134,16 +134,32 @@ public static function getDeparturesByTour($params)
 
             $cats = $tour->prices ?? [];
             $childCat = collect($cats)->firstWhere('external_reference', 'child');
+
             if ($childCat) {
-                $childMin = $childCat['age_min'] ?? 0;
-                $childMax = $childCat['age_max'] ?? 18;
-            } elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
-                $childMin = 0;
-                $childMax = 18;
-            } else {
+                // Case 1: you have a child category
+                $childMin = $childCat['age_min']  ?? 0;
+                $childMax = $childCat['age_max']  ?? 18;
+            }
+            elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
+                // Only one adult category exists...
+                $adult = $cats[0];
+
+                if ($adult['age_min'] !== null || $adult['age_max'] !== null) {
+                    // Case 2: adult category with explicit bounds
+                    $childMin = $adult['age_min'] ?? 0;
+                    $childMax = 18;
+                } else {
+                    // Case 3: adult category with no bounds
+                    $childMin = $tour->min_age ?? 0;
+                    $childMax = 18;
+                }
+            }
+            else {
+                // Fallback if somehow no categories at all
                 $childMin = $tour->min_age ?? 0;
                 $childMax = 18;
             }
+
             $childrenAgesRaw = $request->input('childrenAges');
             $childrenAges = $childrenAgesRaw ? array_map('intval', explode(',', $childrenAgesRaw)) : [];
             foreach ($childrenAges as $age) {

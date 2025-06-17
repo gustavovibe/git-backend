@@ -432,7 +432,7 @@ class DuffelApiController extends Controller
             for ($i = 0; $i < $childrenCount; $i++) {
                 if (isset($childrenAges[$i])) {
                     // Duﬀel wants “age” for under-18 passengers
-                    $passengers[] = ['age' => (int) $ages[$i]];
+                    $passengers[] = ['age' => (int) $childrenAges[$i]];
                 } else {
                     // Fallback to the old “child” type
                     $passengers[] = ['type' => 'child'];
