@@ -426,10 +426,11 @@ class DuffelApiController extends Controller
         // adding children
         if ($request->has('childrenCount')) {
             $childrenCount = $request->input('childrenCount', 0);
-            $ages = $request->input('childrenAges', []);
+            $childrenAgesRaw = $request->input('childrenAges');
+            $childrenAges = $childrenAgesRaw ? array_map('intval', explode(',', $childrenAgesRaw)) : [];
 
             for ($i = 0; $i < $childrenCount; $i++) {
-                if (isset($ages[$i])) {
+                if (isset($childrenAges[$i])) {
                     // Duﬀel wants “age” for under-18 passengers
                     $passengers[] = ['age' => (int) $ages[$i]];
                 } else {

@@ -132,42 +132,27 @@ public static function getDeparturesByTour($params)
                  'cast' => $tour->prices]                   // the PHP array after casting
             );
 
-            $cats = $tour->prices ?? [];
-
-            // ── new: find if there's a “child” category in your stored JSON ──
+            $cats = $tour->price_categories ?? [];
             $childCat = collect($cats)->firstWhere('external_reference', 'child');
-
             if ($childCat) {
-                // case #1: explicit child category
                 $childMin = $childCat['age_min'] ?? 0;
                 $childMax = $childCat['age_max'] ?? 18;
-            }
-            elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
-                // case #2: only adult category ⇒ default child range = [0,18]
+            } elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
                 $childMin = 0;
                 $childMax = 18;
-            }
-            else {
-                // case #3: single category with nulls ⇒ use your tour.min_age + default max=18
+            } else {
                 $childMin = $tour->min_age ?? 0;
                 $childMax = 18;
             }
-            Log::info("child ages: [$childMin,$childMax]");
-            // ── new: apply the filter against the incoming childrenAges[] ──
-            $childrenAgesRaw = $request->input('childrenAges'); // this will be "5,14"
-            $childrenAges = [];
-
-            if ($childrenAgesRaw) {
-                $childrenAges = array_map('intval', explode(',', $childrenAgesRaw));
-                foreach ($childrenAges as $age) {
-                    if ($age < $childMin || $age > $childMax) {
-                        Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
-                        // jump to the next tourId in the outer loop:
-                        continue 2;
-                    }
+            $childrenAgesRaw = $request->input('childrenAges');
+            $childrenAges = $childrenAgesRaw ? array_map('intval', explode(',', $childrenAgesRaw)) : [];
+            foreach ($childrenAges as $age) {
+                if ($age < $childMin || $age > $childMax) {
+                    Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
+                    continue 2; // this correctly skips the entire tour
                 }
             }
-
+            Log::info("Tour $tourId child age range: [$childMin,$childMax] | ChildrenAges: " . implode(',', $childrenAges));
 
             $response = $this->getDeparturesByTourParamsV2($params);
 
