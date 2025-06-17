@@ -132,7 +132,7 @@ public static function getDeparturesByTour($params)
                  'cast' => $tour->prices]                   // the PHP array after casting
             );
 
-            $cats = $tour->price_categories ?? [];
+            $cats = $tour->prices ?? [];
             $childCat = collect($cats)->firstWhere('external_reference', 'child');
             if ($childCat) {
                 $childMin = $childCat['age_min'] ?? 0;

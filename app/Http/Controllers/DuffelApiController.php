@@ -811,7 +811,7 @@ class DuffelApiController extends Controller
             'maxConnections' => 'sometimes',
             'sortByLeastExpensive' => 'sometimes',
             'sortByLeastDuration' => 'sometimes',
-            'childrenAges'   => 'sometimes|array',
+            'childrenAges'   => 'sometimes',
             'childrenAges.*' => 'integer|min:0|max:17',
         ];
         $messages = [
