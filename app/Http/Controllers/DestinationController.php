@@ -238,13 +238,14 @@ class DestinationController extends Controller
       try {
 
         $gcloud_api_key = !empty(env('GCLOUD_API_KEY')) ? env('GCLOUD_API_KEY') : 'AIzaSyBIjpGancr9vQByFa1MUst_eo29spVtSmM';
-        $search_query = ' Mejores sitios para visitar en ' . $destination->name;
+        $search_query = 'Best places to visit in ' . $destination->name;
         $response = Http::get('https://www.googleapis.com/youtube/v3/search', [
           'part' => 'snippet',
           'q' => $search_query,
           'maxResults' => 3,
           'key' => $gcloud_api_key,
-          'type' => 'video'
+          'type' => 'video',
+          'relevanceLanguage' => 'en'
         ]);
         $data = $response->json();
 
