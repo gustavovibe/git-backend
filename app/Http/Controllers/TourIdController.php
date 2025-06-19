@@ -72,7 +72,7 @@ class TourIdController extends Controller
             }
 
 
-            $query->where('departures', 'guaranteed');
+            //$query->where('departures', 'guaranteed');
 
             $tourIds = $query->pluck('tour_id');
             $total = $tourIds->count();
