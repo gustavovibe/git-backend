@@ -8,8 +8,8 @@
 		<tr>
 			<td align="left" style="max-width: 203px;" valign="middle"><img alt="" border="0" class="w203px" src="https://vibeadventures.be/images//logo.png" style="display: block; max-width: 203px; width: 100%;" width="203" /></td>
 			<td style="width:20px">&nbsp;</td>
-			<td align="right"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Manage my booking</a><br />
-			<span style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If you need help, <span style="color: #82cf45; font-weight: bold;">contact us</span></span></td>
+			<td align="right"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/my-trips/order?order_id={{$order->booking_id}}" target="_blank" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" >Manage my booking</a><br />
+			<span style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If you need help, <a style="color: #82cf45; font-weight: bold;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" target="_blank">contact us</a></span></td>
 		</tr>
 	</tbody>
 </table>
@@ -19,11 +19,10 @@
 		<tr>
 			<td align="left" bgcolor="#ffffff" style="padding: 30px;" valign="top">
 			<div align="center" style="padding: 20px 0px;" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;"><span style="font-family: Canaro, sans-serif; font-size: 28px; color: #000000;line-height: 34px;">
-Your booking is 
 @if ($order->booking_status == 'pending') 
-    <strong>pending</strong>
+    <strong>We're <span color="#FF6C0E">confirming</span> your booking</strong>
 @else 
-    <strong>confirmed</strong>
+    <strong>Your booking is <span color="#82CF45">confirmed</span></strong>
 @endif
 </span></div>
 			</td>
@@ -67,7 +66,7 @@ Your booking is
 						<table border="0" cellpadding="0" cellspacing="0" style="background: #82cf45; border-radius: 20px; width: 100px;">
 							<tbody>
 								<tr>
-									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1408838964.png" style="display: block;" width="18" /></td>
+									<td align="center" style="padding: 2px 4px 2px 4px;"><img alt="" height="18" src="https://blog.vibeadventures.com/wp-content/uploads/2025/06/tik.png" style="display: block;" width="18" /></td>
 									<td style="font-family: Arial, sans-serif; font-size: 12px; color: #ffffff; font-weight: bold; text-decoration: none;">Confirmed</td>
 								</tr>
 							</tbody>
@@ -85,7 +84,14 @@ Your booking is
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin: 25px auto;width: 100%;text-align: center;">
 	<tbody>
 		<tr>
-			<td align="center" valign="top"><span style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;"><span style="font-weight: bold; text-decoration: none;">{{ $order->user->name }}</span> <span style="font-weight: normal; text-decoration: none;">, thank you for choosing Vibe Adventures! </span> </span></td>
+			<td align="center" valign="top">
+			<p style="font-family: Canaro, sans-serif; font-size: 16px; color: #000000;">
+				<span style="font-weight: bold; text-decoration: none;">{{ $order->user->name }}</span> 
+				<span style="font-weight: normal; text-decoration: none;">, thank you for choosing Vibe Adventures!<br>  
+Below is your booking summary, answers to FAQs, and links to download your flight tickets, itinerary, and invoice.<br>
+Detailed trip notes—including daily activities, accommodation list, and your tour leader’s contact info—will be emailed 1–4 weeks before departure (timing may vary by tour operator).<br>
+In the meantime, if you have any questions, feel free to <a style="color: #82cf45; font-weight: bold; text-decoration: none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact">contact us</a>.</span> 
+			</p></td>
 		</tr>
 	</tbody>
 </table>
@@ -176,7 +182,7 @@ Your booking is
 		<tr>
 			<td>
 			<ul>
-				<li><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Book Pre- and Post-Tour Accommodation<span style="font-weight: normal; text-decoration: none;">: These are not included in the organized adventure. You can </span><span style="color: #82cf45; text-decoration: none;">book them now</span><span style="text-decoration: none;"> or wait for your trip notes (usually sent 2–4 weeks before departure) to book the same hotels where the adventure starts and ends. </span></span></li>
+				<li><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Book Pre- and Post-Tour Accommodation<span style="font-weight: normal; text-decoration: none;">: These are not included in the organized adventure. You can </span><a style="color: #82cf45; text-decoration: none;" href="https://trip.tp.st/CGLH4d7u" target="_blank">book them now</span><span style="text-decoration: none;"> or wait for your trip notes (usually sent 2–4 weeks before departure) to book the same hotels where the adventure starts and ends. </span></span></li>
 				<li><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Check-in with the Airlines: Make sure to complete your check-in online (recommended) or at the airport before your flight. </span></li>
 			</ul>
 			</td>
@@ -189,12 +195,12 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="center" style="border-radius: 3px;" valign="middle">
-			<div style="overflow: hidden; border-radius: 3px;"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">View booking</a>
+			<div style="overflow: hidden; border-radius: 3px;"><a style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" href="https://hopeful-nobel.74-208-189-166.plesk.page/my-trips/order?order_id={{$order->booking_id}}" target="_blank">View booking</a>
 
 			<div style="height: 10px; line-height: 10px; font-size: 8px;">&nbsp;</div>
 
 			<div>
-			<div style="line-height: 17px;"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;"><span style="text-decoration: none;">If you need help, </span><span style="color: #82cf45; font-weight: bold; text-decoration: none;">contact us</span></span></div>
+			<div style="line-height: 17px;"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;"><span style="text-decoration: none;">If you need help, </span><a style="color: #82cf45; font-weight: bold; text-decoration: none;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact">contact us</a></span></div>
 			</div>
 			</div>
 			</td>
@@ -303,12 +309,15 @@ Your booking is
 </table>
 
 @if ($order->tour)
+
 <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;margin-top:25px">
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Adventure summary</span></td>
 			<td align="right" valign="middle">
+			@if ($order->booking_status == 'confirmed') 	
 				<a href="https://vibeadventures.be/api/boooking-summary-pdf?tour_id={{ $order->tour_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download itinerary</a>
+			@endif	
 			</td>
 		</tr>
 	</tbody>
@@ -395,7 +404,9 @@ Your booking is
 	<tbody>
 		<tr>
 			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 25px; color: #000000;">Flights summary</span></td>
+			@if ($order->booking_status == 'confirmed')
 			<td align="right" valign="middle"><a href="https://vibeadventures.be/api/get-tickets?orderId={{ $order->duffel_id }}" style="font-size:14px;font-weight:bold;line-height:31px;width:171px;border: 1px solid #ff6c0e;color:#ff6c0e;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Download tickets</a></td>
+			@endif
 		</tr>
 	</tbody>
 </table>
@@ -427,24 +438,12 @@ Your booking is
 		<tr>
 			<td align="left" valign="middle">
 				<span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('H:i') }}</span><br />
-				<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('D, d/m') }}</span>
+				<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['departing_at'])->format('M d, Y') }}</span>
 			</td>
 			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
 				@if(isset($or['segments'][0]['origin']['city']['name'])  )
 				<b>{{ $or['segments'][0]['origin']['city']['name'] }}@endif</b>
 				({{$or['segments'][0]['origin']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['origin']['name']}}</span></td>
-		</tr>
-	</tbody>
-</table>
-<table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
-	<tbody>
-		<tr>
-			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</span><br />
-			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('D, d/m') }}</span></td>
-			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
-				@if(isset($or['segments'][0]['destination']['city']['name'])  )
-				<b>{{ $or['segments'][0]['destination']['city']['name'] }}@endif</b>
-				({{$or['segments'][0]['destination']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['destination']['name']}}</span></td>
 		</tr>
 	</tbody>
 </table>
@@ -459,6 +458,19 @@ Your booking is
 		</tr>
 	</tbody>
 </table>
+<table border="0" cellpadding="0" cellspacing="0" style="width:100%;padding:10px;margin-top:20px">
+	<tbody>
+		<tr>
+			<td align="left" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 18px; color: #000000;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('H:i') }}</span><br />
+			<span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">{{ \Carbon\Carbon::parse($or['segments'][0]['arriving_at'])->format('M d, Y') }}</span></td>
+			<td align="right" valign="middle"><span style="font-family: Canaro, sans-serif; font-size: 14px; color: #82cf45;">
+				@if(isset($or['segments'][0]['destination']['city']['name'])  )
+				<b>{{ $or['segments'][0]['destination']['city']['name'] }}@endif</b>
+				({{$or['segments'][0]['destination']['iata_code']}})· </span><span style="font-family: Canaro, sans-serif; color: #4f4f4f; text-decoration: none;">{{$or['segments'][0]['destination']['name']}}</span></td>
+		</tr>
+	</tbody>
+</table>
+
 {{-- === HERE: After the very first slice, inject your extra table === --}}
     @if ($loop->first)
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:20px;margin-bottom:20px;padding-left:10px;padding-right: 10px;">
