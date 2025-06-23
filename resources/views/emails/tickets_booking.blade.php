@@ -101,7 +101,7 @@
                                         <td style="vertical-align: middle;">
                                             <p style="margin: 0; padding: 0;font-size: 12px; font-family: 'Roboto', sans-serif;">
                                                 <b>E-ticket-number: </b>
-                                                <span style="color:#82CF45;">{{ $passenger['id'] }}</span>
+                                                <span style="color:#82CF45;">{{ $data['booking_reference'] }}</span>
                                             </p>
                                         </td>
                                     </tr>
@@ -126,7 +126,7 @@
                 </td>
                 <td rowspan="4" style="text-align: center; padding-left: 5%;">
                     <div style="text-align: right;">
-                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Carrier:</b> {{ $segment['operating_carrier']['name'] }}</p>
+                        <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Carrier:</b> {{ $segment['operating_carrier']['iata_code'] }}</p>
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Flight #</b> {{ $segment['operating_carrier_flight_number'] }}</p>
                         <p style="font-size: 12px; font-family: 'Roboto', sans-serif;"><b>Duration:</b> {{ $segment['formatted_duration']  }}</p>
                     </div>
@@ -154,7 +154,7 @@
 @endforeach
 <p style="font-family: 'Roboto', sans-serif;font-size: 12px;"> 
     <b style="color: red;">*</b> 
-    All timer are local. Arrive at the airport at leaste 2 hours before domestic flights and 3 hours before international flights, especially with checked baggage. Check the airport's official guidelines for more details.
+    All times are local. Arrive at the airport at least 2 hours before domestic flights and 3 hours before international flights, especially with checked baggage. Check the airport’s official guidelines for more details.
 </p>
 <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;">Check In</h2>
 <div style="border-style: groove; padding:2%; border-radius:8px; border-color:#82CF45;">
@@ -188,7 +188,9 @@
     <a href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" style="color: #82CF45">contact us</a> if any help is needed.
 </p>
 <h2 style="font-family: 'Roboto', sans-serif;font-size: 15px;">Additional Information</h2>
-<p style="font-family: 'Roboto', sans-serif;font-size: 11px;">"Vibeadventures.com does not take responsibility for any visa-related matters, including airport transit visas. Failure to provide the required documentation may result in denied boarding. It is your responsibility to ensure you have all necessary travel documents for your trip, such as a valid passport, appropriate visas, and any recommended vaccination records for your destination.}</p>
+<p style="font-family: 'Roboto', sans-serif;font-size: 11px;">
+It is your responsibility to ensure you have all necessary travel documents for your trip, such as a valid passport, appropriate visas, and any recommended vaccination records for your destination. Vibe Adventures  does not take responsibility for any visa-related matters, including airport transit visas. Failure to provide the required documentation may result in denied boarding. 
+</p>
 </div>
 </div>
 </body>
