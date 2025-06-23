@@ -9,7 +9,7 @@
 			<td align="left" style="max-width: 203px;" valign="middle"><img alt="" border="0" class="w203px" src="https://vibeadventures.be/images//logo.png" style="display: block; max-width: 203px; width: 100%;" width="203" /></td>
 			<td style="width:20px">&nbsp;</td>
 			<td align="right"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Manage my booking</a><br />
-			<span style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If you need help, <span style="color: #82cf45; font-weight: bold;">contact us</span></span></td>
+			<span style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If you need help, <a href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" target="_blank" style="color: #82cf45; font-weight: bold;">contact us</span></span></td>
 		</tr>
 	</tbody>
 </table>
@@ -128,7 +128,7 @@
 	<tbody>
 		<tr>
 			<td align="center" style="border-radius: 3px;" valign="middle">
-			<div style="overflow: hidden; border-radius: 3px;"><a href="#" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">View booking</a>
+			<div style="overflow: hidden; border-radius: 3px;"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/my-trips" target="_blank" style="background-color:#ff6c0e;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" >View booking</a>
 
 			<div style="height: 10px; line-height: 10px; font-size: 8px;">&nbsp;</div>
 
@@ -183,7 +183,7 @@
 	<tbody>
 		<tr>
 			<td align="center" style="border-radius: 3px;" valign="middle">
-			<div style="overflow: hidden; border-radius: 3px;"><a href="https://vibeadventures.com" style="background-color:#82CF45;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;" target="_blank">Book another trip</a></div>
+			<div style="overflow: hidden; border-radius: 3px;"><a href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" target="_blank" style="background-color:#82CF45;font-size:14px;font-weight:bold;line-height:37px;width:169px;color:#ffffff;border-radius:10px;display:inline-block;font-family:Canaro, sans-serif;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;box-sizing:border-box;">Book another trip</a></div>
 			</td>
 		</tr>
 	</tbody>

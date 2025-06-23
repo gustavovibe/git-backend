@@ -84,7 +84,7 @@
                 <th style="width: 15%;text-align:left">Price inc. VAT</th>
             </tr>
             <tr style="text-align:left;">
-                <td><span>Trip</span></td>
+                <td style="align-content: start;"><span>Trip</span></td>
                 <td style="border-right: 1px dotted black;">    
                     <span>
                     <span style="color: #82CF45;">{{ $orders->tour_name }} organized adventure</span>
@@ -110,10 +110,10 @@
                     </ul>
                 </td>
                 <td style="width: 1%"></td>
-                <td><span>{{ 'US $'.$orders->paid }}</span></td>
+                <td style="align-content: start;"><span>{{ 'US $'.$orders->paid }}</span></td>
                 <th style="width: 1%"></th>
                 <td><span>1</span></td>
-                <td><span>{{ 'US $'.$orders->paid }}</span></td>
+                <td style="align-content: start;"><span>{{ 'US $'.$orders->paid }}</span></td>
             </tr>
         </table>
         <br>
@@ -144,7 +144,7 @@
         </tr>
         <tr>
             <td>
-            <span style="font-family: Canaro, sans-serif;font-size:10px">For more information visit:<a href="https://vibeadventures.com">https://vibeadventures.com</a></span>
+            <span style="font-family: Canaro, sans-serif;font-size:10px">For more information <a href="https://hopeful-nobel.74-208-189-166.plesk.page/contact">contact us</a></span>
             </td>
         </tr>
     </table>

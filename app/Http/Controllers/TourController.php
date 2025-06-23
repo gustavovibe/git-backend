@@ -333,9 +333,9 @@ class TourController extends Controller
                $guide_types[]=$text['name'];
            }
            $countries_d=[
-               'countries_text'=>implode(',',$countries),
-               'tour_text'=>implode(',',$tour_types),
-               'guide_text'=>implode(',',$guide_types),
+               'countries_text'=>implode(', ',$countries),
+               'tour_text'=>implode(', ',$tour_types),
+               'guide_text'=>implode(', ',$guide_types),
            ];
 
            $values=['tour'=>$tour,'countries_d'=>$countries_d,'services'=>$tour['services']['included']];
@@ -614,9 +614,9 @@ class TourController extends Controller
             $guide_types[]=$text['name'];
         }
         $countries_d=[
-            'countries_text'=>implode(',',$countries),
-            'tour_text'=>implode(',',$tour_types),
-            'guide_text'=>implode(',',$guide_types),
+            'countries_text'=>implode(', ',$countries),
+            'tour_text'=>implode(', ',$tour_types),
+            'guide_text'=>implode(', ',$guide_types),
         ];
 
         /* return $tour['services']['included'] ; */
