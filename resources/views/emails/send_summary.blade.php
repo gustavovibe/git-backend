@@ -42,7 +42,7 @@
         <table style="text-align:center;width:100%;margin-bottom: 50px;">
             <tr style="margin-bottom:100px">
                 <td>
-                    <span style="color: #4F5E71; font-size: 60px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
+                    <span style="color: #4F5E71; font-size: 40px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ">
                         {{ $tour['tour_name'] }}
                     </span>
                 </td>
@@ -97,12 +97,18 @@
                 </td>
             </tr>
         </table>
+        <table style="text-align:center;margin-bottom:20px">
+            <tr>
+                <td>
+                <span style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700;">
+                    Overview
+                </span>
+                </td>
+            </tr>
+        </table>
         <table style="text-align:center">
             <tr>
                 <td>
-                <span style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">
-                    Overview
-                </span><br>
                 <img style="width:100%; height:auto" src="{{ $tour['map'] }}">
                 </td>
             </tr>
@@ -221,7 +227,7 @@
         <div>
             @foreach ( $tour['itinerary'] as $day )
                 <div style="page-break-inside: avoid;">
-                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['title'] !!}</label>
+                    <label style="text-align: justify; color: #4F5E71; font-size: 20px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;"><strong>{!! $day['title'] !!}</strong></label>
                     <div style="text-align: justify; color: #4F5E71; font-size:16px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 400; margin-top:3%;">{!! $day['description'] !!}</div>
                 </div>
                 <br>
@@ -243,7 +249,7 @@
                 </tr>
         </table>
         <div>
-            <p style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">Whats included!</p>
+            <p style="color: #82CF45; font-size: 25px; font-family: 'Roboto', sans-serif; word-wrap: break-word; font-weight: 700; ;">What's included?</p>
         </div>
         @foreach ( $services as $key=>$value)
         <div style="page-break-inside: avoid;">
