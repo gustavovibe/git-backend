@@ -140,4 +140,46 @@ class WishlistController extends Controller
         }
 
     }
+
+    public function deleteByTourId(Request $request){
+        
+        $tour_id = $request->has('tour_id') ? $request->post('tour_id') : null;
+        $user_id = $request->has('user_id') ? $request->post('user_id') : null;
+
+        if (empty($tour_id)) {
+            return ApiResponse::error('Tour ID is missing');
+        }
+        if (empty($user_id)) {
+            return ApiResponse::error('User ID is missing');
+        }
+
+        $traveler = Traveler::where('user_id', $user_id)->first();
+        if (!$traveler) {
+            return ApiResponse::error('Traveler not found for the given user ID');
+        }
+
+        $user = User::where('id', $user_id)->first();
+        if (!$user) {
+            return ApiResponse::error('User not found');
+        }
+
+        try {
+
+            $wishlistItem = Wishlist::where([
+                'traveler_id' => $traveler->traveler_id,
+                'tour_id' => $tour_id
+            ])->first();
+
+            if (!$wishlistItem) {
+                return ApiResponse::error('Wishlist item not found');
+            }
+
+            $wishlistItem->delete();
+
+            return ApiResponse::success('Wishlist item removed successfully');
+
+        } catch (\Exception $e) {
+            return ApiResponse::error('Error deleting wishlist item: ' . $e->getMessage());
+        }
+    }
 }
