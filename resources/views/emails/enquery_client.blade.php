@@ -8,13 +8,17 @@
 	<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
 		<tbody>
 			<tr>
-				<td align="left" style="max-width: 203px;" valign="middle"><img alt="" border="0" class="w203px"
+				<td align="left" style="max-width: 203px;" valign="middle">
+                    <a href="https://hopeful-nobel.74-208-189-166.plesk.page/" target="_blank">
+                        <img alt="" border="0" class="w203px"
 						src="https://vibeadventures.be/images//logo.png"
-						style="display: block; max-width: 203px; width: 100%;" width="203" /></td>
+						style="display: block; max-width: 203px; width: 100%;" width="203" />
+                    </a>
+                </td>
 				<td style="width:20px">&nbsp;</td>
 				<td><span
 					style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If
-					you need help, <span style="color: #82cf45; font-weight: bold;">contact us</span></span></td>
+					you need help, <a style="color: #82cf45; font-weight: bold;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" target="_blank">contact us</a></span></td>
 			</tr>
 		</tbody>
 	</table>
@@ -37,7 +41,7 @@
 		<tbody>
 			<tr>
 				<td align="left" bgcolor="#ffffff" style="padding: 0px;" valign="top">
-					<div style="padding: 20px 0px;" valign="middle">
+					<div style="padding: 0px 0px;" valign="middle">
                         <span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;line-height: 34px;">
 								Thank you for reaching out to us!
                         </span>
@@ -46,7 +50,7 @@
 			</tr>
             <tr>
 				<td align="left" bgcolor="#ffffff" style="padding: 0px;" valign="top">
-					<div style="padding: 20px 0px;" valign="middle">
+					<div style="padding: 0px 0px;" valign="middle">
                         <span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;line-height: 34px;">
                                 Your enquiry about has been successfully registered in our system. One of our travel advisors will review your request and get back to you as soon as possible.
                         </span>
@@ -55,7 +59,7 @@
 			</tr>
             <tr>
 				<td align="left" bgcolor="#ffffff" style="padding: 0px;" valign="top">
-					<div style="padding: 20px 0px;" valign="middle">
+					<div style="padding: 0px 0px;" valign="middle">
                         <span style="font-family: Canaro, sans-serif; font-size: 14px; color: #000000;line-height: 34px;">
                                 If you have any urgent questions, feel free to contact us via chat or phone.
                         </span>
