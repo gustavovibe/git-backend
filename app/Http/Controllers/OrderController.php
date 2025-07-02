@@ -109,103 +109,173 @@ class OrderController extends Controller
     public function adminReports(Request $request)
     {
         try{
+            $booking_dates = $request->input('booking');
+            $travel_dates = $request->input('travel');
+            $destination_cities = $request->input('destination_city');
+            $destination_countries = $request->input('destination_country');
+            $travel_styles = $request->input('travel_style');
+            $operators = $request->input('operator');
+            $adventures = $request->input('adventure');
+            $status = $request->input('status');
+            $duration = $request->input('duration');
+            $whole_trip = $request->input('whole_trip');
+            $age_group = $request->input('age_group');
+            $genders = $request->input('gender');
+            $group_size = $request->input('group_size');
+            $countries = $request->input('country');
 
-        $orders = Order::filter($request->all())->get();
+            $orders = Order::
+                        when($booking_dates, function ($query) use ($booking_dates) {
+                            return $query->whereBetween('created_at', $booking_dates);
+                        })
+                        ->when($travel_dates, function ($query) use ($travel_dates) {
+                            return $query->whereBetween('start', $travel_dates);
+                        })
+                        ->when($destination_cities, function ($query) use ($destination_cities) {
+                            return $query->whereHas('tour.cities', function ($q) use ($destination_cities) {
+                                $q->whereIn('t_city_id', $destination_cities);
+                            });
+                        })
+                        ->when($destination_countries, function ($query) use ($destination_countries) {
+                            return $query->whereHas('tour.countries', function ($q) use ($destination_countries) {
+                                $q->whereIn('t_country_id', $destination_countries);
+                            });
+                        })
+                        ->when($travel_styles, function ($query) use ($travel_styles) {
+                            return $query->whereHas('tour.type', function ($q) use ($travel_styles) {
+                                $q->whereIn('tour_type_id', $travel_styles);
+                            });
+                        })
+                        ->when($operators, function ($query) use ($operators) {
+                            return $query->whereHas('operator', function ($q) use ($operators) {
+                                $q->whereIn('operator_id', $operators);
+                            });
+                        })
+                        ->when($adventures, function ($query) use ($adventures) {
+                            return $query->whereHas('tour.natural_destination', function ($q) use ($adventures) {
+                                $q->whereIn('t_natural_id', $adventures);
+                            });
+                        })
+                        ->when($status, function ($query) use ($status) {
+                            return $query->whereIn('booking_status', $status);
+                        })
+                        ->when($duration, function ($query) use ($duration) {
+                            return $query->whereBetween('tour_length', explode('-', $duration));
+                        })
+                        ->when($whole_trip, function ($query) use ($whole_trip) {
+                            return $query->whereBetween('whole_trip', explode('-', $whole_trip));
+                        })
+                        ->when($age_group, function ($query) use ($age_group) {
+                            return $query->whereBetween('age_group', explode('-', $age_group));
+                        })
+                        ->when($genders, function ($query) use ($genders) {
+                            return $query->whereIn('gender', $genders);
+                        })
+                        ->when($group_size, function ($query) use ($group_size) {
+                            if($group_size >= 11){
+                                return $query->where('group_size', '>=', $group_size);
+                            }
+                            return $query->where('group_size', $group_size);
+                        })
+                        ->when($countries, function ($query) use ($countries) {
+                            return $query->whereIn('country', $countries);
+                        })
+                        ->get();
 
-        $totalOrders = Order::count();
-        $totalSales = 0;
-        $totalPrice = 0;
-        $numberOfPeople = 0;
-        $totalDays = 0;
-        $totalPaidToSuppliers = 0;
-        $totalRefunded = 0;
-        $totalDiscount = 0;
-        $totalGrossProfit = 0;
+            $totalOrders = $orders->count();
+            $totalSales = 0;
+            $totalPrice = 0;
+            $numberOfPeople = 0;
+            $totalDays = 0;
+            $totalPaidToSuppliers = 0;
+            $totalRefunded = 0;
+            $totalDiscount = 0;
+            $totalGrossProfit = 0;
 
-        $monthlySalesData = [];
+            $monthlySalesData = [];
 
-        foreach ($orders as $order) {
-            $totalSales += $order->paid;
-            $totalPrice += $order->p_tour;
-            $numberOfPeople += $order->travelers_number;
+            foreach ($orders as $order) {
+                $totalSales += $order->paid;
+                $totalPrice += $order->p_tour;
+                $numberOfPeople += $order->travelers_number;
 
-            $totalPaidToSuppliers += $order->paid_to_suppliers;
-            $totalRefunded += $order->refunded;
-            $totalDiscount += $order->discounted;
+                $totalPaidToSuppliers += $order->paid_to_suppliers;
+                $totalRefunded += $order->refunded;
+                $totalDiscount += $order->discounted;
 
-            $startDate = Carbon::parse($order->start);
-            $endDate = Carbon::parse($order->end);
-            $days = $startDate->diffInDays($endDate) + 1;
-            $totalDays += $days * $order->travelers_number;
+                $startDate = Carbon::parse($order->start);
+                $endDate = Carbon::parse($order->end);
+                $days = $startDate->diffInDays($endDate) + 1;
+                $totalDays += $days * $order->travelers_number;
 
-            $grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
-            $totalGrossProfit += $grossProfit;
-            $month = $order->created_at->format('Y-m');
-            $channel = $order->channel;
+                $grossProfit = $order->paid - $order->paid_to_suppliers - $order->refunded;
+                $totalGrossProfit += $grossProfit;
+                $month = $order->created_at->format('Y-m');
+                $channel = $order->channel;
 
-            if (!isset($monthlySalesData[$month])) {
-                $monthlySalesData[$month] = [
-                    'Direct' => 0,
-                    'web' => 0,
-                    'Affiliates' => 0,
-                    'Referrals' => 0,
-                ];
+                if (!isset($monthlySalesData[$month])) {
+                    $monthlySalesData[$month] = [
+                        'Direct' => 0,
+                        'web' => 0,
+                        'Affiliates' => 0,
+                        'Referrals' => 0,
+                    ];
+                }
+
+                $monthlySalesData[$month][$channel] += $order->paid;
+
             }
+            $averageSalesPerPerson = ($numberOfPeople > 0) ?$totalSales / $numberOfPeople:0;
 
-            $monthlySalesData[$month][$channel] += $order->paid;
+            $averagePricePerPersonPerDay = ($totalDays > 0) ?$totalPrice / $totalDays:0;
 
-        }
-        $averageSalesPerPerson = ($numberOfPeople > 0) ?$totalSales / $numberOfPeople:0;
-
-        $averagePricePerPersonPerDay = ($totalDays > 0) ?$totalPrice / $totalDays:0;
-
-        $grossProfitRatio =($totalSales > 0) ? ($totalGrossProfit / $totalSales) * 100:0;
+            $grossProfitRatio = ($totalSales > 0) ? ($totalGrossProfit / $totalSales) * 100 : 0;
 
 
-        $chartData = [
-            'labels' => array_keys($monthlySalesData),
-            'datasets' => [
-                [
-                    'type' => 'bar',
-                    'label' => 'Direct',
-                    'backgroundColor' => '#FFA726',
-                    'data' => array_column($monthlySalesData, 'Direct'),
-                ],
-                [
-                    'type' => 'bar',
-                    'label' => 'Web',
-                    'backgroundColor' => 'blue',
-                    'data' => array_column($monthlySalesData, 'web'),
-                ],
-                [
-                    'type' => 'bar',
-                    'label' => 'Affiliates',
-                    'backgroundColor' => '#66BB6A',
-                    'data' => array_column($monthlySalesData, 'Affiliates'),
-                ],
-                [
-                    'type' => 'bar',
-                    'label' => 'Referrals',
-                    'backgroundColor' => '#FFEB3B',
-                    'data' => array_column($monthlySalesData, 'Referrals'),
+            $chartData = [
+                'labels' => array_keys($monthlySalesData),
+                'datasets' => [
+                    [
+                        'type' => 'bar',
+                        'label' => 'Direct',
+                        'backgroundColor' => '#FFA726',
+                        'data' => array_column($monthlySalesData, 'Direct'),
+                    ],
+                    [
+                        'type' => 'bar',
+                        'label' => 'Web',
+                        'backgroundColor' => 'blue',
+                        'data' => array_column($monthlySalesData, 'web'),
+                    ],
+                    [
+                        'type' => 'bar',
+                        'label' => 'Affiliates',
+                        'backgroundColor' => '#66BB6A',
+                        'data' => array_column($monthlySalesData, 'Affiliates'),
+                    ],
+                    [
+                        'type' => 'bar',
+                        'label' => 'Referrals',
+                        'backgroundColor' => '#FFEB3B',
+                        'data' => array_column($monthlySalesData, 'Referrals'),
+                    ]
                 ]
-            ]
-        ];
+            ];
 
-        return ApiResponse::success([[
-            'total_sales' =>'$'.number_format( $totalSales,2),
-            'orders' => $totalOrders,
-            'travelers' => $numberOfPeople,
-            'average_sales' => '$'.number_format($averageSalesPerPerson,2),
-            'average_price' => '$'.number_format($averagePricePerPersonPerDay,2),
-            'suppliers_paid' => '$'.number_format($totalPaidToSuppliers,2),
-            'refunded' => '$'.number_format($totalRefunded,2),
-            'discount' => '$'.number_format($totalDiscount,2),
-            'gross_profit' => '$'.number_format($totalGrossProfit,2),
-            'profit_ratio' => $grossProfitRatio.'%',
-            'chart_data' => $chartData,
-        ],
-    ]);
+            return ApiResponse::success([[
+                    'total_sales' =>'$'.number_format( $totalSales,2),
+                    'orders' => $totalOrders,
+                    'travelers' => $numberOfPeople,
+                    'average_sales' => '$'.number_format($averageSalesPerPerson,2),
+                    'average_price' => '$'.number_format($averagePricePerPersonPerDay,2),
+                    'suppliers_paid' => '$'.number_format($totalPaidToSuppliers,2),
+                    'refunded' => '$'.number_format($totalRefunded,2),
+                    'discount' => '$'.number_format($totalDiscount,2),
+                    'gross_profit' => '$'.number_format($totalGrossProfit,2),
+                    'profit_ratio' => $grossProfitRatio.'%',
+                    'chart_data' => $chartData,
+                ],
+            ]);
 
         }catch(Exception $e){
             return response()->json(['sucesss'=>false,'data'=>$e]);

@@ -137,7 +137,7 @@ Route::get('/orders-all', [OrderController::class, 'index']);
 Route::get('/orders-csv', [OrderController::class, 'ordersCsv']);
 Route::get('users-orders-csv', [UserController::class, 'getUsersOrdersCsv']);
 Route::get('/order/{id}', [OrderController::class, 'getOrder']);
-Route::get('/admin-reports', [OrderController::class, 'adminReports']);
+Route::post('/admin-reports', [OrderController::class, 'adminReports']);
 
 Route::post('/add-users', [SystemUserController::class, 'createUser']);
 Route::get('/get-users', [SystemUserController::class, 'getUsers']);

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Enquiries;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,7 @@ use App\Http\Controllers\PreviewMailController;
 Route::get('/preview/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
 
 Route::get('/', function () {
-    return view('welcome');
+    $enquiriesInfo = Enquiries::whereId(72)->first();
+    return view('emails.enquery_client')->with('data', $enquiriesInfo);
 });
 

@@ -19,6 +19,6 @@ class EnquiryClient extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Enquiry Has Been Received')->view('emails.enquery_client')->with('data', $this->data);
+        return $this->subject('Vibe Adventures got your enquiry')->view('emails.enquery_client')->with('data', $this->data);
     }
 }
