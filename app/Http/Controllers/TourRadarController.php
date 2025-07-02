@@ -104,10 +104,13 @@ public static function getDeparturesByTour($params)
         }
 
         $tourIds = explode(',', $params['tourIds']);
+        
+        /*
         $allowedTourIds = Tour::whereIn('tour_id', $tourIds)
             ->whereIn('is_active', [1, 2])
             ->pluck('tour_id')
             ->toArray();
+        */
 
         $departures = [];
         $itemsPerPage = 10;
@@ -115,7 +118,7 @@ public static function getDeparturesByTour($params)
         $start = ($page - 1) * $itemsPerPage;
         $end = $start + $itemsPerPage;
 
-        $paginatedTourIds = array_slice($allowedTourIds, $start, $itemsPerPage);
+        $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
 
         foreach ($paginatedTourIds as $tourId) {
             $params['tourId'] = $tourId;

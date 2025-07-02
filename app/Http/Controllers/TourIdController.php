@@ -71,22 +71,32 @@ class TourIdController extends Controller
                 }
             }
 
+            $query->whereIn('is_active', [1, 2]);
 
-            //$query->where('departures', 'guaranteed');
-
+            // -- apply limit if provided --
+            if ($request->has('limit')) {
+                $limit = (int) $request->input('limit');
+                // optional: enforce a max cap, e.g. 200
+                //$limit = min($limit, 200);
+                $query->limit($limit);
+            }
+    
+            // -- fetch the IDs --
             $tourIds = $query->pluck('tour_id');
+    
+            // -- total returned (after limit) --
             $total = $tourIds->count();
-
-            $response = [
+    
+            return ApiResponse::success([
                 'tour_ids' => $tourIds,
-                'total' => $total
-            ];
-
-            return ApiResponse::success($response);
-        }catch(Exception $e){
-            return response()->json(['status'=>false,'response'=>$e->getMessage()]);
+                'total'    => $total,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'   => false,
+                'response' => $e->getMessage(),
+            ]);
         }
-
     }
 
     protected function extractArrayFromQueryParam($param)

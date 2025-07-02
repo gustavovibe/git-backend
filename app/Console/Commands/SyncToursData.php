@@ -323,6 +323,7 @@ private function weeklyHealth()
                     continue;
                     }
 
+                    
                     // 3) Pull out the first item
                     $firstItem = $detail ?? null;
                     if (! $firstItem) {
