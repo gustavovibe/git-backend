@@ -163,25 +163,23 @@ class DuffelApiController extends Controller
      * @param string $offerId Offer ID
      * @return array     
      */
-    public function getOffer(string $offerId)
+    public function getOffer(Request $request)
     {
-        // Validations (if applicable)
+        $offerId = $request->query('offerId');
+
         if (empty($offerId)) {
             return response()->json(['error' => 'Offer ID is required'], 400);
         }
 
         try {
-            // Getting Headers
             $headers = self::getHeaders();
-            // Building the URL
             $url = 'https://api.duffel.com/air/offers?offer_request_id=' . $offerId;
+            // If you need other params, pass $request into your helper:
             $url = $this->addMoreOfferParamsToUrl($url, $request);
-            // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
-            // Return the response from the Duffel API
+
             return $response->json();
         } catch (\Exception $e) {
-            // Handle exceptions
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
