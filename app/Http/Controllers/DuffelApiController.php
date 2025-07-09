@@ -143,7 +143,6 @@ class DuffelApiController extends Controller
 
             // Building url
             $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
-            $url = $this->addMoreOfferParamsToUrl($url, $request);
             
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
@@ -164,7 +163,7 @@ class DuffelApiController extends Controller
      * @param string $offerId Offer ID
      * @return array     
      */
-    public static function getOffer(string $offerId)
+    public function getOffer(string $offerId)
     {
         // Validations (if applicable)
         if (empty($offerId)) {
@@ -174,13 +173,11 @@ class DuffelApiController extends Controller
         try {
             // Getting Headers
             $headers = self::getHeaders();
-
             // Building the URL
-            $url = 'https://api.duffel.com/air/offers/' . $offerId;
-
+            $url = 'https://api.duffel.com/air/offers?offer_request_id=' . $offerId;
+            $url = $this->addMoreOfferParamsToUrl($url, $request);
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
-
             // Return the response from the Duffel API
             return $response->json();
         } catch (\Exception $e) {
@@ -508,7 +505,7 @@ class DuffelApiController extends Controller
         } else {
             $url .= "max_connections=" . $default_maxConnections . "&";
         }
-        
+
         return $url;
     }
       
