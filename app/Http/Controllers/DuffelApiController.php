@@ -166,23 +166,33 @@ class DuffelApiController extends Controller
     public function getOffer(Request $request)
     {
         $offerId = $request->query('offerId');
-
+    
         if (empty($offerId)) {
             return response()->json(['error' => 'Offer ID is required'], 400);
         }
-
+    
         try {
             $headers = self::getHeaders();
-            $url = 'https://api.duffel.com/air/offers?offer_request_id=' . $offerId;
-            // If you need other params, pass $request into your helper:
+    
+            $url = 'https://api.duffel.com/air/offers'
+                 . '?offer_request_id=' . urlencode($offerId);
+    
             $url = $this->addMoreOfferParamsToUrl($url, $request);
+    
+            // ✅ Log the final URL and headers
+            \Log::info('[Duffel] Final URL and Headers', [
+                'url'     => $url,
+                'headers' => $headers,
+            ]);
+    
             $response = Http::withHeaders($headers)->get($url);
-
-            return $response->json();
+    
+            return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    
 
     /**
      * Get seats.
@@ -446,66 +456,58 @@ class DuffelApiController extends Controller
         $default_maxConnections = 1;
 
         if ($request->has('supplierTimeout')) {
-            $url .= "supplier_timeout=" . $request->supplierTimeout . "&";
+            $url .= "&supplier_timeout=" . $request->supplierTimeout . "&";
         } else {
-            $url .= "supplier_timeout=" . $default_supplierTimeout . "&";
+            $url .= "&supplier_timeout=" . $default_supplierTimeout . "&";
         }
 
         if ($request->has('limit')) {
-            $url .= "limit=" . $request->limit . "&";
+            $url .= "&limit=" . $request->limit . "&";
         } else {
-            $url .= "limit=" . $default_limit . "&";
+            $url .= "&limit=" . $default_limit . "&";
         }
 
         if ($request->has('sort')) {
-            $url .= "sort=" . $request->sort . "&";
+            $url .= "&sort=" . $request->sort . "&";
         } else {
-            $url .= "sort=" . $default_sort . "&";
+            $url .= "&sort=" . $default_sort . "&";
         }
 
         if ($request->has('maxConnections')) {
-            $url .= "max_connections=" . $request->maxConnections . "&";
+            $url .= "&max_connections=" . $request->maxConnections . "&";
         } else {
-            $url .= "max_connections=" . $default_maxConnections . "&";
+            $url .= "&max_connections=" . $default_maxConnections . "&";
         }
 
         return $url;
     }
 
-    private function addMoreOfferParamsToUrl($url, $request)
+    private function addMoreOfferParamsToUrl(string $url, Request $request): string
     {
-        $default_limit = 3;
-        $default_sort = "total_amount";
+        $default_limit          = 3;
+        $default_sort           = 'total_amount';
         $default_maxConnections = 1;
-
+    
         if ($request->has('after')) {
-            $url .= "after=" . $request->after . "&";
+            $url .= '&after=' . urlencode($request->after);
         }
-
+    
         if ($request->has('before')) {
-            $url .= "before=" . $request->before . "&";
+            $url .= '&before=' . urlencode($request->before);
         }
-
-        if ($request->has('limit')) {
-            $url .= "limit=" . $request->limit . "&";
-        } else {
-            $url .= "limit=" . $default_limit . "&";
-        }
-
-        if ($request->has('sort')) {
-            $url .= "sort=" . $request->sort . "&";
-        } else {
-            $url .= "sort=" . $default_sort . "&";
-        }
-
-        if ($request->has('maxConnections')) {
-            $url .= "max_connections=" . $request->maxConnections . "&";
-        } else {
-            $url .= "max_connections=" . $default_maxConnections . "&";
-        }
-
+    
+        $url .= '&limit=' 
+             . urlencode($request->get('limit', $default_limit));
+    
+        $url .= '&sort='
+             . urlencode($request->get('sort', $default_sort));
+    
+        $url .= '&max_connections='
+             . urlencode($request->get('maxConnections', $default_maxConnections));
+    
         return $url;
     }
+    
       
 
     private function validateOffers($offers, $offersQuantity, $request)
