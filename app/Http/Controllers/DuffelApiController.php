@@ -137,14 +137,14 @@ class DuffelApiController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
-
         try {
             // Getting Headers
             $headers = self::getHeaders();
 
             // Building url
             $url = 'https://api.duffel.com/air/offers/' . $request->offerId;
-
+            $url = $this->addMoreOfferParamsToUrl($url, $request);
+            
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->get($url);
 
@@ -476,6 +476,42 @@ class DuffelApiController extends Controller
 
         return $url;
     }
+
+    private function addMoreOfferParamsToUrl($url, $request)
+    {
+        $default_limit = 3;
+        $default_sort = "total_amount";
+        $default_maxConnections = 1;
+
+        if ($request->has('after')) {
+            $url .= "after=" . $request->after . "&";
+        }
+
+        if ($request->has('before')) {
+            $url .= "before=" . $request->before . "&";
+        }
+
+        if ($request->has('limit')) {
+            $url .= "limit=" . $request->limit . "&";
+        } else {
+            $url .= "limit=" . $default_limit . "&";
+        }
+
+        if ($request->has('sort')) {
+            $url .= "sort=" . $request->sort . "&";
+        } else {
+            $url .= "sort=" . $default_sort . "&";
+        }
+
+        if ($request->has('maxConnections')) {
+            $url .= "max_connections=" . $request->maxConnections . "&";
+        } else {
+            $url .= "max_connections=" . $default_maxConnections . "&";
+        }
+        
+        return $url;
+    }
+      
 
     private function validateOffers($offers, $offersQuantity, $request)
     {
