@@ -197,19 +197,34 @@ class DuffelApiController extends Controller
                     foreach ($offer['slices'] as $slice) {
                         foreach ($slice['segments'] as $segment) {
                             foreach ($segment['passengers'] as $passenger) {
+                                $pid = $passenger['passenger_id'] ?? $passenger['id'];
+                                // ensure we have initialized counts
+                                if (! isset($checkedByPassenger[$pid])) {
+                                    $checkedByPassenger[$pid] = 0;
+                                    $carryByPassenger[$pid]   = 0;
+                                }
+                
                                 foreach ($passenger['baggages'] ?? [] as $bag) {
                                     if ($bag['type'] === 'checked') {
-                                        $checked += (int) $bag['quantity'];
+                                        $checkedByPassenger[$pid] += (int) $bag['quantity'];
                                     } elseif ($bag['type'] === 'carry_on') {
-                                        $carry += (int) $bag['quantity'];
+                                        $carryByPassenger[$pid]   += (int) $bag['quantity'];
                                     }
                                 }
                             }
                         }
                     }
+                
+                    // 2) Derive the per‑passenger guarantee: the minimum across all passengers
+                    if (count($checkedByPassenger)) {
+                        $offer['baggage_checked'] = min($checkedByPassenger);
+                        $offer['baggage_carry']   = min($carryByPassenger);
+                    } else {
+                        // no passengers? default to 0
+                        $offer['baggage_checked'] = 0;
+                        $offer['baggage_carry']   = 0;
+                    }
     
-                    $offer['baggage_checked'] = $checked;
-                    $offer['baggage_carry']   = $carry;
                 }
                 unset($offer);
             }
