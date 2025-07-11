@@ -186,8 +186,75 @@ class DuffelApiController extends Controller
             ]);
     
             $response = Http::withHeaders($headers)->get($url);
+            $responseData = $response->json();
     
-            return response()->json($response->json(), $response->status());
+            // 1) Compute baggage counts
+            if (isset($responseData['data']) && is_array($responseData['data'])) {
+                foreach ($responseData['data'] as &$offer) {
+                    $checked = 0;
+                    $carry   = 0;
+    
+                    foreach ($offer['slices'] as $slice) {
+                        foreach ($slice['segments'] as $segment) {
+                            foreach ($segment['passengers'] as $passenger) {
+                                foreach ($passenger['baggages'] ?? [] as $bag) {
+                                    if ($bag['type'] === 'checked') {
+                                        $checked += (int) $bag['quantity'];
+                                    } elseif ($bag['type'] === 'carry_on') {
+                                        $carry += (int) $bag['quantity'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+    
+                    $offer['baggage_checked'] = $checked;
+                    $offer['baggage_carry']   = $carry;
+                }
+                unset($offer);
+            }
+    
+            // ← NEW: grab filter params (if any)
+            $filterChecked = $request->get('baggage_checked');
+            $filterCarry   = $request->get('baggage_carry');
+    
+            // ← NEW: filter out offers that don’t meet the criteria
+            if ($filterChecked !== null || $filterCarry !== null) {
+                $responseData['data'] = array_values(array_filter(
+                    $responseData['data'],
+                    function ($offer) use ($filterChecked, $filterCarry) {
+                        if ($filterChecked !== null && $offer['baggage_checked'] < (int) $filterChecked) {
+                            return false;
+                        }
+                        if ($filterCarry   !== null && $offer['baggage_carry']   < (int) $filterCarry) {
+                            return false;
+                        }
+                        return true;
+                    }
+                ));
+            }
+
+            $limit = (int) $request->get('limit', 3);
+            $page  = max(1, (int) $request->get('page', 1));
+
+            $totalOffers = count($responseData['data']);
+            $totalPages  = (int) ceil($totalOffers / $limit);
+
+            $responseData['data'] = array_slice(
+                $responseData['data'],
+                ($page - 1) * $limit,
+                $limit
+            );
+
+            $responseData['meta'] = [
+                'page'       => $page,
+                'limit'      => $limit,
+                'total'      => $totalOffers,
+                'totalPages' => $totalPages,
+            ];
+
+            return response()->json($responseData, $response->status());
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -484,7 +551,7 @@ class DuffelApiController extends Controller
 
     private function addMoreOfferParamsToUrl(string $url, Request $request): string
     {
-        $default_limit          = 3;
+        $default_limit          = 100;
         $default_sort           = 'total_amount';
         $default_maxConnections = 1;
     
@@ -496,8 +563,7 @@ class DuffelApiController extends Controller
             $url .= '&before=' . urlencode($request->before);
         }
     
-        $url .= '&limit=' 
-             . urlencode($request->get('limit', $default_limit));
+       // $url .= '&limit='. urlencode($request->get('limit', $default_limit));
     
         $url .= '&sort='
              . urlencode($request->get('sort', $default_sort));
