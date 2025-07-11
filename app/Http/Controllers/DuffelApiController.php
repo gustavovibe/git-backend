@@ -191,19 +191,28 @@ class DuffelApiController extends Controller
             // 1) Compute baggage counts
             if (isset($responseData['data']) && is_array($responseData['data'])) {
                 foreach ($responseData['data'] as &$offer) {
-                    $checked = 0;
-                    $carry   = 0;
-    
+                    $checkedByPassenger      = [];
+                    $carryByPassenger        = [];
+                    $segmentCountByPassenger = [];
+                
+                    // 1) Walk every slice → segment → passenger
                     foreach ($offer['slices'] as $slice) {
                         foreach ($slice['segments'] as $segment) {
                             foreach ($segment['passengers'] as $passenger) {
+                                // identify the passenger
                                 $pid = $passenger['passenger_id'] ?? $passenger['id'];
-                                // ensure we have initialized counts
+                
+                                // init counters if first time we see this passenger
                                 if (! isset($checkedByPassenger[$pid])) {
-                                    $checkedByPassenger[$pid] = 0;
-                                    $carryByPassenger[$pid]   = 0;
+                                    $checkedByPassenger[$pid]      = 0;
+                                    $carryByPassenger[$pid]        = 0;
+                                    $segmentCountByPassenger[$pid] = 0;
                                 }
                 
+                                // increment the segment‐count
+                                $segmentCountByPassenger[$pid]++;
+                
+                                // sum all bags for this passenger in this segment
                                 foreach ($passenger['baggages'] ?? [] as $bag) {
                                     if ($bag['type'] === 'checked') {
                                         $checkedByPassenger[$pid] += (int) $bag['quantity'];
@@ -215,18 +224,32 @@ class DuffelApiController extends Controller
                         }
                     }
                 
-                    // 2) Derive the per‑passenger guarantee: the minimum across all passengers
-                    if (count($checkedByPassenger)) {
-                        $offer['baggage_checked'] = min($checkedByPassenger);
-                        $offer['baggage_carry']   = min($carryByPassenger);
+                    // 2) For each passenger, compute “bags per segment”
+                    $perChecked = [];
+                    $perCarry   = [];
+                    foreach ($segmentCountByPassenger as $pid => $segCount) {
+                        // avoid division by zero
+                        if ($segCount > 0) {
+                            // integer division gives you the allowance per passenger
+                            $perChecked[$pid] = intdiv($checkedByPassenger[$pid], $segCount);
+                            $perCarry  [$pid] = intdiv($carryByPassenger  [$pid], $segCount);
+                        } else {
+                            $perChecked[$pid] = 0;
+                            $perCarry  [$pid] = 0;
+                        }
+                    }
+                
+                    // 3) Finally, pick the minimum across all passengers
+                    if (! empty($perChecked)) {
+                        $offer['baggage_checked'] = min($perChecked);
+                        $offer['baggage_carry']   = min($perCarry);
                     } else {
-                        // no passengers? default to 0
                         $offer['baggage_checked'] = 0;
                         $offer['baggage_carry']   = 0;
                     }
-    
                 }
                 unset($offer);
+                
             }
     
             // ← NEW: grab filter params (if any)
