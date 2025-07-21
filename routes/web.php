@@ -18,7 +18,6 @@ use App\Http\Controllers\PreviewMailController;
 Route::get('/preview/bookingconfirmation', [PreviewMailController::class, 'bookingConfirmation']);
 
 Route::get('/', function () {
-    $enquiriesInfo = Enquiries::whereId(72)->first();
-    return view('emails.enquery_client')->with('data', $enquiriesInfo);
+    return view('welcome');
 });
 

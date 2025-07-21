@@ -199,7 +199,7 @@
     <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%; padding-top:10px; padding-bottom:10px;">
         <tbody>
             <tr>
-                <td align="left" bgcolor="#FFFFFF" style="padding: 30px; padding-bottom: 5px; padding-top: 5px; border:1px solid #000000; border-radius: 5px;" valign="top">
+                <td align="left" bgcolor="#FFFFFF" style="padding: 30px; padding-bottom: 5px; padding-top: 5px;" valign="top">
                     <div style="padding: 20px 0px; padding-bottom: 0px; padding-top: 0px;" valign="middle">
                         <span style="font-family: Canaro, sans-serif; font-size: 14px; color: #505050;line-height: 34px;">
                             {{ $data['message'] }}
@@ -257,32 +257,32 @@
 		<table style="max-width: 600px;margin:0 auto;width: 100%;">
 			<tbody>
 				<tr>
-					<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i980061126.png"
-							style="vertical-align: middle;width: 150px;" /></td>
-					<td><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1150146922.png"
-							style="vertical-align: middle;width: 150px;" /></td>
+					<td><a href="https://www.trustindex.io/reviews/vibeadventures.com" target="_blank"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i980061126.png"
+							style="vertical-align: middle;width: 150px;" /></a></td>
+					<td><a href="https://www.trustindex.io/reviews/vibeadventures.com" target="_blank"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1150146922.png"
+							style="vertical-align: middle;width: 150px;" /></a></td>
 					<td style="text-align: right;">
 						<table style="width: 100%;">
 							<tr>
-								<td><a href="https://www.facebook.com/VibeAdventures"><img
+								<td><a href="https://www.facebook.com/VibeAdventures" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/facebook.png"
 											style="width:32px" /></a></td>
-								<td><a href="https://www.instagram.com/vibe.adventures"><img
+								<td><a href="https://www.instagram.com/vibe.adventures" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/instagram.png"
 											style="width:32px" /></a></td>
 								<td><a
-										href="https://www.youtube.com/channel/UCQ9qyA-fVkdXarHBlzDCUBA?view_as=subscriber"><img
+										href="https://www.youtube.com/channel/UCQ9qyA-fVkdXarHBlzDCUBA?view_as=subscriber" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/youtube.png"
 											style="width:32px" /></a></td>
 							</tr>
 							<tr>
-								<td><a href="https://www.tiktok.com/@vibeadventures"><img
+								<td><a href="https://www.tiktok.com/@vibeadventures" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/tiktok.png"
 											style="width:32px" /></a></td>
-								<td><a href="https://www.pinterest.com/vibe_adventures/"><img
+								<td><a href="https://www.pinterest.com/vibe_adventures/" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/pinterest.png"
 											style="width:32px" /></a></td>
-								<td><a href="https://twitter.com/vibe_adventures"><img
+								<td><a href="https://twitter.com/vibe_adventures" target="_blank"><img
 											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/twitter.png"
 											style="width:32px" /></a></td>
 							</tr>
