@@ -522,29 +522,31 @@ public function createTravelers($passengers,$userId)
     $firstTravelerId = null; // Initialize the first traveler ID
 
     foreach ($passengers as $index => $passenger) {
-        $traveler = Traveler::updateOrCreate(
-            ['mail' => $passenger['fields']['email']],
-            [
-                'title' => $passenger['fields']['title'],
-                'gender' => $passenger['fields']['title'] == 'Mr.' ? 'male' : 'female',
-                'name' => $passenger['fields']['first_name'],
-                'last' => $passenger['fields']['last_name'],
-                'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']),
-                'passport' => $passenger['fields']['passport_number'],
-                // 'country' => $passenger['country_id'],
-                'place' => $passenger['fields']['place_of_issue'],
-                'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
-                'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
-                // 'phone' => $passenger['phone_number'],
-                'address' => isset($passenger['fields']['address']) ? $passenger['fields']['address'] : 'n/a',
-                'user_id' => $userId,
-                'status' => 1,
-            ]
-        );
-
-        // Capture the first traveler's ID
-        if ($index === 0) {
+        $data = [
+            'title' => $passenger['fields']['title'],
+            'gender' => $passenger['fields']['title'] == 'Mr.' ? 'male' : 'female',
+            'name' => $passenger['fields']['first_name'],
+            'last' => $passenger['fields']['last_name'],
+            'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']),
+            'passport' => $passenger['fields']['passport_number'],
+            'country' => Country::where('name', $passenger['country_id'])->first()->id,
+            'place' => $passenger['fields']['place_of_issue'],
+            'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
+            'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
+            'phone' => preg_replace('/^\+\d{1,4}(?=\d{10}$)/', '', $passenger['phone_number']),
+            'address' => isset($passenger['fields']['address']) ? $passenger['fields']['address'] : 'n/a',
+            'user_id' => $userId,
+            'status' => 1,
+        ];
+        if($index == 0){
+            $traveler = Traveler::updateOrCreate(
+                ['mail' => $passenger['fields']['email']],
+                $data
+            );
             $firstTravelerId = $traveler->traveler_id;
+        }else{
+            $data['mail'] = $passenger['fields']['email'];
+            $traveler = Traveler::create($data);
         }
     }
 
