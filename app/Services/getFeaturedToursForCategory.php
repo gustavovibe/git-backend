@@ -117,16 +117,10 @@ class TourRadarService
         return $output;
     }
 
-     protected function fetchTours(string $tourIds): array
-    {
-        $url = "{$this->backendUrl}/api/tours?tour_ids={$tourIds}&sort_by=price_total&sort_order=asc&limit=120";
-        $resp = Http::acceptJson()->get($url);
-        return $resp->ok() ? data_get($resp->json(), 'data', []) : [];
-    }
 
     protected function searchCity($tId): string
     {
-        $resp = Http::acceptJson()->get("{$this->frontendUrl}/destinations.json");
+        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page//destinations.json");
         $cities = $resp->ok() ? $resp->json() : [];
         $found = collect($cities)->first(fn($c) => $c['t_id'] == $tId);
         return $found['label'] ?? 'Unknown';
@@ -190,7 +184,7 @@ class TourRadarService
 
     protected function getKiwiIDFromTourradarID(string $id): ?string
     {
-        $resp = Http::acceptJson()->get("{$this->frontendUrl}/start-end.json");
+        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page//start-end.json");
         $map = $resp->ok() ? $resp->json() : [];
         $found = collect($map)->first(fn($c) => $c['t_city'] == $id);
         return $found['code'] ?? null;
