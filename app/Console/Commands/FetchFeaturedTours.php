@@ -21,7 +21,7 @@ class FetchFeaturedTours extends Command
     public function handle()
     {
 
-        $categories = {'4', '32', '56'};
+        $categories = ['4', '32', '56'];
 
         foreach ($categories as $code) {
             $this->info("Fetching featured tours for category: {$code}");
