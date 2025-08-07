@@ -1,6 +1,6 @@
 <?php
 namespace App\Console\Commands;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Command;
 use App\Services\TourRadarService;
 
@@ -43,3 +43,4 @@ class FetchFeaturedTours extends Command
         return 0;
     }
 }
+
