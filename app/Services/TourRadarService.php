@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Http\Controllers\TourIdController;
+use App\Http\Controllers\TourRadarController;
+use App\Http\Controllers\TourController;
+use App\Http\Controllers\DuffelApiController;
+use Illuminate\Support\Facades\Log;
 
 class TourRadarService
 {
@@ -13,15 +18,25 @@ class TourRadarService
      * Fetch and assemble featured tours for a given category code.
      * Returns up to 8 tours with merged data (cities, flights, pricing).
      */
+    public function __construct()
+    {
+        $this->tourIdController     = new TourIdController();
+        $this->tourRadarController  = new TourRadarController();
+        $this->tourController       = new TourController();
+        $this->duffelController     = new DuffelApiController();
+    }
+
     public function getFeaturedToursForCategory(string $code): array
     {
         // 1) Fetch tour IDs via our TourIdController
-        $idsRequest = Request::create('/tour-ids', 'GET', [
-            'tour_type'  => $this->formatCodes($code),
-            'sort_by'    => 'price_total',
-            'sort_order' => 'asc',
-            'limit'      => 120,
-        ]);
+        $idsRequest = $this->tourIdController->index(
+            app('request')->merge([
+                'tour_type'  => $this->formatCodes($code),
+                'sort_by'    => 'price_total',
+                'sort_order' => 'asc',
+                'limit'      => 120,
+            ])
+        );
         $idsResponse = App::handle($idsRequest);
         $idsData = json_decode($idsResponse->getContent(), true)['data'] ?? [];
         $tourIds = $idsData['tour_ids'] ?? [];
@@ -31,18 +46,23 @@ class TourRadarService
             return [];
         }
 
+        Log::info('Fetched tour ids', $tourIds);
+
         $tours = [];
         $page = 1;
 
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
-            $filterRequest = Request::create('/filterdepartures', 'GET', [
+            $filterRequest = $this->tourRadarController->getMultipleDeparturesByTours(
+                app('request')->merge([
                 'tourIds'   => implode(',', $tourIds),
                 'page'      => $page,
-                'childrenAges' => '',  // adjust if needed
-            ] + $this->defaultRangeParams());
+            ] + $this->defaultRangeParams())
+            );
 
             $filterResponse = App::handle($filterRequest);
+            Log::info('Filtered departures', $filterResponse);
+
             $items = json_decode($filterResponse->getContent(), true)['items'] ?? [];
 
             if (empty($items)) {
@@ -86,13 +106,18 @@ class TourRadarService
         }
 
         // Use our existing TourController index via resource route
-        $toursRequest = Request::create('/tours', 'GET', [
-            'tour_ids'   => "[{$tourIds}]",
-            'sort_by'    => 'price_total',
-            'sort_order' => 'asc',
-            'limit'      => 120,
-        ]);
+        $toursRequest = $this->tourController->index(
+                app('request')->merge([
+                'tour_ids'   => "[{$tourIds}]",
+                'sort_by'    => 'price_total',
+                'sort_order' => 'asc',
+                'limit'      => 120,
+            ])
+         );
         $toursResponse = App::handle($toursRequest);
+
+        Log::info('Tours details', $toursResponse);
+
         $details = json_decode($toursResponse->getContent(), true)['data'] ?? [];
 
         $output = [];
@@ -120,7 +145,7 @@ class TourRadarService
 
     protected function searchCity($tId): string
     {
-        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page//destinations.json");
+        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page/destinations.json");
         $cities = $resp->ok() ? $resp->json() : [];
         $found = collect($cities)->first(fn($c) => $c['t_id'] == $tId);
         return $found['label'] ?? 'Unknown';
@@ -137,18 +162,18 @@ class TourRadarService
         $length    = $tour['tour_length_days'];
 
         $endDate   = $this->calculateTourEndDate($startDate, $length)->format('Y-m-d');
-        $fromDate  = $this->formatDateForKiwi($startDate, -1);
-        $toDate    = $this->formatDateForKiwi($startDate, 0);
+        $fromDate  = $this->formatDateForDuffel($startDate, -1);
+        $toDate    = $this->formatDateForDuffel($startDate, 0);
 
-        $originCode = $this->getKiwiIDFromTourradarID($tour['start_city']);
-        $destCode   = $this->getKiwiIDFromTourradarID($tour['end_city']);
+        $originCode = $this->getDuffelIDFromTourradarID($tour['start_city']);
+        $destCode   = $this->getDuffelIDFromTourradarID($tour['end_city']);
 
         if (! $originCode || ! $destCode) {
             return null;
         }
 
-        $response = Http::acceptJson()->get(
-            "https://vibeadventures.be/api/duffel-api/offer-requests",
+        $offer = $this->duffelController->createRequestGetOffers(
+            app('request')->merge(
             [
                 'origin'       => 'NYC',
                 'startCity'    => $originCode,
@@ -165,6 +190,8 @@ class TourRadarService
         }
 
         $offer = $response->json('offers.0');
+        Log::info('Duffel Offer', $offer);
+
         $price = data_get($offer, 'total_amount');
         $depart = data_get($offer, 'slices.0.segments.0.departing_at');
         $arrive = data_get($offer, 'slices.-1.segments.-1.arriving_at');
@@ -177,14 +204,14 @@ class TourRadarService
         return Carbon::parse($start)->addDays($length);
     }
 
-    protected function formatDateForKiwi(string $date, int $offsetDays): string
+    protected function formatDateForDuffel(string $date, int $offsetDays): string
     {
         return Carbon::parse($date)->addDays($offsetDays)->format('Y-m-d');
     }
 
-    protected function getKiwiIDFromTourradarID(string $id): ?string
+    protected function getDuffelIDFromTourradarID(string $id): ?string
     {
-        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page//start-end.json");
+        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page/start-end.json");
         $map = $resp->ok() ? $resp->json() : [];
         $found = collect($map)->first(fn($c) => $c['t_city'] == $id);
         return $found['code'] ?? null;
@@ -198,3 +225,4 @@ class TourRadarService
             ->join(', ');
     }
 }
+

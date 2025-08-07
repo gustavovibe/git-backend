@@ -17,6 +17,7 @@ use Carbon\CarbonInterval;
 
 class DuffelApiController extends Controller
 {
+    
     // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
 
