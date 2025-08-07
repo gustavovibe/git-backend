@@ -182,7 +182,7 @@ class TourRadarService
                 'arrival'      => $endDate,
                 'adultsCount'  => 1,
                 'childrenCount'=> 0,
-            ]
+            ])
         );
 
         if (! $response->ok() || empty($response->json('offers.0'))) {
