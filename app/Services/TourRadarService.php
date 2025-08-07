@@ -10,7 +10,6 @@ use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\DuffelApiController;
-use Illuminate\Support\Facades\Log;
 
 class TourRadarService
 {
