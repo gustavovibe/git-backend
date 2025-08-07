@@ -44,16 +44,15 @@ class TourRadarService
 
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
-            $filterRequest = TourRadarController::getMultipleDeparturesByTours(
-                'tourIds'   => implode(',', $tourIds),
-                'page'      => $page,
-                $this->defaultRangeParams()
-            );
+            $depReq = new Request(array_merge([
+                'tourIds' => implode(',', $tourIds),
+                'page'    => $page,
+            ], $this->defaultRangeParams()));
 
-            $filterResponse = App::handle($filterRequest);
-            Log::info('Filtered departures', $filterResponse);
+            $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);
+            $items = $depResp['items'] ?? [];
 
-            $items = json_decode($filterResponse->getContent(), true)['items'] ?? [];
+            Log::info('Filtered departures', $items);
 
             if (empty($items)) {
                 break;
@@ -96,17 +95,16 @@ class TourRadarService
         }
 
         // Use our existing TourController index via resource route
-        $toursRequest = TourController::index(
-                'tour_ids'   => "[{$tourIds}]",
-                'sort_by'    => 'price_total',
-                'sort_order' => 'asc',
-                'limit'      => 120,
-        );
-        $toursResponse = App::handle($toursRequest);
+        $toursReq = new Request([
+            'tour_ids'   => '[' . implode(',', $tourIds) . ']',
+            'sort_by'    => 'price_total',
+            'sort_order' => 'asc',
+            'limit'      => 120,
+        ]);
+        $toursResp = $this->tourController->index($toursReq);
+        $details = $toursResp['data'] ?? [];
 
-        Log::info('Tours details', $toursResponse);
-
-        $details = json_decode($toursResponse->getContent(), true)['data'] ?? [];
+        Log::info('Tours details', $details);
 
         $output = [];
 
@@ -160,21 +158,20 @@ class TourRadarService
             return null;
         }
 
-        $offer = duffelApiController::createRequestGetOffers(
+        $flightReq = new Request([
                 'origin'       => 'NYC',
-                'startCity'    => $originCode,
-                'endCity'      => $destCode,
-                'departure'    => $fromDate,
-                'arrival'      => $endDate,
+                'startCity'    => $tour['start_city'],
+                'endCity'      => $tour['end_city'],
+                'departure'    => $tour['departure']['date'],
+                'arrival'      => Carbon::parse($tour['departure']['date'])
+                                        ->addDays($tour['tour_length_days'])
+                                        ->format('Y-m-d'),
                 'adultsCount'  => 1,
                 'childrenCount'=> 0,
-        );
+            ]);
+        $offerResp = $this->duffelController->offerRequests($flightReq);
+        $offer = $offerResp['offers'][0] ?? null;
 
-        if (! $response->ok() || empty($response->json('offers.0'))) {
-            return null;
-        }
-
-        $offer = $response->json('offers.0');
         Log::info('Duffel Offer', $offer);
 
         $price = data_get($offer, 'total_amount');
