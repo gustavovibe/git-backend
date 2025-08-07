@@ -17,24 +17,15 @@ class TourRadarService
      * Fetch and assemble featured tours for a given category code.
      * Returns up to 8 tours with merged data (cities, flights, pricing).
      */
-    public function __construct()
-    {
-        $this->tourIdController     = new TourIdController();
-        $this->tourRadarController  = new TourRadarController();
-        $this->tourController       = new TourController();
-        $this->duffelController     = new DuffelApiController();
-    }
 
     public function getFeaturedToursForCategory(string $code): array
     {
         // 1) Fetch tour IDs via our TourIdController
-        $idsRequest = $this->tourIdController->index(
-            app('request')->merge([
+        $idsRequest = TourIdController::index(
                 'tour_type'  => $this->formatCodes($code),
                 'sort_by'    => 'price_total',
                 'sort_order' => 'asc',
                 'limit'      => 120,
-            ])
         );
         $idsResponse = App::handle($idsRequest);
         $idsData = json_decode($idsResponse->getContent(), true)['data'] ?? [];
@@ -52,11 +43,10 @@ class TourRadarService
 
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
-            $filterRequest = $this->tourRadarController->getMultipleDeparturesByTours(
-                app('request')->merge([
+            $filterRequest = TourRadarController::getMultipleDeparturesByTours(
                 'tourIds'   => implode(',', $tourIds),
                 'page'      => $page,
-            ] + $this->defaultRangeParams())
+                $this->defaultRangeParams()
             );
 
             $filterResponse = App::handle($filterRequest);
@@ -105,14 +95,12 @@ class TourRadarService
         }
 
         // Use our existing TourController index via resource route
-        $toursRequest = $this->tourController->index(
-                app('request')->merge([
+        $toursRequest = TourController::index(
                 'tour_ids'   => "[{$tourIds}]",
                 'sort_by'    => 'price_total',
                 'sort_order' => 'asc',
                 'limit'      => 120,
-            ])
-         );
+        );
         $toursResponse = App::handle($toursRequest);
 
         Log::info('Tours details', $toursResponse);
@@ -171,9 +159,7 @@ class TourRadarService
             return null;
         }
 
-        $offer = $this->duffelController->createRequestGetOffers(
-            app('request')->merge(
-            [
+        $offer = duffelApiController::createRequestGetOffers(
                 'origin'       => 'NYC',
                 'startCity'    => $originCode,
                 'endCity'      => $destCode,
@@ -181,7 +167,6 @@ class TourRadarService
                 'arrival'      => $endDate,
                 'adultsCount'  => 1,
                 'childrenCount'=> 0,
-            ])
         );
 
         if (! $response->ok() || empty($response->json('offers.0'))) {
