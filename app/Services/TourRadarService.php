@@ -35,8 +35,7 @@ class TourRadarService
             'limit'      => 120,
         ]);
         $idsResp = $this->tourIdController->index($idsReq);
-        //$idsData = json_decode($idsResponse->getContent(), true)['data'] ?? [];
-        $idsData = $idsResp['data'] ?? [];
+        $idsData = json_decode($idsResp->getContent(), true)['data'] ?? [];
         $tourIds = $idsData['tour_ids'] ?? [];
 
         if (empty($tourIds)) {
