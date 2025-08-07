@@ -21,14 +21,15 @@ class TourRadarService
     public function getFeaturedToursForCategory(string $code): array
     {
         // 1) Fetch tour IDs via our TourIdController
-        $idsRequest = TourIdController::index(
-                'tour_type'  => $this->formatCodes($code),
-                'sort_by'    => 'price_total',
-                'sort_order' => 'asc',
-                'limit'      => 120,
-        );
-        $idsResponse = App::handle($idsRequest);
-        $idsData = json_decode($idsResponse->getContent(), true)['data'] ?? [];
+        $idsReq = new Request([
+            'tour_type'  => $this->formatCodes($code),
+            'sort_by'    => 'price_total',
+            'sort_order' => 'asc',
+            'limit'      => 120,
+        ]);
+        $idsResp = $this->tourIdController->index($idsReq);
+        //$idsData = json_decode($idsResponse->getContent(), true)['data'] ?? [];
+        $idsData = $idsResp['data'] ?? [];
         $tourIds = $idsData['tour_ids'] ?? [];
 
         if (empty($tourIds)) {
