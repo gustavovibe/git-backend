@@ -17,6 +17,13 @@ class TourRadarService
      * Fetch and assemble featured tours for a given category code.
      * Returns up to 8 tours with merged data (cities, flights, pricing).
      */
+    public function __construct()
+    {
+        $this->tourIdController    = new TourIdController();
+        $this->tourRadarController = new TourRadarController();
+        $this->tourController      = new TourController();
+        $this->duffelController    = new DuffelApiController();
+    }
 
     public function getFeaturedToursForCategory(string $code): array
     {
