@@ -50,12 +50,17 @@ class TourRadarService
 
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
-            $depReq = new Request(array_merge([
-                'tourIds' => implode(',', $tourIds),
-                'page'    => $page,
-            ], $this->defaultRangeParams()));
+            $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
+            $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
 
-            $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);
+            $depReq = Request::create('/', 'GET', [
+                'tourIds'    => implode(',', $tourIds),
+                'page'       => $page,
+                'childrenAges' => '',
+                'date_range' => "[{$start},{$end}]",
+              ]);
+            $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);              
+
             $items = json_decode($depResp->getContent(), true)['items'] ?? [];
 
             Log::info('Filtered departures', $items);
@@ -86,12 +91,6 @@ class TourRadarService
         return $code;
     }
 
-    protected function defaultRangeParams(): array
-    {
-        $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
-        $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
-        return ['date_range' => "[{$start},{$end}]"];
-    }
 
     protected function processRadarItems(array $items): array
     {
