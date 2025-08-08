@@ -13,6 +13,7 @@ use App\Http\Controllers\DuffelApiController;
 
 class TourRadarService
 {
+
     /**
      * Fetch and assemble featured tours for a given category code.
      * Returns up to 8 tours with merged data (cities, flights, pricing).
@@ -55,9 +56,11 @@ class TourRadarService
 
             $depReq = Request::create('/', 'GET', [
                 'tourIds'    => implode(',', $tourIds),
-                'page'       => $page,
-                'childrenAges' => '',
                 'date_range' => "[{$start},{$end}]",
+                'page'       => $page,
+                'travelers' => 1,
+                'user_country' => 185,
+                'currency' => 'USD'
               ]);
             $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);              
 

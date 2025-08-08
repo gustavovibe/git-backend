@@ -99,6 +99,7 @@ public static function getDeparturesByTour($params)
     {
        Log::info('getMultipleDeparturesByTours called with:', $request->all());
 
+       
        try{
         $params = $request->all();
         if (!isset($params['tourIds'])) {
