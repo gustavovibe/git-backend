@@ -57,14 +57,13 @@ class TourRadarService
             $urls = array_map(fn($id) => 
                 "https://vibeadventures.be/api/filterdepartures?"
                 . http_build_query([
-                    'date_range' => "[{$start},{$end}]",
+                    'date_range'  => '2025-10-01,2025-10-31',
                     'page'        => 1,
                     'tourIds'     => $id,
                     'travelers'   => 1,
                     'user_country'=> 185,
                     'currency'    => 'USD',
-                ]),
-            , $tourIds);
+                ]), $tourIds);
             
             // fire them all at once
             $responses = Http::pool(fn(Pool $pool) => array_map(
