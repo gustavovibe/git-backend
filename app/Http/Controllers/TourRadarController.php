@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
 use App\Models\Tour;

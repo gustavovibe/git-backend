@@ -53,18 +53,38 @@ class TourRadarService
         while (count($tours) < 8) {
             $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
             $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
+                
+            $urls = array_map(fn($id) => 
+                "https://vibeadventures.be/api/filterdepartures?"
+                . http_build_query([
+                    'date_range' => "[{$start},{$end}]",
+                    'page'        => 1,
+                    'tourIds'     => $id,
+                    'travelers'   => 1,
+                    'user_country'=> 185,
+                    'currency'    => 'USD',
+                ]),
+            , $tourIds);
+            
+            // fire them all at once
+            $responses = Http::pool(fn(Pool $pool) => array_map(
+                fn($url) => $pool->get($url),
+                $urls
+            ));
+            Log::info('Responses', $responses);
+            
+            // $responses is an associative array of Response instances,
+            // you can now inspect them all:
+            $departures = [];
 
-            $depReq = Request::create('/', 'GET', [
-                'tourIds'    => implode(',', $tourIds),
-                'date_range' => "[{$start},{$end}]",
-                'page'       => $page,
-                'travelers' => 1,
-                'user_country' => 185,
-                'currency' => 'USD'
-              ]);
-            $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);              
+            foreach ($responses as $response) {
+                if ($response->ok()) {
+                    $data = $response->json('items', []);
+                    $departures = array_merge($departures, $data);
+                }
+            }  
 
-            $items = json_decode($depResp->getContent(), true)['items'] ?? [];
+            $items = $departures;
 
             Log::info('Filtered departures', $items);
 
