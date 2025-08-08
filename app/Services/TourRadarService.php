@@ -56,7 +56,7 @@ class TourRadarService
             ], $this->defaultRangeParams()));
 
             $depResp = $this->tourRadarController->getMultipleDeparturesByTours($depReq);
-            $items = $depResp['items'] ?? [];
+            $items = json_decode($depResp->getContent(), true)['items'] ?? [];
 
             Log::info('Filtered departures', $items);
 
@@ -75,6 +75,7 @@ class TourRadarService
 
         return $tours;
     }
+
 
     protected function formatCodes(string $code): string
     {
@@ -108,7 +109,7 @@ class TourRadarService
             'limit'      => 120,
         ]);
         $toursResp = $this->tourController->index($toursReq);
-        $details = $toursResp['data'] ?? [];
+        $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
 
         Log::info('Tours details', $details);
 
@@ -176,7 +177,7 @@ class TourRadarService
                 'childrenCount'=> 0,
             ]);
         $offerResp = $this->duffelController->offerRequests($flightReq);
-        $offer = $offerResp['offers'][0] ?? null;
+        $offer = json_decode($offerResp->getContent(), true)['offers'][0] ?? [];
 
         Log::info('Duffel Offer', $offer);
 
