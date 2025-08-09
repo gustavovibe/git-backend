@@ -570,62 +570,61 @@ public static function getDeparturesByTour($params)
         
         Log::info('Departures found for tour', [$params['tourId'], 'departures' => $departures->toArray()]);
         
-        Log::info('departure from db', $departures);
         return ['items' => array_values($departures)];
     }
 
     public static function getDeparture($params)
-{
+    {
 
-    $accessToken = self::getAccessToken();
-    $headers = [
-        'Accept' => 'application/json',
-        'Authorization' => 'Bearer ' . $accessToken,
-    ];
-    $tourId = $params['tourId'];
-    $departureId = $params['departureId'];
-    $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
+        $accessToken = self::getAccessToken();
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        $tourId = $params['tourId'];
+        $departureId = $params['departureId'];
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
 
-    try {
-        // First, get the departure information
-        $response = Http::withHeaders($headers)->get($url);
-        $departureData = $response->json();
-        
-/*        
-        // Check if accommodations and price_tiers exist and are not empty
-        if (isset($departureData['prices']['accommodations'])) {
-            foreach ($departureData['prices']['accommodations'] as &$accommodation) {
-                if (!empty($accommodation['price_tiers'])) {
-                    // Make an API call to fetch the prices information
-                    $priceUrl = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
-                    $priceResponse = Http::withHeaders($headers)->get($priceUrl);
-                    $priceData = $priceResponse->json();
+        try {
+            // First, get the departure information
+            $response = Http::withHeaders($headers)->get($url);
+            $departureData = $response->json();
+            
+    /*        
+            // Check if accommodations and price_tiers exist and are not empty
+            if (isset($departureData['prices']['accommodations'])) {
+                foreach ($departureData['prices']['accommodations'] as &$accommodation) {
+                    if (!empty($accommodation['price_tiers'])) {
+                        // Make an API call to fetch the prices information
+                        $priceUrl = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
+                        $priceResponse = Http::withHeaders($headers)->get($priceUrl);
+                        $priceData = $priceResponse->json();
 
-                    // Create a mapping of price category by id for quick lookup
-                    $priceCategoryMap = [];
-                    foreach ($priceData['price_categories'] as $priceCategory) {
-                        $priceCategoryMap[$priceCategory['id']] = $priceCategory;
-                    }
+                        // Create a mapping of price category by id for quick lookup
+                        $priceCategoryMap = [];
+                        foreach ($priceData['price_categories'] as $priceCategory) {
+                            $priceCategoryMap[$priceCategory['id']] = $priceCategory;
+                        }
 
-                    // Update the price tiers with the matching category information
-                    foreach ($accommodation['price_tiers'] as &$priceTier) {
-                        $priceCategoryId = $priceTier['price_category_id'];
-                        if (isset($priceCategoryMap[$priceCategoryId])) {
-                            $priceCategoryInfo = $priceCategoryMap[$priceCategoryId];
-                            $priceTier['age_min'] = $priceCategoryInfo['age_min'];
-                            $priceTier['age_max'] = $priceCategoryInfo['age_max'];
-                            $priceTier['external_reference'] = $priceCategoryInfo['external_reference'];
+                        // Update the price tiers with the matching category information
+                        foreach ($accommodation['price_tiers'] as &$priceTier) {
+                            $priceCategoryId = $priceTier['price_category_id'];
+                            if (isset($priceCategoryMap[$priceCategoryId])) {
+                                $priceCategoryInfo = $priceCategoryMap[$priceCategoryId];
+                                $priceTier['age_min'] = $priceCategoryInfo['age_min'];
+                                $priceTier['age_max'] = $priceCategoryInfo['age_max'];
+                                $priceTier['external_reference'] = $priceCategoryInfo['external_reference'];
+                            }
                         }
                     }
                 }
             }
+    */
+            return $departureData;
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-*/
-        return $departureData;
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 
 
     public static function getTaxonomyLanguages()
