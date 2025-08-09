@@ -57,7 +57,7 @@ class TourRadarService
             $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
                 
             $urls = array_map(fn($id) => 
-                "https://vibeadventures.be/api/filterdepartures?"
+                "https://vibeadventures.be/api/filterdeparturesdb?"
                 . http_build_query([
                     'date_range'  => '2025-10-01,2025-10-31',
                     'page'        => 1,

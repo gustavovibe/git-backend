@@ -101,6 +101,7 @@ Route::get('/duffel-api/offer-requests', [GustavoDuffelController::class, 'offer
 // Route::post('/book-package', [PackageController::class, 'createCheckoutSession']);
 Route::post('/book-package-v2', [NewPackageController::class, 'createCheckoutSession']);
 Route::get('filterdepartures', [TourRadarController::class, 'getMultipleDeparturesByTours']);
+Route::get('filterdeparturesdb', [TourRadarController::class, 'getMultipleDeparturesOnlyDb']);
 Route::get('/tour-ids', [TourIdController::class, 'index']);
 
 Route::get('/travelers', [TravelersController::class, 'getTravelers']);
