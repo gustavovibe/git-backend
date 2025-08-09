@@ -27,6 +27,7 @@ return new class extends Migration
             $table->json('mandatory_addons')->nullable();
             $table->json('optional_extras')->nullable();
             $table->timestamps();
+            $table->json('accommodations')->nullable();
         });
     }
 

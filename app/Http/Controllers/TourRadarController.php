@@ -369,7 +369,8 @@ public static function getDeparturesByTour($params)
         $endDate   = date('Y-m-d', strtotime($dateRange[1]));
         
         // Validate the start date is not before a minimum allowed date
-        if (strtotime($startDate) < strtotime('2024-05-25')) {
+        $now = Carbon::now()->format('Y-m-d');
+        if (strtotime($startDate) < strtotime($now)) {
             return ['error' => 'Start date of the date range must be greater than or equal to 2024-05-25'];
         }
         
@@ -449,10 +450,133 @@ public static function getDeparturesByTour($params)
         Log::info('$filteredDepartures', $filteredDepartures);
         return ['items' => array_values($filteredDepartures)];
     }
+     
+    public function getMultipleDeparturesOnlyDb(Request $request)
+    {
+       Log::info('getMultipleDeparturesOnlyDb called with:', $request->all());
+
+       
+       try{
+        $params = $request->all();
+        if (!isset($params['tourIds'])) {
+            return response()->json(['error' => 'tourIds parameter is required'], 400);
+        }
+
+        $tourIds = explode(',', $params['tourIds']);
+
+        $departures = [];
+        $itemsPerPage = 10;
+        $page = isset($params['page']) ? (int)$params['page'] : 1;
+        $start = ($page - 1) * $itemsPerPage;
+        $end = $start + $itemsPerPage;
+
+        $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
+
+        foreach ($paginatedTourIds as $tourId) {
+            $params['tourId'] = $tourId;
+            $tour = Tour::where('tour_id', $tourId)->first();
+            if (! $tour) {
+                continue;
+            }
+            $params['page'] = 1; // Always fetch first page of departures for each tourId
+            //Log::info("Tour $tourId attributes:", $tour->getAttributes());
+
+            $departureDetails = $this->getDeparturesByTourOnlyDb($params);
+            Log::info('departures only from db', ['tourId' => $tourId], ['departures' => $departureDetails]);
+
+            if (isset($departureDetails['prices']['accommodations']) && is_array($departureDetails['prices']['accommodations'])) {
+                $accommodations = $departureDetails['prices']['accommodations'];
         
+                // Filter out accommodations that do not meet traveler requirements.
+                $travelers = 1;
+                $validAccommodations = array_filter($accommodations, function ($acc) use ($travelers) {
+                    // Check if 'beds_number' is valid.
+                    if (!isset($acc['beds_number']) || $acc['beds_number'] <= 0) {
+                        return false;
+                    }
+        
+                    $isShared = isset($acc['is_shared']) ? $acc['is_shared'] : false;
+        
+                    // For one traveler, accept if it's a shared accommodation or has exactly one bed.
+                    if ($travelers === 1) {
+                        return $isShared || $acc['beds_number'] === 1;
+                    }
+        
+                    // For multiple travelers, the number of travelers must be evenly divisible by the beds number.
+                    return ($travelers % $acc['beds_number'] === 0);
+                });
+        
+                // If valid accommodations exist, choose the cheapest one (based on the 'value' field).
+                if (!empty($validAccommodations)) {
+                    $cheapest = array_reduce($validAccommodations, function ($prev, $curr) {
+                        return ($prev === null || $curr['value'] < $prev['value']) ? $curr : $prev;
+                    }, null);
+                    $departure['cheapestAccommodation'] = $cheapest;
+                }
+            }
+            
+            else {
+                Log::info('No departures found for tour', ['tourId' => $tourId]);
+            }
+            //sleep(0.1); // delay between API calls
+        }
+
+        Log::info('Returning departures', ['departures' => $departures]);
+
+        return response()->json(['items' => $departures]);
+
+        } catch(Exception $e) {
+            return response()->json(['status' => false, 'response' => $e->getMessage()]);
+        }
+    }    
+
+    private function getDeparturesByTourOnlyDb($params)
+    {
+        // Validate date_range parameter (expected format: "YYYY/MM/DD,YYYY/MM/DD")
+        if (empty($params['date_range'])) {
+            return ['error' => 'Missing date_range parameter'];
+        }
+        
+        $dateRange = explode(',', $params['date_range']);
+        if (count($dateRange) !== 2) {
+            return ['error' => 'Invalid date_range format. It should be "YYYY/MM/DD,YYYY/MM/DD".'];
+        }
+        
+        // Format start and end dates to 'Y-m-d'
+        $startDate = date('Y-m-d', strtotime($dateRange[0]));
+        $endDate   = date('Y-m-d', strtotime($dateRange[1]));
+        
+        // Validate the start date is not before a minimum allowed date
+        $now = Carbon::now()->format('Y-m-d');
+        if (strtotime($startDate) < strtotime($now)) {
+            return ['error' => 'Start date of the date range must be greater than or equal to 2024-05-25'];
+        }
+        
+        // Determine the number of travelers (default to 1 if not provided)
+        $travelers = isset($params['travelers']) ? $params['travelers'] : 1;
+        
+        // Retrieve departures from the local DB for the given tour_id, within the date range,
+        // with sufficient availability and departure_type "guaranteed"
+        $departures = \App\Models\Departure::where('tour_id', $params['tourId'])
+            ->whereBetween('date', [$startDate, $endDate])
+            ->where('availability', '>=', $travelers)
+            ->where('departure_type', 'guaranteed')
+            ->get();
+        
+        // If no departures are found, return an empty items array.
+        if ($departures->isEmpty()) {
+            return ['items' => []];
+        }
+        
+        Log::info('Departures found for tour', [$params['tourId'], 'departures' => $departures->toArray()]);
+        
+        Log::info('departure from db', $departures);
+        return ['items' => array_values($departures)];
+    }
 
     public static function getDeparture($params)
 {
+
     $accessToken = self::getAccessToken();
     $headers = [
         'Accept' => 'application/json',

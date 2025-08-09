@@ -13,7 +13,7 @@ class Departure extends Model
     protected $fillable = [
         'id', 'tour_id', 'date', 'availability', 'departure_type', 'is_instant_confirmable',
         'currency', 'based_on', 'price_base', 'price_addons', 'price_promotion',
-        'price_total_upfront', 'price_total', 'promotion', 'mandatory_addons', 'optional_extras'
+        'price_total_upfront', 'price_total', 'promotion', 'mandatory_addons', 'optional_extras', 'accommodations'
     ];
 
     /* // One Departure can have many Accommodations

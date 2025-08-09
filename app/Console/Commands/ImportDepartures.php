@@ -25,7 +25,9 @@ class ImportDepartures extends Command
 
         foreach ($tours as $tour) {
             $tourId = $tour->tour_id;
-            $dateRange = $tour->date_range ?? '20250501-20251231';
+            $start = Carbon::now()->addDays(1)->format('Y-m-d');
+            $end   = Carbon::now()->addDays(91)->format('Y-m-d');
+            $dateRange = "{$start}-{$end}";
             $params = [
                 'tourId'     => $tourId,
                 'date_range' => $dateRange,

@@ -30,8 +30,8 @@ class SyncToursData extends Command
     {
         $this->token = $this->asyncGetAccessToken();
 
-        $startPage = 176;
-        $endPage = 229;
+        $startPage = 1;
+        $endPage = 2;
 
         for ($currentPage = $startPage; $currentPage <= $endPage; $currentPage++) {
             $tours = $this->fetchDataFromApi($currentPage)['items'] ?? [];
@@ -116,7 +116,34 @@ class SyncToursData extends Command
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range=20240801-20250801&user_country=185&currency=USD";
+        $start = Carbon::now()->addDays(1)->format('Y-m-d');
+        $end   = Carbon::now()->addDays(91)->format('Y-m-d');
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range={$start}-{$end}&user_country=185&currency=USD";
+
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            return $response->json();
+        } catch (\Exception $e) {
+            if ($e->getCode() == 504) {
+                $this->error("Error fetching departures for tour {$tourId}: Request failed with status code 504. Continuing to the next tour.");
+            } else {
+                $this->error('Error fetching departures for tour ' . $tourId . ': ' . $e->getMessage());
+            }
+            return [];
+        }
+    }
+    private function getDeparture($tourId,$departureId)
+    {
+        // Delay of 1 second
+        usleep(1000000); // 1 second in microseconds
+
+        $accessToken = $this->token;
+        $headers = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $accessToken,
+        ];
+        
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
 
         try {
             $response = Http::withHeaders($headers)->get($url);
@@ -148,17 +175,63 @@ class SyncToursData extends Command
         }
     }
 
-
 private function saveTourToDatabase($tourData)
 {
     try {
         $images = $tourData['images'] ?? [];
         $image = collect($images)->firstWhere('type', 'image');
         $mapImage = collect($images)->firstWhere('type', 'map');
-
+        $tourId = $tourData['tour_id'];
         // Fetch departures data
-        $departuresData = $this->getDeparturesByTour($tourData['tour_id']);
+        $departuresData = $this->getDeparturesByTour($tourId);
+
         $departuresItems = $departuresData['items'] ?? [];
+
+        if (isset($departuresData['items']) && is_array($departuresData['items'])) {
+            $itemCount = count($departuresData['items']);
+            Log::info("Found {$itemCount} departure items for tour ID {$tourId}");
+            $this->info("Found {$itemCount} departure items for tour ID {$tourId}");
+
+            foreach ($departuresData['items'] as $departureData) {
+                Log::info("Processing departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
+                $this->info("Processing departure ID: " . $departureData['id']);
+                usleep(200000); // 0.2 seconds in microseconds
+                $departureDetails = $this->getDeparture($tourId,$departureData['id']); 
+                
+                Log::info("Processing accommodations for departure ID: " . $departureData['id'] . " individual data : { $departureDetails}");
+                // Map and store the departure data.
+                
+                Departure::updateOrCreate(
+                    ['id' => $departureData['id']], // Unique identifier.
+                    [
+                        'tour_id'               => $tourId, // save the tour_id
+                        'date'                   => $departureData['date'],
+                        'availability'           => $departureData['availability'],
+                        'departure_type'         => $departureData['departure_type'],
+                        'is_instant_confirmable' => $departureData['is_instant_confirmable'],
+                        'currency'               => $departureData['currency'] ?? 'USD',
+                        'based_on'               => $departureData['prices']['based_on'] ?? null,
+                        'price_base'             => $departureData['prices']['price_base'] ?? 0,
+                        'price_addons'           => $departureData['prices']['price_addons'] ?? 0,
+                        'price_promotion'        => $departureData['prices']['price_total'] ?? 0,
+                        'price_total_upfront'    => $departureData['prices']['price_total_upfront'] ?? 0,
+                        'price_total'            => $departureData['prices']['price_total'] ?? 0,
+                        'promotion'              => json_encode($departureData['prices']['promotion'] ?? []),
+                        'mandatory_addons'       => json_encode($departureData['prices']['mandatory_addons'] ?? []),
+                        'optional_extras'        => json_encode($departureData['optional_extras'] ?? []),
+                        'accommodations'        => json_encode($departureDetails['prices']['accommodations'] ?? []),
+                    ]
+                );
+                Log::info("Saved departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
+                $this->info("Saved departure ID: " . $departureData['id']);
+            }
+            Log::info("Finished processing departures of tour ID {$tourId}");
+            $this->info("Finished processing departures of tour ID {$tourId}");
+        } else {
+            Log::warning("No departure items found for tour ID: {$tourId}");
+            $this->warn("No departure items found for tour ID: {$tourId}");
+        }
+
         $departureStatus = 'not_guaranteed';
 		
         $pricesResponse = TourradarController::getPriceCategoriesByTour($tourData['tour_id']);
