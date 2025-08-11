@@ -30,6 +30,12 @@ class TourRadarService
 
     public function getFeaturedToursForCategory(string $code): array
     {
+        $start = ($page - 1) * $itemsPerPage;
+        $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
+    
+        if (empty($paginatedTourIds)) {
+            break;
+        }
         // 1) Fetch tour IDs via our TourIdController
         $idsReq = new Request([
             'tour_type'  => $this->formatCodes($code),
@@ -54,11 +60,11 @@ class TourRadarService
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
 
-            $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
-            $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
+            $starts = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
+            $ends   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
                 
             $req = new Request([
-                'date_range'   => "{$start}-{$end}",
+                'date_range'   => "{$starts}-{$ends}",
                 'page'         => 1,                       // only first page for each tour chunk
                 'tourIds'      => implode(',', $paginatedTourIds),
                 'travelers'    => 1,
