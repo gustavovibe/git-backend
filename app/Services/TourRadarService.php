@@ -62,11 +62,11 @@ class TourRadarService
                 break;
             }
 
-            $starts = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
-            $ends   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
+            $starts = Carbon::now()->addMonths(3)->startOfMonth()->format('Y-m-d');
+            $ends   = Carbon::now()->addMonths(3)->endOfMonth()->format('Y-m-d');
                 
             $req = new Request([
-                'date_range'   => "{$starts}-{$ends}",
+                'date_range'   => "{$starts},{$ends}",
                 'page'         => 1,                       // only first page for each tour chunk
                 'tourIds'      => implode(',', $paginatedTourIds),
                 'travelers'    => 1,
