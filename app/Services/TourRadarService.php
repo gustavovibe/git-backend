@@ -53,10 +53,11 @@ class TourRadarService
 
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
+
             $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
             $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
                 
-            $req = new HttpRequest([
+            $req = new Request([
                 'date_range'   => "{$start}-{$end}",
                 'page'         => 1,                       // only first page for each tour chunk
                 'tourIds'      => implode(',', $paginatedTourIds),
@@ -85,8 +86,7 @@ class TourRadarService
                     $tours[] = $tour;
                 }
             }
-
-
+            sleep(0.2);
             $page++;
         }
 
