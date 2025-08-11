@@ -56,48 +56,36 @@ class TourRadarService
             $start = Carbon::now()->addMonths(2)->startOfMonth()->format('Y-m-d');
             $end   = Carbon::now()->addMonths(2)->endOfMonth()->format('Y-m-d');
                 
-            $urls = array_map(fn($id) => 
-                "https://vibeadventures.be/api/filterdeparturesdb?"
-                . http_build_query([
-                    'date_range'  => '2025-10-01,2025-10-31',
-                    'page'        => 1,
-                    'tourIds'     => $id,
-                    'travelers'   => 1,
-                    'user_country'=> 185,
-                    'currency'    => 'USD',
-                ]), $tourIds);
-            
-            // fire them all at once
-            $responses = Http::pool(fn(Pool $pool) => array_map(
-                fn($url) => $pool->get($url),
-                $urls
-            ));
-            Log::info('Responses', $responses);
-            
-            // $responses is an associative array of Response instances,
-            // you can now inspect them all:
-            $departures = [];
+            $req = new HttpRequest([
+                'date_range'   => "{$start}-{$end}",
+                'page'         => 1,                       // only first page for each tour chunk
+                'tourIds'      => implode(',', $paginatedTourIds),
+                'travelers'    => 1,
+                'user_country' => 185,
+                'currency'     => 'USD',
+            ]);
+        
+            // Call the controller method directly (it returns a JsonResponse)
+            $resp = $this->tourRadarController->getMultipleDeparturesOnlyDb($req);
+        
+            // Decode JSON response to array
+            $respData = json_decode($resp->getContent(), true);
+            $departuresItems = $respData['items'] ?? [];
 
-            foreach ($responses as $response) {
-                if ($response->ok()) {
-                    $data = $response->json('items', []);
-                    $departures = array_merge($departures, $data);
+            Log::info('Responses', $respData);
+            
+            $departures = array_merge($departures ?? [], $departuresItems);
+
+            Log::info('Chunk departures count', ['page' => $page, 'count' => count($departuresItems)]);
+
+            if (!empty($departuresItems)) {
+                $merged = $this->processRadarItems($departuresItems);
+                foreach ($merged as $tour) {
+                    if (count($tours) >= 8) break;
+                    $tours[] = $tour;
                 }
-            }  
-
-            $items = $departures;
-
-            Log::info('Filtered departures', $items);
-
-            if (empty($items)) {
-                break;
             }
 
-            $merged = $this->processRadarItems($items);
-            foreach ($merged as $tour) {
-                if (count($tours) >= 8) break;
-                $tours[] = $tour;
-            }
 
             $page++;
         }
