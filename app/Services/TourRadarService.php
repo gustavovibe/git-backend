@@ -113,46 +113,124 @@ class TourRadarService
 
 
     protected function processRadarItems(array $items): array
-    {
-        // fetch detailed tours and merge with each departure
-        $tourIds = collect($items)->pluck('tourId')->unique()->implode(',');
-        if (empty($tourIds)) {
-            return [];
+{
+    if (empty($items)) {
+        return [];
+    }
+
+    // Normalize and index items by tour_id
+    $itemsByTour = [];
+    $tourIdsArr = [];
+
+    foreach ($items as $it) {
+        // Try multiple keys to find tour id (new: 'tour_id', legacy: 'tourId', or nested)
+        $tid = $it['tour_id'] ?? $it['tourId'] ?? ($it['tour']['tour_id'] ?? null);
+        if (!$tid) {
+            // If it's a raw departure with 'tour_id' inside child, try that
+            $tid = $it['tour']['tour_id'] ?? ($it['tour_id'] ?? null);
+        }
+        if (!$tid) {
+            continue;
+        }
+        $tid = (string)$tid;
+        $itemsByTour[$tid][] = $it;
+        $tourIdsArr[$tid] = $tid;
+    }
+
+    if (empty($tourIdsArr)) {
+        return [];
+    }
+
+    // Build the request for TourController::index (expects something like "[id,id,...]" in tour_ids)
+    $toursReq = new Request([
+        'tour_ids'   => '[' . implode(',', array_values($tourIdsArr)) . ']',
+        'sort_by'    => 'price_total',
+        'sort_order' => 'asc',
+        'limit'      => 120,
+    ]);
+
+    $toursResp = $this->tourController->index($toursReq);
+    $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
+
+    Log::info('Tours details', $details);
+
+    $output = [];
+
+    foreach ($details as $tour) {
+        $tid = (string)($tour['tour_id'] ?? $tour['id'] ?? null);
+        if (!$tid) {
+            continue;
         }
 
-        // Use our existing TourController index via resource route
-        $toursReq = new Request([
-            'tour_ids'   => '[' . implode(',', $tourIds) . ']',
-            'sort_by'    => 'price_total',
-            'sort_order' => 'asc',
-            'limit'      => 120,
-        ]);
-        $toursResp = $this->tourController->index($toursReq);
-        $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
+        // collect all related items for this tour
+        $relatedItems = $itemsByTour[$tid] ?? [];
 
-        Log::info('Tours details', $details);
-
-        $output = [];
-
-        foreach ($details as $tour) {
-            $related = array_filter($items, fn($i) => $i['tourId'] == $tour['tour_id']);
-            $tour['departure'] = array_values($related);
-
-            $tour['startCityName'] = $this->searchCity($tour['start_city']);
-            $tour['endCityName']   = $this->searchCity($tour['end_city']);
-
-            $flight = $this->getFlightsForFirstDeparture($tour);
-            if ($flight && $flight['price'] > 0) {
-                $cheapestAcc = data_get($tour, 'departure.0.cheapestAccommodation.value', 0);
-                $tour['totalPrice']    = (1.15 * ($flight['price'] + $cheapestAcc));
-                $tour['countriesList'] = $this->formatCountries($tour['countries']);
-                $tour['flight']        = $flight;
-                $output[] = $tour;
+        // If the related items are already the structure with 'departures' arrays,
+        // merge all departures; otherwise assume related items are raw departures.
+        $mergedDepartures = [];
+        foreach ($relatedItems as $r) {
+            if (isset($r['departures']) && is_array($r['departures'])) {
+                // r already contains departures array (new structure)
+                $mergedDepartures = array_merge($mergedDepartures, $r['departures']);
+            } else {
+                // Legacy: r is a departure itself
+                $mergedDepartures[] = $r;
             }
         }
 
-        return $output;
+        // Attach departures to the tour detail
+        $tour['departures'] = array_values($mergedDepartures);
+
+        // Convenience names
+        $tour['startCityName'] = $this->searchCity($tour['start_city'] ?? $tour['startCity'] ?? null);
+        $tour['endCityName']   = $this->searchCity($tour['end_city'] ?? $tour['endCity'] ?? null);
+
+        // Determine cheapest accommodation value for the first (or cheapest) departure
+        $cheapestAccValue = 0.0;
+        if (!empty($tour['departures'])) {
+            // prefer departure's 'cheapest_accommodation.value' (new shape),
+            // fallback to legacy 'cheapestAccommodation.value'
+            $firstDeparture = $tour['departures'][0];
+
+            $cheapAcc = data_get($firstDeparture, 'cheapest_accommodation', null);
+            if ($cheapAcc === null) {
+                $cheapAcc = data_get($firstDeparture, 'cheapestAccommodation', null);
+            }
+
+            if (is_array($cheapAcc) && isset($cheapAcc['value'])) {
+                $cheapestAccValue = (float)$cheapAcc['value'];
+            } else {
+                // try to find any departure with a cheapest_accommodation
+                foreach ($tour['departures'] as $d) {
+                    $ca = data_get($d, 'cheapest_accommodation', null) ?: data_get($d, 'cheapestAccommodation', null);
+                    if (is_array($ca) && isset($ca['value'])) {
+                        $cheapestAccValue = (float)$ca['value'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        // get flight for first departure (your existing helper). Ensure it expects the tour array with 'departures'
+        $flight = $this->getFlightsForFirstDeparture($tour);
+
+        if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
+            $flightPrice = (float)$flight['price'];
+
+            // compute total price as before (1.15 factor)
+            $tour['totalPrice'] = 1.15 * ($flightPrice + $cheapestAccValue);
+
+            $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
+            $tour['flight'] = $flight;
+
+            $output[] = $tour;
+        }
+        // if you want tours without flights, remove the if check and always push $tour
     }
+
+    return $output;
+}
+
 
 
     protected function searchCity($tId): string
