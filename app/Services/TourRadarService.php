@@ -183,11 +183,21 @@ class TourRadarService
             $tour['departures'] = array_values($mergedDepartures);
 
 
-            $tour['startCityName'] = $this->searchCity($tour['start_city'] ?? $tour['startCity'] ?? null);
-            $tour['endCityName']   = $this->searchCity($tour['end_city'] ?? $tour['endCity'] ?? null);
+            $startId = $tour['start_city'] ?? $tour['startCity'] ?? null;
+            $endId   = $tour['end_city']   ?? $tour['endCity']   ?? null;
 
-            Log::info('startCityName', $tour['startCityName']);
-            Log::info('endCityName', $tour['endCityName']);
+            $tour['startCityName'] = $startId ? $this->searchCity($startId) : null;
+            $tour['endCityName']   = $endId   ? $this->searchCity($endId)   : null;
+
+            // log with context array (no type error)
+            Log::info('Resolved city names for tour', [
+                'tour_id'        => $tour['tour_id'] ?? null,
+                'start_city_id'  => $startId,
+                'start_city'     => $tour['startCityName'],
+                'end_city_id'    => $endId,
+                'end_city'       => $tour['endCityName'],
+            ]);
+
 
             // Determine cheapest accommodation value for the first (or cheapest) departure
             $cheapestAccValue = 0.0;
@@ -230,7 +240,14 @@ class TourRadarService
             }
             
         }
-        Log::info('Output', $output);
+        $count = count($output);
+        $sample = array_slice($output, 0, 3); // first 3 tours
+
+        Log::info('Merged tours (sample)', [
+            'count'  => $count,
+            'sample' => $sample,
+        ]);
+
         return $output;
     }
 
