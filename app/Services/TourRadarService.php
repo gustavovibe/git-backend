@@ -12,6 +12,7 @@ use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\DuffelApiController;
+use Illuminate\Support\Facades\Cache;
 
 class TourRadarService
 {
@@ -113,131 +114,148 @@ class TourRadarService
 
 
     protected function processRadarItems(array $items): array
-{
-    if (empty($items)) {
-        return [];
-    }
-
-    // Normalize and index items by tour_id
-    $itemsByTour = [];
-    $tourIdsArr = [];
-
-    foreach ($items as $it) {
-        // Try multiple keys to find tour id (new: 'tour_id', legacy: 'tourId', or nested)
-        $tid = $it['tour_id'] ?? $it['tourId'] ?? ($it['tour']['tour_id'] ?? null);
-        if (!$tid) {
-            // If it's a raw departure with 'tour_id' inside child, try that
-            $tid = $it['tour']['tour_id'] ?? ($it['tour_id'] ?? null);
-        }
-        if (!$tid) {
-            continue;
-        }
-        $tid = (string)$tid;
-        $itemsByTour[$tid][] = $it;
-        $tourIdsArr[$tid] = $tid;
-    }
-
-    if (empty($tourIdsArr)) {
-        return [];
-    }
-
-    // Build the request for TourController::index (expects something like "[id,id,...]" in tour_ids)
-    $toursReq = new Request([
-        'tour_ids'   => '[' . implode(',', array_values($tourIdsArr)) . ']',
-        'sort_by'    => 'price_total',
-        'sort_order' => 'asc',
-        'limit'      => 120,
-    ]);
-
-    $toursResp = $this->tourController->index($toursReq);
-    $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
-
-    Log::info('Tours details', $details);
-
-    $output = [];
-
-    foreach ($details as $tour) {
-        $tid = (string)($tour['tour_id'] ?? $tour['id'] ?? null);
-        if (!$tid) {
-            continue;
+    {
+        if (empty($items)) {
+            return [];
         }
 
-        // collect all related items for this tour
-        $relatedItems = $itemsByTour[$tid] ?? [];
+        // Normalize and index items by tour_id
+        $itemsByTour = [];
+        $tourIdsArr = [];
 
-        // If the related items are already the structure with 'departures' arrays,
-        // merge all departures; otherwise assume related items are raw departures.
-        $mergedDepartures = [];
-        foreach ($relatedItems as $r) {
-            if (isset($r['departures']) && is_array($r['departures'])) {
-                // r already contains departures array (new structure)
-                $mergedDepartures = array_merge($mergedDepartures, $r['departures']);
-            } else {
-                // Legacy: r is a departure itself
-                $mergedDepartures[] = $r;
+        foreach ($items as $it) {
+            // Try multiple keys to find tour id (new: 'tour_id', legacy: 'tourId', or nested)
+            $tid = $it['tour_id'] ?? $it['tourId'] ?? ($it['tour']['tour_id'] ?? null);
+            if (!$tid) {
+                // If it's a raw departure with 'tour_id' inside child, try that
+                $tid = $it['tour']['tour_id'] ?? ($it['tour_id'] ?? null);
             }
+            if (!$tid) {
+                continue;
+            }
+            $tid = (string)$tid;
+            $itemsByTour[$tid][] = $it;
+            $tourIdsArr[$tid] = $tid;
         }
 
-        // Attach departures to the tour detail
-        $tour['departures'] = array_values($mergedDepartures);
+        if (empty($tourIdsArr)) {
+            return [];
+        }
 
-        // Convenience names
-        $tour['startCityName'] = $this->searchCity($tour['start_city'] ?? $tour['startCity'] ?? null);
-        $tour['endCityName']   = $this->searchCity($tour['end_city'] ?? $tour['endCity'] ?? null);
+        // Build the request for TourController::index (expects something like "[id,id,...]" in tour_ids)
+        $toursReq = new Request([
+            'tour_ids'   => '[' . implode(',', array_values($tourIdsArr)) . ']',
+            'sort_by'    => 'price_total',
+            'sort_order' => 'asc',
+            'limit'      => 120,
+        ]);
 
-        // Determine cheapest accommodation value for the first (or cheapest) departure
-        $cheapestAccValue = 0.0;
-        if (!empty($tour['departures'])) {
-            // prefer departure's 'cheapest_accommodation.value' (new shape),
-            // fallback to legacy 'cheapestAccommodation.value'
-            $firstDeparture = $tour['departures'][0];
+        $toursResp = $this->tourController->index($toursReq);
+        $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
 
-            $cheapAcc = data_get($firstDeparture, 'cheapest_accommodation', null);
-            if ($cheapAcc === null) {
-                $cheapAcc = data_get($firstDeparture, 'cheapestAccommodation', null);
+        Log::info('Tours details', $details);
+
+        $output = [];
+
+        foreach ($details as $tour) {
+            $tid = (string)($tour['tour_id'] ?? $tour['id'] ?? null);
+            if (!$tid) {
+                continue;
             }
 
-            if (is_array($cheapAcc) && isset($cheapAcc['value'])) {
-                $cheapestAccValue = (float)$cheapAcc['value'];
-            } else {
-                // try to find any departure with a cheapest_accommodation
-                foreach ($tour['departures'] as $d) {
-                    $ca = data_get($d, 'cheapest_accommodation', null) ?: data_get($d, 'cheapestAccommodation', null);
-                    if (is_array($ca) && isset($ca['value'])) {
-                        $cheapestAccValue = (float)$ca['value'];
-                        break;
-                    }
+            // collect all related items for this tour
+            $relatedItems = $itemsByTour[$tid] ?? [];
+
+            // If the related items are already the structure with 'departures' arrays,
+            // merge all departures; otherwise assume related items are raw departures.
+            $mergedDepartures = [];
+            foreach ($relatedItems as $r) {
+                if (isset($r['departures']) && is_array($r['departures'])) {
+                    // r already contains departures array (new structure)
+                    $mergedDepartures = array_merge($mergedDepartures, $r['departures']);
+                } else {
+                    // Legacy: r is a departure itself
+                    $mergedDepartures[] = $r;
                 }
             }
+
+            // Attach departures to the tour detail
+            $tour['departures'] = array_values($mergedDepartures);
+
+
+            $tour['startCityName'] = $this->searchCity($tour['start_city'] ?? $tour['startCity'] ?? null);
+            $tour['endCityName']   = $this->searchCity($tour['end_city'] ?? $tour['endCity'] ?? null);
+
+            Log::info('startCityName', $tour['startCityName']);
+            Log::info('endCityName', $tour['endCityName']);
+
+            // Determine cheapest accommodation value for the first (or cheapest) departure
+            $cheapestAccValue = 0.0;
+            if (!empty($tour['departures'])) {
+                // fallback to legacy 'cheapestAccommodation.value'
+                $firstDeparture = $tour['departures'][0];
+
+                $cheapAcc = data_get($firstDeparture, 'cheapest_accommodation', null);
+                if ($cheapAcc === null) {
+                    $cheapAcc = data_get($firstDeparture, 'cheapestAccommodation', null);
+                }
+
+                if (is_array($cheapAcc) && isset($cheapAcc['value'])) {
+                    $cheapestAccValue = (float)$cheapAcc['value'];
+                } else {
+                    // try to find any departure with a cheapest_accommodation
+                    foreach ($tour['departures'] as $d) {
+                        $ca = data_get($d, 'cheapest_accommodation', null) ?: data_get($d, 'cheapestAccommodation', null);
+                        if (is_array($ca) && isset($ca['value'])) {
+                            $cheapestAccValue = (float)$ca['value'];
+                            break;
+                        }
+                    }
+                }    
+
+                // get flights
+                $flight = $this->getFlightsForFirstDeparture($tour);
+
+                if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
+                    $flightPrice = (float)$flight['price'];
+
+                    // compute total price as before (1.15 factor)
+                    $tour['totalPrice'] = 1.15 * ($flightPrice + $cheapestAccValue);
+
+                    $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
+                    $tour['flight'] = $flight;
+
+                    $output[] = $tour;
+                }
+            }
+            
         }
-
-        // get flight for first departure (your existing helper). Ensure it expects the tour array with 'departures'
-        $flight = $this->getFlightsForFirstDeparture($tour);
-
-        if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
-            $flightPrice = (float)$flight['price'];
-
-            // compute total price as before (1.15 factor)
-            $tour['totalPrice'] = 1.15 * ($flightPrice + $cheapestAccValue);
-
-            $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
-            $tour['flight'] = $flight;
-
-            $output[] = $tour;
-        }
-        // if you want tours without flights, remove the if check and always push $tour
+        Log::info('Output', $output);
+        return $output;
     }
 
-    return $output;
-}
-
-
+    protected function loadDestinations(): array
+    {
+        return Cache::remember('local:destinations_json', 60 * 60, function () {
+            $path = public_path('destinations.json');
+            if (! file_exists($path)) {
+                \Log::error("destinations.json not found at {$path}");
+                return [];
+            }
+            $json = file_get_contents($path);
+            $data = json_decode($json, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                \Log::error('Invalid JSON in destinations.json: ' . json_last_error_msg());
+                return [];
+            }
+            return $data;
+        });
+    }
 
     protected function searchCity($tId): string
     {
-        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page/destinations.json");
-        $cities = $resp->ok() ? $resp->json() : [];
-        $found = collect($cities)->first(fn($c) => $c['t_id'] == $tId);
+        $cities = $this->loadDestinations();
+        $found = collect($cities)->first(fn($c) => ($c['t_id'] ?? null) == $tId);
         return $found['label'] ?? 'Unknown';
     }
 
@@ -295,11 +313,28 @@ class TourRadarService
         return Carbon::parse($date)->addDays($offsetDays)->format('Y-m-d');
     }
 
+    protected function loadStartEndMap(): array
+    {
+        return Cache::remember('local:start_end_json', 60 * 60, function () {
+            $path = public_path('start-end.json');
+            if (! file_exists($path)) {
+                \Log::error("start-end.json not found at {$path}");
+                return [];
+            }
+            $json = file_get_contents($path);
+            $data = json_decode($json, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                \Log::error('Invalid JSON in start-end.json: ' . json_last_error_msg());
+                return [];
+            }
+            return $data;
+        });
+    }
+
     protected function getDuffelIDFromTourradarID(string $id): ?string
     {
-        $resp = Http::acceptJson()->get("https://hopeful-nobel.74-208-189-166.plesk.page/start-end.json");
-        $map = $resp->ok() ? $resp->json() : [];
-        $found = collect($map)->first(fn($c) => $c['t_city'] == $id);
+        $map = $this->loadStartEndMap();
+        $found = collect($map)->first(fn($c) => ($c['t_city'] ?? null) == $id);
         return $found['code'] ?? null;
     }
 
