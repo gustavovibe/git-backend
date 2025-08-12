@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\TourIdController;
 use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\TourController;
-use App\Http\Controllers\DuffelApiController;
+use App\Http\Controllers\GustavoDuffelController;
 use Illuminate\Support\Facades\Cache;
 
 class TourRadarService
@@ -26,7 +26,7 @@ class TourRadarService
         $this->tourIdController    = new TourIdController();
         $this->tourRadarController = new TourRadarController();
         $this->tourController      = new TourController();
-        $this->duffelController    = new DuffelApiController();
+        $this->duffelController    = new GustavoDuffelController();
     }
 
     public function getFeaturedToursForCategory(string $code): array
