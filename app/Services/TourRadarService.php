@@ -254,12 +254,28 @@ class TourRadarService
     protected function getFlightsForFirstDeparture(array $tour): ?array
     {
         \Log::info('getFlightsForFirstDeparture start', ['tour_id' => $tour['tour_id'] ?? null]);
+        // capture both possible candidates
+        $depCandidateFromDepartures = data_get($tour, 'departures.0');
+        $depCandidateFromDeparture  = data_get($tour, 'departure.0');
 
-        $dep = data_get($tour, 'departure.0');
+        // log a compact, safe summary (avoid huge dumps)
+        \Log::info('First-departure candidates', [
+            'tour_id'         => $tour['tour_id'] ?? null,
+            // prefer compact JSON for complex nested arrays
+            'departures_0'    => $depCandidateFromDepartures ? json_encode($depCandidateFromDepartures, JSON_PARTIAL_OUTPUT_ON_ERROR) : null,
+            'departure_0'     => $depCandidateFromDeparture  ? json_encode($depCandidateFromDeparture, JSON_PARTIAL_OUTPUT_ON_ERROR) : null,
+        ]);
+
+        // now pick the first available
+        $dep = $depCandidateFromDepartures ?? $depCandidateFromDeparture;
+
+
+        $dep = data_get($tour, 'departures.0') ?? data_get($tour, 'departure.0');
         if (! $dep) {
-            \Log::info('No departure found for tour', ['tour_id' => $tour['tour_id'] ?? null]);
+            Log::info('No departure found for tour', ['tour_id' => $tour['tour_id'] ?? null]);
             return null;
         }
+
         \Log::info('Using departure', ['tour_id' => $tour['tour_id'] ?? null, 'departure' => $dep]);
 
         $startDate = $dep['date'];
