@@ -217,17 +217,17 @@ class TourRadarService
                     $tour['flight'] = $flight;
 
                     $output[] = $tour;
-                    $data = json_decode($tour, true);
+                    //$data = json_decode($tour, true);
                     TourSnapshot::updateOrCreate(
-                        ['tour_id' => $data['tour_id']],
+                        ['tour_id' => $tour['tour_id']],
                         [
-                            'tour_name' => $data['tour_name'] ?? null,
-                            'start_city' => $data['start_city'] ?? null,
-                            'end_city' => $data['end_city'] ?? null,
-                            'start_city_name' => $data['startCityName'] ?? null,
-                            'end_city_name' => $data['endCityName'] ?? null,
-                            'countries_list' => $data['countriesList'] ?? null,
-                            'payload' => $data,
+                            'tour_name' => $tour['tour_name'] ?? null,
+                            'start_city' => $tour['start_city'] ?? null,
+                            'end_city' => $tour['end_city'] ?? null,
+                            'start_city_name' => $tour['startCityName'] ?? null,
+                            'end_city_name' => $tour['endCityName'] ?? null,
+                            'countries_list' => $tour['countriesList'] ?? null,
+                            'payload' => $tour,
                             'snapshot_at' => now(),
                         ]
                     );
