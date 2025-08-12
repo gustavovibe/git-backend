@@ -201,7 +201,22 @@ class TourRadarService
 
             // Determine cheapest accommodation value for the first (or cheapest) departure
             $cheapestAccValue = 0.0;
-            if (!empty($tour['departures'])) {
+            if (!empty($tour['departures'])) { 
+
+                // get flights
+                $flight = $this->getFlightsForFirstDeparture($tour);
+
+                if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
+                    $flightPrice = (float)$flight['price'];
+
+                    // compute total price as before (1.15 factor)
+                    $tour['totalPrice'] = 1.15 * ($flightPrice + $cheapestAccValue);
+
+                    $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
+                    $tour['flight'] = $flight;
+
+                    $output[] = $tour;
+                }
                 // fallback to legacy 'cheapestAccommodation.value'
                 $firstDeparture = $tour['departures'][0];
 
@@ -221,22 +236,7 @@ class TourRadarService
                             break;
                         }
                     }
-                }    
-
-                // get flights
-                $flight = $this->getFlightsForFirstDeparture($tour);
-
-                if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
-                    $flightPrice = (float)$flight['price'];
-
-                    // compute total price as before (1.15 factor)
-                    $tour['totalPrice'] = 1.15 * ($flightPrice + $cheapestAccValue);
-
-                    $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
-                    $tour['flight'] = $flight;
-
-                    $output[] = $tour;
-                }
+                }   
             }
             
         }
@@ -250,6 +250,103 @@ class TourRadarService
 
         return $output;
     }
+
+    protected function getFlightsForFirstDeparture(array $tour): ?array
+    {
+        \Log::info('getFlightsForFirstDeparture start', ['tour_id' => $tour['tour_id'] ?? null]);
+
+        $dep = data_get($tour, 'departure.0');
+        if (! $dep) {
+            \Log::info('No departure found for tour', ['tour_id' => $tour['tour_id'] ?? null]);
+            return null;
+        }
+        \Log::info('Using departure', ['tour_id' => $tour['tour_id'] ?? null, 'departure' => $dep]);
+
+        $startDate = $dep['date'];
+        $length    = $tour['tour_length_days'];
+        \Log::info('Dates and length', ['startDate' => $startDate, 'length' => $length]);
+
+        $endDate  = $this->calculateTourEndDate($startDate, $length)->format('Y-m-d');
+        $fromDate = $this->formatDateForDuffel($startDate, -1);
+        $toDate   = $this->formatDateForDuffel($startDate, 0);
+
+        \Log::info('Computed date window', ['from' => $fromDate, 'to' => $toDate, 'endDate' => $endDate]);
+
+        $originCode = $this->getDuffelIDFromTourradarID($tour['start_city'] ?? $tour['startCity'] ?? null);
+        $destCode   = $this->getDuffelIDFromTourradarID($tour['end_city'] ?? $tour['endCity'] ?? null);
+
+        \Log::info('Mapped airport codes', ['originCode' => $originCode, 'destCode' => $destCode, 'tour_id' => $tour['tour_id'] ?? null]);
+
+        if (! $originCode || ! $destCode) {
+            \Log::info('Missing origin or destination code, aborting flight lookup', ['origin' => $originCode, 'dest' => $destCode, 'tour_id' => $tour['tour_id'] ?? null]);
+            return null;
+        }
+
+        $flightPayload = [
+            'origin'       => 'NYC',
+            'startCity'    => $originCode,
+            'endCity'      => $destCode,
+            'departure'    => $fromDate,
+            'arrival'      => $endDate,
+            'adultsCount'  => 1,
+            'childrenCount'=> 0,
+        ];
+
+        \Log::info('Requesting Duffel offers', ['payload' => $flightPayload, 'tour_id' => $tour['tour_id'] ?? null]);
+
+        try {
+            // build Request to call your Duffel controller method
+            $flightReq = new Request($flightPayload);
+            $offerResp = $this->duffelController->offerRequests($flightReq);
+
+            // controller might return a JsonResponse or an array — handle both
+            if (is_object($offerResp) && method_exists($offerResp, 'getContent')) {
+                $offerData = json_decode($offerResp->getContent(), true);
+            } elseif (is_array($offerResp)) {
+                $offerData = $offerResp;
+            } else {
+                $offerData = null;
+            }
+
+            \Log::info('Duffel response raw', [
+                'offer_data_exists' => is_array($offerData),
+                'tour_id' => $tour['tour_id'] ?? null,
+            ]);
+
+            $offer = $offerData['offers'][0] ?? null;
+            if (! $offer) {
+                \Log::info('No offers returned by Duffel', ['tour_id' => $tour['tour_id'] ?? null]);
+                return null;
+            }
+
+            \Log::info('Duffel Offer selected', ['tour_id' => $tour['tour_id'] ?? null, 'offer_sample' => [
+                'total_amount' => data_get($offer, 'total_amount'),
+                'slices_count' => count($offer['slices'] ?? []),
+            ]]);
+
+            $price = data_get($offer, 'total_amount');
+            $depart = data_get($offer, 'slices.0.segments.0.departing_at');
+
+            // get last slice/segment safely
+            $slices = $offer['slices'] ?? [];
+            $lastSliceIndex = count($slices) - 1;
+            $arrive = null;
+            if ($lastSliceIndex >= 0 && isset($slices[$lastSliceIndex]['segments'])) {
+                $segments = $slices[$lastSliceIndex]['segments'];
+                $lastSegIndex = count($segments) - 1;
+                $arrive = $segments[$lastSegIndex]['arriving_at'] ?? null;
+            }
+
+            \Log::info('Parsed offer info', ['price' => $price, 'depart' => $depart, 'arrive' => $arrive, 'tour_id' => $tour['tour_id'] ?? null]);
+
+            return ['price' => $price, 'departure' => $depart, 'arrival' => $arrive];
+
+        } catch (\Exception $e) {
+            \Log::error('Error fetching Duffel offers', ['message' => $e->getMessage(), 'tour_id' => $tour['tour_id'] ?? null]);
+            return null;
+        }
+    }
+
 
     protected function loadDestinations(): array
     {
@@ -276,49 +373,7 @@ class TourRadarService
         return $found['label'] ?? 'Unknown';
     }
 
-    protected function getFlightsForFirstDeparture(array $tour): ?array
-    {
-        $dep = data_get($tour, 'departure.0');
-        if (! $dep) {
-            return null;
-        }
-
-        $startDate = $dep['date'];
-        $length    = $tour['tour_length_days'];
-
-        $endDate   = $this->calculateTourEndDate($startDate, $length)->format('Y-m-d');
-        $fromDate  = $this->formatDateForDuffel($startDate, -1);
-        $toDate    = $this->formatDateForDuffel($startDate, 0);
-
-        $originCode = $this->getDuffelIDFromTourradarID($tour['start_city']);
-        $destCode   = $this->getDuffelIDFromTourradarID($tour['end_city']);
-
-        if (! $originCode || ! $destCode) {
-            return null;
-        }
-
-        $flightReq = new Request([
-                'origin'       => 'NYC',
-                'startCity'    => $tour['start_city'],
-                'endCity'      => $tour['end_city'],
-                'departure'    => $tour['departure']['date'],
-                'arrival'      => Carbon::parse($tour['departure']['date'])
-                                        ->addDays($tour['tour_length_days'])
-                                        ->format('Y-m-d'),
-                'adultsCount'  => 1,
-                'childrenCount'=> 0,
-            ]);
-        $offerResp = $this->duffelController->offerRequests($flightReq);
-        $offer = json_decode($offerResp->getContent(), true)['offers'][0] ?? [];
-
-        Log::info('Duffel Offer', $offer);
-
-        $price = data_get($offer, 'total_amount');
-        $depart = data_get($offer, 'slices.0.segments.0.departing_at');
-        $arrive = data_get($offer, 'slices.-1.segments.-1.arriving_at');
-
-        return ['price' => $price, 'departure' => $depart, 'arrival' => $arrive];
-    }
+    
 
     protected function calculateTourEndDate(string $start, int $length): Carbon
     {
