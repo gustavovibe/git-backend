@@ -4,8 +4,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class CreateTourSnapshotsTable extends Migration
+return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('tour_snapshots', function (Blueprint $table) {
@@ -42,8 +47,13 @@ class CreateTourSnapshotsTable extends Migration
         DB::statement("CREATE INDEX idx_flight_price ON tour_snapshots (flight_price)");
     }
 
+     /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::dropIfExists('tour_snapshots');
     }
-}
+};
