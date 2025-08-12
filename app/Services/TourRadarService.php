@@ -13,6 +13,7 @@ use App\Http\Controllers\TourRadarController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\GustavoDuffelController;
 use Illuminate\Support\Facades\Cache;
+use App\Models\TourSnapshot;
 
 class TourRadarService
 {
@@ -216,6 +217,21 @@ class TourRadarService
                     $tour['flight'] = $flight;
 
                     $output[] = $tour;
+                    $data = json_decode($tour, true);
+                    TourSnapshot::updateOrCreate(
+                        ['tour_id' => $data['tour_id']],
+                        [
+                            'tour_name' => $data['tour_name'] ?? null,
+                            'start_city' => $data['start_city'] ?? null,
+                            'end_city' => $data['end_city'] ?? null,
+                            'start_city_name' => $data['startCityName'] ?? null,
+                            'end_city_name' => $data['endCityName'] ?? null,
+                            'countries_list' => $data['countriesList'] ?? null,
+                            'payload' => $data,
+                            'snapshot_at' => now(),
+                        ]
+                    );
+
                 }
                 // fallback to legacy 'cheapestAccommodation.value'
                 $firstDeparture = $tour['departures'][0];
@@ -247,7 +263,7 @@ class TourRadarService
             'count'  => $count,
             'sample' => $sample,
         ]);
-
+        
         return $output;
     }
 
