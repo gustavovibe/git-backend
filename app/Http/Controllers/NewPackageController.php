@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\ApiResponse;
 use App\Mail\SendPass;
 use App\Models\Traveler;
+use App\Models\Country;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
