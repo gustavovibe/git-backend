@@ -202,10 +202,14 @@ class SyncToursData extends Command
         ];
         $start = Carbon::now()->addDays(1)->format('Y-m-d');
         $end   = Carbon::now()->addDays(91)->format('Y-m-d');
+        
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range={$start}-{$end}&user_country=185&currency=USD";
-
+        Log::info("Departures url {$url}");
+        $this->info("Departures url {$url}");
         try {
             $response = Http::withHeaders($headers)->get($url);
+            Log::info("Departures response {$response}");
+            $this->info("Departures response {$response}");
             return $response->json();
         } catch (\Exception $e) {
             if ($e->getCode() == 504) {
@@ -270,6 +274,9 @@ private function saveTourToDatabase($tourData)
         $departuresData = $this->getDeparturesByTour($tourId);
 
         $departuresItems = $departuresData['items'] ?? [];
+
+        Log::info("Departures data {$departuresData}");
+        $this->info("Departures data {$departuresData}");
 
         if (isset($departuresData['items']) && is_array($departuresData['items'])) {
             $itemCount = count($departuresData['items']);
