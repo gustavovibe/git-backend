@@ -23,7 +23,7 @@ use App\Models\Departure;
 
 class SyncToursData extends Command
 {
-    protected $signature = 'sync:tours';
+    protected $signature = 'sync:tours {pages? : Page(s) to sync. Examples: "1-10", "5", "1,3,5", or "pages:1-10"} {--pages= : Page(s) to sync (same formats as argument)}';
     protected $description = 'Sync tours data from the API to the database';
     private $token;
 

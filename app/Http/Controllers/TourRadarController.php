@@ -672,7 +672,7 @@ public static function getDeparturesByTour($params)
     public static function getDeparturedb($params)
     {
         $departureId = $params['departureId'];
-        $departure = Departure::where('id', $departureIdd)->first();
+        $departure = Departure::where('id', $departureId)->first();
         $departureData = $response->json();
         return $departureData;
     } 
