@@ -200,8 +200,8 @@ class SyncToursData extends Command
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
-        $start = Carbon::now()->addDays(1)->format('Y-m-d');
-        $end   = Carbon::now()->addDays(91)->format('Y-m-d');
+        $start = Carbon::now()->addDays(1)->format('Ymd');
+        $end   = Carbon::now()->addDays(91)->format('Ymd');
         
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range={$start}-{$end}&user_country=185&currency=USD";
         Log::info("Departures url {$url}");
