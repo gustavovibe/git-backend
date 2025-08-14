@@ -232,7 +232,8 @@ class SyncToursData extends Command
         ];
         
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
-
+        Log::info("Departure detail url {$url}");
+        $this->info("Departure detail url {$url}");
         try {
             $response = Http::withHeaders($headers)->get($url);
             return $response->json();
@@ -275,8 +276,8 @@ private function saveTourToDatabase($tourData)
 
         $departuresItems = $departuresData['items'] ?? [];
 
-        Log::info("Departures data {$departuresData}");
-        $this->info("Departures data {$departuresData}");
+        //Log::info("Departures data {$departuresData}");
+        //$this->info("Departures data {$departuresData}");
 
         if (isset($departuresData['items']) && is_array($departuresData['items'])) {
             $itemCount = count($departuresData['items']);
