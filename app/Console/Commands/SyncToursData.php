@@ -345,9 +345,8 @@ private function saveTourToDatabase($tourData)
 
                 // Safely extract accommodations using data_get (handles missing keys)
                 $accommodationsArr = data_get($departureDetails, 'prices.accommodations', []);
-                if (!is_array($accommodationsArr)) {
-                    // If API returns JSON string for accommodations, try to decode it
-                    $decoded = @json_decode($accommodationsArr, true);
+                if (is_string($accommodationsArr)) {
+                    $decoded = json_decode($accommodationsArr, true);
                     $accommodationsArr = is_array($decoded) ? $decoded : [];
                 }
                 
@@ -369,7 +368,7 @@ private function saveTourToDatabase($tourData)
                         'promotion'              => json_encode($departureData['prices']['promotion'] ?? []),
                         'mandatory_addons'       => json_encode($departureData['prices']['mandatory_addons'] ?? []),
                         'optional_extras'        => json_encode($departureData['optional_extras'] ?? []),
-                        'accommodations'        => json_encode($accommodationsArr),
+                        'accommodations'        => $accommodationsArr,
                     ]
                 );
                 Log::info("Saved departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");

@@ -15,7 +15,9 @@ class Departure extends Model
         'currency', 'based_on', 'price_base', 'price_addons', 'price_promotion',
         'price_total_upfront', 'price_total', 'promotion', 'mandatory_addons', 'optional_extras', 'accommodations'
     ];
-
+    protected $casts = [
+        'accommodations' => 'array',
+    ];
     /* // One Departure can have many Accommodations
     public function accommodations()
     {
