@@ -220,32 +220,76 @@ class SyncToursData extends Command
             return [];
         }
     }
-    private function getDeparture($tourId,$departureId)
+    
+    private function getDeparture($tourId, $departureId)
     {
         // Delay of 1 second
         usleep(1000000); // 1 second in microseconds
-
+    
         $accessToken = $this->token;
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
-        
+    
         $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures/{$departureId}";
         Log::info("Departure detail url {$url}");
         $this->info("Departure detail url {$url}");
+    
         try {
             $response = Http::withHeaders($headers)->get($url);
-            return $response->json();
+    
+            // Log response status and a truncated body (avoid huge logs)
+            $status = $response->status();
+            $body = $response->body(); // raw body (string)
+            $bodySnippet = mb_substr($body, 0, 2000); // first 2000 chars
+    
+            // DON'T log the Authorization header. If you want to log headers, remove auth
+            $safeHeaders = $headers;
+            $safeHeaders['Authorization'] = 'Bearer [REDACTED]';
+    
+            Log::info('Departure API response', [
+                'url' => $url,
+                'status' => $status,
+                'headers' => $safeHeaders,
+                'body_snippet' => $bodySnippet,
+            ]);
+    
+            // If non-successful, log and return empty array
+            if (! $response->successful()) {
+                Log::warning("Departure API returned non-success status {$status}", [
+                    'tour_id' => $tourId,
+                    'departure_id' => $departureId,
+                    'status' => $status,
+                ]);
+                return [];
+            }
+    
+            // decode safely; Http::json() / ->json() returns array or null
+            $json = $response->json() ?? [];
+    
+            return is_array($json) ? $json : [];
+    
         } catch (\Exception $e) {
-            if ($e->getCode() == 504) {
+            // Http::get normally doesn't throw unless ->throw() used, but keep catch for completeness
+            $code = $e->getCode();
+            if ($code == 504) {
                 $this->error("Error fetching departures for tour {$tourId}: Request failed with status code 504. Continuing to the next tour.");
             } else {
                 $this->error('Error fetching departures for tour ' . $tourId . ': ' . $e->getMessage());
             }
+    
+            Log::error('Exception fetching departure', [
+                'tour_id' => $tourId,
+                'departure_id' => $departureId,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+    
             return [];
         }
     }
+    
 
     public static function getPriceCategoriesByTour($tourId)
     {
@@ -290,8 +334,21 @@ private function saveTourToDatabase($tourData)
                 usleep(200000); // 0.2 seconds in microseconds
                 $departureDetails = $this->getDeparture($tourId,$departureData['id']); 
                 
-                Log::info("Processing accommodations for departure ID: " . $departureData['id'] . " individual data : { $departureDetails}");
-                // Map and store the departure data.
+                // Proper logging: pass arrays as context or json_encode them
+                Log::info('Processing accommodations for departure', [
+                    'tour_id' => $tourId,
+                    'departure_id' => $depId,
+                    // logger will serialize the array context OK
+                    'departure_details' => $departureDetails,
+                ]);
+
+                // Safely extract accommodations using data_get (handles missing keys)
+                $accommodationsArr = data_get($departureDetails, 'prices.accommodations', []);
+                if (!is_array($accommodationsArr)) {
+                    // If API returns JSON string for accommodations, try to decode it
+                    $decoded = @json_decode($accommodationsArr, true);
+                    $accommodationsArr = is_array($decoded) ? $decoded : [];
+                }
                 
                 Departure::updateOrCreate(
                     ['id' => $departureData['id']], // Unique identifier.
@@ -311,7 +368,7 @@ private function saveTourToDatabase($tourData)
                         'promotion'              => json_encode($departureData['prices']['promotion'] ?? []),
                         'mandatory_addons'       => json_encode($departureData['prices']['mandatory_addons'] ?? []),
                         'optional_extras'        => json_encode($departureData['optional_extras'] ?? []),
-                        'accommodations'        => json_encode($departureDetails['prices']['accommodations'] ?? []),
+                        'accommodations'        => json_encode($accommodationsArr),
                     ]
                 );
                 Log::info("Saved departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
