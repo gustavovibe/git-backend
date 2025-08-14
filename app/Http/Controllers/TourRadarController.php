@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
 use App\Helpers\ApiResponse;
 use App\Models\Tour;
+use App\Models\Departure;
 use Carbon\Carbon;
 class TourRadarController extends Controller
 {
@@ -667,6 +668,13 @@ public static function getDeparturesByTour($params)
         }
     }
 
+
+    public static function getDeparturedb($params)
+    {
+        $departureId = $params['departureId'];
+        $departure = Departure::where('id', $departureIdd)->first();
+        return $departure;
+    } 
 
     public static function getTaxonomyLanguages()
     {

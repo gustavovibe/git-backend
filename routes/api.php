@@ -70,6 +70,7 @@ Route::get('destinations', [Citycontroller::class, 'DestinatioCityCountryNatural
 Route::get('codes', [Citycontroller::class, 'codes']);
 Route::get('departures', [ProxyTourRadarController::class, 'departures']);
 Route::get('departure', [ProxyTourRadarController::class, 'departure']);
+Route::get('departuredb', [ProxyTourRadarController::class, 'departuredb']);
 Route::get('prices', [ProxyTourRadarController::class, 'prices']);
 Route::get('operator-booking-fields', [ProxyTourRadarController::class, 'bookingFields']);
 Route::get('bookings-list', [ProxyTourRadarController::class, 'bookingsList']);

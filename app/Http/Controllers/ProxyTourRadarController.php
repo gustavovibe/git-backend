@@ -111,6 +111,22 @@ class ProxyTourRadarController extends Controller
         return $response;
     }
 
+    public function departure(Request $request)
+    {
+        
+        $rules = [
+            'departureId' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        $response = TourRadarController::getDeparturedb($request->all());
+        return $response;
+    }
+
     /**
      * Prices.
      * 
