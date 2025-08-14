@@ -220,7 +220,7 @@ class SyncToursData extends Command
             return [];
         }
     }
-    
+
     private function getDeparture($tourId, $departureId)
     {
         // Delay of 1 second
@@ -329,8 +329,9 @@ private function saveTourToDatabase($tourData)
             $this->info("Found {$itemCount} departure items for tour ID {$tourId}");
 
             foreach ($departuresData['items'] as $departureData) {
-                Log::info("Processing departure ID: " . $departureData['id'] . " for tour ID: {$tourId}");
-                $this->info("Processing departure ID: " . $departureData['id']);
+                $depId = $departureData['id'] ?? null;
+                Log::info('Processing departure', ['tour_id' => $tourId, 'departure_id' => $depId]);
+                $this->info("Processing departure ID: {$depId}");
                 usleep(200000); // 0.2 seconds in microseconds
                 $departureDetails = $this->getDeparture($tourId,$departureData['id']); 
                 
@@ -351,7 +352,7 @@ private function saveTourToDatabase($tourData)
                 }
                 
                 Departure::updateOrCreate(
-                    ['id' => $departureData['id']], // Unique identifier.
+                    ['id' => $depId], // Unique identifier.
                     [
                         'tour_id'               => $tourId, // save the tour_id
                         'date'                   => $departureData['date'],
