@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Services;
-
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\App;
@@ -152,6 +150,7 @@ class TourRadarService
         ]);
 
         $toursResp = $this->tourController->index($toursReq);
+
         $details = json_decode($toursResp->getContent(), true)['data'] ?? [];
 
         Log::info('Tours details', $details);
@@ -206,7 +205,7 @@ class TourRadarService
 
                 // get flights
                 $flight = $this->getFlightsForFirstDeparture($tour);
-
+                usleep(500000); // 0.5 seconds in microseconds
                 if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
                     $flightPrice = (float)$flight['price'];
 
