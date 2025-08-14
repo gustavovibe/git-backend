@@ -673,7 +673,8 @@ public static function getDeparturesByTour($params)
     {
         $departureId = $params['departureId'];
         $departure = Departure::where('id', $departureIdd)->first();
-        return $departure;
+        $departureData = $response->json();
+        return $departureData;
     } 
 
     public static function getTaxonomyLanguages()

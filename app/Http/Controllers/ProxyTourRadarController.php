@@ -111,7 +111,7 @@ class ProxyTourRadarController extends Controller
         return $response;
     }
 
-    public function departure(Request $request)
+    public function departuredb(Request $request)
     {
         
         $rules = [

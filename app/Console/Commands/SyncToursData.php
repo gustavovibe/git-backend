@@ -31,24 +31,107 @@ class SyncToursData extends Command
     {
         $this->token = $this->asyncGetAccessToken();
 
-        $startPage = 1;
-        $endPage = 2;
+        $raw = $this->argument('pages') ?? $this->option('pages') ?? null;
 
-        for ($currentPage = $startPage; $currentPage <= $endPage; $currentPage++) {
-            $tours = $this->fetchDataFromApi($currentPage)['items'] ?? [];
+        // Accept "pages:1-10" too (in case user runs: php artisan sync:tours pages:1-10)
+        if ($raw && str_starts_with($raw, 'pages:')) {
+            $raw = substr($raw, strlen('pages:'));
+        }
 
-            $this->info("Processing page {$currentPage}. Number of tours: " . count($tours));
+        // default behavior if no pages provided
+        if (empty($raw)) {
+            $this->info("No pages provided. Using default pages 1-2.");
+            $pages = [1, 2];
+        } else {
+            $pages = $this->parsePagesInput($raw);
+            if (empty($pages)) {
+                $this->error("Invalid pages input: {$raw}. Use formats like 1-10, 5, or 1,3,5");
+                return 1; // non-zero exit code for failure
+            }
+        }
+
+        $this->info('Pages to process: ' . implode(', ', $pages));
+
+        foreach ($pages as $currentPage) {
+            $this->info("Processing page {$currentPage}...");
+
+            try {
+                $response = $this->fetchDataFromApi($currentPage);
+            } catch (\Throwable $e) {
+                $this->error("Error fetching page {$currentPage}: " . $e->getMessage());
+                Log::error('sync:tours - fetch error', ['page' => $currentPage, 'exception' => $e]);
+                continue;
+            }
+
+            $tours = $response['items'] ?? [];
+
+            $this->info("Number of tours on page {$currentPage}: " . count($tours));
 
             if (!empty($tours)) {
                 foreach ($tours as $tourData) {
-                    $this->saveTourToDatabase($tourData);
+                    try {
+                        $this->saveTourToDatabase($tourData);
+                    } catch (\Throwable $e) {
+                        $this->error("Error saving tour (page {$currentPage}): " . $e->getMessage());
+                        Log::error('sync:tours - save error', ['page' => $currentPage, 'exception' => $e, 'tour' => $tourData]);
+                        // continue to next tour
+                    }
                 }
                 $this->info("Synced data for page {$currentPage}");
             } else {
                 $this->info("No more data on page {$currentPage}");
             }
+
+            // be polite to the API
             sleep(3);
         }
+        $this->info('Done.');
+        return 0;
+    }
+
+    private function parsePagesInput(string $input): array
+    {
+        $input = trim($input);
+
+        // if comma separated list
+        if (strpos($input, ',') !== false) {
+            $parts = array_filter(array_map('trim', explode(',', $input)));
+            $pages = [];
+            foreach ($parts as $p) {
+                if (preg_match('/^\d+$/', $p)) {
+                    $pages[] = (int)$p;
+                } elseif (preg_match('/^(\d+)-(\d+)$/', $p, $m)) {
+                    $start = (int)$m[1];
+                    $end = (int)$m[2];
+                    if ($end >= $start) {
+                        for ($i = $start; $i <= $end; $i++) $pages[] = $i;
+                    }
+                }
+            }
+            $pages = array_unique($pages);
+            sort($pages);
+            return $pages;
+        }
+
+        // if range format "start-end"
+        if (preg_match('/^(\d+)-(\d+)$/', $input, $matches)) {
+            $start = (int)$matches[1];
+            $end = (int)$matches[2];
+            if ($start <= 0 || $end <= 0 || $end < $start) {
+                return [];
+            }
+            $pages = range($start, $end);
+            return $pages;
+        }
+
+        // single page "5"
+        if (preg_match('/^\d+$/', $input)) {
+            $n = (int)$input;
+            if ($n <= 0) return [];
+            return [$n];
+        }
+
+        return [];
     }
 
     private function asyncGetAccessToken()
