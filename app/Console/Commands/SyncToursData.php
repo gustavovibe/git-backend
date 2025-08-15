@@ -322,6 +322,7 @@ private function saveTourToDatabase($tourData)
 
         //Log::info("Departures data {$departuresData}");
         //$this->info("Departures data {$departuresData}");
+        $maxPerMonth = 2;
 
         if (isset($departuresData['items']) && is_array($departuresData['items'])) {
             // Group departures by year-month

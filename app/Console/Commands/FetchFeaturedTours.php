@@ -40,7 +40,6 @@ class FetchFeaturedTours extends Command
             }
         }
 
-        return 0;
     }
 }
 
