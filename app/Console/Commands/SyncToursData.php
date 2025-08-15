@@ -324,9 +324,24 @@ private function saveTourToDatabase($tourData)
         //$this->info("Departures data {$departuresData}");
 
         if (isset($departuresData['items']) && is_array($departuresData['items'])) {
+            // Group departures by year-month
+            $grouped = [];
+            foreach ($departuresData['items'] as $item) {
+                $monthKey = substr($item['date'], 0, 7); // e.g. "2025-08"
+                $grouped[$monthKey][] = $item;
+            }
+        
+            // Build a new flat array, keeping only $maxPerMonth from each month
+            $limitedItems = [];
+            foreach ($grouped as $month => $itemsInMonth) {
+                $slice = array_slice($itemsInMonth, 0, $maxPerMonth);
+                $limitedItems = array_merge($limitedItems, $slice);
+            }
+        
+            // Replace the original items array
+            $departuresData['items'] = $limitedItems;
             $itemCount = count($departuresData['items']);
             Log::info("Found {$itemCount} departure items for tour ID {$tourId}");
-            $this->info("Found {$itemCount} departure items for tour ID {$tourId}");
 
             foreach ($departuresData['items'] as $departureData) {
                 $depId = $departureData['id'] ?? null;

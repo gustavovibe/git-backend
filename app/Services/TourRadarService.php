@@ -62,6 +62,7 @@ class TourRadarService
                 break;
             }
 
+
             $starts = Carbon::now()->addMonths(3)->startOfMonth()->format('Y-m-d');
             $ends   = Carbon::now()->addMonths(3)->endOfMonth()->format('Y-m-d');
                 
@@ -94,7 +95,7 @@ class TourRadarService
                     $tours[] = $tour;
                 }
             }
-            sleep(0.2);
+            sleep(0.5);
             $page++;
         }
 
@@ -205,7 +206,7 @@ class TourRadarService
 
                 // get flights
                 $flight = $this->getFlightsForFirstDeparture($tour);
-                usleep(500000); // 0.5 seconds in microseconds
+                usleep(1000000); // 0.5 seconds in microseconds
                 if ($flight && isset($flight['price']) && (float)$flight['price'] > 0) {
                     $flightPrice = (float)$flight['price'];
 
@@ -370,7 +371,7 @@ class TourRadarService
 
             \Log::info('Parsed offer info', ['price' => $price, 'depart' => $depart, 'arrive' => $arrive, 'tour_id' => $tour['tour_id'] ?? null]);
 
-            return ['price' => $price, 'departure' => $depart, 'arrival' => $arrive];
+            return ['price' => $price, 'departure' => $depart, 'arrival' => $arrive, 'offer' => $offer];
 
         } catch (\Exception $e) {
             \Log::error('Error fetching Duffel offers', ['message' => $e->getMessage(), 'tour_id' => $tour['tour_id'] ?? null]);
