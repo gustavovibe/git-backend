@@ -84,7 +84,7 @@ class TourRadarService
     
             // Process items immediately (don't accumulate heavy arrays)
             if (!empty($departuresItems)) {
-                $merged = $this->processRadarItems($departuresItems);
+                $merged = $this->processRadarItems($departuresItems,$code);
                 foreach ($merged as $tour) {
                     if (count($tours) >= 8) break;
                     $tours[] = $tour;
@@ -128,7 +128,7 @@ class TourRadarService
     }
 
 
-    protected function processRadarItems(array $items): array
+    protected function processRadarItems($items, $code)
     {
         if (empty($items)) {
             return [];
@@ -246,7 +246,7 @@ class TourRadarService
                             'countries_list' => $tour['countriesList'] ?? null,
                             'payload' => $reduced ?? null,
                             'snapshot_at' => now(),
-                            'type' => $type,
+                            'type' => $code,
                         ]
                     );
 

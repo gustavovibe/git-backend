@@ -22,60 +22,51 @@ class SnapshotController extends Controller
         $categoriesParam = $request->query('categories');
         $perPage = (int) $request->query('per_page', 50);
         $page = (int) $request->query('page', 1);
-
-        // Base query
+    
         $query = TourSnapshot::query();
-
-        // If categories provided, try to filter
+    
+        // If categories provided, parse them into ints and filter by the integer `type` column
         if ($categoriesParam) {
-            $rawCats = array_filter(array_map('trim', explode(',', $categoriesParam)), fn($c) => $c !== '');
-            $categories = array_values($rawCats);
-
+            $raw = array_filter(array_map('trim', explode(',', $categoriesParam)), fn($c) => $c !== '');
+            // cast to ints and remove non-numeric values
+            $categories = array_values(array_filter(array_map(function ($v) {
+                return is_numeric($v) ? (int)$v : null;
+            }, $raw)));
+    
             if (!empty($categories)) {
-                // Attempt a DB-level JSON search: JSON_SEARCH(payload, 'one', '4') IS NOT NULL
-                // This is a broad search (may match numbers elsewhere in JSON), but is fast.
-                $query->where(function ($q) use ($categories) {
-                    foreach ($categories as $cat) {
-                        // use parameter binding to avoid injection
-                        $q->orWhereRaw("JSON_SEARCH(payload, 'one', ?) IS NOT NULL", [$cat]);
-                    }
-                });
-
-                // NOTE: If you need exact matching against $.type[*].tour_type_id or $.type[*].type.tour_type_id,
-                // we could perform more precise JSON_EXTRACT/JSON_CONTAINS checks, but the shape may vary
-                // so the above is intentionally tolerant.
+                // Exact match against the integer `type` column
+                $query->whereIn('type', $categories);
             }
         }
-
-        // Apply simple pagination at DB level
+    
         $paginator = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
-
-        // If you provided categories and want a stricter (PHP) filter to avoid accidental matches,
-        // uncomment the block below. It will re-filter the paged results in PHP (less efficient).
+    
+        // OPTIONAL: if you want a fallback to JSON payload search when `type` column is NULL,
+        // uncomment the block below. Note: this is less efficient and may return duplicates.
         /*
-        if ($categoriesParam) {
-            $cats = $categories;
-            $items = collect($paginator->items())->filter(function ($row) use ($cats) {
-                $payload = is_array($row['payload']) ? $row['payload'] : (array) $row['payload'];
-                return $this->payloadMatchesCategories($payload, $cats);
-            })->values()->all();
-
-            // Replace paginator items with the filtered items (note: total won't reflect the stricter filter)
-            $paginator->setCollection(collect($items));
+        if (!empty($categories) && $paginator->isEmpty()) {
+            // do a DB-level JSON search as fallback (broad)
+            $query = TourSnapshot::query();
+            $query->where(function ($q) use ($categories) {
+                foreach ($categories as $cat) {
+                    $q->orWhereRaw("JSON_SEARCH(payload, 'one', ?) IS NOT NULL", [(string)$cat]);
+                }
+            });
+            $paginator = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
         */
-
-        // Build response
+    
         $response = [
-            'data' => $paginator->items(),          // contains rows with all DB columns
+            'data' => $paginator->items(),
             'total' => $paginator->total(),
             'per_page' => $paginator->perPage(),
             'current_page' => $paginator->currentPage(),
             'last_page' => $paginator->lastPage(),
         ];
-
+    
         return response()->json($response);
     }
+    
 
     /**
      * Strict payload check: inspects $payload['type'] to see if any tour_type_id / type.tour_type_id matches
