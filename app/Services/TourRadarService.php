@@ -30,7 +30,6 @@ class TourRadarService
 
     public function getFeaturedToursForCategory(string $code): array
     {
-    
         // 1) Fetch tour IDs via our TourIdController
         $idsReq = new Request([
             'tour_type'  => $this->formatCodes($code),
@@ -41,31 +40,30 @@ class TourRadarService
         $idsResp = $this->tourIdController->index($idsReq);
         $idsData = json_decode($idsResp->getContent(), true)['data'] ?? [];
         $tourIds = $idsData['tour_ids'] ?? [];
-
+    
         if (empty($tourIds)) {
             Log::warning("TourRadarService: no tour IDs for category {$code}");
             return [];
         }
-
+    
         Log::info('Fetched tour ids', $tourIds);
-
+    
         $itemsPerPage = 10;
         $page = 1;
         $tours = [];
-
+    
         // 2) Loop pages until we have 8 tours or run out
         while (count($tours) < 8) {
             $start = ($page - 1) * $itemsPerPage;
             $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
-
+    
             if (empty($paginatedTourIds)) {
                 break;
             }
-
-
+    
             $starts = Carbon::now()->addMonths(3)->startOfMonth()->format('Y-m-d');
             $ends   = Carbon::now()->addMonths(3)->endOfMonth()->format('Y-m-d');
-                
+    
             $req = new Request([
                 'date_range'   => "{$starts},{$ends}",
                 'page'         => 1,                       // only first page for each tour chunk
@@ -74,20 +72,17 @@ class TourRadarService
                 'user_country' => 185,
                 'currency'     => 'USD',
             ]);
-        
+    
             // Call the controller method directly (it returns a JsonResponse)
             $resp = $this->tourRadarController->getMultipleDeparturesOnlyDb($req);
-        
+    
             // Decode JSON response to array
             $respData = json_decode($resp->getContent(), true);
             $departuresItems = $respData['items'] ?? [];
-
+    
             Log::info('Responses', $respData);
-            
-            $departures = array_merge($departures ?? [], $departuresItems);
-
-            Log::info('Chunk departures count', ['page' => $page, 'count' => count($departuresItems)]);
-
+    
+            // Process items immediately (don't accumulate heavy arrays)
             if (!empty($departuresItems)) {
                 $merged = $this->processRadarItems($departuresItems);
                 foreach ($merged as $tour) {
@@ -95,13 +90,33 @@ class TourRadarService
                     $tours[] = $tour;
                 }
             }
-            sleep(0.5);
+    
+            // --- FREE chunk-level memory here ---
+            // remove large references created this iteration
+            unset($resp, $respData, $departuresItems);
+    
+            // if $merged can be large, unset it too (we've already consumed it)
+            if (isset($merged)) {
+                unset($merged);
+            }
+    
+            // Ask PHP to collect cycles and free memory now
+            if (function_exists('gc_collect_cycles')) {
+                gc_collect_cycles();
+            }
+    
+            // small delay if you still want it
+            usleep(500000); // 0.5s (non-blocking better than sleep for CLI)
+    
             $page++;
         }
-
+    
+        // Final cleanup (just in case)
+        if (isset($merged)) unset($merged);
+        gc_collect_cycles();
+    
         return $tours;
     }
-
 
     protected function formatCodes(string $code): string
     {
@@ -283,19 +298,17 @@ class TourRadarService
             }
 
             // cheapest accommodation: prefer tour.cheapest_accommodation then legacy keys; if absent, scan departures
-            $cheapest = data_get($tour, 'cheapest_accommodation')
-                    ?? data_get($tour, 'cheapestAccommodation')
-                    ?? null;
+            $cheapest = data_get($tour, 'departures.0.cheapest_accommodation')
+                ?? data_get($tour, 'departures.0.cheapestAccommodation')
+                ?? null;
 
-            if ($cheapest === null && isset($tour['departures']) && is_array($tour['departures'])) {
-                foreach ($tour['departures'] as $d) {
-                    $c = data_get($d, 'cheapest_accommodation') ?? data_get($d, 'cheapestAccommodation');
-                    if ($c) {
-                        $cheapest = $c;
-                        break;
+                if ($cheapest === null && !empty($tour['departures'])) {
+                    foreach ($tour['departures'] as $d) {
+                        $c = data_get($d, 'cheapest_accommodation') ?? data_get($d, 'cheapestAccommodation');
+                        if ($c) { $cheapest = $c; break; }
                     }
                 }
-            }
+                
 
             // flight offer id: try common paths
             $flightOfferId = data_get($tour, 'flight.offer.id')
