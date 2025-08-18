@@ -229,6 +229,7 @@ class TourRadarService
 
                     $tour['countriesList'] = $this->formatCountries($tour['countries'] ?? []);
                     $tour['flight'] = $flight;
+                    $type = data_get($tour, 'type.0.tour_type_id') ?? null;
 
                     $output[] = $tour;
                     $reduced = $this->reduceToursPayload($tour);
@@ -245,6 +246,7 @@ class TourRadarService
                             'countries_list' => $tour['countriesList'] ?? null,
                             'payload' => $reduced ?? null,
                             'snapshot_at' => now(),
+                            'type' => $type,
                         ]
                     );
 
@@ -284,7 +286,8 @@ class TourRadarService
     }
 
     protected function reduceToursPayload($tour)
-    {
+    {       
+            
             // helpers: data_get is available in Laravel
             $mainImage = data_get($tour, 'main_image') ?? data_get($tour, 'mainImage') ?? null;
             $tourId    = data_get($tour, 'tour_id') ?? data_get($tour, 'tourId') ?? null;
@@ -335,7 +338,6 @@ class TourRadarService
                 'tour_name' => $tourName,
                 'reviews_count' => $reviews,
                 'totalPrice' => $totalPrice,
-                // keep cheapest accommodation as object/array (or null)
                 'cheapest_accommodation' => $cheapest,
                 'flight_offer_id' => $flightOfferId,
                 'flight_total_amount' => $flightTotalAmount,
@@ -519,10 +521,32 @@ class TourRadarService
 
     protected function formatCountries(array $countries): string
     {
+        if (empty($countries)) {
+            return '';
+        }
+    
         return collect($countries)
-            ->slice(1)
-            ->pluck('country.name')
+            ->map(function ($item) {
+                // Country name may be nested under 'country.name' or be 'name' directly
+                if (is_array($item)) {
+                    if (isset($item['country']['name'])) return trim($item['country']['name']);
+                    if (isset($item['name'])) return trim($item['name']);
+                }
+    
+                if (is_object($item)) {
+                    if (isset($item->country) && isset($item->country->name)) return trim($item->country->name);
+                    if (isset($item->name)) return trim($item->name);
+                }
+    
+                // fallback: try data_get
+                $name = data_get($item, 'country.name') ?: data_get($item, 'name');
+                return $name ? trim($name) : null;
+            })
+            ->filter()      // drop null/empty values
+            ->unique()      // remove duplicates
+            ->values()      // reindex
             ->join(', ');
     }
+    
 }
 

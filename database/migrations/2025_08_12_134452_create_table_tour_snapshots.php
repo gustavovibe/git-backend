@@ -29,6 +29,7 @@ return new class extends Migration
             $table->json('payload');
             $table->timestamps();
             $table->timestamp('snapshot_at')->nullable()->index();
+            $table->integer('type')->nullable();
         });
 
         // If you prefer to compute generated columns from JSON directly:

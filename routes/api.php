@@ -39,6 +39,9 @@ use App\Http\Controllers\NezasaController;
 use Dedoc\Scramble\Scramble;
 use App\Http\Controllers\PreviewMailController;
 use App\Http\Controllers\PreviewInvoiceController;
+use App\Http\Controllers\SnapshotController;
+
+Route::get('snapshots', [SnapshotController::class, 'index']);
 
 Route::get('/preview/invoice', PreviewInvoiceController::class);
 

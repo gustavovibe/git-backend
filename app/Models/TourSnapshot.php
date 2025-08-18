@@ -17,6 +17,6 @@ class TourSnapshot extends Model
 
     protected $fillable = [
         'tour_id','tour_name','start_city','end_city','start_city_name','end_city_name',
-        'countries_list','payload','snapshot_at'
+        'countries_list','payload','snapshot_at', 'type'
     ];
 }
