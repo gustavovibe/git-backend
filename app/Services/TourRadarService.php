@@ -217,6 +217,8 @@ class TourRadarService
                     $tour['flight'] = $flight;
 
                     $output[] = $tour;
+                    $reduced = $this->reduceToursPayload($tour);
+
                     //$data = json_decode($tour, true);
                     TourSnapshot::updateOrCreate(
                         ['tour_id' => $tour['tour_id']],
@@ -227,7 +229,7 @@ class TourRadarService
                             'start_city_name' => $tour['startCityName'] ?? null,
                             'end_city_name' => $tour['endCityName'] ?? null,
                             'countries_list' => $tour['countriesList'] ?? null,
-                            'payload' => $tour,
+                            'payload' => $reduced ?? null,
                             'snapshot_at' => now(),
                         ]
                     );
@@ -265,6 +267,78 @@ class TourRadarService
         ]);
         
         return $output;
+    }
+
+    protected function reduceToursPayload(array $tours): array
+    {
+        // If payload is an associative container with 'sample' / 'items' / 'data', try to unwrap it
+        if (isset($tours['sample']) && is_array($tours['sample'])) {
+            $tours = $tours['sample'];
+        } elseif (isset($tours['items']) && is_array($tours['items'])) {
+            $tours = $tours['items'];
+        } elseif (isset($tours['data']) && is_array($tours['data'])) {
+            $tours = $tours['data'];
+        }
+
+        return array_values(array_map(function ($tour) {
+            // helpers: data_get is available in Laravel
+            $mainImage = data_get($tour, 'main_image') ?? data_get($tour, 'mainImage') ?? null;
+            $tourId    = data_get($tour, 'tour_id') ?? data_get($tour, 'tourId') ?? null;
+            $tourName  = data_get($tour, 'tour_name') ?? data_get($tour, 'tourName') ?? null;
+            $reviews   = data_get($tour, 'reviews_count') ?? data_get($tour, 'reviewsCount') ?? null;
+
+            // totalPrice fallbacks: totalPrice (computed), total_price or price_total
+            $totalPrice = data_get($tour, 'totalPrice');
+            if ($totalPrice === null) {
+                $totalPrice = data_get($tour, 'total_price') ?? data_get($tour, 'price_total');
+            }
+
+            // cheapest accommodation: prefer tour.cheapest_accommodation then legacy keys; if absent, scan departures
+            $cheapest = data_get($tour, 'cheapest_accommodation')
+                    ?? data_get($tour, 'cheapestAccommodation')
+                    ?? null;
+
+            if ($cheapest === null && isset($tour['departures']) && is_array($tour['departures'])) {
+                foreach ($tour['departures'] as $d) {
+                    $c = data_get($d, 'cheapest_accommodation') ?? data_get($d, 'cheapestAccommodation');
+                    if ($c) {
+                        $cheapest = $c;
+                        break;
+                    }
+                }
+            }
+
+            // flight offer id: try common paths
+            $flightOfferId = data_get($tour, 'flight.offer.id')
+                        ?? data_get($tour, 'flight.offerId')
+                        ?? data_get($tour, 'flight.offer.id')
+                        ?? data_get($tour, 'flight.offer_id')
+                        ?? data_get($tour, 'flight.id')
+                        ?? null;
+
+            // flight total amount: try flight.total_amount, flight_total_amount, flight.price, flight.price_total
+            $flightTotalAmount = data_get($tour, 'flight_total_amount')
+                            ?? data_get($tour, 'flight.total_amount')
+                            ?? data_get($tour, 'flight.price')
+                            ?? data_get($tour, 'flight.price_total');
+
+            // Normalize types
+            $reviews = $reviews !== null ? (int)$reviews : null;
+            $totalPrice = $totalPrice !== null ? (float)$totalPrice : null;
+            $flightTotalAmount = $flightTotalAmount !== null ? (float)$flightTotalAmount : null;
+
+            return [
+                'main_image' => $mainImage,
+                'tour_id' => $tourId !== null ? (int)$tourId : null,
+                'tour_name' => $tourName,
+                'reviews_count' => $reviews,
+                'totalPrice' => $totalPrice,
+                // keep cheapest accommodation as object/array (or null)
+                'cheapest_accommodation' => $cheapest,
+                'flight_offer_id' => $flightOfferId,
+                'flight_total_amount' => $flightTotalAmount,
+            ];
+        }, $tours));
     }
 
     protected function getFlightsForFirstDeparture(array $tour): ?array
