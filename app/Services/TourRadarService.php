@@ -228,7 +228,7 @@ class TourRadarService
                             'start_city_name' => $tour['startCityName'] ?? null,
                             'end_city_name' => $tour['endCityName'] ?? null,
                             'countries_list' => $tour['countriesList'] ?? null,
-                            'payload' => $reduced[0] ?? null,
+                            'payload' => $reduced ?? null,
                             'snapshot_at' => now(),
                         ]
                     );
@@ -268,18 +268,8 @@ class TourRadarService
         return $output;
     }
 
-    protected function reduceToursPayload(array $tours): array
+    protected function reduceToursPayload($tour)
     {
-        // If payload is an associative container with 'sample' / 'items' / 'data', try to unwrap it
-        if (isset($tours['sample']) && is_array($tours['sample'])) {
-            $tours = $tours['sample'];
-        } elseif (isset($tours['items']) && is_array($tours['items'])) {
-            $tours = $tours['items'];
-        } elseif (isset($tours['data']) && is_array($tours['data'])) {
-            $tours = $tours['data'];
-        }
-
-        return array_values(array_map(function ($tour) {
             // helpers: data_get is available in Laravel
             $mainImage = data_get($tour, 'main_image') ?? data_get($tour, 'mainImage') ?? null;
             $tourId    = data_get($tour, 'tour_id') ?? data_get($tour, 'tourId') ?? null;
@@ -337,7 +327,6 @@ class TourRadarService
                 'flight_offer_id' => $flightOfferId,
                 'flight_total_amount' => $flightTotalAmount,
             ];
-        }, $tours));
     }
 
     protected function getFlightsForFirstDeparture(array $tour): ?array
