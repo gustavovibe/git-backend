@@ -198,7 +198,7 @@ class TourRadarService
                 'end_city_id'    => $endId,
                 'end_city'       => $tour['endCityName'],
             ]);
-
+$
 
             // Determine cheapest accommodation value for the first (or cheapest) departure
             $cheapestAccValue = 0.0;
@@ -229,7 +229,7 @@ class TourRadarService
                             'start_city_name' => $tour['startCityName'] ?? null,
                             'end_city_name' => $tour['endCityName'] ?? null,
                             'countries_list' => $tour['countriesList'] ?? null,
-                            'payload' => $reduced ?? null,
+                            'payload' => $reduced[0] ?? null,
                             'snapshot_at' => now(),
                         ]
                     );
