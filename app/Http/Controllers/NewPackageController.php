@@ -534,7 +534,7 @@ public function createTravelers($passengers,$userId)
             'place' => $passenger['fields']['place_of_issue'],
             'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
             'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
-            'phone' => preg_replace('/^\+\d{1,4}(?=\d{10}$)/', '', $passenger['phone_number']),
+            'phone' => preg_replace('/^\+\d{1,4}(?=\d{10}$)/', '', $passenger['fields']['phone_number']),
             'address' => isset($passenger['fields']['address']) ? $passenger['fields']['address'] : 'n/a',
             'user_id' => $userId,
             'status' => 1,
