@@ -118,6 +118,81 @@ class TourRadarService
         return $tours;
     }
 
+    protected function findCheapestAccommodationFromItems(array $items): ?array
+    {
+        $best = null;
+        $bestValue = null;
+
+        foreach ($items as $item) {
+            // Normalize possible places for cheapest accommodation:
+            // 1) top-level keys on item
+            $candidates = [];
+
+            $top = data_get($item, 'cheapest_accommodation') ?? data_get($item, 'cheapestAccommodation');
+            if ($top) $candidates[] = $top;
+
+            // 2) some items may have a 'departures' array with cheapestAccommodation on each departure
+            if (!empty($item['departures']) && is_array($item['departures'])) {
+                foreach ($item['departures'] as $dep) {
+                    $depCa = data_get($dep, 'cheapest_accommodation') ?? data_get($dep, 'cheapestAccommodation');
+                    if ($depCa) $candidates[] = $depCa;
+                }
+            }
+
+            // Evaluate all candidates for this item
+            foreach ($candidates as $cand) {
+                // If candidate is JSON string, try decode it
+                if (is_string($cand)) {
+                    $decoded = json_decode($cand, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $cand = $decoded;
+                    }
+                }
+
+                // Must be an array/object with a numeric 'value'
+                if (!is_array($cand) && !is_object($cand)) {
+                    continue;
+                }
+
+                // normalize to array
+                $candArr = (array) $cand;
+
+                if (!array_key_exists('value', $candArr)) {
+                    continue;
+                }
+
+                // sanitize and cast value
+                $raw = $candArr['value'];
+                // remove commas/spaces, then cast
+                if (is_string($raw)) {
+                    $rawClean = str_replace([',', ' '], ['', ''], $raw);
+                    $val = is_numeric($rawClean) ? (float)$rawClean : null;
+                } elseif (is_numeric($raw)) {
+                    $val = (float)$raw;
+                } else {
+                    $val = null;
+                }
+
+                // discard invalid or non-positive values
+                if ($val === null || $val <= 0) {
+                    continue;
+                }
+
+                // keep the cheapest
+                if ($bestValue === null || $val < $bestValue) {
+                    $bestValue = $val;
+                    $best = $candArr; // keep full object (array form)
+                }
+            }
+        }
+
+        if ($best === null) {
+            return null;
+        }
+
+        return ['object' => $best, 'value' => $bestValue];
+    }
+
     protected function formatCodes(string $code): string
     {
         if ($code === 'all') {
@@ -185,6 +260,7 @@ class TourRadarService
             // If the related items are already the structure with 'departures' arrays,
             // merge all departures; otherwise assume related items are raw departures.
             $mergedDepartures = [];
+
             foreach ($relatedItems as $r) {
                 if (isset($r['departures']) && is_array($r['departures'])) {
                     // r already contains departures array (new structure)
@@ -195,8 +271,56 @@ class TourRadarService
                 }
             }
 
-            // Attach departures to the tour detail
-            $tour['departures'] = array_values($mergedDepartures);
+            // Filter: only keep departures having cheapestAccommodation.value > 0
+            $filtered = array_filter($mergedDepartures, function ($dep) {
+                // support both snake and camel
+                $ca = data_get($dep, 'cheapest_accommodation') ?? data_get($dep, 'cheapestAccommodation');
+
+                if ($ca === null) {
+                    return false;
+                }
+
+                // If it's a JSON string, try to decode
+                if (is_string($ca)) {
+                    $decoded = json_decode($ca, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $ca = $decoded;
+                    } else {
+                        // not decodable, reject
+                        return false;
+                    }
+                }
+
+                // normalize to array
+                if (is_object($ca)) {
+                    $ca = (array) $ca;
+                }
+
+                if (!is_array($ca) || !array_key_exists('value', $ca)) {
+                    return false;
+                }
+
+                $raw = $ca['value'];
+
+                // sanitize numeric strings like "1,234.56" or " 120 "
+                if (is_string($raw)) {
+                    $clean = str_replace([',', ' '], ['', ''], $raw);
+                    if (!is_numeric($clean)) {
+                        return false;
+                    }
+                    $val = (float)$clean;
+                } elseif (is_numeric($raw)) {
+                    $val = (float)$raw;
+                } else {
+                    return false;
+                }
+
+                // only accept strictly positive values
+                return $val > 0;
+            });
+
+            // Reindex and attach departures to the tour detail
+            $tour['departures'] = array_values($filtered);
 
 
             $startId = $tour['start_city'] ?? $tour['startCity'] ?? null;
@@ -252,25 +376,6 @@ class TourRadarService
 
                 }
                 // fallback to legacy 'cheapestAccommodation.value'
-                $firstDeparture = $tour['departures'][0];
-
-                $cheapAcc = data_get($firstDeparture, 'cheapest_accommodation', null);
-                if ($cheapAcc === null) {
-                    $cheapAcc = data_get($firstDeparture, 'cheapestAccommodation', null);
-                }
-
-                if (is_array($cheapAcc) && isset($cheapAcc['value'])) {
-                    $cheapestAccValue = (float)$cheapAcc['value'];
-                } else {
-                    // try to find any departure with a cheapest_accommodation
-                    foreach ($tour['departures'] as $d) {
-                        $ca = data_get($d, 'cheapest_accommodation', null) ?: data_get($d, 'cheapestAccommodation', null);
-                        if (is_array($ca) && isset($ca['value'])) {
-                            $cheapestAccValue = (float)$ca['value'];
-                            break;
-                        }
-                    }
-                }   
             }
             
         }
@@ -293,7 +398,8 @@ class TourRadarService
             $tourId    = data_get($tour, 'tour_id') ?? data_get($tour, 'tourId') ?? null;
             $tourName  = data_get($tour, 'tour_name') ?? data_get($tour, 'tourName') ?? null;
             $reviews   = data_get($tour, 'reviews_count') ?? data_get($tour, 'reviewsCount') ?? null;
-
+            $tour_length = data_get($tour, 'tour_length_days') ?? null;
+            $tour_countries = data_get($tour, 'countries') ?? null;
             // totalPrice fallbacks: totalPrice (computed), total_price or price_total
             $totalPrice = data_get($tour, 'totalPrice');
             if ($totalPrice === null) {
@@ -301,8 +407,8 @@ class TourRadarService
             }
 
             // cheapest accommodation: prefer tour.cheapest_accommodation then legacy keys; if absent, scan departures
-            $cheapest = data_get($tour, 'departures.0.cheapest_accommodation')
-                ?? data_get($tour, 'departures.0.cheapestAccommodation')
+            $cheapest = data_get($tour, 'departures.0.cheapestAccommodation')
+                ?? data_get($tour, 'departures.0.cheapest_accommodation')
                 ?? null;
 
                 if ($cheapest === null && !empty($tour['departures'])) {
@@ -311,7 +417,6 @@ class TourRadarService
                         if ($c) { $cheapest = $c; break; }
                     }
                 }
-                
 
             // flight offer id: try common paths
             $flightOfferId = data_get($tour, 'flight.offer.id')
@@ -331,7 +436,7 @@ class TourRadarService
             $reviews = $reviews !== null ? (int)$reviews : null;
             $totalPrice = $totalPrice !== null ? (float)$totalPrice : null;
             $flightTotalAmount = $flightTotalAmount !== null ? (float)$flightTotalAmount : null;
-
+            $package_price =  ($totalPrice + $flightTotalAmount) *1.15;
             return [
                 'main_image' => $mainImage,
                 'tour_id' => $tourId !== null ? (int)$tourId : null,
@@ -341,6 +446,9 @@ class TourRadarService
                 'cheapest_accommodation' => $cheapest,
                 'flight_offer_id' => $flightOfferId,
                 'flight_total_amount' => $flightTotalAmount,
+                'tour_length' => $tour_length,
+                'package_price' => $package_price,
+                'countries' => $tour_countries,
             ];
     }
 
