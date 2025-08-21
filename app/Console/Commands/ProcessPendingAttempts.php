@@ -36,6 +36,7 @@ class ProcessPendingAttempts extends Command
             $bookingId = $attempt->booking_id;  
             $RequestPassengers = $attempt->passengers;  
             $paymentIntent = $attempt->payment_id;
+            $tBookingId = data_get($attempt->tourradar_res, 'id');
             Log::info('automatic Processing attempt ID: ' . $attempt->id. 'expiration: ' . $attempt->expiration );
             $ResponseTour = json_decode($attempt->tourradar_res, true);
             Log::info('automatic Processing booking ID: ' . $tBookingId);
