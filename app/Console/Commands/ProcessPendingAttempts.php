@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\TourController;
+use App\Http\Controllers\TourradarController;
 use App\Models\Order;
 
 class ProcessPendingAttempts extends Command
@@ -55,6 +56,7 @@ class ProcessPendingAttempts extends Command
                 try {
                     // If the order is not found, make the API call
                     $tourradarResponse = TourRadarController::checkBooking($tBookingId);
+
                     $statusResponse = $tourradarResponse ->status;
                     Log::info("Automatic API call made for tourradar booking ID: " . $tBookingId . " - Response: " . $statusResponse);
                 } catch (\Exception $e) {
