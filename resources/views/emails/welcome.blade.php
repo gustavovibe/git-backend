@@ -1,482 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Document</title>
-    <style>
-        .column {
-            float: left;
-            width: 50%;
-        }
-
-        .row {
-            display: flex;
-        }
-
-        .btnT {
-            display: flex;
-            justify-content: space-between;
-
-            text-align: right;
-            margin-top: 40px;
-            align-items: center;
-        }
-
-        .btnT label {
-            background-color: orange;
-            color: white;
-            border-color: orange;
-            border-radius: 5px;
-            font-weight: bold;
-            padding: 10px;
-        }
-
-        .btnT u {
-            font-weight: bold;
-            text-underline-position: below;
-
-        }
-
-        .btnT img {
-            width: 70%;
-            float: left;
-        }
-
-        .t1 {
-            margin: 0 20px;
-            align-content: center;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .t1 label {
-          /*   border-style: solid; */
-            padding: 3%;
-            border-radius: 15px;
-            background-color: rgba(0, 128, 0, 0.1);
-        }
-
-        .textG  #color {
-            color:#82CF45;
-        }
-        .textG  #under {
-            color:#82CF45;
-            text-decoration: underline;
-        }
-
-
-        .tGroup {
-            display: flex;
-            justify-content: space-between;
-            margin: 0 20px;
-            text-align: right;
-            align-items: center;
-        }
-
-        .tGroup u {
-            color: orange;
-            font-weight: bold;
-        }
-
-        .Borderg {
-            border-color: #82CF45;
-            border-style: solid;
-            border-radius: 15px;
-
-        }
-
-        .tDesc img {
-            padding: 8%;
-            border-radius: 15px;
-            display: block;
-            margin: 0 auto;
-            width: 80%;
-            height: 80%;
-        }
-
-        .tDesc b {
-            border-style: solid;
-            border-radius: 5px;
-            border-color: #82CF45;
-            border-width: 2px;
-            padding: 1%;
-        }
-
-        .fGroup {
-            padding: 1%;
-            display: flex;
-            flex-direction: row;
-            margin-bottom: 20px;
-        }
-
-        .fGroup #t2 {
-            /* text-align: center; */
-            align-content: center;
-            color: orange;
-            border-style: solid;
-            padding: 1%;
-            display: inline-block;
-            margin-top: 1%;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-        .ffGroup {
-            display: flex;
-            justify-content: space-between;
-            text-align: right;
-            align-items: center;
-        }
-
-        .ffGroup a {
-            color: gray;
-            font-weight: bold;
-        }
-
-        .ffGroup label {
-            font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .fffgroup {
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 10px;
-            border-color: gainsboro;
-            border-width: 2px;
-
-        }
-
-        .fffgroup .column:first-child {
-            text-align: right;
-            width: 20%;
-        }
-
-        .fffgroup .column:last-child {
-            text-align: right;
-            align-content: center;
-        }
-
-        .fffgroup label {
-            font-weight: bold;
-        }
-
-        .Tcolor {
-            color: #82CF45;
-        }
-
-        .Tscolor {
-            color: grey;
-        }
-
-        .png {
-            vertical-align: middle;
-            margin: 0 5px;
-
-        }
-
-        .Tbox {
-            border-style: solid;
-            border-radius: 5px;
-            border-color: #82CF45;
-            border-width: 2px;
-            color: #82CF45;
-            margin-bottom: 1em;
-            display: inline-block;
-        }
-
-        .mh {
-            margin: 0 20px;
-        }
-
-        @media (max-width: 768px) {
-            .mh {
-                margin: 0 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .mh {
-                margin: 0 5px;
-            }
-        }
-
-        .t1 {
-            width: 100%;
-            border-collapse: collapse;
-            margin-left: 1px;
-        }
-
-        .t1 td:first-child {
-            text-align: left;
-        }
-
-        .t1 td:last-child {
-            text-align: right;
-        }
-
-        .t1 a {
-            color: #82CF45;
-        }
-
-        .t1 tbody td {
-            border-bottom: gainsboro;
-            border-bottom-style: solid;
-            padding: 1%;
-        }
-
-        .t1 tfoot td {
-            color: #82CF45;
-            font-weight: bold;
-            padding-right: 1%;
-        }
-
-
-        .tt {
-
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            margin: 20px;
-
-        }
-
-        .tt label {
-            width: 100%;
-            border: 2px solid #82CF45;
-            padding: 3%;
-            border-radius: 15px;
-            background-color: rgba(0, 128, 0, 0.1);
-            font-size: 1.5rem;
-            max-width: 100%;
-        }
-
-
-        @media (max-width: 768px) {
-            .tt label {
-                font-size: 1.2rem;
-                padding: 5%;
-            }
-
-            .tt {
-                margin: 10px;
-            }
-        }
-
-
-        @media (max-width: 480px) {
-            .tt label {
-                font-size: 1rem;
-                padding: 6%;
-            }
-
-            .tt {
-                margin: 5px;
-            }
-        }
-
-
-        .laterald {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .grid-container {
-            display: grid;
-            padding: 1%;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .grid-container div label {
-            color: #82CF45;
-        }
-
-        .grid-container div h4 {
-            text-decoration: underline;
-        }
-
-        .Recomend #container {
-            width: 100%;
-            margin-left: -10px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 3%;
-            background-color: rgba(0, 128, 0, 0.1);
-        }
-
-        .Recomend h1 {
-            text-align: center;
-        }
-
-        .Recomend p {
-            text-align: center;
-        }
-
-
-
-        .clearfix::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        .card {
-            width: 100%;
-        }
-
-
-        .card #img_ {
-            width: 80%;
-            height: 100px;
-            /* padding: 5%; */
-            border-radius: 10px
-        }
-
-        .card #iconic {
-            margin-top: 2%;
-            width: 10%;
-        }
-
-        .card td {
-            width: 20%;
-            padding: 1%
-        }
-
-
-
-        .card a {
-            background-color: orange;
-            color: white;
-          /*   padding: 1%; */
-            padding-top: 2%;
-            font-weight: bold;
-            border-radius: 5px;
-            font-size: 11px;
-            display: block;
-            text-align: center;
-            align-content: center;
-            vertical-align: middle;
-            height: 3%;
-            margin-bottom: 3%;
-            margin-left: 3%;
-            margin-right: 3%;
-        }
-
-        .card p {
-            font-size: 12px;
-            text-align: center;
-            height: 3rem;
-            color: gray;
-        }
-
-        .card h5 {
-            text-align: center;
-        }
-
-        .card div {
-            background-color: white;
-            padding: 2%;
-            border-radius: 12px;
-        }
-
-        .footer hr{
-            color: #ddd;
-            margin-bottom: 3%;
-            margin-top: 3%;
-        }
-
-        .footer label{
-            color: gray;
-        }
-
-        .footer p{
-            color: gray;
-        }
-        .footer a{
-            text-decoration: underline;
-        }
-
-        .line-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            width: 100%;
-            height: 200px;
-            /* Adjust height as needed */
-            margin: 20px 0;
-        }
-
-        .line {
-            width: 2px;
-            height: 100%;
-            margin-left: 50%;
-            background-color: gainsboro;
-            position: relative;
-        }
-
-        .line::before,
-        .line::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background-color: #ddd;
-            border-radius: 50%;
-            position: absolute;
-            left: 80%;
-            transform: translateX(-50%);
-        }
-
-        .line::before {
-            top: 0;
-        }
-
-        .line::after {
-            bottom: 0;
-        }
-
-        .airplane-icon {
-            position: absolute;
-            top: 50%;
-            left: 48.5%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: auto;
-        }
-
-        .icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-70%, -70%) rotate(180deg);
-            /* Rotate the icon to point down */
-            font-size: 24px;
-        }
-    </style>
+	<title>Booking Confirmation</title>
 </head>
 
-<body style="font-family: 'Canaro', sans-serif; padding:15%; background-color:#E6E6E6">
-    <div>
-        <div class="lateralD btnT mh">
-            <div>
-                <img style="width: 80%" src="https://vibeadventures.be/images//logo.png" alt="">
-            </div>
-            <div>
-                <P style="text-align: right;"> <b>If you need help,<u style="color: #82CF45">contact us</u></b>  </P>
-            </div>
-        </div>
-    </div>
-    <br>
+<body>
+	<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
+		<tbody>
+			<tr>
+				<td align="left" style="max-width: 203px;" valign="middle">
+                    <a href="https://hopeful-nobel.74-208-189-166.plesk.page/" target="_blank">
+                        <img alt="" border="0" class="w203px"
+						src="https://vibeadventures.be/images//logo.png"
+						style="display: block; max-width: 203px; width: 100%;" width="203" />
+                    </a>
+                </td>
+				<td style="width:20px">&nbsp;</td>
+				<td><span
+					style="font-family: Canaro, sans-serif;font-size: 12px;color: #000000;padding-top: 5px;display: block;">If
+					you need help, <a style="color: #82cf45; font-weight: bold;" href="https://hopeful-nobel.74-208-189-166.plesk.page/contact" target="_blank">contact us</a></span></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;margin:0 auto;width: 100%;">
+		<tbody>
+			<tr>
+				<td align="left" bgcolor="#ffffff" style="padding: 0px;" valign="top">
+					
     <div style="background-color:white; padding:5%">
         <br>
         <div>
-            <h1>Hi <span style="color: #82CF45">{{ $data['name'] }}</span>, welcome to Vibe Adventures!</h1>
+            <h1>Hi <span style="color: #82CF45">{{ $data['name'] }}</span>, your account was created!</h1>
         </div>
         <br>
         <div>
@@ -485,10 +40,10 @@
             </div>
             <br>
             <div style="color: gray;">
-                <p>Thank you for creating an account on our website! Here are all the details to access your account:</p>
+                <p>To access your booking, we’ve created an account for you. Here are the login details:</p>
                 <p style="padding-left: 40px;">Your username: <b>{{ $data['email'] }}</b></p>
                 <p style="padding-left: 40px;">Your automatic generated password: <b>{{' '.$data['password'] }}</b></p>
-                <p>You can log in to your account to view your orders and change your password.</p>
+                <p>Now you can log in to your account to view your orders and change your password.</p>
 
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <a href="https://hopeful-nobel.74-208-189-166.plesk.page/" target="_blank" style="background-color: #FF6C0E; padding:1%; color:white; border-radius:5px;font-weight:bold;text-decoration: none;">See account</a>
@@ -499,54 +54,62 @@
         </div>
         <br>
     <div>
-        <div class="footer">
-            <hr>
-            <div>
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <label style="font-size: 18px;">
-                                Excellent
-                                {{--  <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/ranking.png')))}}" alt=""
-                                    style="vertical-align: middle;"> --}}
-                            </label>
-                        </td>
-                        <td style="text-align: right;">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/trust-index.png')))}}" alt=""> --}}
-                            <h3>Trustindex</h3>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <hr>
-            <br>
-            <div>
-                <table width="100%">
-                    <tr>
-                        <img style="width:35%;" src="https://vibeadventures.be/images/logo.png">
-                        <td style="text-align: right;">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/face-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/face-icon.png">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/insta-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/insta-icon.png">
-                            {{-- <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/youtube-icon.png')))}}"> --}}
-                            <img src="https://vibeadventures.be/images/youtube-icon.png">
-                        </td>
-                    </tr>
-                </table>
-                <br>
-                <div>
-                    <p>300 Delaware Ave, Ste 210 #549</p>
-                    <p>Wilmington, DE 19801</p>
-                    <br>
-                    <p>You can <a>change your email preferences</a> or view our <a>Terms & Conditions</a> and <a>Privacy
-                            Policy</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 
+
+	<div class="footer" style="margin-top:25px;">
+		<table style="max-width: 600px;margin:0 auto;width: 100%;">
+			<tbody>
+				<tr>
+					<td><a href="https://www.trustindex.io/reviews/vibeadventures.com" target="_blank"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i980061126.png"
+							style="vertical-align: middle;width: 150px;" /></a></td>
+					<td><a href="https://www.trustindex.io/reviews/vibeadventures.com" target="_blank"><img src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/i-1150146922.png"
+							style="vertical-align: middle;width: 150px;" /></a></td>
+					<td style="text-align: right;">
+						<table style="width: 100%;">
+							<tr>
+								<td><a href="https://www.facebook.com/VibeAdventures" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/facebook.png"
+											style="width:32px" /></a></td>
+								<td><a href="https://www.instagram.com/vibe.adventures" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/instagram.png"
+											style="width:32px" /></a></td>
+								<td><a
+										href="https://www.youtube.com/channel/UCQ9qyA-fVkdXarHBlzDCUBA?view_as=subscriber" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/youtube.png"
+											style="width:32px" /></a></td>
+							</tr>
+							<tr>
+								<td><a href="https://www.tiktok.com/@vibeadventures" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/tiktok.png"
+											style="width:32px" /></a></td>
+								<td><a href="https://www.pinterest.com/vibe_adventures/" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/pinterest.png"
+											style="width:32px" /></a></td>
+								<td><a href="https://twitter.com/vibe_adventures" target="_blank"><img
+											src="https://blog.vibeadventures.com/wp-content/uploads/2025/05/twitter.png"
+											style="width:32px" /></a></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table style="max-width: 600px;margin:0 auto;width: 100%;">
+			<tbody>
+				<tr>
+					<td><span style="font-family: Canaro, sans-serif; font-size: 12px; color: #4f4f4f;">Ayuntamiento
+							115, Colonia Centro<br />
+							<br />
+							Cuauhtémoc, CDMX 06000 </span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
-
 
 </html>
