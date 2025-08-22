@@ -530,7 +530,7 @@ public function createTravelers($passengers,$userId)
             'last' => $passenger['fields']['last_name'],
             'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']),
             'passport' => $passenger['fields']['passport_number'],
-            'country' => Country::where('name', $passenger['country_id'])->first()->id,
+            'country' => $passenger['fields']['country'],
             'place' => $passenger['fields']['place_of_issue'],
             'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
             'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
