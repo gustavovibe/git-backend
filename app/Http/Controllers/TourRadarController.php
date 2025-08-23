@@ -793,46 +793,48 @@ public static function getDeparturesByTour($params)
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
-
+    
         try {
             $response = Http::withHeaders($headers)->get($url);
-            $responseBody = $response->json() ?? [];
-
-            // get local tour ages
+            $status = $response->status();
+            $upstream = $response->json() ?? [];
+    
+            // Try to find price_categories in a few possible places
+            $priceCategories = null;
+            if (isset($upstream['data']['price_categories'])) {
+                $priceCategories = $upstream['data']['price_categories'];
+            } elseif (isset($upstream['price_categories'])) {
+                $priceCategories = $upstream['price_categories'];
+            } elseif (isset($upstream['original']['price_categories'])) {
+                // sometimes you may have wrapped response; be defensive
+                $priceCategories = $upstream['original']['price_categories'];
+            }
+    
+            // If still null, fallback to empty array
+            if ($priceCategories === null) {
+                $priceCategories = [];
+            }
+    
+            // Get local tour ages
             $tour = Tour::where('tour_id', $tourId)->first();
             $tourAges = [
                 'min_age' => $tour ? $tour->min_age : null,
                 'max_age' => $tour ? $tour->max_age : null,
             ];
-
-            // ensure data exists
-            if (!isset($responseBody['data'])) {
-                $responseBody['data'] = [];
-            }
-
-            // Keep price_categories first, then add tour_ages, then any other data keys
-            $existingData = $responseBody['data'];
-            $priceCategories = $existingData['price_categories'] ?? null;
-
-            // remove price_categories from the other keys to control order
-            if (isset($existingData['price_categories'])) {
-                unset($existingData['price_categories']);
-            }
-
-            $newData = [];
-            if ($priceCategories !== null) {
-                $newData['price_categories'] = $priceCategories;
-            }
-            $newData['tour_ages'] = $tourAges;
-
-            // append any other keys that were in data
-            $responseBody['data'] = array_merge($newData, $existingData);
-
-            // return with the same HTTP status as the upstream response (or 200 by default)
-            $status = $response->status() ?? 200;
-            return response()->json($responseBody, $status);
+    
+            // Build the exact structure you requested:
+            $result = [
+                'success' => true,
+                'data' => [
+                    'price_categories' => $priceCategories,
+                    'tour_ages' => $tourAges,
+                ],
+                'message' => 'Ok'
+            ];
+    
+            return response()->json($result, $status ?: 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
 
