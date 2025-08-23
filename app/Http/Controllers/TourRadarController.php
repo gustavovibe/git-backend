@@ -785,9 +785,6 @@ public static function getDeparturesByTour($params)
         }
     }
 
-    use Illuminate\Support\Facades\Http;
-use App\Models\Tour;
-
 public static function getPriceCategoriesByTour($tourId)
 {
     $accessToken = self::getAccessToken();
