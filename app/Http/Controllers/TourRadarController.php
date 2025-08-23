@@ -785,48 +785,57 @@ public static function getDeparturesByTour($params)
         }
     }
 
-    public static function getPriceCategoriesByTour($tourId)
-    {
-        $accessToken = self::getAccessToken();
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $accessToken,
-        ];
-    
-        try {
-            $response = Http::withHeaders($headers)->get($url); 
-    
-            // Get local tour ages
-            $tour = Tour::where('tour_id', $tourId)->first();
-            $tourAges = [
-                'min_age' => $tour ? $tour->min_age : null,
-                'max_age' => $tour ? $tour->max_age : null,
-            ];
-            
-            if (!isset($responseBody['data'])) {
-                $responseBody['data'] = [];
-            }
-    
-            // Keep price_categories first, then add tour_ages, then any other data keys
-            $existingData = $responseBody['data'];
-            $priceCategories = $existingData['price_categories'] ?? null;
-            
-            // Build the exact structure you requested:
-            $result = [
-                'success' => true,
-                'data' => [
-                    'price_categories' => $priceCategories,
-                    'tour_ages' => $tourAges,
-                ],
-                'message' => 'Ok'
-            ];
-    
-            return $result->json();
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    use Illuminate\Support\Facades\Http;
+use App\Models\Tour;
+
+public static function getPriceCategoriesByTour($tourId)
+{
+    $accessToken = self::getAccessToken();
+    $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/prices";
+    $headers = [
+        'Accept' => 'application/json',
+        'Authorization' => 'Bearer ' . $accessToken,
+    ];
+
+    try {
+        $response = Http::withHeaders($headers)->get($url);
+        $status = $response->status() ?: 200;
+        $upstream = $response->json() ?? [];
+
+        // Defensive extraction of price_categories from possible locations
+        $priceCategories = [];
+        if (isset($upstream['data']['price_categories'])) {
+            $priceCategories = $upstream['data']['price_categories'];
+        } elseif (isset($upstream['price_categories'])) {
+            $priceCategories = $upstream['price_categories'];
+        } elseif (isset($upstream['original']['price_categories'])) {
+            $priceCategories = $upstream['original']['price_categories'];
         }
+
+        // Get local tour ages
+        $tour = Tour::where('tour_id', $tourId)->first();
+        $tourAges = [
+            // cast to int if you want integers; keep nulls as null
+            'min_age' => $tour ? (is_null($tour->min_age) ? null : (int) $tour->min_age) : null,
+            'max_age' => $tour ? (is_null($tour->max_age) ? null : (int) $tour->max_age) : null,
+        ];
+
+        // Build exact response shape (no 'original' keys)
+        $result = [
+            'success' => true,
+            'data' => [
+                'price_categories' => $priceCategories,
+            ],
+            'tour_ages' => $tourAges,
+            'message' => 'Ok',
+        ];
+
+        return response()->json($result, $status);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
+}
+
 
 
     public static function getOperatorBookingFields($operatorId = 406)
