@@ -56,9 +56,13 @@ class ProcessPendingAttempts extends Command
                 try {
                     // If the order is not found, make the API call
                     $tourradarResponse = TourRadarController::checkBooking($tBookingId);
-
-                    $statusResponse = $tourradarResponse ->status;
-                    Log::info("Automatic API call made for tourradar booking ID: " . $tBookingId . " - Response: " . $statusResponse);
+                    
+                    if($tourradarResponse->error){
+                        Log::info("Error: " . $tBookingId . " - Response: " . $statusResponse->error);
+                    }else{
+                        $statusResponse = $tourradarResponse ->status;
+                        Log::info("Automatic API call made for tourradar booking ID: " . $tBookingId . " - Response: " . $statusResponse);
+                    }
                 } catch (\Exception $e) {
                     Log::error('API error checking tourradar booking ID ' . $tBookingId . ': ' . $e->getMessage());
                     return; // Stop execution if API fails

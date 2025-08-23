@@ -795,25 +795,7 @@ public static function getDeparturesByTour($params)
         ];
     
         try {
-            $response = Http::withHeaders($headers)->get($url);
-            $status = $response->status();
-            $upstream = $response->json() ?? [];
-    
-            // Try to find price_categories in a few possible places
-            $priceCategories = null;
-            if (isset($upstream['data']['price_categories'])) {
-                $priceCategories = $upstream['data']['price_categories'];
-            } elseif (isset($upstream['price_categories'])) {
-                $priceCategories = $upstream['price_categories'];
-            } elseif (isset($upstream['original']['price_categories'])) {
-                // sometimes you may have wrapped response; be defensive
-                $priceCategories = $upstream['original']['price_categories'];
-            }
-    
-            // If still null, fallback to empty array
-            if ($priceCategories === null) {
-                $priceCategories = [];
-            }
+            $response = Http::withHeaders($headers)->get($url); 
     
             // Get local tour ages
             $tour = Tour::where('tour_id', $tourId)->first();
@@ -821,7 +803,15 @@ public static function getDeparturesByTour($params)
                 'min_age' => $tour ? $tour->min_age : null,
                 'max_age' => $tour ? $tour->max_age : null,
             ];
+            
+            if (!isset($responseBody['data'])) {
+                $responseBody['data'] = [];
+            }
     
+            // Keep price_categories first, then add tour_ages, then any other data keys
+            $existingData = $responseBody['data'];
+            $priceCategories = $existingData['price_categories'] ?? null;
+            
             // Build the exact structure you requested:
             $result = [
                 'success' => true,
@@ -832,7 +822,7 @@ public static function getDeparturesByTour($params)
                 'message' => 'Ok'
             ];
     
-            return response()->json($result, $status ?: 200);
+            return $result->json();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
