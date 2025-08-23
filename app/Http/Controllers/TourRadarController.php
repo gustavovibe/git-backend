@@ -811,12 +811,8 @@ public static function getDeparturesByTour($params)
 
             // **RETURN AN ARRAY** — caller will JSON-encode it
             return [
-                'success' => true,
-                'data' => [
                     'price_categories' => $priceCategories,
                     'tour_ages' => $tourAges,
-                ],
-                'message' => 'Ok',
             ];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
