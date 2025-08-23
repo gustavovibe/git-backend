@@ -796,24 +796,21 @@ public static function getDeparturesByTour($params)
 
         try {
             $response = Http::withHeaders($headers)->get($url);
-            $status = $response->status() ?: 200;
             $upstream = $response->json() ?? [];
 
-            // Extract price_categories defensively from possible locations
-            $priceCategories = $upstream['data']['price_categories'] ?? 
-                            $upstream['price_categories'] ?? 
-                            $upstream['original']['price_categories'] ?? 
-                            [];
+            $priceCategories = $upstream['data']['price_categories']
+                ?? $upstream['price_categories']
+                ?? $upstream['original']['price_categories']
+                ?? [];
 
-            // Get local tour ages
             $tour = Tour::where('tour_id', $tourId)->first();
             $tourAges = [
                 'min_age' => $tour ? (is_null($tour->min_age) ? null : (int)$tour->min_age) : null,
                 'max_age' => $tour ? (is_null($tour->max_age) ? null : (int)$tour->max_age) : null,
             ];
 
-            // Build the exact response structure you asked for
-            $result = [
+            // **RETURN AN ARRAY** — caller will JSON-encode it
+            return [
                 'success' => true,
                 'data' => [
                     'price_categories' => $priceCategories,
@@ -821,12 +818,11 @@ public static function getDeparturesByTour($params)
                 ],
                 'message' => 'Ok',
             ];
-
-            return response()->json($result, $status);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+
 
     public static function getOperatorBookingFields($operatorId = 406)
     {
