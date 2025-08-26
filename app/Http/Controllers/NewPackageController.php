@@ -523,6 +523,7 @@ public function createTravelers($passengers,$userId)
     $firstTravelerId = null; // Initialize the first traveler ID
 
     foreach ($passengers as $index => $passenger) {
+        $countryId = Country::where('name',  $passenger['fields']['country'])->first()->t_country_id,
         $data = [
             'title' => $passenger['fields']['title'],
             'gender' => $passenger['fields']['title'] == 'Mr.' ? 'male' : 'female',
@@ -530,7 +531,8 @@ public function createTravelers($passengers,$userId)
             'last' => $passenger['fields']['last_name'],
             'birth' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['date_of_birth']),
             'passport' => $passenger['fields']['passport_number'],
-            'country' => $passenger['fields']['country'],
+            //'country' => $passenger['fields']['country'],
+            'country' => $countryId,          
             'place' => $passenger['fields']['place_of_issue'],
             'issue' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['issue_date']),
             'expire' => Carbon::createFromFormat('d/m/Y', $passenger['fields']['expiration_date']),
