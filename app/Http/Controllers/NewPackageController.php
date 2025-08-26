@@ -523,7 +523,7 @@ public function createTravelers($passengers,$userId)
     $firstTravelerId = null; // Initialize the first traveler ID
 
     foreach ($passengers as $index => $passenger) {
-        $countryId = Country::where('name',  $passenger['fields']['country'])->first()->t_country_id,
+        $countryId = Country::where('name',  $passenger['fields']['country'])->first()->t_country_id;
         $data = [
             'title' => $passenger['fields']['title'],
             'gender' => $passenger['fields']['title'] == 'Mr.' ? 'male' : 'female',
