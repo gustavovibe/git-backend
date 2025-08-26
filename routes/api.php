@@ -228,6 +228,82 @@ Route::get('/logs', function () {
     return response($lines, 200, ['Content-Type' => 'text/plain']);
 });
 
+Route::get('/backlog', function () {
+    // Path to the Laravel log file
+    $path = storage_path('logs/backlog.log');
+
+    // Check if the file exists
+    if (!File::exists($path)) {
+        abort(404, 'Log file not found');
+    }
+
+    // Get the contents of the log file
+    $logs = File::get($path);
+
+    // Optional: Limit the number of lines for large log files
+    $lines = collect(explode("\n", $logs))->reverse()->take(100)->reverse()->implode("\n");
+
+    // Return the log content as plain text
+    return response($lines, 200, ['Content-Type' => 'text/plain']);
+});
+
+Route::get('/process', function () {
+    // Path to the Laravel log file
+    $path = storage_path('logs/process.log');
+
+    // Check if the file exists
+    if (!File::exists($path)) {
+        abort(404, 'Log file not found');
+    }
+
+    // Get the contents of the log file
+    $logs = File::get($path);
+
+    // Optional: Limit the number of lines for large log files
+    $lines = collect(explode("\n", $logs))->reverse()->take(100)->reverse()->implode("\n");
+
+    // Return the log content as plain text
+    return response($lines, 200, ['Content-Type' => 'text/plain']);
+});
+
+Route::get('/sync_tours', function () {
+    // Path to the Laravel log file
+    $path = storage_path('logs/sync_tours.log');
+
+    // Check if the file exists
+    if (!File::exists($path)) {
+        abort(404, 'Log file not found');
+    }
+
+    // Get the contents of the log file
+    $logs = File::get($path);
+
+    // Optional: Limit the number of lines for large log files
+    $lines = collect(explode("\n", $logs))->reverse()->take(100)->reverse()->implode("\n");
+
+    // Return the log content as plain text
+    return response($lines, 200, ['Content-Type' => 'text/plain']);
+});
+
+Route::get('/tours_featured', function () {
+    // Path to the Laravel log file
+    $path = storage_path('logs/tours_featured.log');
+
+    // Check if the file exists
+    if (!File::exists($path)) {
+        abort(404, 'Log file not found');
+    }
+
+    // Get the contents of the log file
+    $logs = File::get($path);
+
+    // Optional: Limit the number of lines for large log files
+    $lines = collect(explode("\n", $logs))->reverse()->take(100)->reverse()->implode("\n");
+
+    // Return the log content as plain text
+    return response($lines, 200, ['Content-Type' => 'text/plain']);
+});
+
 Route::get('traveler_id',[TravelersController::class, 'traveler_id']);
 
 Route::get('status',[NewPackageController::class, 'checkBookingStatus']);
