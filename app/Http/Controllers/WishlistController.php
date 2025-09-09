@@ -131,13 +131,13 @@ class WishlistController extends Controller
 
     public function delete(int $wishlist_id, Request $request){
 
-        try{
-            Wishlist::where('id', $wishlist_id)->delete();
-            return ApiResponse::success('Wishlist item deleted successfully');
+			try{
+					Wishlist::where('id', $wishlist_id)->delete();
+					return ApiResponse::success([], 'Wishlist item deleted successfully');
 
-        }catch (\Exception $e) {
-            return ApiResponse::error($e->getMessage());
-        }
+			}catch (\Exception $e) {
+					return ApiResponse::error($e->getMessage());
+			}
 
     }
 
@@ -176,7 +176,7 @@ class WishlistController extends Controller
 
             $wishlistItem->delete();
 
-            return ApiResponse::success('Wishlist item removed successfully');
+            return ApiResponse::success([], 'Wishlist item removed successfully');
 
         } catch (\Exception $e) {
             return ApiResponse::error('Error deleting wishlist item: ' . $e->getMessage());
