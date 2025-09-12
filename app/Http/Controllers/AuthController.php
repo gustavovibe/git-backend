@@ -17,6 +17,7 @@ use Google\Client;
 use Illuminate\Support\Str;
 use App\Models\ActionLog;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 
 class AuthController extends Controller
@@ -34,6 +35,30 @@ class AuthController extends Controller
     {
         try{
 
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255',
+                'password' => [
+									'required',
+									'string',
+									'min:8',
+									'regex:/[a-z]/',
+									'regex:/[A-Z]/',
+									'regex:/[0-9]/',
+									'regex:/[@$!%*#?&]/',
+                ],
+            ]);
+
+            if ($validator->fails()) {
+							$message = json_decode($validator->errors());
+							$error_msg = array();
+							foreach($message as $key => $val){
+								$error_msg[] = $val[0];
+							}
+							$error_msg[] = 'Password must have 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character.';
+							return ApiResponse::error(implode("\n", $error_msg), 422);
+            }
+
             if(User::where('email',$request->email)->first()){
                 return response()->json(['status'=>false,'message'=>'Email already register']);
             }
@@ -46,7 +71,7 @@ class AuthController extends Controller
                 'role' => $request->role,
             ]);
 
-             $user->tokens()->delete();
+            $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken;
             ActionLog::create([
                 'user_id' => $user->id,
@@ -277,7 +302,7 @@ class AuthController extends Controller
 
               $user->url="https://hopeful-nobel.74-208-189-166.plesk.page/reset-password?token={$token}";
             Mail::to($user->email)->send(new RecoverMail($user));
-            return response()->json(['success'=>true,'data'=>'Please check your inbox!!!']);
+            return response()->json(['success'=>true,'data'=>'Please check your inbox']);
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
