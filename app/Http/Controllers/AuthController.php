@@ -45,18 +45,20 @@ class AuthController extends Controller
 									'regex:/[a-z]/',
 									'regex:/[A-Z]/',
 									'regex:/[0-9]/',
-									'regex:/[@$!%*#?&]/',
+									'regex:/[^\p{L}\p{N}]/u',
                 ],
             ]);
 
             if ($validator->fails()) {
-							$message = json_decode($validator->errors());
-							$error_msg = array();
+
+							$message = json_decode(json_encode($validator->errors()), true);
+							$error_msg = [];
 							foreach($message as $key => $val){
 								$error_msg[] = $val[0];
 							}
 							$error_msg[] = 'Password must have 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character.';
 							return ApiResponse::error(implode("\n", $error_msg), 422);
+
             }
 
             if(User::where('email',$request->email)->first()){
@@ -81,6 +83,7 @@ class AuthController extends Controller
             ]);
             return response()->json([
                 'status' => true,
+								'success' => true,
                 'message' => 'Login successful',
                 'access_token' => $token,
                 'user' => [
