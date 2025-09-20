@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class GustavoDuffelController extends Controller
 {
@@ -48,7 +49,7 @@ public function fetch(Request $r)
                 'timeout' => 15,
             ])
             ->withHeaders([
-                'User-Agent' => 'VibeAdventuresProxy/1.0 (+https://yourdomain.com)',
+                'User-Agent' => 'VibeAdventuresProxy/1.0 (+https://vibeadventures.be)',
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             ])
             ->get($url);
