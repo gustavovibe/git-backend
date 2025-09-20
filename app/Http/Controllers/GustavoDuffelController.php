@@ -10,7 +10,58 @@ use Illuminate\Support\Facades\Log;
 class GustavoDuffelController extends Controller
 {
 
-// ProxyController.php
+    public function fetchSanitized(Request $r)
+    {
+        $url = $r->query('url');
+        // validate & whitelist host (important)
+        // ...
+    
+        $resp = Http::get($url);
+        if (! $resp->successful()) {
+            return response()->json(['error' => 'fetch failed', 'status' => $resp->status()], $resp->status());
+        }
+    
+        $html = $resp->body();
+    
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html); // avoid charset issues
+        libxml_clear_errors();
+    
+        $xpath = new \DOMXPath($dom);
+    
+        // Try a few common container selectors
+        $candidates = $xpath->query('//main | //article | //*[@id="main"] | //*[@id="content"]');
+    
+        $node = $candidates->length ? $candidates->item(0) : $dom->getElementsByTagName('body')->item(0);
+    
+        // remove script and iframe tags
+        foreach ($node->getElementsByTagName('script') as $s) { $s->parentNode->removeChild($s); }
+        foreach ($node->getElementsByTagName('iframe') as $f) { $f->parentNode->removeChild($f); }
+    
+        // Optionally remove on* attributes and javascript: links for safety
+        $badAttrs = [];
+        $xpath2 = new \DOMXPath($dom);
+        foreach ($xpath2->query('//*') as $el) {
+            // remove inline event handlers
+            foreach (iterator_to_array($el->attributes ?? []) as $attr) {
+                if (preg_match('/^on/i', $attr->name) || stripos($attr->value, 'javascript:') !== false) {
+                    $el->removeAttribute($attr->name);
+                }
+            }
+        }
+    
+        $cleanHtml = '';
+        foreach ($node->childNodes as $child) {
+            $cleanHtml .= $dom->saveHTML($child);
+        }
+    
+        // Wrap in minimal HTML and return
+        $out = "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'></head><body>{$cleanHtml}</body></html>";
+    
+        return response($out, 200)->header('Content-Type', 'text/html');
+    }
+    
 public function fetch(Request $r)
 {
     $url = $r->query('url');

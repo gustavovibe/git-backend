@@ -49,7 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('admin-destinations', DestinationController::class);
     Route::get('test', [AuthController::class, 'test']);
 });
-
+Route::get('/sanitizedfetch', [GustavoDuffelController::class, 'fetchSanitized']);
 Route::get('/proxy/fetch', [GustavoDuffelController::class, 'fetch']);
 Route::get('airlines', [DuffelApiController::class, 'getAirline']);
 Route::post('search_youtube', [DestinationController::class, 'searchYTApi']);
