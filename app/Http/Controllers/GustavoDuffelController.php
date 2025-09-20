@@ -10,16 +10,85 @@ class GustavoDuffelController extends Controller
 {
 
 // ProxyController.php
-public function fetch(Request $r) {
+public function fetch(Request $r)
+{
     $url = $r->query('url');
-    if (! $url) return response()->json(['error' => 'url required'], 400);
-    //$host = parse_url($url, PHP_URL_HOST);
-    $resp = Http::get($url);
-    if ($resp->ok()) {
-        // simple passthrough; relative assets will likely break (you'll need to rewrite them)
-        return response($resp->body(), 200)->header('Content-Type', $resp->header('Content-Type', 'text/html'));
+    if (! $url) {
+        return response()->json(['error' => 'url required'], 400);
     }
-    return response()->json(['error' => 'fetch failed'], $resp->status());
+
+    // Normalize - ensure a scheme so parse_url works
+    if (! preg_match('#^[a-z][a-z0-9+.-]*://#i', $url)) {
+        $url = 'https://' . ltrim($url, '/');
+    }
+
+    $host = parse_url($url, PHP_URL_HOST);
+    if ($host === false || $host === null) {
+        return response()->json(['error' => 'invalid url'], 400);
+    }
+
+    // Whitelist hosts (adjust as needed)
+    $allowedHosts = [
+        'www.iberia.com',
+        'iberia.com',
+        'assets.duffel.com',
+        // add other allowed hosts here
+    ];
+
+    if (! in_array($host, $allowedHosts, true)) {
+        Log::warning('[proxy] Host not allowed', ['host' => $host, 'url' => $url, 'ip' => $r->ip()]);
+        return response()->json(['error' => 'host not allowed', 'host' => $host], 403);
+    }
+
+    try {
+        // Set options: timeout, connect_timeout, verify (TLS), allow redirects
+        $resp = Http::withOptions([
+                'verify' => true,       // set false only for debugging (not recommended for prod)
+                'connect_timeout' => 5,
+                'timeout' => 15,
+            ])
+            ->withHeaders([
+                'User-Agent' => 'VibeAdventuresProxy/1.0 (+https://yourdomain.com)',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ])
+            ->get($url);
+
+        // For debugging: log status and a few headers
+        Log::info('[proxy] fetched', [
+            'url' => $url,
+            'status' => $resp->status(),
+            'content_type' => $resp->header('Content-Type'),
+        ]);
+
+        // If remote returned 2xx, return the body and content-type with remote status
+        if ($resp->successful()) {
+            $contentType = $resp->header('Content-Type', 'text/html');
+            return response($resp->body(), $resp->status())
+                   ->header('Content-Type', $contentType);
+        }
+
+        // Non-2xx: return debug JSON (and remote status)
+        $snippet = mb_substr($resp->body(), 0, 800); // return first 800 chars for debug
+        return response()->json([
+            'error' => 'fetch failed',
+            'remote_status' => $resp->status(),
+            'remote_content_type' => $resp->header('Content-Type'),
+            'remote_body_snippet' => $snippet,
+        ], max(400, $resp->status())); // keep remote status code where reasonable
+
+    } catch (\Throwable $e) {
+        // log error with stack for server-side debugging
+        Log::error('[proxy] exception fetching URL', [
+            'url' => $url,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'error' => 'fetch exception',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
 }
 
     public function offerRequests(Request $request)
