@@ -14,10 +14,43 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 
-
 class DuffelApiController extends Controller
 {
-    
+
+    public function getAirline(Request $request, $id = null)
+    {
+        // allow either path param (/airlines/{id}) or query ?id=...
+        if (empty($id)) {
+            $id = $request->query('id');
+        }
+
+        if (empty($id)) {
+            return response()->json(['error' => 'Airline ID is required (path or ?id=)'], 400);
+        }
+
+        // optional: basic validation (adjust regex if you know exact format)
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::error($validator->errors());
+        }
+
+        try {
+            $headers = self::getHeaders();
+            $url = 'https://api.duffel.com/air/airlines/' . urlencode($id);
+
+            // forward request to Duffel
+            $response = Http::withHeaders($headers)->get($url);
+
+            // return Duffel JSON with original status code
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     // api/duffel/create-request-get-offers
     public function createRequestGetOffers(Request $request)
 
