@@ -36,10 +36,10 @@ public function fetch(Request $r)
         // add other allowed hosts here
     ];
 
-    if (! in_array($host, $allowedHosts, true)) {
-        Log::warning('[proxy] Host not allowed', ['host' => $host, 'url' => $url, 'ip' => $r->ip()]);
-        return response()->json(['error' => 'host not allowed', 'host' => $host], 403);
-    }
+    //if (! in_array($host, $allowedHosts, true)) {
+    //    Log::warning('[proxy] Host not allowed', ['host' => $host, 'url' => $url, 'ip' => $r->ip()]);
+    //    return response()->json(['error' => 'host not allowed', 'host' => $host], 403);
+    //}
 
     try {
         // Set options: timeout, connect_timeout, verify (TLS), allow redirects
