@@ -8,6 +8,20 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class GustavoDuffelController extends Controller
 {
+
+// ProxyController.php
+public function fetch(Request $r) {
+    $url = $r->query('url');
+    if (! $url) return response()->json(['error' => 'url required'], 400);
+    //$host = parse_url($url, PHP_URL_HOST);
+    $resp = Http::get($url);
+    if ($resp->ok()) {
+        // simple passthrough; relative assets will likely break (you'll need to rewrite them)
+        return response($resp->body(), 200)->header('Content-Type', $resp->header('Content-Type', 'text/html'));
+    }
+    return response()->json(['error' => 'fetch failed'], $resp->status());
+}
+
     public function offerRequests(Request $request)
     {
         // Retrieve query parameters from the request
