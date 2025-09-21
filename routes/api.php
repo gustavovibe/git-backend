@@ -42,7 +42,7 @@ use App\Http\Controllers\PreviewInvoiceController;
 use App\Http\Controllers\SnapshotController;
 
 Route::get('snapshots', [SnapshotController::class, 'index']);
-
+Route::get('duffel-cancel-v2',[DuffelApiController::class, 'flightCancelV2']);
 Route::get('/preview/invoice', PreviewInvoiceController::class);
 
 Route::middleware(['auth:sanctum'])->group(function () {

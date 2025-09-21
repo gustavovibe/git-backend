@@ -1030,6 +1030,34 @@ class DuffelApiController extends Controller
         }
     }
 
+    public function flightCancelV2(Request $r){
+        try{
+
+            $order_id = $r->order_id;
+
+            $headers = self::getHeaders();
+
+            $quote_url = "https://api.duffel.com/air/order_cancellations";
+
+            $quote_response = Http::withHeaders($headers)->post($quote_url, [
+                'data' => ['order_id' => $order_id]
+            ]);
+            $quote_data = $quote_response->json();
+
+            if (isset($quote_data['data'])) {
+                $data= $quote_data['data'];
+                $data['expires_at']=Carbon::parse($data['expires_at'])->format('F j, Y g:i A');
+                return response()->json(['success' => true, 'data' =>$data ]);
+            } else {
+                return response()->json(['success' => false, 'data' =>$quote_data['errors'][0]['message']]);
+            }
+
+
+
+        }catch(Exception $e){
+            return response()->json(['success'=>false,'data'=>$e->getMessage()]);
+        }
+    }
     /**
      * Confirm cancel.
      * 
