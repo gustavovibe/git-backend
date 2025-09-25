@@ -51,9 +51,8 @@ class DuffelApiController extends Controller
         }
     }
 
-    // api/duffel/create-request-get-offers
+    // api/duffel/create-request-get-offers 
     public function createRequestGetOffers(Request $request)
-
     {
         // Validating params
         $validator = $this->validateParamsWhenDuffelRequest($request);
@@ -61,30 +60,78 @@ class DuffelApiController extends Controller
             return ApiResponse::error($validator->errors());
         }
 
-        // Outbound slice
-        $slices = [
-            [
-                'origin' => $request->origin,
-                'destination' => $request->destination,
-                'departure_date' => $request->departureDate,
-            ]
-        ];
+        // small helper to validate HH:MM
+        $isValidTime = function ($t) {
+            return is_string($t) && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $t);
+        };
 
-        // Add inbound slice (optional)
-        $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
-        if ($shouldAddSecondSlice) {
-            $inboundSlice = [
-                'origin' => $request->originInbound,
-                'destination' => $request->destinationInbound,
-                'departure_date' => $request->departureDateInbound,
+        // build a slice helper
+        $buildSlice = function ($origin, $destination, $departureDate, $prefix = '') use ($request, $isValidTime) {
+            // $prefix is '' for outbound, 'Inbound' for inbound (so param names can be suffixed)
+            $slice = [
+                'origin' => $origin,
+                'destination' => $destination,
+                'departure_date' => $departureDate,
             ];
-            array_push($slices, $inboundSlice);
-        }
 
-        // Getting passengers
-        $passengers = $this->getPassengers($request);
+            // departure_time
+            $depFrom = $request->get("departureTimeFrom{$prefix}");
+            $depTo   = $request->get("departureTimeTo{$prefix}");
+            $departureTime = [];
+            if ($depFrom !== null) {
+                if (!$isValidTime($depFrom)) {
+                    throw new \InvalidArgumentException("departureTimeFrom{$prefix} must be in HH:MM format");
+                }
+                $departureTime['from'] = $depFrom;
+            }
+            if ($depTo !== null) {
+                if (!$isValidTime($depTo)) {
+                    throw new \InvalidArgumentException("departureTimeTo{$prefix} must be in HH:MM format");
+                }
+                $departureTime['to'] = $depTo;
+            }
+            if (!empty($departureTime)) {
+                $slice['departure_time'] = $departureTime; // keys can be from/to or one of them
+            }
 
+            // arrival_time
+            $arrFrom = $request->get("arrivalTimeFrom{$prefix}");
+            $arrTo   = $request->get("arrivalTimeTo{$prefix}");
+            $arrivalTime = [];
+            if ($arrFrom !== null) {
+                if (!$isValidTime($arrFrom)) {
+                    throw new \InvalidArgumentException("arrivalTimeFrom{$prefix} must be in HH:MM format");
+                }
+                $arrivalTime['from'] = $arrFrom;
+            }
+            if ($arrTo !== null) {
+                if (!$isValidTime($arrTo)) {
+                    throw new \InvalidArgumentException("arrivalTimeTo{$prefix} must be in HH:MM format");
+                }
+                $arrivalTime['to'] = $arrTo;
+            }
+            if (!empty($arrivalTime)) {
+                $slice['arrival_time'] = $arrivalTime;
+            }
+
+            return $slice;
+        };
+
+        // Outbound slice
         try {
+            $slices = [
+                $buildSlice($request->origin, $request->destination, $request->departureDate, '')
+            ];
+
+            // Add inbound slice (optional)
+            $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
+            if ($shouldAddSecondSlice) {
+                $slices[] = $buildSlice($request->originInbound, $request->destinationInbound, $request->departureDateInbound, 'Inbound');
+            }
+
+            // Getting passengers
+            $passengers = $this->getPassengers($request);
+
             // Construct the request body
             $requestBody = [
                 'data' => [
@@ -102,22 +149,17 @@ class DuffelApiController extends Controller
 
             // Make the request to the Duffel API
             $response = Http::withHeaders($headers)->post($url, $requestBody);
-
             $response = $response->json();
 
             // Filter offers
             if (isset($response['data']['offers'])) {
                 $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
-                /*
-                    Note:
-                    This offers cannot be paginated because the request is always new, but
-                    you can paginate when asking for request by its id
-                */
             }
 
             return $response;
+        } catch (\InvalidArgumentException $ex) {
+            return response()->json(['error' => $ex->getMessage()], 422);
         } catch (\Exception $e) {
-            // Handle exceptions
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
