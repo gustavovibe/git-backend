@@ -524,53 +524,6 @@ class DuffelApiController extends Controller
         }
     }
 
-    // private functions
-    private function getFilteredOffers($offers, $offersQuantity, $request)
-    {
-        $offers = $this->getOffersWithoutDuffelAirways($offers, $offersQuantity);
-        $offers = $this->validateOffers($offers, $offersQuantity, $request);
-
-        return $offers;
-    }
-
-    private function getOffersWithoutDuffelAirways($offers, $offersQuantity)
-    {
-        $filteredOffers = [];
-        $count = 0; // Variable to keep track of filtered offers count
-
-        // Iterate over the offers
-        foreach ($offers as $offer) {
-            if ($count >= $offersQuantity) {
-                break; // Exit the loop if we've already reached the required quantity
-            }
-
-            $skipOffer = false; // Variable to determine whether to skip this offer
-
-            foreach ($offer['slices'] as $slice) {
-                if (!isset($slice['segments'])) {
-                    continue; // Skip this section if 'segments' is absent
-                }
-
-                foreach ($slice['segments'] as $segment) {
-                    if (!isset($segment['operating_carrier']['name'])) {
-                        continue; // Skip this segment if 'operating_carrier' or 'name' is absent
-                    }
-
-                    if ($segment['operating_carrier']['name'] === 'Duffel Airways') {
-                        $skipOffer = true; // Set the flag to skip this offer
-                        break 2; // Exit the nested loops
-                    }
-                }
-            }
-
-            if (!$skipOffer) {
-                $filteredOffers[] = $offer; // Add the offer if it shouldn't be skipped
-                $count++; // Increment the count of filtered offers
-            }
-        }
-
-        return $filteredOffers;
-    }
 
     private function validateParamsWhenRequestById($request)
     {
@@ -687,53 +640,179 @@ class DuffelApiController extends Controller
     
         return $url;
     }
-    
-      
+ 
 
+    private function getOffersWithoutDuffelAirways($offers)
+    {
+        $filteredOffers = [];
+    
+        foreach ($offers as $offer) {
+            $skipOffer = false;
+    
+            foreach ($offer['slices'] as $slice) {
+                if (!isset($slice['segments'])) {
+                    continue;
+                }
+    
+                foreach ($slice['segments'] as $segment) {
+                    if (!isset($segment['operating_carrier']['name'])) {
+                        continue;
+                    }
+    
+                    if ($segment['operating_carrier']['name'] === 'Duffel Airways') {
+                        $skipOffer = true;
+                        break 2; // leave both loops
+                    }
+                }
+            }
+    
+            if (!$skipOffer) {
+                $filteredOffers[] = $offer;
+            }
+        }
+    
+        return $filteredOffers;
+    }
+
+
+    // handleOffers unchanged except it calls the simplified validateOffers
+    private function handleOffers($offers, $request)
+    {
+        $offersQuantity = $request->has('limit') ? (int)$request->limit : count($offers);
+
+        // remove Duffel Airways from all offers (no early limit)
+        $offers = $this->getOffersWithoutDuffelAirways($offers);
+
+        // validate and stop when we have $offersQuantity
+        $offers = $this->validateOffers($offers, $offersQuantity, $request);
+
+        return $offers;
+    }
+
+    /**
+     * Keep your getOffersWithoutDuffelAirways as you already have it (no changes needed).
+     * (You posted this earlier; it's fine.)
+     */
+
+    /**
+     * Validate offers and enforce only:
+     *  - outbound: arrival_time.to  => request param: arrivalTimeTo
+     *  - inbound:  departure_time.from => request param: departureTimeFromInbound
+     */
     private function validateOffers($offers, $offersQuantity, $request)
     {
         $validatedOffers = [];
-        $count = 0; // Variable to keep track of filtered offers count
+        $count = 0;
 
-        // Iterate over the offers
         foreach ($offers as $offer) {
             if ($count >= $offersQuantity) {
-                break; // Exit the loop if we've already reached the required quantity
+                break;
             }
 
-            $isValidOffer = $this->validateBaggages($offer, $request);
-            if (!$isValidOffer) {
+            // baggage check (keep your existing logic)
+            if (!$this->validateBaggages($offer, $request)) {
                 continue;
             }
 
-            if ($request->has('stops')) {
-                $isValidOffer = $this->validateStops($offer, $request);
-                if (!$isValidOffer) {
+            // OUTBOUND: arrival_time.to  -> param arrivalTimeTo (applies to slice[0] only)
+            if ($request->filled('arrivalTimeTo')) {
+                if (!$this->offerOutboundArrivesBeforeOrEqual($offer, $request->get('arrivalTimeTo'))) {
                     continue;
                 }
             }
 
-            if ($request->has('payment')) {
-            $isValidOffer = $this->validatePayment($offer, $request);
-                if (!$isValidOffer) {
+            // INBOUND: departure_time.from -> param departureTimeFromInbound (applies to slice[1] only)
+            if ($request->filled('departureTimeFromInbound')) {
+                if (!$this->offerInboundDepartsAfterOrEqual($offer, $request->get('departureTimeFromInbound'))) {
                     continue;
                 }
             }
 
-            if ($request->has('airlines')) {
-            $isValidOffer = $this->validateAirlines($offer, $request);
-                if (!$isValidOffer) {
-                    continue;
-                }
+            // other checks (stops, payment, airlines) — keep as before
+            if ($request->has('stops') && !$this->validateStops($offer, $request)) {
+                continue;
+            }
+            if ($request->has('payment') && !$this->validatePayment($offer, $request)) {
+                continue;
+            }
+            if ($request->has('airlines') && !$this->validateAirlines($offer, $request)) {
+                continue;
             }
 
-            $validatedOffers[] = $offer; // Add the offer if it has baggage
-            $count++; // Increment the count of baggage offers
+            // passed everything
+            $validatedOffers[] = $offer;
+            $count++;
         }
 
+        // sort and return
         $validatedOffers = $this->sortOffers($validatedOffers, $request);
         return $validatedOffers;
     }
+
+    /**
+     * Outbound arrival_time.to check (slice 0). Returns true if either:
+     *  - there is no slice 0, or
+     *  - arrivalTimeTo is not set, or
+     *  - first segment arriving_at local time <= arrivalTimeTo
+     */
+    private function offerOutboundArrivesBeforeOrEqual($offer, $arrivalTimeTo)
+    {
+        if (empty($offer['slices'][0]['segments'][0]['arriving_at'])) {
+            // malformed or missing times -> treat as non-matching
+            return false;
+        }
+
+        $segment = $offer['slices'][0]['segments'][0];
+        $destTz  = $segment['destination']['time_zone'] ?? ($offer['slices'][0]['destination']['time_zone'] ?? 'UTC');
+
+        $arrDt = new \DateTime($segment['arriving_at'], new \DateTimeZone($destTz));
+        $arrLocal = $arrDt->format('H:i');
+
+        // return true if arrLocal <= arrivalTimeTo
+        return $this->timeCompareLessOrEqual($arrLocal, $arrivalTimeTo);
+    }
+
+    /**
+     * Inbound departure_time.from check (slice 1). Returns true if either:
+     *  - there is no slice 1 (no inbound), or
+     *  - departureTimeFromInbound not set, or
+     *  - first segment departing_at local time >= departureTimeFromInbound
+     */
+    private function offerInboundDepartsAfterOrEqual($offer, $departureTimeFromInbound)
+    {
+        if (empty($offer['slices'][1]['segments'][0]['departing_at'])) {
+            // no inbound slice or missing times -> fail
+            return false;
+        }
+
+        $segment = $offer['slices'][1]['segments'][0];
+        $originTz = $segment['origin']['time_zone'] ?? ($offer['slices'][1]['origin']['time_zone'] ?? 'UTC');
+
+        $depDt = new \DateTime($segment['departing_at'], new \DateTimeZone($originTz));
+        $depLocal = $depDt->format('H:i');
+
+        // return true if depLocal >= departureTimeFromInbound
+        return $this->timeCompareGreaterOrEqual($depLocal, $departureTimeFromInbound);
+    }
+
+    /**
+     * Compare HH:MM strings (inclusive)
+     */
+    private function timeCompareLessOrEqual($timeA, $timeB)
+    {
+        $ta = \DateTime::createFromFormat('H:i', $timeA);
+        $tb = \DateTime::createFromFormat('H:i', $timeB);
+        if (!$ta || !$tb) return false;
+        return $ta <= $tb;
+    }
+    private function timeCompareGreaterOrEqual($timeA, $timeB)
+    {
+        $ta = \DateTime::createFromFormat('H:i', $timeA);
+        $tb = \DateTime::createFromFormat('H:i', $timeB);
+        if (!$ta || !$tb) return false;
+        return $ta >= $tb;
+    }
+
 
 
     private function calculateTotalFlightTime($offers)
@@ -953,13 +1032,7 @@ class DuffelApiController extends Controller
         return true;
     }
 
-    private function handleOffers($offers, $request)
-    {
-        $offersQuantity = $request->has('limit') ? $request->limit : count($offers);
-        $offers = $this->getFilteredOffers($offers, $offersQuantity, $request);
 
-        return $offers;
-    }
 
     private function paginateOffers($data, $request)
     {
