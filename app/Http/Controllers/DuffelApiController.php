@@ -51,118 +51,143 @@ class DuffelApiController extends Controller
         }
     }
 
-    // api/duffel/create-request-get-offers 
-    public function createRequestGetOffers(Request $request)
-    {
-        // Validating params
-        $validator = $this->validateParamsWhenDuffelRequest($request);
-        if ($validator->fails()) {
-            return ApiResponse::error($validator->errors());
-        }
-
-        // small helper to validate HH:MM
-        $isValidTime = function ($t) {
-            return is_string($t) && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $t);
-        };
-
-        // build a slice helper
-        $buildSlice = function ($origin, $destination, $departureDate, $prefix = '') use ($request, $isValidTime) {
-            // $prefix is '' for outbound, 'Inbound' for inbound (so param names can be suffixed)
-            $slice = [
-                'origin' => $origin,
-                'destination' => $destination,
-                'departure_date' => $departureDate,
-            ];
-
-            // departure_time
-            $depFrom = $request->get("departureTimeFrom{$prefix}");
-            $depTo   = $request->get("departureTimeTo{$prefix}");
-            $departureTime = [];
-            if ($depFrom !== null) {
-                if (!$isValidTime($depFrom)) {
-                    throw new \InvalidArgumentException("departureTimeFrom{$prefix} must be in HH:MM format");
-                }
-                $departureTime['from'] = $depFrom;
-            }
-            if ($depTo !== null) {
-                if (!$isValidTime($depTo)) {
-                    throw new \InvalidArgumentException("departureTimeTo{$prefix} must be in HH:MM format");
-                }
-                $departureTime['to'] = $depTo;
-            }
-            if (!empty($departureTime)) {
-                $slice['departure_time'] = $departureTime; // keys can be from/to or one of them
-            }
-
-            // arrival_time
-            $arrFrom = $request->get("arrivalTimeFrom{$prefix}");
-            $arrTo   = $request->get("arrivalTimeTo{$prefix}");
-            $arrivalTime = [];
-            if ($arrFrom !== null) {
-                if (!$isValidTime($arrFrom)) {
-                    throw new \InvalidArgumentException("arrivalTimeFrom{$prefix} must be in HH:MM format");
-                }
-                $arrivalTime['from'] = $arrFrom;
-            }
-            if ($arrTo !== null) {
-                if (!$isValidTime($arrTo)) {
-                    throw new \InvalidArgumentException("arrivalTimeTo{$prefix} must be in HH:MM format");
-                }
-                $arrivalTime['to'] = $arrTo;
-            }
-            if (!empty($arrivalTime)) {
-                $slice['arrival_time'] = $arrivalTime;
-            }
-
-            return $slice;
-        };
-
-        // Outbound slice
-        try {
-            $slices = [
-                $buildSlice($request->origin, $request->destination, $request->departureDate, '')
-            ];
-
-            // Add inbound slice (optional)
-            $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
-            if ($shouldAddSecondSlice) {
-                $slices[] = $buildSlice($request->originInbound, $request->destinationInbound, $request->departureDateInbound, 'Inbound');
-            }
-
-            // Getting passengers
-            $passengers = $this->getPassengers($request);
-
-            // Construct the request body
-            $requestBody = [
-                'data' => [
-                    'slices' => $slices,
-                    'passengers' => $passengers,
-                    'cabin_class' => $request->cabinClass ?? null
-                ]
-            ];
-
-            // Getting headers
-            $headers = self::getHeaders();
-
-            $url = 'https://api.duffel.com/air/offer_requests?'; // default url
-            $url = $this->addMoreQueryparamsToUrl($url, $request);
-
-            // Make the request to the Duffel API
-            $response = Http::withHeaders($headers)->post($url, $requestBody);
-            $response = $response->json();
-
-            // Filter offers
-            if (isset($response['data']['offers'])) {
-                $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
-            }
-
-            return $response;
-        } catch (\InvalidArgumentException $ex) {
-            return response()->json(['error' => $ex->getMessage()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+// api/duffel/create-request-get-offers 
+public function createRequestGetOffers(Request $request)
+{
+    // Validating params
+    $validator = $this->validateParamsWhenDuffelRequest($request);
+    if ($validator->fails()) {
+        return ApiResponse::error($validator->errors());
     }
+
+    // small helper to validate HH:MM
+    $isValidTime = function ($t) {
+        return is_string($t) && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $t);
+    };
+
+    // build a slice helper
+    $buildSlice = function ($origin, $destination, $departureDate, $prefix = '') use ($request, $isValidTime) {
+        // $prefix is '' for outbound, 'Inbound' for inbound (so param names can be suffixed)
+        $slice = [
+            'origin' => $origin,
+            'destination' => $destination,
+            'departure_date' => $departureDate,
+        ];
+
+        // departure_time
+        $depFrom = $request->get("departureTimeFrom{$prefix}");
+        $depTo   = $request->get("departureTimeTo{$prefix}");
+        $departureTime = [];
+        if ($depFrom !== null) {
+            if (!$isValidTime($depFrom)) {
+                throw new \InvalidArgumentException("departureTimeFrom{$prefix} must be in HH:MM format");
+            }
+            $departureTime['from'] = $depFrom;
+        }
+        if ($depTo !== null) {
+            if (!$isValidTime($depTo)) {
+                throw new \InvalidArgumentException("departureTimeTo{$prefix} must be in HH:MM format");
+            }
+            $departureTime['to'] = $depTo;
+        }
+        if (!empty($departureTime)) {
+            $slice['departure_time'] = $departureTime; // keys can be from/to or one of them
+        }
+
+        // arrival_time
+        $arrFrom = $request->get("arrivalTimeFrom{$prefix}");
+        $arrTo   = $request->get("arrivalTimeTo{$prefix}");
+        $arrivalTime = [];
+        if ($arrFrom !== null) {
+            if (!$isValidTime($arrFrom)) {
+                throw new \InvalidArgumentException("arrivalTimeFrom{$prefix} must be in HH:MM format");
+            }
+            $arrivalTime['from'] = $arrFrom;
+        }
+        if ($arrTo !== null) {
+            if (!$isValidTime($arrTo)) {
+                throw new \InvalidArgumentException("arrivalTimeTo{$prefix} must be in HH:MM format");
+            }
+            $arrivalTime['to'] = $arrTo;
+        }
+        if (!empty($arrivalTime)) {
+            $slice['arrival_time'] = $arrivalTime;
+        }
+
+        return $slice;
+    };
+
+    // Outbound slice
+    try {
+        $slices = [
+            $buildSlice($request->origin, $request->destination, $request->departureDate, '')
+        ];
+
+        // Add inbound slice (optional)
+        $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
+        if ($shouldAddSecondSlice) {
+            $slices[] = $buildSlice($request->originInbound, $request->destinationInbound, $request->departureDateInbound, 'Inbound');
+        }
+
+        // Getting passengers
+        $passengers = $this->getPassengers($request);
+
+        // Construct the request body
+        $requestBody = [
+            'data' => [
+                'slices' => $slices,
+                'passengers' => $passengers,
+                'cabin_class' => $request->cabinClass ?? null
+            ]
+        ];
+
+        // Getting headers
+        $headers = self::getHeaders();
+
+        $url = 'https://api.duffel.com/air/offer_requests?'; // default url
+        $url = $this->addMoreQueryparamsToUrl($url, $request);
+
+        // --- LOGGING: url, headers (masked) and body ---
+        try {
+            // Mask Authorization header if present
+            $logHeaders = $headers;
+            if (isset($logHeaders['Authorization'])) {
+                $logHeaders['Authorization'] = preg_replace('/Bearer\s+(.+)/i', 'Bearer ****', $logHeaders['Authorization']);
+            }
+            \Log::debug('Duffel request URL: ' . $url);
+            \Log::debug('Duffel request headers: ' . json_encode($logHeaders, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            \Log::debug('Duffel request body: ' . json_encode($requestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        } catch (\Exception $logEx) {
+            // don't break the flow if logging fails for any reason
+            \Log::error('Failed to log Duffel request details: ' . $logEx->getMessage());
+        }
+
+        // Make the request to the Duffel API
+        $httpResponse = Http::withHeaders($headers)->post($url, $requestBody);
+
+        // Log HTTP status and raw body for debugging
+        try {
+            \Log::debug('Duffel response status: ' . $httpResponse->status());
+            \Log::debug('Duffel response body: ' . $httpResponse->body());
+        } catch (\Exception $logEx) {
+            \Log::error('Failed to log Duffel response: ' . $logEx->getMessage());
+        }
+
+        $response = $httpResponse->json();
+
+        // Filter offers
+        if (isset($response['data']['offers'])) {
+            $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
+        }
+
+        return $response;
+    } catch (\InvalidArgumentException $ex) {
+        return response()->json(['error' => $ex->getMessage()], 422);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
     // api/duffel/get-request-by-id
     public function getRequestById(Request $request)
@@ -681,7 +706,7 @@ class DuffelApiController extends Controller
         $offersQuantity = $request->has('limit') ? (int)$request->limit : count($offers);
 
         // remove Duffel Airways from all offers (no early limit)
-        $offers = $this->getOffersWithoutDuffelAirways($offers);
+        //$offers = $this->getOffersWithoutDuffelAirways($offers);
 
         // validate and stop when we have $offersQuantity
         $offers = $this->validateOffers($offers, $offersQuantity, $request);

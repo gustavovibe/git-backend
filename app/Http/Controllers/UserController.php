@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use App\Services\RecaptchaService;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -243,6 +244,31 @@ class UserController extends Controller
      */
     public function changePassword(Request $r){
         try{
+
+						$validator = Validator::make($r->all(), [
+                'password' => [
+									'required',
+									'string',
+									'min:8',
+									'regex:/[a-z]/',
+									'regex:/[A-Z]/',
+									'regex:/[0-9]/',
+									'regex:/[^\p{L}\p{N}]/u',
+                ],
+            ]);
+
+            if ($validator->fails()) {
+
+							$message = json_decode(json_encode($validator->errors()), true);
+							$error_msg = [];
+							foreach($message as $key => $val){
+								$error_msg[] = $val[0];
+							}
+							$error_msg[] = 'Password must have 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character.';
+							return ApiResponse::error(implode("\n", $error_msg), 200);
+
+            }
+
             $user=$r->id?User::find($r->id):User::where('email',$r->email)->first();
             $user->password=Hash::make($r->password);
             $user->save();
@@ -257,6 +283,7 @@ class UserController extends Controller
             return ApiResponse::error($e->getMessage());
         }
     }
+
 
     /**
      * Change password validation.
