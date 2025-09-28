@@ -192,7 +192,8 @@ public function createRequestGetOffers(Request $request)
                 $newInboundDate = null;
                 if ($shouldAddSecondSlice) {
                     $inboundDate = \Carbon\Carbon::parse($request->departureDateInbound);
-                    $newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d'); // one day later
+                    //$newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d'); // one day later
+                    $newInboundDate = $inboundDate;
                 }
 
                 \Log::info("No offers after filtering — trying adjusted dates: outbound {$newDepartureDate}" . ($newInboundDate ? " inbound {$newInboundDate}" : ""));
