@@ -52,6 +52,7 @@ class DuffelApiController extends Controller
     }
 
 // api/duffel/create-request-get-offers 
+// api/duffel/create-request-get-offers 
 public function createRequestGetOffers(Request $request)
 {
     // Validating params
@@ -67,7 +68,6 @@ public function createRequestGetOffers(Request $request)
 
     // build a slice helper
     $buildSlice = function ($origin, $destination, $departureDate, $prefix = '') use ($request, $isValidTime) {
-        // $prefix is '' for outbound, 'Inbound' for inbound (so param names can be suffixed)
         $slice = [
             'origin' => $origin,
             'destination' => $destination,
@@ -91,7 +91,7 @@ public function createRequestGetOffers(Request $request)
             $departureTime['to'] = $depTo;
         }
         if (!empty($departureTime)) {
-            $slice['departure_time'] = $departureTime; // keys can be from/to or one of them
+            $slice['departure_time'] = $departureTime;
         }
 
         // arrival_time
@@ -147,9 +147,8 @@ public function createRequestGetOffers(Request $request)
         $url = 'https://api.duffel.com/air/offer_requests?'; // default url
         $url = $this->addMoreQueryparamsToUrl($url, $request);
 
-        // --- LOGGING: url, headers (masked) and body ---
+        // --- LOGGING (optional) ---
         try {
-            // Mask Authorization header if present
             $logHeaders = $headers;
             if (isset($logHeaders['Authorization'])) {
                 $logHeaders['Authorization'] = preg_replace('/Bearer\s+(.+)/i', 'Bearer ****', $logHeaders['Authorization']);
@@ -158,14 +157,11 @@ public function createRequestGetOffers(Request $request)
             \Log::debug('Duffel request headers: ' . json_encode($logHeaders, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
             \Log::debug('Duffel request body: ' . json_encode($requestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         } catch (\Exception $logEx) {
-            // don't break the flow if logging fails for any reason
             \Log::error('Failed to log Duffel request details: ' . $logEx->getMessage());
         }
 
-        // Make the request to the Duffel API
+        // Make the request to the Duffel API (first attempt)
         $httpResponse = Http::withHeaders($headers)->post($url, $requestBody);
-
-        // Log HTTP status and raw body for debugging
         try {
             \Log::debug('Duffel response status: ' . $httpResponse->status());
             \Log::debug('Duffel response body: ' . $httpResponse->body());
@@ -180,6 +176,71 @@ public function createRequestGetOffers(Request $request)
             $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
         }
 
+        // --- If no offers, do one adjusted-date retry (only once) ---
+        $alreadyAdjusted = $request->get('adjusted_search', false);
+        if (
+            (empty($response['data']['offers'] ?? []) || count($response['data']['offers']) === 0)
+            && !$alreadyAdjusted
+            && $request->filled('departureDate')
+            && ($shouldAddSecondSlice ? $request->filled('departureDateInbound') : true)
+        ) {
+            try {
+                // compute new dates using Carbon
+                $departureDate = \Carbon\Carbon::parse($request->departureDate);
+                $newDepartureDate = $departureDate->copy()->subDay()->format('Y-m-d'); // one day earlier
+
+                $newInboundDate = null;
+                if ($shouldAddSecondSlice) {
+                    $inboundDate = \Carbon\Carbon::parse($request->departureDateInbound);
+                    $newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d'); // one day later
+                }
+
+                \Log::info("No offers after filtering — trying adjusted dates: outbound {$newDepartureDate}" . ($newInboundDate ? " inbound {$newInboundDate}" : ""));
+
+                // Build adjusted slices re-using buildSlice (it reads times from original $request)
+                $adjustedSlices = [
+                    $buildSlice($request->origin, $request->destination, $newDepartureDate, '')
+                ];
+                if ($shouldAddSecondSlice) {
+                    $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $newInboundDate, 'Inbound');
+                }
+
+                $adjustedRequestBody = [
+                    'data' => [
+                        'slices' => $adjustedSlices,
+                        'passengers' => $passengers,
+                        'cabin_class' => $request->cabinClass ?? null
+                    ]
+                ];
+
+                // add query param to url to preserve other params (same as before)
+                $adjustedUrl = $url; // same query params appended earlier
+
+                // Log the adjusted call
+                \Log::debug('Adjusted Duffel request body: ' . json_encode($adjustedRequestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+                // Make the adjusted request
+                $httpResponse2 = Http::withHeaders($headers)->post($adjustedUrl, $adjustedRequestBody);
+                \Log::debug('Adjusted Duffel response status: ' . $httpResponse2->status());
+                \Log::debug('Adjusted Duffel response body: ' . $httpResponse2->body());
+
+                $response2 = $httpResponse2->json();
+
+                // Filter offers for adjusted response using the SAME $request filters.
+                // Note: we want to avoid infinite recursion — we mark adjusted_search true only for debug/logging,
+                // but we do not re-run another adjusted retry from this path.
+                if (isset($response2['data']['offers'])) {
+                    $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request);
+                }
+
+                // Return the adjusted response (even if empty)
+                return $response2;
+            } catch (\Exception $retryEx) {
+                \Log::error('Adjusted date search failed: ' . $retryEx->getMessage());
+                // fall through to return original response below
+            }
+        }
+
         return $response;
     } catch (\InvalidArgumentException $ex) {
         return response()->json(['error' => $ex->getMessage()], 422);
@@ -187,6 +248,7 @@ public function createRequestGetOffers(Request $request)
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
+
 
 
     // api/duffel/get-request-by-id
