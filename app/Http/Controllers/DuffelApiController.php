@@ -170,10 +170,10 @@ public function createRequestGetOffers(Request $request)
         }
 
         $response = $httpResponse->json();
-
+        $time = 1;
         // Filter offers
         if (isset($response['data']['offers'])) {
-            $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request);
+            $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request, $time);
         }
 
         // --- If no offers, do one adjusted-date retry (only once) ---
@@ -235,12 +235,13 @@ public function createRequestGetOffers(Request $request)
                 \Log::debug('Adjusted Duffel response body: ' . $httpResponse2->body());
 
                 $response2 = $httpResponse2->json();
-
+                $time = 0;
                 // Filter offers for adjusted response using the SAME $request filters.
                 // Note: we want to avoid infinite recursion — we mark adjusted_search true only for debug/logging,
                 // but we do not re-run another adjusted retry from this path.
                 if (isset($response2['data']['offers'])) {
-                    $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request);
+
+                    $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request, $time);
                 }
 
                 // Return the adjusted response (even if empty)
@@ -773,7 +774,7 @@ public function createRequestGetOffers(Request $request)
 
 
     // handleOffers unchanged except it calls the simplified validateOffers
-    private function handleOffers($offers, $request)
+    private function handleOffers($offers, $request, $time)
     {
         $offersQuantity = $request->has('limit') ? (int)$request->limit : count($offers);
 
@@ -781,25 +782,22 @@ public function createRequestGetOffers(Request $request)
         //$offers = $this->getOffersWithoutDuffelAirways($offers);
 
         // validate and stop when we have $offersQuantity
-        $offers = $this->validateOffers($offers, $offersQuantity, $request);
+        $offers = $this->validateOffers($offers, $offersQuantity, $request, $time);
 
         return $offers;
     }
 
-    /**
-     * Keep your getOffersWithoutDuffelAirways as you already have it (no changes needed).
-     * (You posted this earlier; it's fine.)
-     */
 
     /**
      * Validate offers and enforce only:
      *  - outbound: arrival_time.to  => request param: arrivalTimeTo
      *  - inbound:  departure_time.from => request param: departureTimeFromInbound
      */
-    private function validateOffers($offers, $offersQuantity, $request)
+    private function validateOffers($offers, $offersQuantity, $request, $time)
     {
         $validatedOffers = [];
         $count = 0;
+        $timeEnabled = ((int)$time > 0);
 
         foreach ($offers as $offer) {
             if ($count >= $offersQuantity) {
@@ -812,14 +810,14 @@ public function createRequestGetOffers(Request $request)
             }
 
             // OUTBOUND: arrival_time.to  -> param arrivalTimeTo (applies to slice[0] only)
-            if ($request->filled('arrivalTimeTo')) {
+            if ($timeEnabled && $request->filled('arrivalTimeTo')) {
                 if (!$this->offerOutboundArrivesBeforeOrEqual($offer, $request->get('arrivalTimeTo'))) {
                     continue;
                 }
             }
 
             // INBOUND: departure_time.from -> param departureTimeFromInbound (applies to slice[1] only)
-            if ($request->filled('departureTimeFromInbound')) {
+            if ($timeEnabled && $request->filled('departureTimeFromInbound')) {
                 if (!$this->offerInboundDepartsAfterOrEqual($offer, $request->get('departureTimeFromInbound'))) {
                     continue;
                 }
