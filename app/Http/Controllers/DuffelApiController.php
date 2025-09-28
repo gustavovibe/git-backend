@@ -205,6 +205,16 @@ public function createRequestGetOffers(Request $request)
                     $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $newInboundDate, 'Inbound');
                 }
 
+                foreach ($adjustedSlices as &$slice) {
+                    if (isset($slice['departure_time'])) {
+                        unset($slice['departure_time']);
+                    }
+                    if (isset($slice['arrival_time'])) {
+                        unset($slice['arrival_time']);
+                    }
+                }
+                unset($slice); // break reference
+
                 $adjustedRequestBody = [
                     'data' => [
                         'slices' => $adjustedSlices,
