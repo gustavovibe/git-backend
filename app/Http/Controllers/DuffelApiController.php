@@ -774,7 +774,7 @@ public function createRequestGetOffers(Request $request)
 
 
     // handleOffers unchanged except it calls the simplified validateOffers
-    private function handleOffers($offers, $request, $time)
+    private function handleOffers($offers, $request, $time = 0)
     {
         $offersQuantity = $request->has('limit') ? (int)$request->limit : count($offers);
 
