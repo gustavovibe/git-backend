@@ -52,7 +52,6 @@ class DuffelApiController extends Controller
     }
 
 // api/duffel/create-request-get-offers 
-// api/duffel/create-request-get-offers 
 public function createRequestGetOffers(Request $request)
 {
     // Validating params
@@ -66,67 +65,96 @@ public function createRequestGetOffers(Request $request)
         return is_string($t) && preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $t);
     };
 
-    // build a slice helper
-    $buildSlice = function ($origin, $destination, $departureDate, $prefix = '') use ($request, $isValidTime) {
+    // build a slice helper with ability to skip time filters when $ignoreTimes = true
+    $buildSlice = function ($origin, $destination, $departureDate, $prefix = '', $ignoreTimes = false) use ($request, $isValidTime) {
         $slice = [
             'origin' => $origin,
             'destination' => $destination,
             'departure_date' => $departureDate,
         ];
 
-        // departure_time
-        $depFrom = $request->get("departureTimeFrom{$prefix}");
-        $depTo   = $request->get("departureTimeTo{$prefix}");
-        $departureTime = [];
-        if ($depFrom !== null) {
-            if (!$isValidTime($depFrom)) {
-                throw new \InvalidArgumentException("departureTimeFrom{$prefix} must be in HH:MM format");
+        if (!$ignoreTimes) {
+            // departure_time
+            $depFrom = $request->get("departureTimeFrom{$prefix}");
+            $depTo   = $request->get("departureTimeTo{$prefix}");
+            $departureTime = [];
+            if ($depFrom !== null) {
+                if (!$isValidTime($depFrom)) {
+                    throw new \InvalidArgumentException("departureTimeFrom{$prefix} must be in HH:MM format");
+                }
+                $departureTime['from'] = $depFrom;
             }
-            $departureTime['from'] = $depFrom;
-        }
-        if ($depTo !== null) {
-            if (!$isValidTime($depTo)) {
-                throw new \InvalidArgumentException("departureTimeTo{$prefix} must be in HH:MM format");
+            if ($depTo !== null) {
+                if (!$isValidTime($depTo)) {
+                    throw new \InvalidArgumentException("departureTimeTo{$prefix} must be in HH:MM format");
+                }
+                $departureTime['to'] = $depTo;
             }
-            $departureTime['to'] = $depTo;
-        }
-        if (!empty($departureTime)) {
-            $slice['departure_time'] = $departureTime;
-        }
+            if (!empty($departureTime)) {
+                $slice['departure_time'] = $departureTime;
+            }
 
-        // arrival_time
-        $arrFrom = $request->get("arrivalTimeFrom{$prefix}");
-        $arrTo   = $request->get("arrivalTimeTo{$prefix}");
-        $arrivalTime = [];
-        if ($arrFrom !== null) {
-            if (!$isValidTime($arrFrom)) {
-                throw new \InvalidArgumentException("arrivalTimeFrom{$prefix} must be in HH:MM format");
+            // arrival_time
+            $arrFrom = $request->get("arrivalTimeFrom{$prefix}");
+            $arrTo   = $request->get("arrivalTimeTo{$prefix}");
+            $arrivalTime = [];
+            if ($arrFrom !== null) {
+                if (!$isValidTime($arrFrom)) {
+                    throw new \InvalidArgumentException("arrivalTimeFrom{$prefix} must be in HH:MM format");
+                }
+                $arrivalTime['from'] = $arrFrom;
             }
-            $arrivalTime['from'] = $arrFrom;
-        }
-        if ($arrTo !== null) {
-            if (!$isValidTime($arrTo)) {
-                throw new \InvalidArgumentException("arrivalTimeTo{$prefix} must be in HH:MM format");
+            if ($arrTo !== null) {
+                if (!$isValidTime($arrTo)) {
+                    throw new \InvalidArgumentException("arrivalTimeTo{$prefix} must be in HH:MM format");
+                }
+                $arrivalTime['to'] = $arrTo;
             }
-            $arrivalTime['to'] = $arrTo;
-        }
-        if (!empty($arrivalTime)) {
-            $slice['arrival_time'] = $arrivalTime;
+            if (!empty($arrivalTime)) {
+                $slice['arrival_time'] = $arrivalTime;
+            }
         }
 
         return $slice;
     };
 
+    // Decide whether to ignore outbound times based on tourDate
+    $ignoreOutboundTimes = false;
+    if ($request->filled('tourDate') && $request->filled('departureDate')) {
+        try {
+            // Accept tourDate in dd-mm-yyyy or yyyy-mm-dd
+            $tourDateRaw = $request->get('tourDate');
+            if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $tourDateRaw)) {
+                $tourDate = \Carbon\Carbon::createFromFormat('d-m-Y', $tourDateRaw)->startOfDay();
+            } else {
+                // try ISO or other parseable format
+                $tourDate = \Carbon\Carbon::parse($tourDateRaw)->startOfDay();
+            }
+
+            $outboundDate = \Carbon\Carbon::parse($request->departureDate)->startOfDay();
+
+            // If departureDate is BEFORE the tourDate, ignore outbound times in the first request
+            if ($outboundDate->lt($tourDate)) {
+                $ignoreOutboundTimes = true;
+                \Log::info("tourDate logic: outbound departure {$outboundDate->toDateString()} is before tourDate {$tourDate->toDateString()} — ignoring outbound time filters for initial Duffel request.");
+            }
+        } catch (\Exception $ex) {
+            // If parsing fails, don't change behavior; log for debug
+            \Log::warning('Could not parse tourDate or departureDate: ' . $ex->getMessage());
+        }
+    }
+
     // Outbound slice
     try {
+        // Build outbound, possibly ignoring times for outbound slice per tourDate logic
         $slices = [
-            $buildSlice($request->origin, $request->destination, $request->departureDate, '')
+            $buildSlice($request->origin, $request->destination, $request->departureDate, '', $ignoreOutboundTimes)
         ];
 
-        // Add inbound slice (optional)
+        // Add inbound slice (optional) — inbound times still follow request params
         $shouldAddSecondSlice = $request->has('originInbound') && $request->has('destinationInbound') && $request->has('departureDateInbound');
         if ($shouldAddSecondSlice) {
-            $slices[] = $buildSlice($request->originInbound, $request->destinationInbound, $request->departureDateInbound, 'Inbound');
+            $slices[] = $buildSlice($request->originInbound, $request->destinationInbound, $request->departureDateInbound, 'Inbound', false);
         }
 
         // Getting passengers
@@ -171,7 +199,7 @@ public function createRequestGetOffers(Request $request)
 
         $response = $httpResponse->json();
         $time = 1;
-        // Filter offers
+        // Filter offers (note: server-side time checks still run based on request params)
         if (isset($response['data']['offers'])) {
             $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request, $time);
         }
@@ -205,6 +233,7 @@ public function createRequestGetOffers(Request $request)
                     $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $newInboundDate, 'Inbound');
                 }
 
+                // Remove any time filters from adjusted slices
                 foreach ($adjustedSlices as &$slice) {
                     if (isset($slice['departure_time'])) {
                         unset($slice['departure_time']);
@@ -213,7 +242,7 @@ public function createRequestGetOffers(Request $request)
                         unset($slice['arrival_time']);
                     }
                 }
-                unset($slice); // break reference
+                unset($slice);
 
                 $adjustedRequestBody = [
                     'data' => [
@@ -224,7 +253,9 @@ public function createRequestGetOffers(Request $request)
                 ];
 
                 // add query param to url to preserve other params (same as before)
-                $adjustedUrl = $url; // same query params appended earlier
+                $adjustedUrl = $url;
+                $sep = (strpos($adjustedUrl, '?') === false) ? '?' : '&';
+                $adjustedUrl .= $sep . 'adjusted_search=1';
 
                 // Log the adjusted call
                 \Log::debug('Adjusted Duffel request body: ' . json_encode($adjustedRequestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -236,11 +267,8 @@ public function createRequestGetOffers(Request $request)
 
                 $response2 = $httpResponse2->json();
                 $time = 0;
-                // Filter offers for adjusted response using the SAME $request filters.
-                // Note: we want to avoid infinite recursion — we mark adjusted_search true only for debug/logging,
-                // but we do not re-run another adjusted retry from this path.
+                // Filter offers for adjusted response using the SAME $request filters but with time checks disabled via $time = 0
                 if (isset($response2['data']['offers'])) {
-
                     $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request, $time);
                 }
 
@@ -259,7 +287,6 @@ public function createRequestGetOffers(Request $request)
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
-
 
 
     // api/duffel/get-request-by-id
