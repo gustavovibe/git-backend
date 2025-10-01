@@ -927,7 +927,7 @@ public function createRequestGetOffers(Request $request)
 
             // OUTBOUND: arrival_time.to  -> param arrivalTimeTo (applies to slice[0] only)
             // OUTBOUND: require either arrival_time <= arrivalTimeTo OR arriving date < tourDate
-            $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') || $request->filled('tourDate'));
+            $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') && $request->filled('tourDate'));
             if ($hasArrivalConstraint) {
                 $arrivalTimeTo = $request->get('arrivalTimeTo'); // may be null
                 $tourDate = $request->get('tourDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
@@ -938,11 +938,11 @@ public function createRequestGetOffers(Request $request)
 
 
             // INBOUND: departure_time.from -> param departureTimeFromInbound (applies to slice[1] only)
-            if ($timeEnabled && $request->filled('departureTimeFromInbound')) {
-                if (!$this->offerInboundDepartsAfterOrEqual($offer, $request->get('departureTimeFromInbound'))) {
-                    continue;
-                }
-            }
+            //if ($timeEnabled && $request->filled('departureTimeFromInbound')) {
+            //   if (!$this->offerInboundDepartsAfterOrEqual($offer, $request->get('departureTimeFromInbound'))) {
+            //        continue;
+            //    }
+            // }
 
             // other checks (stops, payment, airlines) — keep as before
             if ($request->has('stops') && !$this->validateStops($offer, $request)) {
