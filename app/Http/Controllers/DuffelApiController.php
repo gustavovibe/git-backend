@@ -134,7 +134,7 @@ public function createRequestGetOffers(Request $request)
             $outboundDate = \Carbon\Carbon::parse($request->departureDate)->startOfDay();
 
             // If departureDate is BEFORE the tourDate, ignore outbound times in the first request
-            if ($outboundDate->($tourDate)) {
+            if ($outboundDate < $tourDate) {
                 $ignoreOutboundTimes = true;
                 \Log::info("tourDate logic: outbound departure {$outboundDate->toDateString()} is before tourDate {$tourDate->toDateString()} — ignoring outbound time filters for initial Duffel request.");
             }
