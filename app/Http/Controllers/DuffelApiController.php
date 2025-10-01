@@ -134,7 +134,7 @@ public function createRequestGetOffers(Request $request)
             $outboundDate = \Carbon\Carbon::parse($request->departureDate)->startOfDay();
 
             // If departureDate is BEFORE the tourDate, ignore outbound times in the first request
-            if ($outboundDate->lt($tourDate)) {
+            if ($outboundDate->($tourDate)) {
                 $ignoreOutboundTimes = true;
                 \Log::info("tourDate logic: outbound departure {$outboundDate->toDateString()} is before tourDate {$tourDate->toDateString()} — ignoring outbound time filters for initial Duffel request.");
             }
@@ -288,6 +288,95 @@ public function createRequestGetOffers(Request $request)
     }
 }
 
+
+    private function parseDateToDateTime($dateStr)
+    {
+        if (empty($dateStr)) {
+            return false;
+        }
+
+        $formats = ['Y-m-d', 'd-m-Y', 'Y/m/d', 'd/m/Y'];
+
+        foreach ($formats as $fmt) {
+            $dt = \DateTimeImmutable::createFromFormat($fmt, $dateStr);
+            if ($dt !== false) {
+                return $dt->setTime(0, 0, 0)->setTimezone(new \DateTimeZone('UTC'));
+            }
+        }
+
+        $ts = strtotime($dateStr);
+        if ($ts !== false) {
+            return (new \DateTimeImmutable('@' . $ts))->setTimezone(new \DateTimeZone('UTC'))->setTime(0, 0, 0);
+        }
+
+        return false;
+    }
+
+    /**
+     * Return true if $dateA is strictly before $dateB (date-only comparison).
+     * Returns false if either date can't be parsed.
+     */
+    private function dateIsBefore($dateA, $dateB): bool
+    {
+        $da = $this->parseDateToDateTime($dateA);
+        $db = $this->parseDateToDateTime($dateB);
+        if (!$da || !$db) {
+            return false;
+        }
+
+        return $da < $db;
+    }
+
+    private function offerOutboundMatchesTimeOrBeforeTourDate($offer, $arrivalTimeTo = null, $tourDate = null)
+    {
+        // if neither constraint provided, allow offer
+        if (empty($arrivalTimeTo) && empty($tourDate)) {
+            return true;
+        }
+    
+        // ensure slice 0 exists with at least one segment
+        if (empty($offer['slices'][0]['segments'][0])) {
+            return false;
+        }
+    
+        $segment = $offer['slices'][0]['segments'][0];
+    
+        // get destination timezone (fall back sensibly)
+        $destTz = $segment['destination']['time_zone'] ?? ($offer['slices'][0]['destination']['time_zone'] ?? 'UTC');
+    
+        // parse arriving_at into local time using destination tz
+        try {
+            $arrDt = new \DateTime($segment['arriving_at'], new \DateTimeZone($destTz));
+        } catch (\Exception $ex) {
+            return false;
+        }
+    
+        $arrLocalTime = $arrDt->format('H:i');   // e.g. '23:21'
+        $arrLocalDate = $arrDt->format('Y-m-d'); // e.g. '2025-11-26'
+    
+        // 1) if arrivalTimeTo provided and passes time check -> accept
+        if (!empty($arrivalTimeTo)) {
+            if ($this->timeCompareLessOrEqual($arrLocalTime, $arrivalTimeTo)) {
+                return true;
+            }
+        }
+    
+        // 2) if tourDate provided and arrival local date is strictly before tourDate -> accept
+        if (!empty($tourDate)) {
+            $tourDtObj = $this->parseDateToDateTime($tourDate);
+            if ($tourDtObj !== false) {
+                $tourYmd = $tourDtObj->format('Y-m-d'); // normalized
+                // strict less-than (arrLocalDate < tourDate)
+                if ($arrLocalDate < $tourYmd) {
+                    return true;
+                }
+            }
+            // if parse failed for tourDate -> do not accept based on tour date (i.e. no-op)
+        }
+    
+        // neither condition satisfied -> reject offer
+        return false;
+    }
 
     // api/duffel/get-request-by-id
     public function getRequestById(Request $request)
@@ -837,11 +926,16 @@ public function createRequestGetOffers(Request $request)
             }
 
             // OUTBOUND: arrival_time.to  -> param arrivalTimeTo (applies to slice[0] only)
-            if ($timeEnabled && $request->filled('arrivalTimeTo')) {
-                if (!$this->offerOutboundArrivesBeforeOrEqual($offer, $request->get('arrivalTimeTo'))) {
+            // OUTBOUND: require either arrival_time <= arrivalTimeTo OR arriving date < tourDate
+            $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') || $request->filled('tourDate'));
+            if ($hasArrivalConstraint) {
+                $arrivalTimeTo = $request->get('arrivalTimeTo'); // may be null
+                $tourDate = $request->get('tourDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
+                if (!$this->offerOutboundMatchesTimeOrBeforeTourDate($offer, $arrivalTimeTo, $tourDate)) {
                     continue;
                 }
             }
+
 
             // INBOUND: departure_time.from -> param departureTimeFromInbound (applies to slice[1] only)
             if ($timeEnabled && $request->filled('departureTimeFromInbound')) {
