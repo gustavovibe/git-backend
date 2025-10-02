@@ -289,6 +289,11 @@ public function createRequestGetOffers(Request $request)
 }
 
 
+    /**
+     * Parse date string into DateTimeImmutable set to midnight (UTC).
+     * Accepts Y-m-d, d-m-Y, Y/m/d, d/m/Y, and falls back to strtotime.
+     * Returns DateTimeImmutable or false on failure.
+     */
     private function parseDateToDateTime($dateStr)
     {
         if (empty($dateStr)) {
@@ -1092,33 +1097,6 @@ private function offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTim
     return false;
 }
 
-/**
- * Parse date string into DateTimeImmutable set to midnight (UTC).
- * Accepts Y-m-d, d-m-Y, Y/m/d, d/m/Y, and falls back to strtotime.
- * Returns DateTimeImmutable or false on failure.
- */
-private function parseDateToDateTime($dateStr)
-{
-    if (empty($dateStr)) {
-        return false;
-    }
-
-    $formats = ['Y-m-d', 'd-m-Y', 'Y/m/d', 'd/m/Y'];
-
-    foreach ($formats as $fmt) {
-        $dt = \DateTimeImmutable::createFromFormat($fmt, $dateStr);
-        if ($dt !== false) {
-            return $dt->setTime(0, 0, 0)->setTimezone(new \DateTimeZone('UTC'));
-        }
-    }
-
-    $ts = strtotime($dateStr);
-    if ($ts !== false) {
-        return (new \DateTimeImmutable('@' . $ts))->setTimezone(new \DateTimeZone('UTC'))->setTime(0, 0, 0);
-    }
-
-    return false;
-}
 
 /**
  * Compare HH:MM strings inclusive. Return true if timeA >= timeB.
