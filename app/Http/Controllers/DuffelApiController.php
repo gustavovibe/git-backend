@@ -937,12 +937,16 @@ public function createRequestGetOffers(Request $request)
             }
 
 
-            // INBOUND: departure_time.from -> param departureTimeFromInbound (applies to slice[1] only)
-            //if ($timeEnabled && $request->filled('departureTimeFromInbound')) {
-            //   if (!$this->offerInboundDepartsAfterOrEqual($offer, $request->get('departureTimeFromInbound'))) {
-            //        continue;
-            //    }
-            // }
+            // INBOUND: require either departure_time >= departureTimeFromInbound OR departure date > tourEndDate
+            $hasInboundConstraint = $timeEnabled && ($request->filled('departureTimeFromInbound') || $request->filled('tourEndDate'));
+            if ($hasInboundConstraint) {
+                $departureTimeFromInbound = $request->get('departureTimeFromInbound'); // may be null
+                $tourEndDate = $request->get('tourEndDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
+                if (!$this->offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound, $tourEndDate)) {
+                    continue;
+                }
+            }
+
 
             // other checks (stops, payment, airlines) — keep as before
             if ($request->has('stops') && !$this->validateStops($offer, $request)) {
@@ -1029,6 +1033,104 @@ public function createRequestGetOffers(Request $request)
         return $ta >= $tb;
     }
 
+/**
+ * Return true if the offer's inbound (slice 1) departure satisfies:
+ *   - departure local time >= $departureTimeFromInbound (if provided)
+ * OR
+ *   - departure local date > $tourEndDate (strictly after) (if provided)
+ *
+ * If both args are empty, returns true (no constraint).
+ * Defensive: returns false if slice/segment/fields are missing.
+ */
+private function offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound = null, $tourEndDate = null)
+{
+    // if neither constraint provided, allow offer
+    if (empty($departureTimeFromInbound) && empty($tourEndDate)) {
+        return true;
+    }
+
+    // ensure slice 1 exists with at least one segment
+    if (empty($offer['slices'][1]['segments'][0])) {
+        return false;
+    }
+
+    $segment = $offer['slices'][1]['segments'][0];
+
+    // get origin timezone (departure time is local to origin)
+    $originTz = $segment['origin']['time_zone'] ?? ($offer['slices'][1]['origin']['time_zone'] ?? 'UTC');
+
+    // parse departing_at into local time using origin tz
+    try {
+        $depDt = new \DateTime($segment['departing_at'], new \DateTimeZone($originTz));
+    } catch (\Exception $ex) {
+        return false;
+    }
+
+    $depLocalTime = $depDt->format('H:i');   // e.g. '21:00'
+    $depLocalDate = $depDt->format('Y-m-d'); // e.g. '2025-12-13'
+
+    // 1) if departureTimeFromInbound provided and passes time check -> accept
+    if (!empty($departureTimeFromInbound)) {
+        if ($this->timeCompareGreaterOrEqual($depLocalTime, $departureTimeFromInbound)) {
+            return true;
+        }
+    }
+
+    // 2) if tourEndDate provided and departure local date is strictly after tourEndDate -> accept
+    if (!empty($tourEndDate)) {
+        $tourEndDtObj = $this->parseDateToDateTime($tourEndDate);
+        if ($tourEndDtObj !== false) {
+            $tourEndYmd = $tourEndDtObj->format('Y-m-d'); // normalized
+            if ($depLocalDate > $tourEndYmd) {
+                return true;
+            }
+        }
+        // if parsing failed, ignore the tourEndDate condition (conservative)
+    }
+
+    // neither condition satisfied -> reject
+    return false;
+}
+
+/**
+ * Parse date string into DateTimeImmutable set to midnight (UTC).
+ * Accepts Y-m-d, d-m-Y, Y/m/d, d/m/Y, and falls back to strtotime.
+ * Returns DateTimeImmutable or false on failure.
+ */
+private function parseDateToDateTime($dateStr)
+{
+    if (empty($dateStr)) {
+        return false;
+    }
+
+    $formats = ['Y-m-d', 'd-m-Y', 'Y/m/d', 'd/m/Y'];
+
+    foreach ($formats as $fmt) {
+        $dt = \DateTimeImmutable::createFromFormat($fmt, $dateStr);
+        if ($dt !== false) {
+            return $dt->setTime(0, 0, 0)->setTimezone(new \DateTimeZone('UTC'));
+        }
+    }
+
+    $ts = strtotime($dateStr);
+    if ($ts !== false) {
+        return (new \DateTimeImmutable('@' . $ts))->setTimezone(new \DateTimeZone('UTC'))->setTime(0, 0, 0);
+    }
+
+    return false;
+}
+
+/**
+ * Compare HH:MM strings inclusive. Return true if timeA >= timeB.
+ * Returns false if parsing fails.
+ */
+private function timeCompareGreaterOrEqual($timeA, $timeB)
+{
+    $ta = \DateTime::createFromFormat('H:i', $timeA);
+    $tb = \DateTime::createFromFormat('H:i', $timeB);
+    if (!$ta || !$tb) return false;
+    return $ta >= $tb;
+}
 
 
     private function calculateTotalFlightTime($offers)
