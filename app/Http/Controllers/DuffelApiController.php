@@ -1098,19 +1098,6 @@ private function offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTim
 }
 
 
-/**
- * Compare HH:MM strings inclusive. Return true if timeA >= timeB.
- * Returns false if parsing fails.
- */
-private function timeCompareGreaterOrEqual($timeA, $timeB)
-{
-    $ta = \DateTime::createFromFormat('H:i', $timeA);
-    $tb = \DateTime::createFromFormat('H:i', $timeB);
-    if (!$ta || !$tb) return false;
-    return $ta >= $tb;
-}
-
-
     private function calculateTotalFlightTime($offers)
     {
         $totalMinutes = 0;
