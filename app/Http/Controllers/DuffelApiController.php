@@ -292,7 +292,7 @@ public function createRequestGetOffers(Request $request)
                 \Log::debug('Adjusted Duffel response body: ' . $httpResponse2->body());
 
                 $response2 = $httpResponse2->json();
-                $time = 0;
+                //$time = 0;
                 // Filter offers for adjusted response using the SAME $request filters but with time checks disabled via $time = 0
                 if (isset($response2['data']['offers'])) {
                     $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request, $time);
