@@ -218,7 +218,7 @@ public function createRequestGetOffers(Request $request)
         $httpResponse = Http::withHeaders($headers)->post($url, $requestBody);
         try {
             \Log::debug('Duffel response status: ' . $httpResponse->status());
-            \Log::debug('Duffel response body: ' . $httpResponse->body());
+            //\Log::debug('Duffel response body: ' . $httpResponse->body());
         } catch (\Exception $logEx) {
             \Log::error('Failed to log Duffel response: ' . $logEx->getMessage());
         }
@@ -289,7 +289,7 @@ public function createRequestGetOffers(Request $request)
                 // Make the adjusted request
                 $httpResponse2 = Http::withHeaders($headers)->post($adjustedUrl, $adjustedRequestBody);
                 \Log::debug('Adjusted Duffel response status: ' . $httpResponse2->status());
-                \Log::debug('Adjusted Duffel response body: ' . $httpResponse2->body());
+                //\Log::debug('Adjusted Duffel response body: ' . $httpResponse2->body());
 
                 $response2 = $httpResponse2->json();
                 //$time = 0;
