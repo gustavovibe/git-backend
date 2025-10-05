@@ -209,7 +209,7 @@ public function createRequestGetOffers(Request $request)
             }
             \Log::debug('Duffel request URL: ' . $url);
             \Log::debug('Duffel request headers: ' . json_encode($logHeaders, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-            \Log::debug('Duffel request body: ' . json_encode($requestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            \Log::info('Duffel request body: ' . json_encode($requestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         } catch (\Exception $logEx) {
             \Log::error('Failed to log Duffel request details: ' . $logEx->getMessage());
         }
@@ -284,7 +284,7 @@ public function createRequestGetOffers(Request $request)
                 $adjustedUrl .= $sep . 'adjusted_search=1';
 
                 // Log the adjusted call
-                \Log::debug('Adjusted Duffel request body: ' . json_encode($adjustedRequestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                \Log::info('Adjusted Duffel request body: ' . json_encode($adjustedRequestBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
                 // Make the adjusted request
                 $httpResponse2 = Http::withHeaders($headers)->post($adjustedUrl, $adjustedRequestBody);
@@ -356,13 +356,13 @@ public function createRequestGetOffers(Request $request)
     {
         // if neither constraint provided, allow offer
         if (empty($arrivalTimeTo) && empty($tourDate)) {
-            \Log::debug('offerOutboundMatches: no constraints - allow', ['offer_id' => $offer['id'] ?? null]);
+            \Log::info('offerOutboundMatches: no constraints - allow', ['offer_id' => $offer['id'] ?? null]);
             return true;
         }
 
         // ensure slice 0 exists with at least one segment
         if (empty($offer['slices'][0]['segments'][0])) {
-            \Log::debug('offerOutboundMatches: missing slice0/segment - reject', ['offer_id' => $offer['id'] ?? null]);
+            \Log::info('offerOutboundMatches: missing slice0/segment - reject', ['offer_id' => $offer['id'] ?? null]);
             return false;
         }
 
@@ -375,7 +375,7 @@ public function createRequestGetOffers(Request $request)
         try {
             $arrDt = new \DateTime($segment['arriving_at'], new \DateTimeZone($destTz));
         } catch (\Exception $ex) {
-            \Log::debug('offerOutboundMatches: invalid arriving_at - reject', [
+            \Log::info('offerOutboundMatches: invalid arriving_at - reject', [
                 'offer_id' => $offer['id'] ?? null,
                 'arriving_at' => $segment['arriving_at'] ?? null,
                 'error' => $ex->getMessage()
@@ -387,7 +387,7 @@ public function createRequestGetOffers(Request $request)
         $arrLocalDate = $arrDt->format('Y-m-d'); // e.g. '2026-06-21'
 
         // Log basic parsed values
-        \Log::debug('offerOutboundMatches: arrival parsed', [
+        \Log::info('offerOutboundMatches: arrival parsed', [
             'offer_id' => $offer['id'] ?? null,
             'arriving_at_raw' => $segment['arriving_at'] ?? null,
             'dest_tz' => $destTz,
@@ -401,7 +401,7 @@ public function createRequestGetOffers(Request $request)
         if (!empty($tourDate)) {
             $tourDtObj = $this->parseDateToDateTime($tourDate);
             if ($tourDtObj === false) {
-                \Log::debug('offerOutboundMatches: tourDate parse failed - fallback to time-only (if arrivalTimeTo present)', [
+                \Log::info('offerOutboundMatches: tourDate parse failed - fallback to time-only (if arrivalTimeTo present)', [
                     'offer_id' => $offer['id'] ?? null,
                     'tourDate' => $tourDate
                 ]);
@@ -411,7 +411,7 @@ public function createRequestGetOffers(Request $request)
 
                 // 1) arrives strictly before the tour date -> accept
                 if ($arrLocalDate < $tourYmd) {
-                    \Log::debug('offerOutboundMatches: accepted by date before tourDate', [
+                    \Log::info('offerOutboundMatches: accepted by date before tourDate', [
                         'offer_id' => $offer['id'] ?? null,
                         'arrLocalDate' => $arrLocalDate,
                         'tourYmd' => $tourYmd
@@ -421,7 +421,7 @@ public function createRequestGetOffers(Request $request)
 
                 // 2) arrives strictly after the tour date -> reject
                 if ($arrLocalDate > $tourYmd) {
-                    \Log::debug('offerOutboundMatches: rejected because arrival date after tourDate', [
+                    \Log::info('offerOutboundMatches: rejected because arrival date after tourDate', [
                         'offer_id' => $offer['id'] ?? null,
                         'arrLocalDate' => $arrLocalDate,
                         'tourYmd' => $tourYmd
@@ -432,7 +432,7 @@ public function createRequestGetOffers(Request $request)
                 // 3) same day as tourDate -> check time threshold (arrivalTimeTo must be present)
                 // If arrivalTimeTo missing, we conservatively reject (you can change this)
                 if (empty($arrivalTimeTo)) {
-                    \Log::debug('offerOutboundMatches: same-day arrival but arrivalTimeTo not provided - reject', [
+                    \Log::info('offerOutboundMatches: same-day arrival but arrivalTimeTo not provided - reject', [
                         'offer_id' => $offer['id'] ?? null,
                         'arrLocalDate' => $arrLocalDate,
                         'tourYmd' => $tourYmd
@@ -441,14 +441,14 @@ public function createRequestGetOffers(Request $request)
                 }
 
                 if ($this->timeCompareLessOrEqual($arrLocalTime, $arrivalTimeTo)) {
-                    \Log::debug('offerOutboundMatches: accepted by same-day time check', [
+                    \Log::info('offerOutboundMatches: accepted by same-day time check', [
                         'offer_id' => $offer['id'] ?? null,
                         'arrLocalTime' => $arrLocalTime,
                         'arrivalTimeTo' => $arrivalTimeTo
                     ]);
                     return true;
                 } else {
-                    \Log::debug('offerOutboundMatches: same-day but arrival time too late - reject', [
+                    \Log::info('offerOutboundMatches: same-day but arrival time too late - reject', [
                         'offer_id' => $offer['id'] ?? null,
                         'arrLocalTime' => $arrLocalTime,
                         'arrivalTimeTo' => $arrivalTimeTo
@@ -462,14 +462,14 @@ public function createRequestGetOffers(Request $request)
         // Fall back to time-only behavior if arrivalTimeTo supplied.
         if (!empty($arrivalTimeTo)) {
             if ($this->timeCompareLessOrEqual($arrLocalTime, $arrivalTimeTo)) {
-                \Log::debug('offerOutboundMatches: accepted by time-only check (no tourDate)', [
+                \Log::info('offerOutboundMatches: accepted by time-only check (no tourDate)', [
                     'offer_id' => $offer['id'] ?? null,
                     'arrLocalTime' => $arrLocalTime,
                     'arrivalTimeTo' => $arrivalTimeTo
                 ]);
                 return true;
             } else {
-                \Log::debug('offerOutboundMatches: rejected by time-only check (no tourDate)', [
+                \Log::info('offerOutboundMatches: rejected by time-only check (no tourDate)', [
                     'offer_id' => $offer['id'] ?? null,
                     'arrLocalTime' => $arrLocalTime,
                     'arrivalTimeTo' => $arrivalTimeTo
@@ -479,7 +479,7 @@ public function createRequestGetOffers(Request $request)
         }
 
         // No applicable checks matched -> reject by default
-        \Log::debug('offerOutboundMatches: no applicable check matched - reject', ['offer_id' => $offer['id'] ?? null]);
+        \Log::info('offerOutboundMatches: no applicable check matched - reject', ['offer_id' => $offer['id'] ?? null]);
         return false;
     }
 
@@ -1034,7 +1034,7 @@ public function createRequestGetOffers(Request $request)
         $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') && $request->filled('tourDate'));
 
         // LOG: record whether the constraint is considered for this request & the param values
-        \Log::debug('validateOffers: arrival-constraint-check', [
+        \Log::info('validateOffers: arrival-constraint-check', [
             'offer_id' => $offer['id'] ?? null,
             'timeEnabled' => $timeEnabled,
             'arrivalTimeTo_present' => $request->filled('arrivalTimeTo'),
@@ -1049,10 +1049,10 @@ public function createRequestGetOffers(Request $request)
             $tourDate = $request->get('tourDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
 
             if (!$this->offerOutboundMatchesTimeOrBeforeTourDate($offer, $arrivalTimeTo, $tourDate)) {
-                \Log::debug('validateOffers: offer rejected by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
+                \Log::info('validateOffers: offer rejected by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
                 continue;
             } else {
-                \Log::debug('validateOffers: offer accepted by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
+                \Log::info('validateOffers: offer accepted by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
             }
         }
 
@@ -1062,7 +1062,7 @@ public function createRequestGetOffers(Request $request)
             $hasInboundConstraint = $timeEnabled && ($request->filled('departureTimeFromInbound') || $request->filled('tourEndDate'));
 
             // LOG: whether inbound constraint will run and param values
-            \Log::debug('validateOffers: inbound-constraint-check', [
+            \Log::info('validateOffers: inbound-constraint-check', [
                 'offer_id' => $offer['id'] ?? null,
                 'timeEnabled' => $timeEnabled,
                 'departureTimeFromInbound_present' => $request->filled('departureTimeFromInbound'),
@@ -1077,10 +1077,10 @@ public function createRequestGetOffers(Request $request)
                 $tourEndDate = $request->get('tourEndDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
 
                 if (!$this->offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound, $tourEndDate)) {
-                    \Log::debug('validateOffers: offer rejected by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
+                    \Log::info('validateOffers: offer rejected by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
                     continue;
                 } else {
-                    \Log::debug('validateOffers: offer accepted by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
+                    \Log::info('validateOffers: offer accepted by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
                 }
             }
 
@@ -1105,6 +1105,47 @@ public function createRequestGetOffers(Request $request)
         // sort and return
         $validatedOffers = $this->sortOffers($validatedOffers, $request);
         return $validatedOffers;
+    }
+
+    /**
+     * Normalize a date param (dd-mm-YYYY or YYYY-MM-DD or parseable) to Y-m-d string.
+     * Returns false on parse failure.
+     */
+    private function normalizeDateParamToYmd($dateRaw)
+    {
+        try {
+            if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $dateRaw)) {
+                $dt = \Carbon\Carbon::createFromFormat('d-m-Y', $dateRaw)->startOfDay();
+            } else {
+                $dt = \Carbon\Carbon::parse($dateRaw)->startOfDay();
+            }
+            return $dt->format('Y-m-d');
+        } catch (\Exception $ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Check whether a segment departing_at (with timezone) has the same local Y-m-d as $requestedDateRaw.
+     * Returns true if they match, false otherwise (or on parse error).
+     */
+    private function segmentDepartsOnRequestedDate($segment, $requestedDateRaw)
+    {
+        if (empty($segment['departing_at'])) return false;
+
+        $originTz = $segment['origin']['time_zone'] ?? ($segment['origin']['time_zone'] ?? 'UTC'); // try segment then fallback
+        try {
+            $depDt = new \DateTime($segment['departing_at'], new \DateTimeZone($originTz));
+        } catch (\Exception $ex) {
+            return false;
+        }
+
+        $depLocalDate = $depDt->format('Y-m-d');
+
+        $requestedYmd = $this->normalizeDateParamToYmd($requestedDateRaw);
+        if ($requestedYmd === false) return false;
+
+        return ($depLocalDate === $requestedYmd);
     }
 
     /**
@@ -1184,98 +1225,98 @@ public function createRequestGetOffers(Request $request)
      * Defensive: returns false if slice/segment/fields are missing.
      */
 
-    private function offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound = null, $tourEndDate = null)
-    {
-        // if neither constraint provided, allow offer
-        if (empty($departureTimeFromInbound) && empty($tourEndDate)) {
-            \Log::debug('offerInboundMatches: no constraints - allow', ['offer_id' => $offer['id'] ?? null]);
-            return true;
-        }
-
-        // ensure slice 1 exists with at least one segment
-        if (empty($offer['slices'][1]['segments'][0])) {
-            \Log::debug('offerInboundMatches: missing slice1/segment - reject', ['offer_id' => $offer['id'] ?? null]);
-            return false;
-        }
-
-        $segment = $offer['slices'][1]['segments'][0];
-
-        // origin timezone (departure local)
-        $originTz = $segment['origin']['time_zone'] ?? ($offer['slices'][1]['origin']['time_zone'] ?? 'UTC');
-
-        // parse departing_at into local time using origin tz
-        try {
-            $depDt = new \DateTime($segment['departing_at'], new \DateTimeZone($originTz));
-        } catch (\Exception $ex) {
-            \Log::debug('offerInboundMatches: invalid departing_at - reject', ['offer_id' => $offer['id'] ?? null, 'departing_at' => $segment['departing_at'] ?? null, 'error' => $ex->getMessage()]);
-            return false;
-        }
-
-        $depLocalTime = $depDt->format('H:i');   // e.g. '21:00'
-        $depLocalDate = $depDt->format('Y-m-d'); // e.g. '2025-12-13'
-
-        // Log parsed inbound departure
-        \Log::debug('offerInboundMatches: inbound parsed', [
-            'offer_id' => $offer['id'] ?? null,
-            'departing_at_raw' => $segment['departing_at'] ?? null,
-            'origin_tz' => $originTz,
-            'depLocalDate' => $depLocalDate,
-            'depLocalTime' => $depLocalTime,
-            'departureTimeFromInbound_param' => $departureTimeFromInbound,
-            'tourEndDate_param' => $tourEndDate,
-        ]);
-
-        // 1) If departureTimeFromInbound provided and passes -> accept immediately
-        if (!empty($departureTimeFromInbound)) {
-            if ($this->timeCompareGreaterOrEqual($depLocalTime, $departureTimeFromInbound)) {
-                \Log::debug('offerInboundMatches: accepted by time check', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
-                return true;
-            } else {
-                \Log::debug('offerInboundMatches: failed time check', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
-            }
-        }
-
-        // 2) If tourEndDate provided:
-        if (!empty($tourEndDate)) {
-            $tourEndDtObj = $this->parseDateToDateTime($tourEndDate);
-            if ($tourEndDtObj !== false) {
-                $tourEndYmd = $tourEndDtObj->format('Y-m-d');
-
-                // If departure date is strictly after tourEndDate -> accept
-                if ($depLocalDate > $tourEndYmd) {
-                    \Log::debug('offerInboundMatches: accepted by date after tourEnd', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate, 'tourEnd' => $tourEndYmd]);
-                    return true;
-                }
-
-                // If departure date equals tourEndDate, accept only if time >= departureTimeFromInbound (if present)
-                if ($depLocalDate === $tourEndYmd) {
-                    if (!empty($departureTimeFromInbound)) {
-                        if ($this->timeCompareGreaterOrEqual($depLocalTime, $departureTimeFromInbound)) {
-                            \Log::debug('offerInboundMatches: accepted by same-day + late time', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate, 'depLocalTime' => $depLocalTime, 'tourEnd' => $tourEndYmd, 'threshold' => $departureTimeFromInbound]);
-                            return true;
-                        } else {
-                            \Log::debug('offerInboundMatches: same-day but time too early', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
-                        }
-                    } else {
-                        // conservative: if no inbound threshold provided, we're rejecting same-day returns here.
-                        \Log::debug('offerInboundMatches: same-day return and no departureTimeFromInbound provided - reject by default', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate]);
-                    }
-                }
-            } else {
-                \Log::debug('offerInboundMatches: tourEndDate parse failed - ignoring tourEndDate check', ['offer_id' => $offer['id'] ?? null, 'tourEndDate' => $tourEndDate]);
-            }
-        }
-
-        // neither condition satisfied -> reject offer
-        \Log::debug('offerInboundMatches: rejected by both checks', [
-            'offer_id' => $offer['id'] ?? null,
-            'depLocalDate' => $depLocalDate,
-            'depLocalTime' => $depLocalTime,
-            'departureTimeFromInbound' => $departureTimeFromInbound,
-            'tourEndDate' => $tourEndDate
-        ]);
-        return false;
-    }
+     private function offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound = null, $tourEndDate = null)
+     {
+         // if neither constraint provided, allow offer
+         if (empty($departureTimeFromInbound) && empty($tourEndDate)) {
+             \Log::info('offerInboundMatches: no constraints - allow', ['offer_id' => $offer['id'] ?? null]);
+             return true;
+         }
+ 
+         // ensure slice 1 exists with at least one segment
+         if (empty($offer['slices'][1]['segments'][0])) {
+             \Log::info('offerInboundMatches: missing slice1/segment - reject', ['offer_id' => $offer['id'] ?? null]);
+             return false;
+         }
+ 
+         $segment = $offer['slices'][1]['segments'][0];
+ 
+         // origin timezone (departure local)
+         $originTz = $segment['origin']['time_zone'] ?? ($offer['slices'][1]['origin']['time_zone'] ?? 'UTC');
+ 
+         // parse departing_at into local time using origin tz
+         try {
+             $depDt = new \DateTime($segment['departing_at'], new \DateTimeZone($originTz));
+         } catch (\Exception $ex) {
+             \Log::info('offerInboundMatches: invalid departing_at - reject', ['offer_id' => $offer['id'] ?? null, 'departing_at' => $segment['departing_at'] ?? null, 'error' => $ex->getMessage()]);
+             return false;
+         }
+ 
+         $depLocalTime = $depDt->format('H:i');   // e.g. '21:00'
+         $depLocalDate = $depDt->format('Y-m-d'); // e.g. '2025-12-13'
+ 
+         // Log parsed inbound departure
+         \Log::info('offerInboundMatches: inbound parsed', [
+             'offer_id' => $offer['id'] ?? null,
+             'departing_at_raw' => $segment['departing_at'] ?? null,
+             'origin_tz' => $originTz,
+             'depLocalDate' => $depLocalDate,
+             'depLocalTime' => $depLocalTime,
+             'departureTimeFromInbound_param' => $departureTimeFromInbound,
+             'tourEndDate_param' => $tourEndDate,
+         ]);
+ 
+         // 1) If departureTimeFromInbound provided and passes -> accept immediately
+         if (!empty($departureTimeFromInbound)) {
+             if ($this->timeCompareGreaterOrEqual($depLocalTime, $departureTimeFromInbound)) {
+                 \Log::info('offerInboundMatches: accepted by time check', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
+                 return true;
+             } else {
+                 \Log::info('offerInboundMatches: failed time check', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
+             }
+         }
+ 
+         // 2) If tourEndDate provided:
+         if (!empty($tourEndDate)) {
+             $tourEndDtObj = $this->parseDateToDateTime($tourEndDate);
+             if ($tourEndDtObj !== false) {
+                 $tourEndYmd = $tourEndDtObj->format('Y-m-d');
+ 
+                 // If departure date is strictly after tourEndDate -> accept
+                 if ($depLocalDate > $tourEndYmd) {
+                     \Log::info('offerInboundMatches: accepted by date after tourEnd', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate, 'tourEnd' => $tourEndYmd]);
+                     return true;
+                 }
+ 
+                 // If departure date equals tourEndDate, accept only if time >= departureTimeFromInbound (if present)
+                 if ($depLocalDate === $tourEndYmd) {
+                     if (!empty($departureTimeFromInbound)) {
+                         if ($this->timeCompareGreaterOrEqual($depLocalTime, $departureTimeFromInbound)) {
+                             \Log::info('offerInboundMatches: accepted by same-day + late time', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate, 'depLocalTime' => $depLocalTime, 'tourEnd' => $tourEndYmd, 'threshold' => $departureTimeFromInbound]);
+                             return true;
+                         } else {
+                             \Log::info('offerInboundMatches: same-day but time too early', ['offer_id' => $offer['id'] ?? null, 'depLocalTime' => $depLocalTime, 'threshold' => $departureTimeFromInbound]);
+                         }
+                     } else {
+                         // conservative: if no inbound threshold provided, we're rejecting same-day returns here.
+                         \Log::info('offerInboundMatches: same-day return and no departureTimeFromInbound provided - reject by default', ['offer_id' => $offer['id'] ?? null, 'depLocalDate' => $depLocalDate]);
+                     }
+                 }
+             } else {
+                 \Log::info('offerInboundMatches: tourEndDate parse failed - ignoring tourEndDate check', ['offer_id' => $offer['id'] ?? null, 'tourEndDate' => $tourEndDate]);
+             }
+         }
+ 
+         // neither condition satisfied -> reject offer
+         \Log::info('offerInboundMatches: rejected by both checks', [
+             'offer_id' => $offer['id'] ?? null,
+             'depLocalDate' => $depLocalDate,
+             'depLocalTime' => $depLocalTime,
+             'departureTimeFromInbound' => $departureTimeFromInbound,
+             'tourEndDate' => $tourEndDate
+         ]);
+         return false;
+     }
 
 
     private function calculateTotalFlightTime($offers)
