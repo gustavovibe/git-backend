@@ -26,6 +26,8 @@ class SyncToursData extends Command
     protected $signature = 'sync:tours {pages? : Page(s) to sync. Examples: "1-10", "5", "1,3,5", or "pages:1-10"} {--pages= : Page(s) to sync (same formats as argument)}';
     protected $description = 'Sync tours data from the API to the database';
     private $token;
+    private $dateRangeStart = null; // string Ymd or null
+    private $dateRangeEnd = null;
 
     public function handle()
     {
@@ -38,6 +40,19 @@ class SyncToursData extends Command
             $raw = substr($raw, strlen('pages:'));
         }
 
+        $dateRangeRaw = $this->option('date_range') ?? null;
+
+        // also allow passing date_range:YYYYMMDD-YYYYMMDD or date_range=... inside the raw token(s)
+        if (!$dateRangeRaw && is_string($raw)) {
+            // raw could contain "pages:1-10 date_range:20251011-20251111" in weird usages;
+            // check for "date_range:" or "date_range="
+            if (preg_match('/date_range[:=]([0-9]{8}-[0-9]{8})/', $raw, $m)) {
+                $dateRangeRaw = $m[1];
+                // If we matched date_range inside the same token, remove it from $raw so pages parsing remains correct
+                $raw = trim(str_replace($m[0], '', $raw));
+            }
+        }
+
         // default behavior if no pages provided
         if (empty($raw)) {
             $this->info("No pages provided. Using default pages 1-2.");
@@ -48,6 +63,33 @@ class SyncToursData extends Command
                 $this->error("Invalid pages input: {$raw}. Use formats like 1-10, 5, or 1,3,5");
                 return 1; // non-zero exit code for failure
             }
+        }
+
+        if ($dateRangeRaw) {
+            $dateRangeRaw = trim($dateRangeRaw);
+            if (!preg_match('/^\d{8}-\d{8}$/', $dateRangeRaw)) {
+                $this->error("Invalid date_range format. Expected Ymd-Ymd, e.g. 20251011-20251111");
+                return 1;
+            }
+            [$start, $end] = explode('-', $dateRangeRaw, 2);
+            try {
+                $startCarbon = Carbon::createFromFormat('Ymd', $start);
+                $endCarbon   = Carbon::createFromFormat('Ymd', $end);
+                if ($endCarbon->lt($startCarbon)) {
+                    $this->error("Invalid date_range: end date is before start date.");
+                    return 1;
+                }
+                // store as Ymd strings used by the API
+                $this->dateRangeStart = $startCarbon->format('Ymd');
+                $this->dateRangeEnd   = $endCarbon->format('Ymd');
+                $this->info("Using date_range: {$this->dateRangeStart}-{$this->dateRangeEnd}");
+            } catch (\Exception $e) {
+                $this->error("Invalid dates in date_range: " . $e->getMessage());
+                return 1;
+            }
+        } else {
+            // no date_range provided — keep the previous behavior (1..91 days)
+            $this->info("No date_range provided. Using default date window (now +1 day to now +91 days).");
         }
 
         $this->info('Pages to process: ' . implode(', ', $pages));
@@ -190,22 +232,27 @@ class SyncToursData extends Command
         }
     }
 
-    private function getDeparturesByTour($tourId)
+    private function getDeparturesByTour($tourId, $dateRangeStart = null, $dateRangeEnd = null)
     {
         // Delay of 1 second
-        usleep(1000000); // 1 second in microseconds
+        usleep(1000000);
 
         $accessToken = $this->token;
         $headers = [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
         ];
-        $start = Carbon::now()->addDays(1)->format('Ymd');
-        $end   = Carbon::now()->addDays(91)->format('Ymd');
-        
-        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range={$start}-{$end}&user_country=185&currency=USD";
+
+        // If not explicit, use defaults
+        if (!$dateRangeStart || !$dateRangeEnd) {
+            $dateRangeStart = Carbon::now()->addDays(1)->format('Ymd');
+            $dateRangeEnd   = Carbon::now()->addDays(91)->format('Ymd');
+        }
+
+        $url = "https://api.sandbox.b2b.tourradar.com/v1/tours/{$tourId}/departures?date_range={$dateRangeStart}-{$dateRangeEnd}&user_country=185&currency=USD";
         Log::info("Departures url {$url}");
         $this->info("Departures url {$url}");
+
         try {
             $response = Http::withHeaders($headers)->get($url);
             Log::info("Departures response {$response}");
@@ -220,6 +267,7 @@ class SyncToursData extends Command
             return [];
         }
     }
+
 
     private function getDeparture($tourId, $departureId)
     {
