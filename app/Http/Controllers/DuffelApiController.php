@@ -225,10 +225,33 @@ public function createRequestGetOffers(Request $request)
 
         $response = $httpResponse->json();
         $time = 1;
+
         // Filter offers (note: server-side time checks still run based on request params)
         if (isset($response['data']['offers'])) {
-            $response['data']['offers'] = $this->handleOffers($response['data']['offers'], $request, $time);
+            // call once and capture the full result (offers + flags)
+            $handleResult = $this->handleOffers($response['data']['offers'], $request, $time);
+        
+            // normalize to old variable names / support both shapes defensively
+            if (is_array($handleResult) && array_key_exists('offers', $handleResult)) {
+                $filteredOffers     = $handleResult['offers'];
+                $rejectedByOutbound = !empty($handleResult['rejected_by_outbound']);
+                $rejectedByInbound  = !empty($handleResult['rejected_by_inbound']);
+            } else {
+                // backward compatibility: handleOffers might return just the offers array
+                $filteredOffers     = is_array($handleResult) ? $handleResult : [];
+                $rejectedByOutbound = false;
+                $rejectedByInbound  = false;
+            }
+        
+            // put the filtered offers back into the response shape
+            $response['data']['offers'] = $filteredOffers;
+        } else {
+            // ensure flags exist downstream
+            $rejectedByOutbound = false;
+            $rejectedByInbound  = false;
+            $response['data']['offers'] = [];
         }
+        
 
         // --- If no offers, do one adjusted-date retry (only once) ---
         $alreadyAdjusted = $request->get('adjusted_search', false);
@@ -241,20 +264,37 @@ public function createRequestGetOffers(Request $request)
             try {
                 // compute new dates using Carbon
                 $departureDate = \Carbon\Carbon::parse($request->departureDate);
-                $newDepartureDate = $departureDate->copy()->subDay()->format('Y-m-d'); // one day earlier
-
+                $newDepartureDate = null;
                 $newInboundDate = null;
-                if ($shouldAddSecondSlice) {
-                    $inboundDate = \Carbon\Carbon::parse($request->departureDateInbound);
-                    $newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d'); // one day later
+
+                if ($rejectedByOutbound && !$rejectedByInbound) {
+                    $newDepartureDate = $departureDate->copy()->subDay()->format('Y-m-d');
+                } elseif (!$rejectedByOutbound && $rejectedByInbound) {
+                    // inbound only -> adjust inbound
+                    if ($shouldAddSecondSlice) {
+                        $inboundDate = \Carbon\Carbon::parse($request->departureDateInbound);
+                        $newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d');
+                    }
+                } else {
+                    // both or none -> adjust both (original fallback)
+                    $newDepartureDate = $departureDate->copy()->subDay()->format('Y-m-d');
+                    if ($shouldAddSecondSlice) {
+                        $inboundDate = \Carbon\Carbon::parse($request->departureDateInbound);
+                        $newInboundDate = $inboundDate->copy()->addDay()->format('Y-m-d');
+                    }
                 }
-
+        
                 \Log::info("No offers after filtering — trying adjusted dates: outbound {$newDepartureDate}" . ($newInboundDate ? " inbound {$newInboundDate}" : ""));
-
+        
                 // Build adjusted slices re-using buildSlice (it reads times from original $request)
-                $adjustedSlices = [
-                    $buildSlice($request->origin, $request->destination, $newDepartureDate, '')
-                ];
+                $adjustedSlices = [];
+
+                if ($newDepartureDate !== null) {
+                    $adjustedSlices[] = $buildSlice($request->origin, $request->destination, $newDepartureDate, '');
+                } else {
+                    // keep original outbound date if not adjusting
+                    $adjustedSlices[] = $buildSlice($request->origin, $request->destination, $request->departureDate, '');
+                }
                 if ($shouldAddSecondSlice) {
                     $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $newInboundDate, 'Inbound');
                 }
@@ -295,7 +335,8 @@ public function createRequestGetOffers(Request $request)
                 //$time = 0;
                 // Filter offers for adjusted response using the SAME $request filters but with time checks disabled via $time = 0
                 if (isset($response2['data']['offers'])) {
-                    $response2['data']['offers'] = $this->handleOffers($response2['data']['offers'], $request, $time);
+                    $handleResult2 = $this->handleOffers($response2['data']['offers'], $request, $time);
+                    $response2['data']['offers'] = is_array($handleResult2) && array_key_exists('offers', $handleResult2) ? $handleResult2['offers'] : $handleResult2;
                 }
 
                 // Return the adjusted response (even if empty)
@@ -1003,9 +1044,9 @@ public function createRequestGetOffers(Request $request)
         //$offers = $this->getOffersWithoutDuffelAirways($offers);
 
         // validate and stop when we have $offersQuantity
-        $offers = $this->validateOffers($offers, $offersQuantity, $request, $time);
+        $results = $this->validateOffers($offers, $offersQuantity, $request, $time);
 
-        return $offers;
+        return $results;
     }
 
 
@@ -1020,6 +1061,10 @@ public function createRequestGetOffers(Request $request)
         $count = 0;
         $timeEnabled = ((int)$time > 0);
 
+        // track whether we observed rejections caused by each constraint
+        $observedOutboundRejection = false;
+        $observedInboundRejection = false;
+
         foreach ($offers as $offer) {
             if ($count >= $offersQuantity) {
                 break;
@@ -1030,39 +1075,36 @@ public function createRequestGetOffers(Request $request)
                 continue;
             }
 
-        // decide whether to run outbound arrival/tourDate validation
-        $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') && $request->filled('tourDate'));
+            // decide whether to run outbound arrival/tourDate validation
+            $hasArrivalConstraint = $timeEnabled && ($request->filled('arrivalTimeTo') && $request->filled('tourDate'));
 
-        // LOG: record whether the constraint is considered for this request & the param values
-        \Log::info('validateOffers: arrival-constraint-check', [
-            'offer_id' => $offer['id'] ?? null,
-            'timeEnabled' => $timeEnabled,
-            'arrivalTimeTo_present' => $request->filled('arrivalTimeTo'),
-            'tourDate_present' => $request->filled('tourDate'),
-            'hasArrivalConstraint' => $hasArrivalConstraint,
-            'arrivalTimeTo' => $request->get('arrivalTimeTo'),
-            'tourDate' => $request->get('tourDate'),
-        ]);
+            \Log::debug('validateOffers: arrival-constraint-check', [
+                'offer_id' => $offer['id'] ?? null,
+                'timeEnabled' => $timeEnabled,
+                'arrivalTimeTo_present' => $request->filled('arrivalTimeTo'),
+                'tourDate_present' => $request->filled('tourDate'),
+                'hasArrivalConstraint' => $hasArrivalConstraint,
+                'arrivalTimeTo' => $request->get('arrivalTimeTo'),
+                'tourDate' => $request->get('tourDate'),
+            ]);
 
-        if ($hasArrivalConstraint) {
-            $arrivalTimeTo = $request->get('arrivalTimeTo'); // may be null
-            $tourDate = $request->get('tourDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
+            if ($hasArrivalConstraint) {
+                $arrivalTimeTo = $request->get('arrivalTimeTo'); // may be null
+                $tourDate = $request->get('tourDate'); // may be null (dd-mm-YYYY or YYYY-MM-DD)
 
-            if (!$this->offerOutboundMatchesTimeOrBeforeTourDate($offer, $arrivalTimeTo, $tourDate)) {
-                \Log::info('validateOffers: offer rejected by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
-                continue;
-            } else {
-                \Log::info('validateOffers: offer accepted by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
+                if (!$this->offerOutboundMatchesTimeOrBeforeTourDate($offer, $arrivalTimeTo, $tourDate)) {
+                    \Log::info('validateOffers: offer rejected by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
+                    $observedOutboundRejection = true;
+                    continue;
+                } else {
+                    \Log::info('validateOffers: offer accepted by outbound arrival/tourDate', ['offer_id' => $offer['id'] ?? null]);
+                }
             }
-        }
-
-
 
             // INBOUND: require either departure_time >= departureTimeFromInbound OR departure date > tourEndDate
             $hasInboundConstraint = $timeEnabled && ($request->filled('departureTimeFromInbound') || $request->filled('tourEndDate'));
 
-            // LOG: whether inbound constraint will run and param values
-            \Log::info('validateOffers: inbound-constraint-check', [
+            \Log::debug('validateOffers: inbound-constraint-check', [
                 'offer_id' => $offer['id'] ?? null,
                 'timeEnabled' => $timeEnabled,
                 'departureTimeFromInbound_present' => $request->filled('departureTimeFromInbound'),
@@ -1078,13 +1120,12 @@ public function createRequestGetOffers(Request $request)
 
                 if (!$this->offerInboundMatchesTimeOrAfterTourEndDate($offer, $departureTimeFromInbound, $tourEndDate)) {
                     \Log::info('validateOffers: offer rejected by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
+                    $observedInboundRejection = true;
                     continue;
                 } else {
                     \Log::info('validateOffers: offer accepted by inbound time/tourEndDate', ['offer_id' => $offer['id'] ?? null]);
                 }
             }
-
-
 
             // other checks (stops, payment, airlines) — keep as before
             if ($request->has('stops') && !$this->validateStops($offer, $request)) {
@@ -1102,10 +1143,17 @@ public function createRequestGetOffers(Request $request)
             $count++;
         }
 
-        // sort and return
+        // sort offers as before
         $validatedOffers = $this->sortOffers($validatedOffers, $request);
-        return $validatedOffers;
+
+        // return offers and flags
+        return [
+            'offers' => $validatedOffers,
+            'rejected_by_outbound' => $observedOutboundRejection,
+            'rejected_by_inbound' => $observedInboundRejection,
+        ];
     }
+
 
     /**
      * Normalize a date param (dd-mm-YYYY or YYYY-MM-DD or parseable) to Y-m-d string.
