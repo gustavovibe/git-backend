@@ -287,6 +287,7 @@ public function createRequestGetOffers(Request $request)
                 \Log::info("No offers after filtering — trying adjusted dates: outbound {$newDepartureDate}" . ($newInboundDate ? " inbound {$newInboundDate}" : ""));
         
                 // Build adjusted slices re-using buildSlice (it reads times from original $request)
+                // Build adjusted slices re-using buildSlice (it reads times from original $request)
                 $adjustedSlices = [];
 
                 if ($newDepartureDate !== null) {
@@ -295,9 +296,13 @@ public function createRequestGetOffers(Request $request)
                     // keep original outbound date if not adjusting
                     $adjustedSlices[] = $buildSlice($request->origin, $request->destination, $request->departureDate, '');
                 }
+
                 if ($shouldAddSecondSlice) {
-                    $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $newInboundDate, 'Inbound');
+                    // Use adjusted inbound date if present, otherwise keep the original inbound date
+                    $inboundDepDate = $newInboundDate ?? $request->departureDateInbound;
+                    $adjustedSlices[] = $buildSlice($request->originInbound, $request->destinationInbound, $inboundDepDate, 'Inbound');
                 }
+
 
                 // Remove any time filters from adjusted slices
                 foreach ($adjustedSlices as &$slice) {
