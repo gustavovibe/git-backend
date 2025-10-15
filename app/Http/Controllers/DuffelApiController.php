@@ -412,7 +412,11 @@ public function createRequestGetOffers(Request $request)
             return false;
         }
 
-        $segment = $offer['slices'][0]['segments'][0];
+        $segments = $offer['slices'][0]['segments'] ?? [];
+        if (empty($segments)) {
+            return false;
+        }
+        $segment = array_values($segments)[count($segments) - 1];
 
         // get destination timezone (fall back sensibly)
         $destTz = $segment['destination']['time_zone'] ?? ($offer['slices'][0]['destination']['time_zone'] ?? 'UTC');

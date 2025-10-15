@@ -429,10 +429,14 @@ class ToursFilters
     }
 
     public static function OrdersPrint(Request $r) {
-        $orders = Order::with(['flightTour', 'travelers', 'user', 'tour'])->find($r->booking_id); // Added 'tour'
-    
+				
+        $orders = Order::with(['travelers', 'user', 'tour'])->where('booking_id', $r->id)->first();
+				
+				if(!$orders){
+					return null;
+				}
         if ($orders->start && $orders->end) {
-            $orders->days = Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
+          $orders->days = Carbon::parse($orders->start)->diffInDays(Carbon::parse($orders->end));
         }
     
         if ($orders->tour) {

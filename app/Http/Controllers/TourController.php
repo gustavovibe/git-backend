@@ -409,32 +409,34 @@ class TourController extends Controller
     */
     public function pdfOrder(Request $r){
         try{
-            $orders=(new ToursFilters)->OrdersPrint($r);
-            $orders=ToursFilters::OrdersPrint($r);
+            
+					$orders=ToursFilters::OrdersPrint($r);
 
-            $url_payment='';
-           if($orders->payment_id){
-               $client = new Client();
-               $url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
-               $response = $client->request('GET', $url);
+					$url_payment='';
+					if(!$orders){
+						return response()->json(['success'=>false,'data'=>[] , 'message'=>'Order not found']);
+					}
+					if($orders->payment_id){
+							$client = new Client();
+							$url = 'https://vibeadventures.be/api/stripe?q=' . urlencode($orders->payment_id);
+							$response = $client->request('GET', $url);
 
-               $responseBody =json_decode( $response->getBody()->getContents());
-               if($responseBody->data->charge_details->receipt_url){
-                $url_payment=  $responseBody->data->charge_details->receipt_url;
-               }
-           }
+							$responseBody =json_decode( $response->getBody()->getContents());
+							if($responseBody->data->charge_details->receipt_url){
+							$url_payment=  $responseBody->data->charge_details->receipt_url;
+							}
+					}
 
-            $logo=$orders->flightTour->flight['data']['owner']['logo_symbol_url'];
+					
+					$logo = 'https://vibeadventures.com/images/logo_flight.svg';
+					$imageContent = Http::get($logo)->body();
+					$logo = 'images/logo_flight.svg';
 
-            $imageContent = Http::get($logo)->body();
-            $logo = 'images/logo_flight.svg'; // Ruta donde guardar la imagen
+					Storage::disk('public')->put($logo, $imageContent);
 
-            Storage::disk('public')->put($logo, $imageContent); // Almacena la imagen en el sistema de archivos
-
-            $logo = asset('storage/'.$logo);
-           /*  return $logo; */
-            $pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
-            return $pdf->stream('booking_confirmation.pdf');
+					$logo = asset('storage/'.$logo);
+					$pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
+					return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);
         }
