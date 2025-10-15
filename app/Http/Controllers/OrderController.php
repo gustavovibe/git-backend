@@ -27,9 +27,130 @@ class OrderController extends Controller
      */
     public function index(Request $r)
     {
-        $orders= (new ToursFilters)->OrdersAll($r,0);
+        $orders = (new ToursFilters)->OrdersAll($r, 0);
+
+        // If user asks for links, attach them
+        if ($r->query('links') === 'true') {
+            // If orders is a Paginator with Eloquent models we can ->load('attempts')
+            if ($orders instanceof LengthAwarePaginator) {
+                // eager load attempts for all models in page (if models support load)
+                try {
+                    $orders->getCollection()->load('attempts');
+                } catch (\Throwable $e) {
+                    // ignore if not Eloquent models
+                }
+
+                $orders->setCollection($orders->getCollection()->map(function ($order) {
+                    $order->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
+                    return $order;
+                }));
+
+                return $orders;
+            }
+
+            // If it's an Eloquent Collection
+            if ($orders instanceof Collection) {
+                try {
+                    $orders->load('attempts');
+                } catch (\Throwable $e) {
+                    // ignore if not Eloquent
+                }
+
+                $orders = $orders->map(function ($order) {
+                    $order->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
+                    return $order;
+                });
+
+                return $orders;
+            }
+
+            // If it's an array, transform each item (assumes stdClass/array with booking_id)
+            if (is_array($orders)) {
+                $orders = array_map(function ($order) {
+                    // normalize to object for easier handling
+                    $obj = is_array($order) ? (object)$order : $order;
+                    $obj->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($obj);
+                    return $obj;
+                }, $orders);
+
+                return $orders;
+            }
+
+            // Fallback: try to attach for any other type by casting to JSON then back (best-effort)
+            try {
+                $decoded = json_decode(json_encode($orders));
+                foreach ($decoded as $k => $order) {
+                    $decoded[$k]->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
+                }
+                return $decoded;
+            } catch (\Throwable $e) {
+                // nothing else to do — return original
+                return $orders;
+            }
+        }
 
         return $orders;
+    }
+
+    /**
+     * Helper: extract the TourRadar booking link for a given $order.
+     *
+     * - Looks up latest Attempt with same booking_id if attempts not loaded.
+     * - Uses Attempt::tourradar_res (cast to array) to find a link with type == 'booking-page'
+     * - Falls back to first url if no 'booking-page' found.
+     */
+    protected function extractTourRadarLinkFromOrder($order)
+    {
+        // Prefer attempts already loaded on the order
+        $attempt = null;
+        if (isset($order->attempts) && is_iterable($order->attempts)) {
+            // pick the latest attempt if there are many
+            $attempt = collect($order->attempts)->sortByDesc('created_at')->first();
+        }
+
+        // If no attempt loaded, query the attempts table (avoid N+1 in large lists; see note)
+        if (!$attempt && isset($order->booking_id)) {
+            $attempt = Attempt::where('booking_id', $order->booking_id)
+                            ->orderByDesc('created_at')
+                            ->first();
+        }
+
+        if (!$attempt) {
+            return null;
+        }
+
+        $tr = $attempt->tourradar_res;
+
+        // If cast didn't work and we have JSON string — try to decode
+        if (is_string($tr)) {
+            $tr = json_decode($tr, true);
+        }
+
+        if (!is_array($tr)) {
+            return null;
+        }
+
+        $links = $tr['links'] ?? $tr['link'] ?? null;
+        if (!is_array($links)) {
+            return null;
+        }
+
+        // Prefer type == 'booking-page'
+        foreach ($links as $l) {
+            if (!is_array($l)) continue;
+            if (isset($l['type']) && $l['type'] === 'booking-page' && !empty($l['url'])) {
+                return $l['url'];
+            }
+        }
+
+        // Fallback: return first url present
+        foreach ($links as $l) {
+            if (is_array($l) && !empty($l['url'])) {
+                return $l['url'];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -231,6 +352,7 @@ class OrderController extends Controller
 
             $grossProfitRatio = ($totalSales > 0) ? ($totalGrossProfit / $totalSales) * 100 : 0;
 
+            
 
             $chartData = [
                 'labels' => array_keys($monthlySalesData),
