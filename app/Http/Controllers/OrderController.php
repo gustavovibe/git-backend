@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use App\Models\Attempt;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
 
 class OrderController extends Controller
 {
@@ -31,63 +36,56 @@ class OrderController extends Controller
 
         // If user asks for links, attach them
         if ($r->query('links') === 'true') {
-            // If orders is a Paginator with Eloquent models we can ->load('attempts')
+            Log::info('orders-all: links=true requested; orders type: ' . gettype($orders) . (is_object($orders) ? ' class:' . get_class($orders) : ''));
+        
+            // LengthAwarePaginator (paged Eloquent results)
             if ($orders instanceof LengthAwarePaginator) {
-                // eager load attempts for all models in page (if models support load)
-                try {
-                    $orders->getCollection()->load('attempts');
-                } catch (\Throwable $e) {
-                    // ignore if not Eloquent models
-                }
-
-                $orders->setCollection($orders->getCollection()->map(function ($order) {
+                Log::info('orders-all: handling LengthAwarePaginator; items on page: ' . $orders->count());
+                $collection = $orders->getCollection()->map(function ($order) {
                     $order->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
                     return $order;
-                }));
-
+                });
+                $orders->setCollection($collection);
                 return $orders;
             }
-
-            // If it's an Eloquent Collection
+        
+            // Eloquent Collection
             if ($orders instanceof Collection) {
-                try {
-                    $orders->load('attempts');
-                } catch (\Throwable $e) {
-                    // ignore if not Eloquent
-                }
-
+                Log::info('orders-all: handling Collection; items: ' . $orders->count());
                 $orders = $orders->map(function ($order) {
                     $order->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
                     return $order;
                 });
-
                 return $orders;
             }
-
-            // If it's an array, transform each item (assumes stdClass/array with booking_id)
+        
+            // Plain array
             if (is_array($orders)) {
+                Log::info('orders-all: handling array; items: ' . count($orders));
                 $orders = array_map(function ($order) {
-                    // normalize to object for easier handling
                     $obj = is_array($order) ? (object)$order : $order;
                     $obj->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($obj);
                     return $obj;
                 }, $orders);
-
                 return $orders;
             }
-
-            // Fallback: try to attach for any other type by casting to JSON then back (best-effort)
+        
+            // Fallback: JSON-encode/decode attempt
+            Log::info('orders-all: fallback branch - attempting json decode/cast');
             try {
                 $decoded = json_decode(json_encode($orders));
-                foreach ($decoded as $k => $order) {
-                    $decoded[$k]->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
+                if (is_array($decoded) || is_object($decoded)) {
+                    foreach ($decoded as $k => $order) {
+                        $decoded[$k]->tourradar_booking_link = $this->extractTourRadarLinkFromOrder($order);
+                    }
                 }
                 return $decoded;
             } catch (\Throwable $e) {
-                // nothing else to do — return original
+                Log::error('orders-all: fallback failed: ' . $e->getMessage());
                 return $orders;
             }
         }
+        
 
         return $orders;
     }
@@ -101,57 +99,69 @@ class OrderController extends Controller
      */
     protected function extractTourRadarLinkFromOrder($order)
     {
-        // Prefer attempts already loaded on the order
-        $attempt = null;
-        if (isset($order->attempts) && is_iterable($order->attempts)) {
-            // pick the latest attempt if there are many
-            $attempt = collect($order->attempts)->sortByDesc('created_at')->first();
-        }
-
-        // If no attempt loaded, query the attempts table (avoid N+1 in large lists; see note)
-        if (!$attempt && isset($order->booking_id)) {
-            $attempt = Attempt::where('booking_id', $order->booking_id)
-                            ->orderByDesc('created_at')
-                            ->first();
-        }
-
-        if (!$attempt) {
-            return null;
-        }
-
-        $tr = $attempt->tourradar_res;
-
-        // If cast didn't work and we have JSON string — try to decode
-        if (is_string($tr)) {
-            $tr = json_decode($tr, true);
-        }
-
-        if (!is_array($tr)) {
-            return null;
-        }
-
-        $links = $tr['links'] ?? $tr['link'] ?? null;
-        if (!is_array($links)) {
-            return null;
-        }
-
-        // Prefer type == 'booking-page'
-        foreach ($links as $l) {
-            if (!is_array($l)) continue;
-            if (isset($l['type']) && $l['type'] === 'booking-page' && !empty($l['url'])) {
-                return $l['url'];
+        try {
+            $bookingId = $order->booking_id ?? ($order['booking_id'] ?? null);
+            Log::info("extractTourRadarLinkFromOrder: start for booking_id: " . ($bookingId ?? 'null'));
+    
+            // Prefer preloaded attempts if available
+            $attempt = null;
+            if (isset($order->attempts) && is_iterable($order->attempts)) {
+                Log::info('extractTourRadarLinkFromOrder: attempts preloaded count: ' . count($order->attempts));
+                // booking_id is unique, so just grab the first
+                $attempt = collect($order->attempts)->first();
             }
-        }
-
-        // Fallback: return first url present
-        foreach ($links as $l) {
-            if (is_array($l) && !empty($l['url'])) {
-                return $l['url'];
+    
+            // If not preloaded, query the attempts table (safe single query per order)
+            if (!$attempt && $bookingId) {
+                $attempt = Attempt::where('booking_id', $bookingId)
+                                  ->orderByDesc('created_at')
+                                  ->first();
+                Log::info('extractTourRadarLinkFromOrder: attempt queried from DB: ' . ($attempt ? 'found' : 'not found'));
             }
+    
+            if (!$attempt) {
+                Log::info('extractTourRadarLinkFromOrder: no attempt found for booking_id: ' . $bookingId);
+                return null;
+            }
+    
+            $tr = $attempt->tourradar_res ?? null;
+            Log::info('extractTourRadarLinkFromOrder: tourradar_res raw: ' . (is_string($tr) ? $tr : json_encode($tr)));
+    
+            // If it's a JSON string, decode it
+            if (is_string($tr)) {
+                $tr = json_decode($tr, true);
+            }
+    
+            if (!is_array($tr)) {
+                Log::warning('extractTourRadarLinkFromOrder: tourradar_res is not an array after decode for booking_id: ' . $bookingId);
+                return null;
+            }
+    
+            // Minimal assumption: URL is at links[0].url
+            if (isset($tr['links']) && is_array($tr['links']) && isset($tr['links'][0]['url'])) {
+                Log::info('extractTourRadarLinkFromOrder: found links[0].url for booking_id: ' . $bookingId);
+                return $tr['links'][0]['url'];
+            }
+    
+            // Fallback: find any url inside links array
+            if (isset($tr['links']) && is_array($tr['links'])) {
+                foreach ($tr['links'] as $l) {
+                    if (is_array($l) && !empty($l['url'])) {
+                        Log::info('extractTourRadarLinkFromOrder: found fallback url in links for booking_id: ' . $bookingId);
+                        return $l['url'];
+                    }
+                }
+            }
+    
+            Log::info('extractTourRadarLinkFromOrder: no url found in tourradar_res for booking_id: ' . $bookingId);
+            return null;
+    
+        } catch (\Throwable $e) {
+            Log::error('extractTourRadarLinkFromOrder: error for booking_id ' . ($order->booking_id ?? 'null') . ' -> ' . $e->getMessage());
+            return null;
         }
-
-        return null;
     }
+    
 
     /**
      * Get all orders in CSV format.
@@ -208,6 +218,7 @@ class OrderController extends Controller
      *
      */
     public function getOrder($id)
+
     {
         $order = Order::with(['flightTour', 'travelers', 'user'])->find($id);
 
