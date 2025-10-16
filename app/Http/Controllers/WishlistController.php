@@ -23,6 +23,7 @@ class WishlistController extends Controller
      */
     public function index(Request $r)
     {
+        // TODO: check if this is not necessary anymore
         try{
             $traveler= Traveler::where('user_id',$r->id)->first();
             if($traveler){
@@ -47,7 +48,7 @@ class WishlistController extends Controller
         }
 
         $wishlist = Wishlist::query()
-                    ->where('traveler_id',$request->id)
+                    ->where('user_id',$request->id)
                     ->get();
 
         if (!$request->boolean('count')) {
@@ -95,25 +96,19 @@ class WishlistController extends Controller
             return ApiResponse::error('User ID is missing');
         }
 
-        $traveler = Traveler::where('user_id', $user_id)->first();
-        if (!$traveler) {
-            return ApiResponse::error('Traveler not found');
-        }
-
-        $user = User::where('id', $user_id)->first();
+        $user = User::find($user_id);
         if (!$user) {
             return ApiResponse::error('User not found');
         }
 
         try{
-            $existElement = Wishlist::where(['traveler_id' => $traveler->traveler_id, 'tour_id' => $tour_id])->first();
+            $existElement = Wishlist::where(['user_id' => $user->id, 'tour_id' => $tour_id])->first();
             
             if($existElement){
                 return ApiResponse::error('Element already exists in wishlist');
             }
             $insert_data = [
-                'traveler_id' => $traveler->traveler_id,
-                'user_id' => $user_id,
+                'user_id' => $user->id,
                 'wish_id' => 0,
                 'tour_id' => $tour_id,
                 'notes' => 'new tour wishlist'
@@ -153,12 +148,7 @@ class WishlistController extends Controller
             return ApiResponse::error('User ID is missing');
         }
 
-        $traveler = Traveler::where('user_id', $user_id)->first();
-        if (!$traveler) {
-            return ApiResponse::error('Traveler not found for the given user ID');
-        }
-
-        $user = User::where('id', $user_id)->first();
+        $user = User::find($user_id);
         if (!$user) {
             return ApiResponse::error('User not found');
         }
@@ -166,7 +156,7 @@ class WishlistController extends Controller
         try {
 
             $wishlistItem = Wishlist::where([
-                'traveler_id' => $traveler->traveler_id,
+                'user_id' => $user->id,
                 'tour_id' => $tour_id
             ])->first();
 

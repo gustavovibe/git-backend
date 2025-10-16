@@ -15,8 +15,8 @@ class Wishlist extends Model
     protected $hidden = ['created_at', 'updated_at'];
     // protected $appends = ['tour_data'];
 
-    public function traveler(){
-        return $this->belongsTo(Traveler::class);
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 
     public function tour(){
