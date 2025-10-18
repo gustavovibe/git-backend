@@ -539,7 +539,8 @@ public function createRequestGetOffers(Request $request)
         // Check if the 'page' and 'perPage' parameters are sent
         if ($request->has('page') && $request->has('perPage')) {
             // If both parameters are sent, set $request->limit to null
-            $request->request->remove('limit');
+            //$request->request->remove('limit');
+            \Log::info('request->has page && request->has perPage');
         }
 
         // Validating params
