@@ -11,7 +11,7 @@ class Type extends Model
     protected $table = 'tour_types';
 
     protected $fillable = [
-        'tourtype_id',
+        'tour_type_id',
         'tourtype_name',
         'group_id',
         'group_name',

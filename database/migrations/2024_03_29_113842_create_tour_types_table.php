@@ -15,7 +15,7 @@ class CreateTourTypesTable extends Migration
     {
         Schema::create('tour_types', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tourtype_id')->index();
+            $table->unsignedBigInteger('tour_type_id')->index();
             $table->string('tourtype_name');
             $table->timestamps();
         });
