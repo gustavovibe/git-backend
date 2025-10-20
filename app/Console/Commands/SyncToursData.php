@@ -751,7 +751,7 @@ private function saveNaturalsToDatabase($natural_destinations, $tourId)
                     'destination_type' => $naturals['type']
                 ]
             );
-
+            
             // Log NaturalDestination object to debug
             $this->info("NaturalDestination object: " . json_encode($NaturalDestination));
 

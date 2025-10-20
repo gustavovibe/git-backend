@@ -15,7 +15,7 @@ class TourTypeResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'tourtype_id' => $this->tourtype_id,
+            'tour_type_id' => $this->tour_type_id,
             'tourtype_name' => $this->tourtype_name,
         ];
     }

@@ -30,7 +30,7 @@ class CreateToursTable extends Migration
             $table->integer('reviews_count')->nullable();
             $table->decimal('ratings_overall', 8, 2)->nullable();
             $table->decimal('ratings_operator', 8, 2)->nullable();
-            $table->text('description');
+            $table->longText('description');
             $table->integer('min_age')->nullable();
             $table->integer('max_age')->nullable();
             $table->integer('max_group_size');
