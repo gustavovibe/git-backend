@@ -527,7 +527,7 @@ private function saveTourToDatabase($tourData)
                 'reviews_count' => $tourData['reviews_count'] ?? null,
                 'ratings_overall' => $tourData['ratings']['overall'] ?? null,
                 'ratings_operator' => $tourData['ratings']['operator'] ?? null,
-                'description' = substr(sanitize_for_mysql($tour['description']) ?? '', 0, 150);
+                'description' => $shortDescription,
                 'min_age' => $tourData['age_range']['strict']['min_age'] ?? null,
                 'max_age' => $tourData['age_range']['strict']['max_age'] ?? null,
                 'max_group_size' => $tourData['max_group_size'] ?? null,
