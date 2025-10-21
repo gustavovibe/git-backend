@@ -359,10 +359,49 @@ class SyncToursData extends Command
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+/**
+ * Sanitize a string so it will safely insert into utf8mb4 MySQL columns.
+ */
+private function sanitizeForMysql(string $s): string
+{
+    // 1) Ensure it's valid UTF-8 (drops invalid sequences)
+    $s = @mb_convert_encoding($s, 'UTF-8', 'UTF-8');
 
+    // 2) Normalize (if ext-intl available)
+    if (class_exists(\Normalizer::class)) {
+        $norm = \Normalizer::normalize($s, \Normalizer::FORM_C);
+        if ($norm !== false) $s = $norm;
+    }
+
+    // 3) Replace common smart punctuation with ASCII equivalents
+    $map = [
+        "\xE2\x80\x98" => "'", // left single quote
+        "\xE2\x80\x99" => "'", // right single quote
+        "\xE2\x80\x9C" => '"', // left double quote
+        "\xE2\x80\x9D" => '"', // right double quote
+        "\xE2\x80\x93" => '-', // en dash
+        "\xE2\x80\x94" => '-', // em dash
+        "\xE2\x80\xA6" => '...', // ellipsis
+        "\xC2\xA0"     => ' ', // non-break space
+    ];
+    $s = str_replace(array_keys($map), array_values($map), $s);
+
+    // 4) Remove/ignore any remaining invalid UTF-8 bytes
+    $s = @iconv('UTF-8', 'UTF-8//IGNORE', $s);
+
+    // 5) Remove control characters except newline/tab
+    $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/u', '', $s);
+
+    // 6) Trim and return
+    return trim($s);
+}
+        
 private function saveTourToDatabase($tourData)
 {
     try {
+        $rawDescription = $tourData['description'] ?? ($tourData['itinerary'][0]['description'] ?? '');
+        $cleanDescription = $this->sanitizeForMysql((string)$rawDescription);
+        $shortDescription = mb_substr($cleanDescription, 0, 150); // adjust length as needed
         $images = $tourData['images'] ?? [];
         $image = collect($images)->firstWhere('type', 'image');
         $mapImage = collect($images)->firstWhere('type', 'map');
@@ -470,7 +509,7 @@ private function saveTourToDatabase($tourData)
         //    $this->info("Tour {$tourData['tour_id']} does not have any guaranteed departures. Skipping...");
         //    return;
         //}
-
+        
         $tour = Tour::updateOrCreate(
             ['tour_id' => $tourData['tour_id']],
             [
@@ -488,7 +527,7 @@ private function saveTourToDatabase($tourData)
                 'reviews_count' => $tourData['reviews_count'] ?? null,
                 'ratings_overall' => $tourData['ratings']['overall'] ?? null,
                 'ratings_operator' => $tourData['ratings']['operator'] ?? null,
-                'description' => substr($tourData['description'] ?? '', 0, 150),
+                'description' = substr(sanitize_for_mysql($tour['description']) ?? '', 0, 150);
                 'min_age' => $tourData['age_range']['strict']['min_age'] ?? null,
                 'max_age' => $tourData['age_range']['strict']['max_age'] ?? null,
                 'max_group_size' => $tourData['max_group_size'] ?? null,
