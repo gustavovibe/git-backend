@@ -435,7 +435,7 @@ class TourController extends Controller
 					Storage::disk('public')->put($logo, $imageContent);
 
 					$logo = asset('storage/'.$logo);
-					$pdf = Pdf::loadView('emails.booking_confirmation_2', ['orders' => $orders,'logo'=>$logo]);
+					$pdf = Pdf::loadView('emails.booking_confirmation_2', ['order' => $orders,'logo'=>$logo]);
 					return $pdf->stream('booking_confirmation.pdf');
         }catch(Exception $e){
             return response()->json(['success'=>false,'data'=>$e->getMessage()]);

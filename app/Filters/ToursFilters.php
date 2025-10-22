@@ -430,7 +430,7 @@ class ToursFilters
 
     public static function OrdersPrint(Request $r) {
 				
-        $orders = Order::with(['travelers', 'user', 'tour'])->where('booking_id', $r->id)->first();
+        $orders = Order::with(['travelers', 'user', 'tour'])->where('booking_id', $r->tour_id)->first();
 				
 				if(!$orders){
 					return null;
