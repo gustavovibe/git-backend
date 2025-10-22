@@ -11,7 +11,7 @@ class Wishlist extends Model
     use HasFactory;
 
 
-    protected $fillable = ['traveler_id','wish_id', 'tour_id', 'notes'];
+    protected $fillable = ['user_id','wish_id', 'tour_id', 'notes'];
     protected $hidden = ['created_at', 'updated_at'];
     // protected $appends = ['tour_data'];
 

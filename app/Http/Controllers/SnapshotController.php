@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\TourSnapshot;
+use Illuminate\Support\Facades\DB;
 
 class SnapshotController extends Controller
 {
@@ -20,6 +21,7 @@ class SnapshotController extends Controller
     public function index(Request $request)
     {
         $categoriesParam = $request->query('categories');
+        $userId = $request->query('userId');
         $perPage = (int) $request->query('per_page', 50);
         $page = (int) $request->query('page', 1);
     
@@ -38,8 +40,17 @@ class SnapshotController extends Controller
                 $query->whereIn('type', $categories);
             }
         }
+        if(!empty($userId)){
+            $query->leftJoin('wishlists', function ($join) use ($userId) {
+                    $join->on('wishlists.tour_id', '=', 'tour_snapshots.tour_id')
+                        ->where('wishlists.user_id', '=', $userId);
+                })
+                ->addSelect(DB::raw('CASE WHEN wishlists.id IS NULL THEN 0 ELSE 1 END AS is_favorite, tour_snapshots.*'));
+        } else {
+            $query->addSelect(DB::raw('0 AS is_favorite, tour_snapshots.*'));
+        }
     
-        $paginator = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        $paginator = $query->orderBy('tour_snapshots.id', 'asc')->paginate($perPage, ['*'], 'page', $page);
     
         // OPTIONAL: if you want a fallback to JSON payload search when `type` column is NULL,
         // uncomment the block below. Note: this is less efficient and may return duplicates.
