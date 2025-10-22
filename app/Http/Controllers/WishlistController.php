@@ -105,7 +105,8 @@ class WishlistController extends Controller
             $existElement = Wishlist::where(['user_id' => $user->id, 'tour_id' => $tour_id])->first();
             
             if($existElement){
-                return ApiResponse::error('Element already exists in wishlist');
+                $existElement->delete();
+                return ApiResponse::success('Wishlist item removed successfully');
             }
             $insert_data = [
                 'user_id' => $user->id,
