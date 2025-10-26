@@ -1,14 +1,14 @@
 <?php
-
+ /**
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
+   
      * Get the migration connection name.
-     */
+     
     public function getConnection(): ?string
     {
         return config('telescope.storage.database.connection');
@@ -16,7 +16,7 @@ return new class extends Migration
 
     /**
      * Run the migrations.
-     */
+     
     public function up(): void
     {
         $schema = Schema::connection($this->getConnection());
@@ -58,7 +58,7 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     */
+     
     public function down(): void
     {
         $schema = Schema::connection($this->getConnection());
@@ -68,3 +68,4 @@ return new class extends Migration
         $schema->dropIfExists('telescope_monitoring');
     }
 };
+*/
