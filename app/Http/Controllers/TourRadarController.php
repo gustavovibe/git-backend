@@ -99,124 +99,146 @@ public static function getDeparturesByTour($params)
      */
     public function getMultipleDeparturesByTours(Request $request)
     {
-       Log::info('getMultipleDeparturesByTours called with:', $request->all());
-
-       
-       try{
-        $params = $request->all();
-        if (!isset($params['tourIds'])) {
-            return response()->json(['error' => 'tourIds parameter is required'], 400);
-        }
-
-        $tourIds = explode(',', $params['tourIds']);
-        
-        /*
-        $allowedTourIds = Tour::whereIn('tour_id', $tourIds)
-            ->whereIn('is_active', [1, 2])
-            ->pluck('tour_id')
-            ->toArray();
-        */
-
-        $departures = [];
-        $itemsPerPage = 10;
-        $page = isset($params['page']) ? (int)$params['page'] : 1;
-        $start = ($page - 1) * $itemsPerPage;
-        $end = $start + $itemsPerPage;
-
-        $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
-
-        foreach ($paginatedTourIds as $tourId) {
-            $params['tourId'] = $tourId;
-            $tour = Tour::where('tour_id', $tourId)->first();
-            if (! $tour) {
-                continue;
+        Log::info('getMultipleDeparturesByTours called with:', $request->all());
+    
+        try {
+            $params = $request->all();
+            if (!isset($params['tourIds'])) {
+                return response()->json(['error' => 'tourIds parameter is required'], 400);
             }
-            $params['page'] = 1; // Always fetch first page of departures for each tourId
-            Log::info("Tour $tourId attributes:", $tour->getAttributes());
-
-            Log::info(
-                "DB price_categories for tour $tourId",
-                ['raw' => $tour->getAttributes()['prices'],  // the raw JSON
-                 'cast' => $tour->prices]                   // the PHP array after casting
-            );
-
-            $cats = $tour->prices ?? [];
-            $childCat = collect($cats)->firstWhere('external_reference', 'child');
-
-            if ($childCat) {
-                // Case 1: you have a child category
-                $childMin = $childCat['age_min']  ?? 0;
-                $childMax = $childCat['age_max']  ?? 18;
-            }
-            elseif (count($cats) === 1 && $cats[0]['external_reference'] === 'adult') {
-                // Only one adult category exists...
-                $adult = $cats[0];
-
-                if ($adult['age_min'] !== null || $adult['age_max'] !== null) {
-                    // Case 2: adult category with explicit bounds
-                    $childMin = $adult['age_min'] ?? 0;
-                    $childMax = 18;
+    
+            $tourIds = explode(',', $params['tourIds']);
+    
+            $departures = [];                 // <- declare once, outside loops
+            $itemsPerPage = 10;
+            $page = isset($params['page']) ? (int)$params['page'] : 1;
+            $start = ($page - 1) * $itemsPerPage;
+    
+            // slice the incoming tourIds according to page
+            $paginatedTourIds = array_slice($tourIds, $start, $itemsPerPage);
+    
+            foreach ($paginatedTourIds as $tourId) {
+                $params['tourId'] = $tourId;
+                $tour = Tour::where('tour_id', $tourId)->first();
+                if (! $tour) {
+                    Log::info("Skipping missing tour", ['tourId' => $tourId]);
+                    continue;
+                }
+    
+                // Always fetch first page of departures for each tourId (keeps original behavior)
+                $params['page'] = 1;
+    
+                Log::info("Tour $tourId attributes:", $tour->getAttributes());
+    
+                // prices may be stored as casted attribute
+                Log::info(
+                    "DB price_categories for tour $tourId",
+                    ['raw' => $tour->getAttributes()['prices'] ?? null, 'cast' => $tour->prices ?? []]
+                );
+    
+                $cats = $tour->prices ?? [];
+                // determine child age bounds (keeps your original logic)
+                $childCat = collect($cats)->firstWhere('external_reference', 'child');
+    
+                if ($childCat) {
+                    $childMin = $childCat['age_min']  ?? 0;
+                    $childMax = $childCat['age_max']  ?? 18;
+                } elseif (count($cats) === 1 && ($cats[0]['external_reference'] ?? '') === 'adult') {
+                    $adult = $cats[0];
+                    if ($adult['age_min'] !== null || $adult['age_max'] !== null) {
+                        $childMin = $adult['age_min'] ?? 0;
+                        $childMax = 18;
+                    } else {
+                        $childMin = $tour->min_age ?? 0;
+                        $childMax = 18;
+                    }
                 } else {
-                    // Case 3: adult category with no bounds
                     $childMin = $tour->min_age ?? 0;
                     $childMax = 18;
                 }
-            }
-            else {
-                // Fallback if somehow no categories at all
-                $childMin = $tour->min_age ?? 0;
-                $childMax = 18;
-            }
-
-            $childrenAgesRaw = $request->input('childrenAges');
-            $childrenAges = $childrenAgesRaw ? array_map('intval', explode(',', $childrenAgesRaw)) : [];
-            foreach ($childrenAges as $age) {
-                if ($age < $childMin || $age > $childMax) {
-                    Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
-                    continue 2; // this correctly skips the entire tour
-                }
-            }
-            Log::info("Tour $tourId child age range: [$childMin,$childMax] | ChildrenAges: " . implode(',', $childrenAges));
-
-            $response = $this->getDeparturesByTourParamsV2($params);
-
-            if (isset($response['items'])) {
-                Log::info('Departures found for tour', ['tourId' => $tourId, 'departures' => $response['items']]);
-
-                //$departures = array_merge($departures, $response['items']);
-                $cheapestDeparture = null;
-                foreach ($response['items'] as $departure) {
-                    // Only consider departures that have a valid cheapestAccommodation value.
-                    if (isset($departure['cheapestAccommodation']) &&
-                        isset($departure['cheapestAccommodation']['value'])) {
-                        $value = $departure['cheapestAccommodation']['value'];
-                        // Pick the departure with the lowest cheapestAccommodation.value.
-                        if ($cheapestDeparture === null || $value < $cheapestDeparture['cheapestAccommodation']['value']) {
-                            // Optionally add the tourId to the departure.
-                            $departure['tourId'] = $tourId;
-                            
-                            $cheapestDeparture = $departure;
-                        }
+    
+                // validate children ages (if any)
+                $childrenAgesRaw = $request->input('childrenAges');
+                $childrenAges = $childrenAgesRaw ? array_map('intval', explode(',', $childrenAgesRaw)) : [];
+                foreach ($childrenAges as $age) {
+                    if ($age < $childMin || $age > $childMax) {
+                        Log::info("Skipping tour $tourId: child age $age not within [$childMin,$childMax]");
+                        continue 2; // skip entire tour
                     }
                 }
-                Log::info('Cheapest for tour', ['tourId' => $tourId, 'departure' => $cheapestDeparture]);
-                if ($cheapestDeparture !== null) {
-                    $cheapestDeparture['price_categories'] = $cats ?? [];
-                    $departures[] = $cheapestDeparture;
-                } 
-            } else {
-                Log::info('No departures found for tour', ['tourId' => $tourId]);
+                Log::info("Tour $tourId child age range: [$childMin,$childMax] | ChildrenAges: " . implode(',', $childrenAges));
+    
+                // call your existing helper to get departures for this tour
+                $response = $this->getDeparturesByTourParamsV2($params);
+    
+                if (isset($response['items']) && is_array($response['items'])) {
+                    Log::info('Departures found for tour', ['tourId' => $tourId, 'departures_count' => count($response['items'])]);
+    
+                    $items = $response['items'];
+    
+                    // find cheapest value among the items (if any)
+                    $minValue = null;
+                    foreach ($items as $d) {
+                        if (isset($d['cheapestAccommodation']['value'])) {
+                            $v = $d['cheapestAccommodation']['value'];
+                            if ($minValue === null || $v < $minValue) {
+                                $minValue = $v;
+                            }
+                        }
+                    }
+    
+                    // Append ALL departures, annotating each with tourId, price categories, and cheapest flag
+                    foreach ($items as $departure) {
+                        // attach tourId and price categories
+                        $departure['tourId'] = $tourId;
+                        $departure['price_categories'] = $cats ?? [];
+    
+                        // mark cheapest(s)
+                        $departure['is_cheapest'] = false;
+                        if ($minValue !== null
+                            && isset($departure['cheapestAccommodation']['value'])
+                            && $departure['cheapestAccommodation']['value'] == $minValue) {
+                            $departure['is_cheapest'] = true;
+                        }
+    
+                        // append single item
+                        $departures[] = $departure;
+                    }
+    
+                    Log::info('Added departures for tour', [
+                        'tourId' => $tourId,
+                        'added' => count($items),
+                        'total_so_far' => count($departures)
+                    ]);
+                } else {
+                    Log::info('No departures found for tour', ['tourId' => $tourId]);
+                }
+    
+                // if you want a short fractional delay between external calls use usleep (microseconds)
+                usleep(100000); // 0.1 second
+            } // end foreach paginatedTourIds
+    
+            // optional: dedupe final departures by id (prevents duplicates if returned multiple times)
+            $byId = [];
+            foreach ($departures as $d) {
+                // prefer numeric id key; fallback to combination if missing
+                if (isset($d['id'])) {
+                    $byId[(string)$d['id']] = $d;
+                } else {
+                    // fallback - generate a unique hash if there's no id (rare)
+                    $byId[md5(json_encode($d))] = $d;
+                }
             }
-            sleep(0.1); // delay between API calls
+            $departures = array_values($byId);
+    
+            Log::info('Final departures count before return', ['count' => count($departures)]);
+    
+            return response()->json(['items' => $departures]);
+        } catch (Exception $e) {
+            Log::error('Error in getMultipleDeparturesByTours', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['status' => false, 'response' => $e->getMessage()], 500);
         }
-
-        Log::info('Returning departures', ['departures' => $departures]);
-
-        return response()->json(['items' => $departures]);
-    } catch(Exception $e) {
-        return response()->json(['status' => false, 'response' => $e->getMessage()]);
-    }
-}
+    } 
 
     private function getDeparturesByTourParams($params)
     {
