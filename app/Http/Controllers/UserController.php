@@ -472,4 +472,23 @@ class UserController extends Controller
             return ApiResponse::error($e->getMessage());
         }
     }
+
+    public function showTest(Request $request)
+    {
+        $user = $request->auth_user;
+
+        if ($user) {
+            // Usuario autenticado → información completa
+            return response()->json([
+                'status' => 'authenticated',
+                'user' => $user,
+            ]);
+        } else {
+            // Usuario no autenticado → respuesta limitada
+            return response()->json([
+                'status' => 'guest',
+                'message' => 'Información pública o limitada',
+            ]);
+        }
+    }
 }
