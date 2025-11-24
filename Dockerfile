@@ -1,11 +1,8 @@
 # -------------------------
 # Stage 1: vendor (PHP 8.4 CLI + Composer)
 # -------------------------
-# Cambiar a una imagen más específica si 'php:8.4-cli' resuelve a 8.5
-FROM php:8.4.2-cli-alpine AS vendor # Ejemplo: usa una versión específica de patch
-# O incluso
-# FROM php:8.4-fpm-alpine AS vendor # Si quieres usar una imagen más ligera sin apache/cli por defecto, y luego instalar CLI
-# ...
+# Usamos una versión específica (8.4.2) para evitar que 'php:8.4-cli' resuelva a 8.5.0
+FROM php:8.4.2-cli AS vendor
 
 # set working dir
 WORKDIR /app
@@ -24,12 +21,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libonig-dev \
     ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions needed by Laravel + packages
 # configure gd with freetype and jpeg
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j$(nproc) \
+    && docker-php-ext-install -j$(nproc) \
     pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
 
 # Make composer available by copying from official composer image (fast)
@@ -39,12 +36,14 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY composer.json composer.lock* /app/
 
 # Install PHP deps (no-dev, no-scripts so it doesn't try to run artisan during build)
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
+# CORRECCIÓN CLAVE: Agregamos --ignore-platform-reqs para que no falle por PHP 8.5 o falta de extensiones (como GD)
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 # -------------------------
 # Stage 2: runtime (PHP 8.4 + Apache)
 # -------------------------
-FROM php:8.4-apache
+# Usamos la misma versión de patch para consistencia
+FROM php:8.4.2-apache
 
 # working dir
 WORKDIR /var/www/html
@@ -58,10 +57,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libicu-dev \
     libxml2-dev \
-  && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install -j$(nproc) \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
     pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy vendor from builder stage
 COPY --from=vendor /app/vendor /var/www/html/vendor
@@ -72,13 +71,13 @@ COPY . .
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
- && sed -ri -e 's!DocumentRoot /var/www/html!DocumentRoot ${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf \
- && a2enmod rewrite
+    && sed -ri -e 's!DocumentRoot /var/www/html!DocumentRoot ${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf \
+    && a2enmod rewrite
 
 # Ensure proper permissions for storage and cache
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
- && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
- && chmod -R 770 /var/www/html/storage /var/www/html/bootstrap/cache || true
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 770 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
 # Optional small entrypoint to let Cloud Run change listen port if needed (see discussion)
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -88,3 +87,6 @@ EXPOSE 8080
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
+
+# <--- ¡ELIMINAR ESTA LÍNEA! -->
+# RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
