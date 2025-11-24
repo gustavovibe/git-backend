@@ -42,13 +42,13 @@ RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoload
 # -------------------------
 # Stage 2: runtime (PHP 8.4 + Apache)
 # -------------------------
-# Usamos la misma versión de patch para consistencia
 FROM php:8.4.2-apache
 
 # working dir
 WORKDIR /var/www/html
 
 # Install runtime system packages & php extensions (same as build)
+# CORRECCIÓN: Agregar 'pkg-config' y 'libonig-dev' para que la compilación de extensiones funcione
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
@@ -57,6 +57,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libicu-dev \
     libxml2-dev \
+    pkg-config \
+    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache \
