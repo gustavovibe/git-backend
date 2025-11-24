@@ -1,55 +1,82 @@
-# --------------------------------------------------
-# Stage 1 : Composer (install PHP dependencies)
-# --------------------------------------------------
-FROM composer:2 AS vendor
+# -------------------------
+# Stage 1: vendor (PHP 8.4 CLI + Composer)
+# -------------------------
+FROM php:8.4-cli AS vendor
 
+# set working dir
 WORKDIR /app
 
-# Copy only composer files to leverage cache
+# Install system packages required for PHP extensions and composer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zlib1g-dev \
+    libicu-dev \
+    libxml2-dev \
+    pkg-config \
+    libonig-dev \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+# Configure and install PHP extensions needed by Laravel + packages
+# configure gd with freetype and jpeg
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j$(nproc) \
+    pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
+
+# Make composer available by copying from official composer image (fast)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copy only composer files first (cache)
 COPY composer.json composer.lock* /app/
 
-# Install PHP dependencies (no dev)
+# Install PHP deps (no-dev, no-scripts so it doesn't try to run artisan during build)
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
 
-# --------------------------------------------------
-# Stage 2 : Runtime image (PHP + Apache)
-# --------------------------------------------------
-FROM php:8.2-apache
+# -------------------------
+# Stage 2: runtime (PHP 8.4 + Apache)
+# -------------------------
+FROM php:8.4-apache
 
-# Set working dir to webroot
+# working dir
 WORKDIR /var/www/html
 
-# Install system packages and PHP extensions required by Laravel
+# Install runtime system packages & php extensions (same as build)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libpng-dev \
-        libonig-dev \
-        libzip-dev \
-        zip \
-        unzip \
-        git \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zlib1g-dev \
+    libicu-dev \
+    libxml2-dev \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j$(nproc) \
+    pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy composer vendor from builder stage
-COPY --from=vendor /app/vendor ./vendor
-
-# Copy application source
+# Copy vendor from builder stage
+COPY --from=vendor /app/vendor /var/www/html/vendor
+# Copy rest of application
 COPY . .
 
-# Use the public folder as Apache DocumentRoot
+# Use public as Apache docroot
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Update Apache config to use the new document root and enable rewrite
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-  && sed -ri -e 's!DocumentRoot /var/www/html!DocumentRoot ${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf \
-  && a2enmod rewrite
+ && sed -ri -e 's!DocumentRoot /var/www/html!DocumentRoot ${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf \
+ && a2enmod rewrite
 
-# Ensure important writable dirs exist and are owned by www-data
-RUN mkdir -p storage bootstrap/cache \
-  && chown -R www-data:www-data storage bootstrap/cache \
-  && chmod -R 770 storage bootstrap/cache || true
+# Ensure proper permissions for storage and cache
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+ && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+ && chmod -R 770 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
-# Make a small entrypoint that allows Apache to bind to $PORT (Cloud Run uses $PORT)
+# Optional small entrypoint to let Cloud Run change listen port if needed (see discussion)
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
