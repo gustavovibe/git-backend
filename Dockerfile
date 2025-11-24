@@ -1,7 +1,11 @@
 # -------------------------
 # Stage 1: vendor (PHP 8.4 CLI + Composer)
 # -------------------------
-FROM php:8.4-cli AS vendor
+# Cambiar a una imagen más específica si 'php:8.4-cli' resuelve a 8.5
+FROM php:8.4.2-cli-alpine AS vendor # Ejemplo: usa una versión específica de patch
+# O incluso
+# FROM php:8.4-fpm-alpine AS vendor # Si quieres usar una imagen más ligera sin apache/cli por defecto, y luego instalar CLI
+# ...
 
 # set working dir
 WORKDIR /app
