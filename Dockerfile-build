@@ -1,0 +1,43 @@
+FROM php:8.3
+
+RUN apt-get update && \
+    apt-get install -y \
+    cron \
+    supervisor \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    mariadb-client \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql zip
+
+WORKDIR /var/www/html
+
+COPY . .
+
+COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./docker/cron/schedule-cron /etc/cron.d/schedule-cron
+
+
+# Ajustar permisos
+RUN chmod 0644 /etc/cron.d/schedule-cron && \
+    crontab /etc/cron.d/schedule-cron
+
+
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN composer update
+
+RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+CMD ["php-fpm", "supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+
+# Al parecer este archivo es una variacion de Dockerfile-app, por lo que puede eliminarse al ser redundante

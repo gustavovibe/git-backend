@@ -1,0 +1,70 @@
+stages:
+#  - backup
+  - builder
+  - deploy
+
+#Backup:
+#  stage: backup
+#  script:
+#    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+#    - eval $(ssh-agent -s)
+#    - mkdir -p ~/.ssh
+#    - echo "$SSH_PRIVATE_KEY_DATABASE" > ~/.ssh/id_rsa
+#    - ssh-keyscan "$SSH_HOST_DATABASE" >> ~/.ssh/known_hosts
+#    - chmod 600 ~/.ssh/id_rsa
+#    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "cd /home/ubuntu/backup && docker exec database-db-1 /usr/bin/mysqldump -u "$DB_USERNAME" --password="${DB_PASSWORD}" "${DB_DATABASE}" > backup_$(date +\%Y-\%m-\%d_\%H-\%M-\%S).sql"
+#    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST_DATABASE" "aws s3 sync backup s3://backupvibedatabase/backups_every_deploy/"
+#  only:
+#    - develop
+
+Builder:
+  stage: builder
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      alias: dind
+  variables:
+    DOCKER_HOST: tcp://dind:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "$CI_REGISTRY_PASSWORD $CI_REGISTRY"
+    - echo "$DB_CONNECTION $DB_HOST $DB_PORT $DB_DATABASE $DB_USERNAME $DB_PASSWORD"
+    - docker build -t $DOCKER_IMAGE_REGISTRY:1.0.0 -f Dockerfile-build .
+    - docker push $DOCKER_IMAGE_REGISTRY:1.0.0
+  only:
+    - develop
+
+
+Deployment:
+  stage: deploy 
+  image: docker:20.10.16
+  services:
+    - name: docker:dind
+      alias: dind
+  variables:
+    DOCKER_HOST: tcp://dind:2375/
+    DOCKER_DRIVER: overlay2 
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_IMAGE_REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  script:
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - ssh-keyscan "$SSH_HOST" >> ~/.ssh/known_hosts
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker system prune -af"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "rm -rf /home/ubuntu/api || true"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" git clone https://api:glpat-HknMEe3Z32BdZxZShKZx@gitlab.com/vibeadventures/api.git
+    - ssh -o StrictHostKeyChecking=no "$USER"@"$SSH_HOST" "echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin '$CI_REGISTRY' && docker pull '$DOCKER_IMAGE_REGISTRY:1.0.0'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && docker compose down"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect nginx:latest >/dev/null 2>&1 && docker image rm nginx:latest || echo 'La imagen nginx:latest no existe'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect node:20.5.1-alpine >/dev/null 2>&1 && docker image rm node:20.5.1-alpine || echo 'La imagen node:20.5.1-alpine no existe'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "docker image inspect registry.gitlab.com/antoniovibeadventures/api:1.0.0 >/dev/null 2>&1 && docker image rm registry.gitlab.com/antoniovibeadventures/api:1.0.0 || echo 'La imagen registry.gitlab.com/antoniovibeadventures/api:1.0.0 no existe'"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$USER"@"$SSH_HOST" "cd /home/ubuntu/api && APP_NAME='$APP_NAME' APP_ENV='$APP_ENV' APP_KEY='$APP_KEY' APP_DEBUG='$APP_DEBUG' APP_URL='$APP_URL' APP_URL_FRONT='$APP_URL_FRONT' STRIPE_SECRET='$STRIPE_SECRET' STRIPE_WEBHOOK_SECRET='$STRIPE_WEBHOOK_SECRET' LOG_CHANNEL='$LOG_CHANNEL' LOG_DEPRECATIONS_CHANNEL='$LOG_DEPRECATIONS_CHANNEL' LOG_LEVEL='$LOG_LEVEL' DB_CONNECTION='$DB_CONNECTION' DB_HOST='$DB_HOST' DB_PORT='$DB_PORT' DB_DATABASE='$DB_DATABASE' DB_USERNAME='$DB_USERNAME' DB_PASSWORD='$DB_PASSWORD' BROADCAST_DRIVER='$BROADCAST_DRIVER' CACHE_DRIVER='$CACHE_DRIVER' FILESYSTEM_DRIVER='$FILESYSTEM_DRIVER' QUEUE_CONNECTION='$QUEUE_CONNECTION' SESSION_DRIVER='$SESSION_DRIVER' SESSION_LIFETIME='$SESSION_LIFETIME' MEMCACHED_HOST='$MEMCACHED_HOST' REDIS_HOST='$REDIS_HOST' REDIS_PASSWORD='$REDIS_PASSWORD' REDIS_PORT='$REDIS_PORT' MAIL_MAILER='$MAIL_MAILER' MAIL_HOST='$MAIL_HOST' MAIL_PORT='$MAIL_PORT' MAIL_USERNAME='$MAIL_USERNAME' MAIL_PASSWORD='$MAIL_PASSWORD' MAIL_ENCRYPTION='$MAIL_ENCRYPTION' MAIL_FROM_ADDRESS='$MAIL_FROM_ADDRESS' MAIL_FROM_NAME='$MAIL_FROM_NAME' PUSHER_APP_ID='$PUSHER_APP_ID' PUSHER_APP_KEY='$PUSHER_APP_KEY' PUSHER_APP_SECRET='$PUSHER_APP_SECRET' PUSHER_APP_CLUSTER='$PUSHER_APP_CLUSTER' MIX_PUSHER_APP_KEY='$MIX_PUSHER_APP_KEY' MIX_PUSHER_APP_CLUSTER='$MIX_PUSHER_APP_CLUSTER' AWS_ACCESS_KEY_ID='$AWS_ACCESS_KEY_ID' AWS_SECRET_ACCESS_KEY='$AWS_SECRET_ACCESS_KEY' AWS_DEFAULT_REGION='$AWS_DEFAULT_REGION' AWS_BUCKET='$AWS_BUCKET' AWS_URL='$AWS_URL' AWS_USE_PATH_STYLE_ENDPOINT='$AWS_USE_PATH_STYLE_ENDPOINT' AWS_SUPPRESS_PHP_DEPRECATION_WARNING='$AWS_SUPPRESS_PHP_DEPRECATION_WARNING' docker compose up -d --build"
+  only:
+    - develop
+

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mysql:8.3.0
+    environment:
+      MYSQL_DATABASE: 'vibe_adventure'
+      MYSQL_USER: 'vibe_adventure_user_admin'
+      MYSQL_PASSWORD: 'adventure'
+      MYSQL_ROOT_PASSWORD: 'adventure'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db-vibe:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-build-dev
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/var/www/html:cached
+      - vendor_vibe:/var/www/html/vendor
+    command: >
+      sh -c " if [ ! -d /var/www/html/vendor ]; then
+        cp -r /var/www/vendor_temp/* /var/www/html/vendor;
+      fi && php artisan serve --host=0.0.0.0 --port=8000 "
+
+volumes:
+  vendor_vibe:
+  my-db-vibe:
+
+
+#Establece la version de mysql en image
+#En la seccion environment se establecen las variables de conexion de bd
+#La seccion ports se indica los puestos internos de la bd de contenedor
+#La seccion expose muestra los puertos externos de la bd
+#Dentro de la seccion app usa un archivo personalizado (El dockerfile-buil-dev)
+#En la seccion de volumenes la primera linea permite que los cambios locales se reflejen instantaneamente en el contenedor
+#La segunda linea hace referencia a las dependencias    para que se mantengan dentro del contenedor
+#El commando se usa para copiar las dependencias de un directorio temporal (/var/www/vendor_temp) si el directorio vendor no existe  (al parecer esta opcion es opcional) / inicia el servidor con php artisan serve
+#volumenes asegura la persistencia para las dependencias de laravel y guardar los datos de mysql
+
+#construye el entorno para mysql pero la estructura de mysql se encuentra en Dockerfile-build-dev

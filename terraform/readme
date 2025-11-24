@@ -1,0 +1,9 @@
+docker compose -f ./terraform/docker-compose-infra.yml run --rm terraform plan
+
+docker compose -f ./terraform/docker-compose-infra.yml run --rm terraform apply --auto-approve
+
+docker compose -f ./terraform/docker-compose-infra.yml run --rm terraform destroy --auto-approve
+
+ssh -i ./terraform/nginx-api-server.key ubuntu@3.21.236.25
+
+

@@ -1,0 +1,164 @@
+{
+    "id": 1094236,
+    "pax": 2,
+    "tour": {
+        "tour_id": 119078,
+        "operator": {
+            "id": 406,
+            "name": "Trafalgar"
+        },
+        "tour_name": "European Highlights (Summer, End London, 8 Days)",
+        "tour_length_days": 8
+    },
+    "type": "booking",
+    "email": "info@vibeadventures.com",
+    "links": [
+        {
+            "url": "https://www.staging.tourradar.com/booking/1094236?enquiryCode=cU4RKLuAdRyPFKwfZc0LWigQKiEbdI",
+            "type": "booking-page"
+        }
+    ],
+    "status": "pending",
+    "tour_id": 119078,
+    "currency": "USD",
+    "created_at": "2024-08-15T02:57:59.000Z",
+    "passengers": [
+        {
+            "id": 340128,
+            "fields": {
+                "city": "mexico",
+                "email": "demo@demo",
+                "state": "mexico",
+                "title": "Mr.",
+                "gender": "male",
+                "address": "mexico",
+                "country": "mexico",
+                "last_name": "alonso",
+                "first_name": "antonio",
+                "issue_date": "15/08/2024",
+                "nationality": "Afghan",
+                "postal_code": "03020",
+                "phone_number": "+525564589074",
+                "date_of_birth": "30/05/1972",
+                "place_of_issue": "Afghanistan",
+                "expiration_date": "31/08/2024",
+                "passport_number": "34252345"
+            },
+            "price_category": {
+                "id": 36,
+                "title": "Adult",
+                "age_max": null,
+                "age_min": null
+            }
+        },
+        {
+            "id": 340129,
+            "fields": {
+                "email": "test@test",
+                "title": "Mr.",
+                "gender": "female",
+                "last_name": "buendia",
+                "first_name": "liliana",
+                "issue_date": "15/08/2024",
+                "nationality": "Afghan",
+                "phone_number": "+525564589061",
+                "date_of_birth": "01/08/1986",
+                "place_of_issue": "Afghanistan",
+                "expiration_date": "31/08/2024",
+                "passport_number": "4654354"
+            },
+            "price_category": {
+                "id": 36,
+                "title": "Adult",
+                "age_max": null,
+                "age_min": null
+            }
+        }
+    ],
+    "promotions": [],
+    "updated_at": "2024-08-15T04:58:04.000Z",
+    "custom_data": [],
+    "locale_code": "en_US",
+    "other_items": [],
+    "return_date": "2024-09-16",
+    "total_value": 6450,
+    "confirmed_at": null,
+    "last_message": null,
+    "partner_info": {
+        "id": "vibe-adventures",
+        "agent_id": null,
+        "contract_type": "wholesale",
+        "commission_rate": 0.08,
+        "booking_fee_rate": 0,
+        "calculation_base": "accommodation",
+        "commission_value": 516,
+        "booking_fee_value": 0,
+        "commission_status": null,
+        "booking_fee_status": null
+    },
+    "status_reason": "operator_error",
+    "accommodations": [
+        {
+            "id": 18306,
+            "name": "Brochure price",
+            "type": "basePrice",
+            "prices": [
+                {
+                    "pax_count": 2,
+                    "price_per_pax": 3225,
+                    "price_category_id": 36
+                }
+            ],
+            "currency": "USD",
+            "passengers": [
+                {
+                    "passenger_id": 340128,
+                    "price_category_id": 36
+                },
+                {
+                    "passenger_id": 340129,
+                    "price_category_id": 36
+                }
+            ],
+            "description": null,
+            "payment_type": "upfront"
+        },
+        {
+            "id": 62673,
+            "name": "Twin",
+            "type": "accommodation",
+            "prices": [
+                {
+                    "pax_count": 2,
+                    "price_per_pax": 0,
+                    "price_category_id": 36
+                }
+            ],
+            "currency": "USD",
+            "passengers": [
+                {
+                    "passenger_id": 340128,
+                    "price_category_id": 36
+                },
+                {
+                    "passenger_id": 340129,
+                    "price_category_id": 36
+                }
+            ],
+            "description": null,
+            "payment_type": "upfront"
+        }
+    ],
+    "departure_date": "2024-09-09",
+    "hold_expire_at": null,
+    "main_passenger": {
+        "name": "antonio alonso"
+    },
+    "optional_extras": [],
+    "per_person_base": 0,
+    "mandatory_addons": [],
+    "status_reason_text": "Received error response from operator: Please enter a proper email address, e.g. my-email@address.com",
+    "partner_booking_code": null,
+    "operator_booking_code": null,
+    "status_reason_context": null
+}
