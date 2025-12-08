@@ -1,7 +1,4 @@
-version: '3'
-
 services:
-
   app:
     build:
       context: .
@@ -53,39 +50,22 @@ services:
       MAIL_FROM_ADDRESS: "bookings@vibeadventures.mx"
       MAIL_FROM_NAME: "Vibe Adventures"
 
-PUSHER_APP_CLUSTER: "${PUSHER_APP_CLUSTER}"
-PUSHER_APP_ID: mt1
-PUSHER_APP_KEY: "${PUSHER_APP_KEY}"
+      PUSHER_APP_CLUSTER: "mt1"
+      PUSHER_APP_ID: ""
+      PUSHER_APP_KEY: ""
+      PUSHER_APP_SECRET: ""
 
-MIX_PUSHER_APP_KEY: "\"${PUSHER_APP_KEY}\""
-MIX_PUSHER_APP_CLUSTER: "\"${PUSHER_APP_CLUSTER}\""
+      MIX_PUSHER_APP_KEY: "\"${PUSHER_APP_KEY}\""
+      MIX_PUSHER_APP_CLUSTER: "\"${PUSHER_APP_CLUSTER}\""
 
-GCLOUD_PROJECT_ID: vibe-adventures-1538011096375
-REOON_API_KEY: LbuThgNLnfhxiJj6sM3m9otTWDgtjmVw
-GCLOUD_RECAPTCHA_KEY: 6Lfoj4sqAAAAAHLT71BIUo5OwjQOU-nYfcKkHdqr
-GCLOUD_PROJECT_ID: vibe-adventures-1538011096375
+      GCLOUD_PROJECT_ID: "vibe-adventures-1538011096375"
+      REOON_API_KEY: "LbuThgNLnfhxiJj6sM3m9otTWDgtjmVw"
+      GCLOUD_RECAPTCHA_KEY: "6Lfoj4sqAAAAAHLT71BIUo5OwjQOU-nYfcKkHdqr"
 
       OPENAI_API_KEY: "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"
 
-      SSH_HOST_DATABASE: "18.218.20.112"
+      SSH_HOST_DATABASE: "35.208.71.22"
       SSH_PUBLIC_KEY_DATABASE: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdVvJn4MOlvPPOWXWVwyl5Ziwc2G0uYoCB7Z4YRiMaN ubuntu@ip-172-31-34-165"
 
       UNSPLASH_ACCESS_KEY: "RsB-POlI_RSW0h8EzKksRl97YlzJVjQIQ4eH7pn1j8Q"
       UNSPLASH_SECRET_KEY: "ExvFY40zHewNXPdchQyaen74KvFF7AG4Op_T-EsaIFU"
-      OPENAI_API_KEY: "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"
-
-networks:
-  app-network:
-    driver: bridge
-
-  nginx:
-    image: nginx:latest
-    build:
-      context: .
-      dockerfile: Dockerfile-serve
-    ports:
-      - "80:80"
-    depends_on:
-      - app
-    networks:
-      - app-network
